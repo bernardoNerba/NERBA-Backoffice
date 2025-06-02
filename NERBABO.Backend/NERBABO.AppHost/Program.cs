@@ -15,7 +15,9 @@ var apiService = builder.AddProject<Projects.NERBABO_ApiService>("api")
     .WaitFor(db)
     .WaitFor(redis)
     .WithReference(db)
-    .WithReference(redis);
+    .WithReference(redis)
+    .WithEnvironment("DOTNET_WATCH", "1")
+    .WithEnvironment("DOTNET_USE_POLLING_FILE_WATCHER", "true");
 
 // angular proj
 builder.AddNpmApp("angular", "../../NERBABO.Frontend")

@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
@@ -62,19 +61,45 @@ public class PeopleService : IPeopleService
 
         var newPerson = Person.ConvertCreateDtoToEntity(person);
 
-        _context.People.Add(newPerson);
+        var createdPerson = _context.People.Add(newPerson);
         await _context.SaveChangesAsync();
+
+        var cache_key = $"person:{createdPerson.Entity.Id}";
+
+        await _cacheService.SetAsync(cache_key, Person.ConvertEntityToRetrieveDto(createdPerson.Entity), TimeSpan.FromMinutes(30));
+        await _cacheService.RemoveAsync("people:list");
+
         return Person.ConvertEntityToRetrieveDto(newPerson);
     }
 
-    public Task<bool> DeletePersonAsync(long id)
+    public async Task<bool> DeletePersonAsync(long id)
     {
-        throw new NotImplementedException();
+
+        var existingPerson = await _context.People
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (existingPerson == null)
+        {
+            throw new Exception("Pessoa não foi encontrada");
+        }
+
+        if (await _userManager.Users.Where(u => u.PersonId == id).AnyAsync())
+        {
+            throw new Exception("Não pode eliminar uma pessoa que é um utilizador.");
+        }
+
+        _context.Remove(existingPerson);
+        await _context.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"person:{id}");
+        await _cacheService.RemoveAsync("people:list");
+
+        return true;
     }
 
     public async Task<IEnumerable<RetrievePersonDto>> GetAllPeopleAsync()
     {
-        var cacheKey = "people";
+        var cacheKey = "people:list";
         List<RetrievePersonDto> peopleToReturn = [];
 
         var cachedPeople = await _cacheService.GetAsync<List<RetrievePersonDto>>(cacheKey);
@@ -103,9 +128,29 @@ public class PeopleService : IPeopleService
                 .OrderByDescending(p => p.FullName)];
     }
 
-    public Task<RetrievePersonDto?> GetPersonByIdAsync(long id)
+    public async Task<RetrievePersonDto?> GetPersonByIdAsync(long id)
     {
-        throw new NotImplementedException();
+        var cacheKey = $"person:{id}";
+
+        var cachedPerson = await _cacheService.GetAsync<RetrievePersonDto>(cacheKey);
+        if (cachedPerson != null)
+        {
+            return cachedPerson;
+        }
+
+        var dbPerson = await _context.People
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (dbPerson == null)
+        {
+            _logger.LogWarning("GetPersonByIdAsync: Person not found");
+            return null;
+        }
+
+        await _cacheService.SetAsync(cacheKey, Person.ConvertEntityToRetrieveDto(dbPerson), TimeSpan.FromMinutes(30));
+
+        return Person.ConvertEntityToRetrieveDto(dbPerson);
     }
 
     public Task<RetrievePersonDto?> UpdatePersonAsync(UpdatePersonDto person)
