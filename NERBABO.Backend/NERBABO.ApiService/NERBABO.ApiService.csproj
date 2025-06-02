@@ -31,8 +31,6 @@
   <ItemGroup>
     <Folder Include="Core\Authentication\Models\" />
     <Folder Include="Core\Global\Controllers\" />
-    <Folder Include="Core\Global\Dtos\" />
-    <Folder Include="Core\Global\Services\" />
   </ItemGroup>
 
 </Project>

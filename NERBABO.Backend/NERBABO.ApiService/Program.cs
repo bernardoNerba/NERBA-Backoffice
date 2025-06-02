@@ -10,6 +10,7 @@ using NerbaApp.Api.Services.AccountServices;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
 using NERBABO.ApiService.Core.Authentication.Services;
+using NERBABO.ApiService.Core.Global.Services;
 using NERBABO.ApiService.Core.People.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
@@ -39,6 +40,7 @@ builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IGeneralInfoService, GeneralInfoService>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
