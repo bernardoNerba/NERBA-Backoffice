@@ -6,9 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NerbaApp.Api.Services.AccountServices;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.Account.Services;
+using NERBABO.ApiService.Core.Authentication.Services;
+using NERBABO.ApiService.Core.People.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
+using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +22,22 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+// Connect to Redis
+var redisConnectionString = builder.Configuration.GetConnectionString("redis");
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    return ConnectionMultiplexer.Connect(redisConnectionString
+    ?? throw new InvalidOperationException("Redis connection string is not configured."));
+});
+
+
+// Dependency Injection Container
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IPeopleService, PeopleService>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
@@ -35,14 +56,6 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 });
 
 
-// Connect to Redis
-var redisConnectionString = builder.Configuration.GetConnectionString("redis");
-
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    return ConnectionMultiplexer.Connect(redisConnectionString
-    ?? throw new InvalidOperationException("Redis connection string is not configured."));
-});
 
 // Configure Identity
 builder.Services.AddIdentityCore<User>(options =>

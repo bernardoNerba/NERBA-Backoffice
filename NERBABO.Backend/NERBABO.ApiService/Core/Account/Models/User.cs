@@ -20,4 +20,16 @@ public class User : IdentityUser
         logger.LogWarning("User not found or not authorized");
         return result;
     }
+
+    public User() { }
+
+    public User(string userName, string email, long personId) // Create user from account controller
+    {
+        UserName = userName;
+        Email = email;
+        EmailConfirmed = true;
+        PersonId = personId;
+        CreatedAt = DateTime.UtcNow;
+        LastLogin = DateTime.UtcNow;
+    }
 }

@@ -1,4 +1,6 @@
+using Humanizer;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 
@@ -29,4 +31,53 @@ public class Person : Entity
 
     public Person() { }
 
+    public static Person ConvertCreateDtoToEntity(CreatePersonDto personDto)
+    {
+        return new Person
+        {
+            FirstName = personDto.FirstName,
+            LastName = personDto.LastName,
+            NIF = personDto.NIF,
+            IdentificationNumber = personDto.IdentificationNumber,
+            IdentificationValidationDate = Helper.StringDateOnlyConverter.ConvertToDateOnly(personDto.IdentificationValidationDate),
+            NISS = personDto.NISS,
+            IBAN = personDto.IBAN,
+            BirthDate = Helper.StringDateOnlyConverter.ConvertToDateOnly(personDto.BirthDate),
+            Address = personDto.Address,
+            ZipCode = personDto.ZipCode,
+            PhoneNumber = personDto.PhoneNumber,
+            Email = personDto.Email,
+            Naturality = personDto.Naturality,
+            Nationality = personDto.Nationality,
+            Gender = personDto.Gender?.DehumanizeTo<GenderEnum>() ?? GenderEnum.Unknown,
+            Habilitation = personDto.Habilitation?.DehumanizeTo<HabilitationEnum>() ?? HabilitationEnum.WithoutProof,
+            IdentificationType = personDto.IdentificationType?.DehumanizeTo<IdentificationTypeEnum>() ?? IdentificationTypeEnum.Unknown
+        };
+    }
+
+    public static RetrievePersonDto ConvertEntityToRetrieveDto(Person person)
+    {
+        return new RetrievePersonDto
+        {
+            Id = person.Id,
+            FirstName = person.FirstName,
+            LastName = person.LastName,
+            FullName = $"{person.FirstName} {person.LastName}",
+            NIF = person.NIF,
+            IdentificationNumber = person.IdentificationNumber,
+            IdentificationValidationDate = person.IdentificationValidationDate,
+            NISS = person.NISS,
+            IBAN = person.IBAN,
+            BirthDate = person.BirthDate,
+            Address = person.Address,
+            ZipCode = person.ZipCode,
+            PhoneNumber = person.PhoneNumber,
+            Email = person.Email,
+            Naturality = person.Naturality,
+            Nationality = person.Nationality,
+            Gender = person.Gender.Humanize().Transform(To.TitleCase),
+            Habilitation = person.Habilitation.Humanize().Transform(To.TitleCase),
+            IdentificationType = person.IdentificationType.Humanize().Transform(To.TitleCase),
+        };
+    }
 }

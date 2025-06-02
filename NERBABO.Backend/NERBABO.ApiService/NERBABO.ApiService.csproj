@@ -29,20 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Core\Account\Controllers\" />
-    <Folder Include="Core\Account\Dtos\" />
-    <Folder Include="Core\Account\Repositories\" />
-    <Folder Include="Core\Authentication\" />
-    <Folder Include="Core\Authentication\Controllers\" />
-    <Folder Include="Core\Authentication\Dtos\" />
     <Folder Include="Core\Authentication\Models\" />
-    <Folder Include="Core\Authentication\Repositories\" />
     <Folder Include="Core\Global\Controllers\" />
     <Folder Include="Core\Global\Dtos\" />
-    <Folder Include="Core\Global\Repositories\" />
-    <Folder Include="Core\People\Controllers\" />
-    <Folder Include="Core\People\Dtos\" />
-    <Folder Include="Core\People\Repositories\" />
+    <Folder Include="Core\Global\Services\" />
   </ItemGroup>
 
 </Project>

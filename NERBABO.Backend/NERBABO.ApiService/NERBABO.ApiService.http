@@ -1,4 +1,4 @@
-@NERBABO.ApiService_HostAddress = http://localhost:5174
+@NERBABO.ApiService_HostAddress = http://localhost:8082
 
 Accept: application/json
 
