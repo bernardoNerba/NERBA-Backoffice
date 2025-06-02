@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Humanizer.Core.pt" Version="2.14.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.37" />
+    <PackageReference Include="ZLinq" Version="1.4.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NERBABO.ServiceDefaults\NERBABO.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Core\Account\Controllers\" />
+    <Folder Include="Core\Account\Dtos\" />
+    <Folder Include="Core\Account\Repositories\" />
+    <Folder Include="Core\Authentication\" />
+    <Folder Include="Core\Authentication\Controllers\" />
+    <Folder Include="Core\Authentication\Dtos\" />
+    <Folder Include="Core\Authentication\Models\" />
+    <Folder Include="Core\Authentication\Repositories\" />
+    <Folder Include="Core\Global\Controllers\" />
+    <Folder Include="Core\Global\Dtos\" />
+    <Folder Include="Core\Global\Repositories\" />
+    <Folder Include="Core\People\Controllers\" />
+    <Folder Include="Core\People\Dtos\" />
+    <Folder Include="Core\People\Repositories\" />
+  </ItemGroup>
+
+</Project>

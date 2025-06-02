@@ -1,0 +1,23 @@
+using Microsoft.AspNetCore.Identity;
+using NERBABO.ApiService.Core.People.Models;
+
+namespace NERBABO.ApiService.Core.Account.Models;
+
+public class User : IdentityUser
+{
+    public bool IsActive { get; set; } = true;
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime LastLogin { get; set; }
+
+
+    public long PersonId { get; set; }
+    public Person? Person { get; set; }
+
+    public async Task<bool> CheckUserHasRoleAndActive(string role, UserManager<User> userManager, ILogger logger)
+    {
+        bool result = (this != null) || await userManager.IsInRoleAsync(this, role) || IsActive;
+        logger.LogWarning("User not found or not authorized");
+        return result;
+    }
+}

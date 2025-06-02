@@ -1,0 +1,163 @@
+using System;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Core.People.Models;
+using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Enums;
+using ZLinq;
+
+namespace NERBABO.ApiService.Helper;
+
+public class SeedDataHelp
+{
+    private readonly UserManager<User> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly AppDbContext _context;
+
+    // Environment variables for admin credentials
+    private string email;
+    private string userName;
+    private string password;
+
+    public SeedDataHelp(
+    UserManager<User> userManager,
+    RoleManager<IdentityRole> roleManager,
+    AppDbContext context,
+    IConfiguration configuration)
+    {
+        _userManager = userManager;
+        _roleManager = roleManager;
+        _context = context;
+        email = configuration["Admin:email"] ?? "";
+        userName = configuration["Admin:username"] ?? "";
+        password = configuration["Admin:password"] ?? "";
+
+        // Add debugging
+        Console.WriteLine($"Email: {email}");
+        Console.WriteLine($"Username: {userName}");
+        Console.WriteLine($"Password: {(string.IsNullOrEmpty(password) ? "EMPTY" : "SET")}");
+    }
+
+    public async Task InitializeAsync()
+    {
+        await InitializeRolesAsync();
+        await InitializeAdminAsync();
+        await InitializeTaxIvaAsync();
+        await InitializeGeneralInfoAsync();
+    }
+    private async Task InitializeRolesAsync()
+    {
+        string[] roles =
+            {
+                Roles.Admin.ToString(),
+                Roles.User.ToString(),
+                Roles.FM.ToString(),
+                Roles.CQ.ToString()
+            };
+
+        foreach (var role in roles)
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+                await _roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    private async Task InitializeAdminAsync()
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var existingPerson = await _context.People.FirstOrDefaultAsync(p => p.Id == 1);
+            if (existingPerson != null)
+            {
+                await transaction.RollbackAsync();
+                return;
+            }
+
+            var personAdmin = new Person
+            {
+                Id = 1,
+                FirstName = "Admin",
+                LastName = "Admin",
+            };
+
+            _context.People.Add(personAdmin);
+            await _context.SaveChangesAsync();
+
+            var admin = new User
+            {
+                UserName = userName,
+                Email = email,
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                PersonId = personAdmin.Id,
+                Person = personAdmin,
+            };
+
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser == null)
+            {
+                var result = await _userManager.CreateAsync(admin, password);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRolesAsync(admin, [Roles.Admin.ToString(), Roles.User.ToString()]);
+                    await transaction.CommitAsync();
+                }
+                else
+                {
+                    Console.WriteLine($"User creation failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    await transaction.RollbackAsync();
+                }
+            }
+            else
+            {
+                await transaction.RollbackAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in InitializeAdminAsync: {ex.Message}");
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    private async Task InitializeGeneralInfoAsync()
+    {
+        if (await _context.GeneralInfo.AnyAsync())
+            return;
+
+        var generalInfo = new GeneralInfo
+        {
+            Id = 1,
+            Designation = "NERBA-Associação Empresarial do Distrito de Bragança",
+            IvaId = 1,
+            Site = "Avenida das Cantarias, n.º 140, 5300-107 Bragança",
+            HourValueTeacher = 10.5f,
+            HourValueAlimentation = 6.0f,
+            BankEntity = "Crédito Agrícola",
+            Iban = "PT50004521914029554091581",
+            Nipc = "502280344",
+            LogoFinancing = ""
+        };
+
+        _context.GeneralInfo.Add(generalInfo);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task InitializeTaxIvaAsync()
+    {
+        if (await _context.IvaTaxes.AnyAsync())
+            return;
+
+        var taxes = new List<IvaTax>
+            {
+                new (1, "Regime de Isenção", 0),
+                new (2, "Sujeto à taxa de 23%", 23)
+            };
+
+        _context.IvaTaxes.AddRange(taxes);
+        await _context.SaveChangesAsync();
+    }
+}

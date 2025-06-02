@@ -1,0 +1,20 @@
+# Sensitive files
+.env
+.env.*
+.vs
+.vs.*
+
+# Logs and dumps
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Visual Studio Code
+.vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
