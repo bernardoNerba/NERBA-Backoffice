@@ -22,7 +22,7 @@ public class CacheService : ICacheService
         try
         {
             var value = await _database.StringGetAsync(key);
-            if (!value.HasValue)
+            if (!value.HasValue && value.IsNullOrEmpty)
                 return default;
 
             return JsonSerializer.Deserialize<T?>(value);

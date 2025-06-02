@@ -38,6 +38,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>

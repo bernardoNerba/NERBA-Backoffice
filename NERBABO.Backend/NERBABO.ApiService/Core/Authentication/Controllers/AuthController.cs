@@ -20,18 +20,21 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly AppDbContext _context;
         private readonly IJwtService _jwtService;
+        private readonly IRoleService _roleService;
 
         public AuthController(ILogger<AuthController> logger,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             AppDbContext context,
-            IJwtService jwtService)
+            IJwtService jwtService,
+            IRoleService roleService)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
             _jwtService = jwtService;
+            _roleService = roleService;
         }
         /// <summary>
         /// Refreshes the authentication token for the currently logged-in user.
@@ -148,5 +151,63 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
             return Ok(userDto);
         }
 
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("set-role")]
+        public async Task<ActionResult> SetRoleToUserAsync([FromBody] UserRoleDto userRole)
+        {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+
+            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
+            try
+            {
+                await _roleService.UpdateUserRolesAsync(userRole);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atribuir papéis ao utilizador.");
+                return BadRequest("Erro ao atribuir papéis ao utilizador: " + ex.Message);
+            }
+
+            return Ok(new OkMessage()
+            {
+                Title = "Papeis atribuídos com sucesso.",
+                Message = "Os papéis foram atribuídos com sucesso ao usuário.",
+                Data = new
+                {
+                    UserId = user.Id,
+                    Roles = userRole.Roles
+                }
+            });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("get-roles/{userId}")]
+        public async Task<ActionResult<IEnumerable<string>>> GeUserRolesAsync(string userId)
+        {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+
+            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
+            var userToModify = await _userManager.FindByIdAsync(userId);
+            if (userToModify == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var roles = await _userManager.GetRolesAsync(userToModify);
+            return Ok(roles.ToList());
+        }
     }
 }
