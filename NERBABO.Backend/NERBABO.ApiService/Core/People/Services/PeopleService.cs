@@ -153,8 +153,50 @@ public class PeopleService : IPeopleService
         return Person.ConvertEntityToRetrieveDto(dbPerson);
     }
 
-    public Task<RetrievePersonDto?> UpdatePersonAsync(UpdatePersonDto person)
+    public async Task<RetrievePersonDto?> UpdatePersonAsync(UpdatePersonDto person)
     {
-        throw new NotImplementedException();
+        var existingPerson = await _context.People
+                .FirstOrDefaultAsync(p => p.Id == person.Id);
+
+        if (existingPerson == null)
+        {
+            _logger.LogWarning("UpdatePersonAsync: Person not found.");
+            return null;
+        }
+
+        // Check for unique constraints
+        if (await _context.People.AnyAsync(p => p.NIF == person.NIF
+        && p.Id != existingPerson.Id))
+        {
+            throw new Exception("O NIF da pessoa deve ser único. Já existe no sistema.");
+        }
+
+        if (!string.IsNullOrEmpty(person.NISS) &&
+            await _context.People.AnyAsync(p => p.NISS == person.NISS && p.Id != existingPerson.Id))
+        {
+            throw new Exception("O NISS da pessoa deve ser único. Já existe no sistema.");
+        }
+
+        if (!string.IsNullOrEmpty(person.IdentificationNumber) &&
+            await _context.People.AnyAsync(p => p.IdentificationNumber == person.IdentificationNumber && p.Id != existingPerson.Id))
+        {
+            throw new Exception("O Número de Identificação da pessoa deve ser único. Já existe no sistema.");
+        }
+
+        if (!string.IsNullOrEmpty(person.Email) &&
+            await _context.People.AnyAsync(p => p.Email == person.Email && p.Id != existingPerson.Id))
+        {
+            throw new Exception("O Email da pessoa deve ser único. Já existe no sistema.");
+        }
+
+        _context.Entry(existingPerson).CurrentValues.SetValues(Person.ConvertUpdateDtoToEntity(person));
+
+        await _context.SaveChangesAsync();
+
+        var cacheKey = $"person:{existingPerson.Id}";
+        await _cacheService.SetAsync(cacheKey, Person.ConvertEntityToRetrieveDto(existingPerson), TimeSpan.FromMinutes(30));
+        await _cacheService.RemoveAsync("people:list");
+
+        return Person.ConvertEntityToRetrieveDto(existingPerson);
     }
 }
