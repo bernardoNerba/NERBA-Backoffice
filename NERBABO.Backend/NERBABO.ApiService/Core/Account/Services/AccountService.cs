@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Dtos;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Services;
+using ZLinq;
 
 namespace NERBABO.ApiService.Core.Account.Services;
 
@@ -12,14 +14,17 @@ public class AccountService : IAccountService
     private readonly UserManager<User> _userManager;
     private readonly AppDbContext _context;
     private readonly ILogger<AccountService> _logger;
+    private readonly ICacheService _cacheService;
     public AccountService(
         UserManager<User> userManager,
         AppDbContext context,
-        ILogger<AccountService> logger)
+        ILogger<AccountService> logger,
+        ICacheService cacheService)
     {
         _userManager = userManager;
         _context = context;
         _logger = logger;
+        _cacheService = cacheService;
     }
 
     public async Task RegistUserAsync(RegisterDto registerDto)
@@ -74,12 +79,17 @@ public class AccountService : IAccountService
             throw new Exception($"Falha ao atribuir a função: {errors}");
         }
 
+        await _cacheService.RemoveAsync("users:list");
+        await _cacheService.SetAsync($"user:{userToAdd.Id}", User.ConvertEntityToRetrieveDto(userToAdd, _userManager), TimeSpan.FromMinutes(30));
 
     }
 
-    public async Task<User> BlockUserAsync(string userId)
+    public async Task<RetrieveUserDto?> BlockUserAsync(string userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _userManager.Users
+            .Include(u => u.Person)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
         if (user == null)
         {
             _logger.LogWarning("User with ID {UserId} not found.", userId);
@@ -96,6 +106,127 @@ public class AccountService : IAccountService
             throw new Exception($"Falha ao bloquear o utilizador: {errors}");
         }
 
-        return user;
+        var retrievedUserDto = await User.ConvertEntityToRetrieveDto(user, _userManager);
+
+        await _cacheService.RemoveAsync("users:list");
+        await _cacheService.SetAsync($"user:{user.Id}", retrievedUserDto, TimeSpan.FromMinutes(30));
+
+        return retrievedUserDto;
     }
+
+    public async Task<IEnumerable<RetrieveUserDto>> GetAllUsersAsync()
+    {
+        var cacheKey = "users:list";
+        var usersToRetrieve = new List<RetrieveUserDto>();
+
+        var cachedUsers = await _cacheService.GetAsync<IEnumerable<RetrieveUserDto>>(cacheKey);
+        if (cachedUsers != null)
+            return cachedUsers;
+
+        // Get all users from the database
+        List<User> users = await _userManager.Users
+            .Include(u => u.Person)
+            .ToListAsync();
+
+        // Populate the list of retireve user DTOs
+        foreach (var user in users)
+        {
+            var userDto = await User.ConvertEntityToRetrieveDto(user, _userManager);
+            if (userDto != null)
+            {
+                usersToRetrieve.Add(userDto);
+            }
+        }
+
+        await _cacheService.SetAsync(cacheKey, usersToRetrieve, TimeSpan.FromMinutes(30));
+
+        // Return the users sorted by roles quantity and then by full name
+        return usersToRetrieve
+            .OrderByDescending(u => u.Roles.Count)
+            .ThenBy(u => u.FullName);
+    }
+
+    public async Task<RetrieveUserDto?> GetUserByIdAsync(string id)
+    {
+        var cacheKey = $"user:{id}";
+
+        var cachedUser = await _cacheService.GetAsync<RetrieveUserDto>(cacheKey);
+        if (cachedUser != null)
+            return cachedUser;
+
+        // Get the user from the database
+        var user = await _userManager.Users
+            .Include(u => u.Person)
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null) // No user?
+        {
+            _logger.LogWarning("User not found to perform query.");
+            return null;
+        }
+
+        var retrievingUserDto = await User.ConvertEntityToRetrieveDto(user, _userManager);
+        await _cacheService.SetAsync(cacheKey, retrievingUserDto, TimeSpan.FromMinutes(30));
+
+        // Create the retrieve user DTO and return it
+        return retrievingUserDto;
+    }
+
+    public async Task<bool> UpdateUserAsync(UpdateUserDto model)
+    {
+        // Get the user from the database
+        var user = await _userManager.Users
+            .Include(u => u.Person)
+            .Where(u => u.Id == model.Id)
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            _logger.LogWarning("User not found to perform query.");
+            return false;
+        }
+
+        // assign the new values to the user
+        user.Email = model.Email;
+        user.UserName = model.UserName;
+
+
+        if (!string.IsNullOrEmpty(model.NewPassword)) // must have password
+        {
+            // generate token to reset password and update it
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+            if (!result.Succeeded) // failed to update password
+            {
+                _logger.LogWarning("Failed to update password.");
+                return false;
+            }
+        }
+        // update the user
+        var updateResult = await _userManager.UpdateAsync(user);
+
+        // update cache
+        await _cacheService.RemoveAsync("users:list");
+        await _cacheService.SetAsync($"user:{user.Id}", await User.ConvertEntityToRetrieveDto(user, _userManager), TimeSpan.FromMinutes(30));
+
+        return updateResult.Succeeded;
+    }
+
+    public async Task<bool> DeleteUserAsync(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            _logger.LogWarning("User not found to perform query.");
+            return false;
+        }
+        var result = await _userManager.DeleteAsync(user);
+
+        // remove from cache
+        await _cacheService.RemoveAsync("users:list");
+        await _cacheService.RemoveAsync($"user:{user.Id}");
+
+        return result.Succeeded;
+    }
+
 }

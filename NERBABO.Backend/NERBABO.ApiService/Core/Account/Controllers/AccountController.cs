@@ -1,11 +1,10 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Dtos;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
-using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Account.Controllers
@@ -16,17 +15,14 @@ namespace NERBABO.ApiService.Core.Account.Controllers
     {
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<User> _userManager;
-        private readonly AppDbContext _context;
         private readonly IAccountService _accountService;
         public AccountController(
             ILogger<AccountController> logger,
             UserManager<User> userManager,
-            AppDbContext context,
             IAccountService accountService)
         {
             _logger = logger;
             _userManager = userManager;
-            _context = context;
             _accountService = accountService;
         }
 
@@ -75,11 +71,17 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         [HttpPut("block-user/{userId}")]
         public async Task<IActionResult> BlockUserAsync(string userId)
         {
-            var user = new User();
+            var user = new RetrieveUserDto();
 
             try
             {
                 user = await _accountService.BlockUserAsync(userId);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User with ID {UserId} not found.", userId);
+                    return NotFound($"Utilizador com ID {userId} não encontrado.");
+                }
             }
             catch (Exception ex)
             {
@@ -90,10 +92,95 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             return Ok(new OkMessage(
                 $"Utilizador {(user.IsActive ? "desbloqueado" : "bloqueado")}",
                 $"O utilizador com ID {userId} foi {(user.IsActive ? "desbloqueado" : "bloqueado")} com sucesso.",
-                new { userId })
+                new { user })
             );
 
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet("users")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+
+            // Check if the user is null or if they are not an admin
+            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
+            // Get all users
+            var users = await _accountService.GetAllUsersAsync();
+            if (!users.Any()) // No users found
+            {
+                _logger.LogWarning("No users found while performing query.");
+                return NotFound("Não foram encontrados utilizadores.");
+            }
+
+            return Ok(users);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("user/{id}")]
+        public async Task<IActionResult> GetSingleAsync(string id)
+        {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+
+            // Check if the user is null or if they are not an admin
+            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
+            // Get the user by ID
+            var singleUser = await _accountService.GetUserByIdAsync(id);
+            if (singleUser == null) // no user found
+            {
+                _logger.LogWarning("User not found to perform query.");
+                return NotFound("Utilizador não encontrado.");
+            }
+            return Ok(singleUser);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("user/update/{id}")]
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] UpdateUserDto model)
+        {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+
+            // Check if the user is null or if they are not an admin
+            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
+            // Check model id is same as id from url
+            if (id != model.Id)
+            {
+                _logger.LogWarning("The id from the user passed on the body is not the same as the one passed on the url params");
+                return BadRequest("User ID mismatch.");
+            }
+
+            // try update the user
+            var result = await _accountService.UpdateUserAsync(model);
+            if (!result)
+            {
+                _logger.LogWarning("Failed to update the user");
+                return BadRequest("Falha ao editar o utilizador.");
+            }
+
+            // return message for UI
+            return Ok(new OkMessage(
+                "Utilizador atualizado.",
+                $"Utilizador com o email {model.Email} atualizado.",
+                model
+                ));
+        }
     }
 }
