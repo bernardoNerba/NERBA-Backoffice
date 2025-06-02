@@ -18,7 +18,10 @@ public class User : IdentityUser
     public async Task<bool> CheckUserHasRoleAndActive(string role, UserManager<User> userManager, ILogger logger)
     {
         bool result = (this != null) || await userManager.IsInRoleAsync(this, role) || IsActive;
-        logger.LogWarning("User not found or not authorized");
+
+        if (!result)
+            logger.LogWarning("User not found or not authorized");
+
         return result;
     }
 

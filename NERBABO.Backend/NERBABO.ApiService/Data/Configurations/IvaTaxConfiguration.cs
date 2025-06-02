@@ -17,5 +17,9 @@ public class IvaTaxConfiguration : IEntityTypeConfiguration<IvaTax>
         builder.Property(x => x.ValuePercent)
             .HasColumnType("integer")
             .IsRequired(true);
+
+        builder.Property(x => x.IsActive)
+            .HasColumnName("boolean")
+            .HasDefaultValue(true);
     }
 }

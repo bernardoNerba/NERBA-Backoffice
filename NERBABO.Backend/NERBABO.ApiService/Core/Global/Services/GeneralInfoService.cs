@@ -38,6 +38,7 @@ public class GeneralInfoService : IGeneralInfoService
             _cachedConfig = await _context.GeneralInfo
                 .Include(c => c.IvaTax)
                 .AsNoTracking()
+                .Where(c => c.Id == 1)
                 .FirstAsync(); // Will throw if no records exist
 
             return GeneralInfo.ConvertEntityToRetrieveDto(_cachedConfig);
