@@ -59,7 +59,7 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
             .HasColumnType("text")
             .IsRequired(false);
 
-        builder.Property(p => p.PostalCode)
+        builder.Property(p => p.ZipCode)
             .HasColumnType("varchar(8)")
             .IsRequired(false);
 

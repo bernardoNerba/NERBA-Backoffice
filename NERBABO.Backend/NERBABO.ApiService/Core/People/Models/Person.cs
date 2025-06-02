@@ -16,7 +16,7 @@ public class Person : Entity
     public string? IBAN { get; set; } = string.Empty;
     public DateOnly? BirthDate { get; set; }
     public string? Address { get; set; } = string.Empty;
-    public string? PostalCode { get; set; } = string.Empty;
+    public string? ZipCode { get; set; } = string.Empty;
     public string? PhoneNumber { get; set; } = string.Empty;
     public string? Email { get; set; } = string.Empty;
     public string? Naturality { get; set; } = string.Empty;
