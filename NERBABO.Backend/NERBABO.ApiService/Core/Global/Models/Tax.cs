@@ -1,5 +1,6 @@
 using Humanizer;
 using NERBABO.ApiService.Core.Global.Dtos;
+using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Enums;
 
 namespace NERBABO.ApiService.Core.Global.Models;
@@ -23,7 +24,7 @@ public class Tax
         Type = type;
     }
 
-    public Tax(int id, string name, int valuePercent, bool active, TaxEnum type )
+    public Tax(int id, string name, int valuePercent, bool active, TaxEnum type)
     {
         Id = id;
         Name = name;
@@ -40,6 +41,8 @@ public class Tax
     public TaxEnum Type { get; set; } = TaxEnum.IVA;
 
     public GeneralInfo? GeneralInfo { get; set; }
+    public List<Teacher> IvaTeachers { get; set; } = [];
+    public List<Teacher> IrsTeachers { get; set; } = [];
 
     public static RetrieveTaxDto ConvertEntityToRetrieveDto(Tax tax)
     {

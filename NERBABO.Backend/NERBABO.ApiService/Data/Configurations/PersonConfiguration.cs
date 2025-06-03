@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.People.Models;
+using NERBABO.ApiService.Core.Teachers.Models;
 
 namespace NERBABO.ApiService.Data.Configurations;
 
@@ -93,5 +94,9 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 
         builder.HasIndex(p => p.NIF)
             .IsUnique();
+
+        builder.HasOne(p => p.Teacher)
+            .WithOne(t => t.Person)
+            .HasForeignKey<Teacher>(t => t.PersonId);
     }
 }
