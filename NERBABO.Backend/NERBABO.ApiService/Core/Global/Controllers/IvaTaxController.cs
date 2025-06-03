@@ -79,6 +79,39 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpPut("update/{id:int}")]
+        public async Task<ActionResult> UpdateIvaTaxAsync(int id, [FromBody] UpdateIvaTaxDto tax)
+        {
+            if (id != tax.Id)
+                return BadRequest("Id mismatch.");
+
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+            // Check if the user is null or if they are not an admin
+            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
+            try
+            {
+                await _ivaTaxService.UpdateIvaTaxAsync(tax);
+                return Ok(new OkMessage(
+                    $"Taxa Iva {tax.Name} atualizada com sucesso.",
+                    "Taxa Iva atualizada com sucesso.",
+                    true
+                ));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error updating taxa iva");
+                return BadRequest("Ocorreu um erro inesperado ao atualizar a taxa de iva.");
+            }
+
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{id:int}")]
         public async Task<ActionResult> DeleteTaxIvaAsync(int id)
         {
