@@ -63,6 +63,28 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
             }
         }
 
-
+        [Authorize]
+        [HttpPut("update/{id:long}")]
+        public async Task<ActionResult> UpdateTeacherAsync(long id, [FromBody] UpdateTeacherDto updateTeacherDto)
+        {
+            if (id != updateTeacherDto.Id)
+            {
+                return BadRequest("ID missmatch.");
+            }
+            try
+            {
+                var updatedTeacher = await _teacherService.UpdateTeacherAsync(updateTeacherDto);
+                return Ok(new OkMessage(
+                    "Formador Atualizado.",
+                    $"Foi atualizado o formador com sucesso.",
+                    updatedTeacher
+                ));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error updating teacher");
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
