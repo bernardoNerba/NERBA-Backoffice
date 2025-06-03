@@ -2,27 +2,27 @@
 
 #nullable disable
 
-namespace NERBABO.ApiService.Data.Migrations
+namespace NERBABO.ApiService.Migrations
 {
     /// <inheritdoc />
-    public partial class ZipCodeFieldNameMigration : Migration
+    public partial class TaxChangesMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameColumn(
-                name: "PostalCode",
-                table: "People",
-                newName: "ZipCode");
+                name: "boolean",
+                table: "Taxes",
+                newName: "IsActive");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameColumn(
-                name: "ZipCode",
-                table: "People",
-                newName: "PostalCode");
+                name: "IsActive",
+                table: "Taxes",
+                newName: "boolean");
         }
     }
 }

@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace NERBABO.ApiService.Data.Migrations
+namespace NERBABO.ApiService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250602213817_IsActiveFieldForIvaTax")]
-    partial class IsActiveFieldForIvaTax
+    [Migration("20250603112955_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -254,6 +254,50 @@ namespace NERBABO.ApiService.Data.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("NERBABO.ApiService.Core.Frames.Models.Frame", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Intervention")
+                        .IsRequired()
+                        .HasColumnType("varchar(55)");
+
+                    b.Property<string>("InterventionType")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("OperationType")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("Program")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Operation", "Program")
+                        .IsUnique();
+
+                    b.ToTable("Frames", (string)null);
+                });
+
             modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.GeneralInfo", b =>
                 {
                     b.Property<long>("Id")
@@ -308,7 +352,7 @@ namespace NERBABO.ApiService.Data.Migrations
                     b.ToTable("GeneralInfo");
                 });
 
-            modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.IvaTax", b =>
+            modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.Tax", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -326,12 +370,15 @@ namespace NERBABO.ApiService.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(50)");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ValuePercent")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("IvaTaxes");
+                    b.ToTable("Taxes", (string)null);
                 });
 
             modelBuilder.Entity("NERBABO.ApiService.Core.People.Models.Person", b =>
@@ -478,7 +525,7 @@ namespace NERBABO.ApiService.Data.Migrations
 
             modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.GeneralInfo", b =>
                 {
-                    b.HasOne("NERBABO.ApiService.Core.Global.Models.IvaTax", "IvaTax")
+                    b.HasOne("NERBABO.ApiService.Core.Global.Models.Tax", "IvaTax")
                         .WithOne("GeneralInfo")
                         .HasForeignKey("NERBABO.ApiService.Core.Global.Models.GeneralInfo", "IvaId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -486,7 +533,7 @@ namespace NERBABO.ApiService.Data.Migrations
                     b.Navigation("IvaTax");
                 });
 
-            modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.IvaTax", b =>
+            modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.Tax", b =>
                 {
                     b.Navigation("GeneralInfo");
                 });

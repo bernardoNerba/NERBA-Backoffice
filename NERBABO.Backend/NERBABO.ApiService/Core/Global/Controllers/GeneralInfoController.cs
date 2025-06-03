@@ -37,7 +37,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
@@ -69,7 +69,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }

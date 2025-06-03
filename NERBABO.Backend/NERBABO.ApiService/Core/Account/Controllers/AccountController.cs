@@ -46,6 +46,15 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto model)
         {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+
+            // Check if the user is null or if they are not an admin
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
 
             // Create the user in the identity system
             try
@@ -71,13 +80,23 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         [HttpPut("block-user/{userId}")]
         public async Task<IActionResult> BlockUserAsync(string userId)
         {
-            var user = new RetrieveUserDto();
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+
+            // Check if the user is null or if they are not an admin
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
+            var retrieveUser = new RetrieveUserDto();
 
             try
             {
-                user = await _accountService.BlockUserAsync(userId);
+                retrieveUser = await _accountService.BlockUserAsync(userId);
 
-                if (user == null)
+                if (retrieveUser == null)
                 {
                     _logger.LogWarning("User with ID {UserId} not found.", userId);
                     return NotFound($"Utilizador com ID {userId} não encontrado.");
@@ -90,9 +109,9 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             }
 
             return Ok(new OkMessage(
-                $"Utilizador {(user.IsActive ? "desbloqueado" : "bloqueado")}",
-                $"O utilizador com ID {userId} foi {(user.IsActive ? "desbloqueado" : "bloqueado")} com sucesso.",
-                new { user })
+                $"Utilizador {(retrieveUser.IsActive ? "desbloqueado" : "bloqueado")}",
+                $"O utilizador com ID {userId} foi {(retrieveUser.IsActive ? "desbloqueado" : "bloqueado")} com sucesso.",
+                new { retrieveUser })
             );
 
         }
@@ -106,7 +125,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
@@ -131,7 +150,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
@@ -155,7 +174,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }

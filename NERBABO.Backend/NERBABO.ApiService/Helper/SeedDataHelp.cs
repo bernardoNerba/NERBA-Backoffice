@@ -33,11 +33,6 @@ public class SeedDataHelp
         email = configuration["Admin:email"] ?? "";
         userName = configuration["Admin:username"] ?? "";
         password = configuration["Admin:password"] ?? "";
-
-        // Add debugging
-        Console.WriteLine($"Email: {email}");
-        Console.WriteLine($"Username: {userName}");
-        Console.WriteLine($"Password: {(string.IsNullOrEmpty(password) ? "EMPTY" : "SET")}");
     }
 
     public async Task InitializeAsync()
@@ -148,16 +143,21 @@ public class SeedDataHelp
 
     private async Task InitializeTaxIvaAsync()
     {
-        if (await _context.IvaTaxes.AnyAsync())
+        if (await _context.Taxes.AnyAsync())
             return;
 
-        var taxes = new List<IvaTax>
+        var taxes = new List<Tax>
             {
-                new (1, "Regime de Isenção", 0),
-                new (2, "Sujeto à taxa de 23%", 23)
+                new (1, "Regime de Isenção", 0, TaxEnum.IVA),
+                new (2, "Sujeto à taxa de 23%", 23, TaxEnum.IVA),
+                new (3, "Rentenção na Fonte de IRS à taxa de 25%", 25, TaxEnum.IRS),
+                new (4, "Rentenção na Fonte de IRS à taxa de 23%", 23, TaxEnum.IRS),
+                new (5, "Rentenção na Fonte de IRS à taxa de 11,5%", 12, TaxEnum.IRS),
+                new (6, "Rentenção na Fonte de IRS à taxa de 16,5%", 17, TaxEnum.IRS),
+                new (7, "Rentenção na Fonte de IRS à taxa de 20%", 20, TaxEnum.IRS)
             };
 
-        _context.IvaTaxes.AddRange(taxes);
+        _context.Taxes.AddRange(taxes);
         await _context.SaveChangesAsync();
     }
 }

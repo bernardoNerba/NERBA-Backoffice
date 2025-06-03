@@ -160,7 +160,7 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
             var user = await _userManager.FindByIdAsync(User.FindFirst
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
@@ -195,7 +195,7 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
             var user = await _userManager.FindByIdAsync(User.FindFirst
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }

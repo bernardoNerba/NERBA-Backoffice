@@ -37,7 +37,7 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
@@ -68,7 +68,7 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
             var user = await _userManager.FindByIdAsync(User.FindFirst
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
@@ -95,6 +95,14 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
         [HttpGet("{id:long}")]
         public async Task<ActionResult<RetrieveFrameDto>> GetFrameAsync(long id)
         {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+            // Check if the user is null or if they are not an admin
+            if (user == null || !await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
             try
             {
                 var frame = await _frameService.GetFrameByIdAsync(id);
@@ -115,6 +123,15 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
         [HttpPut("update/{id:long}")]
         public async Task<ActionResult<RetrieveFrameDto>> UpdateFrameAsync(long id, [FromBody] UpdateFrameDto frame)
         {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+            // Check if the user is null or if they are not an admin
+            if (user == null || !await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
             if (id != frame.Id)
             {
                 _logger.LogWarning("The id from the frame passed on the body is not the same as the one passed on the url params");
@@ -142,10 +159,19 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{id:long}")]
         public async Task<ActionResult> DeleteFrameAsync(long id)
         {
+            // Get the user from the token
+            var user = await _userManager.FindByIdAsync(User.FindFirst
+                (ClaimTypes.NameIdentifier)?.Value ?? "");
+            // Check if the user is null or if they are not an admin
+            if (user == null || !await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            {
+                return Unauthorized("Não está autorizado a aceder a esta informação.");
+            }
+
             if (id <= 0)
             {
                 return BadRequest("Id de enquadramento inválido");

@@ -15,7 +15,7 @@ public class GeneralInfo : Entity
     public string Nipc { get; set; } = string.Empty;
     public string LogoFinancing { get; set; } = string.Empty;
 
-    public IvaTax? IvaTax { get; set; }
+    public Tax? IvaTax { get; set; }
 
     public static RetrieveGeneralInfoDto ConvertEntityToRetrieveDto(GeneralInfo generalInfo)
     {

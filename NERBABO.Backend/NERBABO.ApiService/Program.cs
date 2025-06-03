@@ -42,7 +42,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IGeneralInfoService, GeneralInfoService>();
-builder.Services.AddScoped<IIvaTaxService, IvaTaxService>();
+builder.Services.AddScoped<ITaxService, TaxService>();
 builder.Services.AddScoped<IFrameService, FrameService>();
 
 // Connect to the database using Aspire injection from AppHost

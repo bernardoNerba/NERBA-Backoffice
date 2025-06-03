@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace NERBABO.ApiService.Data.Migrations
+namespace NERBABO.ApiService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250601203903_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250603121732_TaxChangesMigration")]
+    partial class TaxChangesMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -213,6 +213,9 @@ namespace NERBABO.ApiService.Data.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
 
+                    b.Property<long>("PersonId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(13)
                         .HasColumnType("character varying(13)");
@@ -245,7 +248,218 @@ namespace NERBABO.ApiService.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
+                    b.HasIndex("PersonId")
+                        .IsUnique();
+
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Frames.Models.Frame", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Intervention")
+                        .IsRequired()
+                        .HasColumnType("varchar(55)");
+
+                    b.Property<string>("InterventionType")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("OperationType")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("Program")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Operation", "Program")
+                        .IsUnique();
+
+                    b.ToTable("Frames", (string)null);
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.GeneralInfo", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BankEntity")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<float>("HourValueAlimentation")
+                        .HasColumnType("decimal");
+
+                    b.Property<float>("HourValueTeacher")
+                        .HasColumnType("decimal");
+
+                    b.Property<string>("Iban")
+                        .IsRequired()
+                        .HasColumnType("char(25)");
+
+                    b.Property<int?>("IvaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LogoFinancing")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Nipc")
+                        .IsRequired()
+                        .HasColumnType("char(9)");
+
+                    b.Property<string>("Site")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IvaId")
+                        .IsUnique();
+
+                    b.ToTable("GeneralInfo");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.Tax", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ValuePercent")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Taxes", (string)null);
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.People.Models.Person", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("Habilitation")
+                        .IsRequired()
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("IBAN")
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("IdentificationNumber")
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("IdentificationType")
+                        .IsRequired()
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<DateOnly?>("IdentificationValidationDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("NIF")
+                        .IsRequired()
+                        .HasColumnType("char(9)");
+
+                    b.Property<string>("NISS")
+                        .HasColumnType("varchar(11)");
+
+                    b.Property<string>("Nationality")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Naturality")
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("varchar(9)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("varchar(8)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NIF")
+                        .IsUnique();
+
+                    b.ToTable("People", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -297,6 +511,36 @@ namespace NERBABO.ApiService.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Account.Models.User", b =>
+                {
+                    b.HasOne("NERBABO.ApiService.Core.People.Models.Person", "Person")
+                        .WithOne("User")
+                        .HasForeignKey("NERBABO.ApiService.Core.Account.Models.User", "PersonId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.GeneralInfo", b =>
+                {
+                    b.HasOne("NERBABO.ApiService.Core.Global.Models.Tax", "IvaTax")
+                        .WithOne("GeneralInfo")
+                        .HasForeignKey("NERBABO.ApiService.Core.Global.Models.GeneralInfo", "IvaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("IvaTax");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.Tax", b =>
+                {
+                    b.Navigation("GeneralInfo");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.People.Models.Person", b =>
+                {
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

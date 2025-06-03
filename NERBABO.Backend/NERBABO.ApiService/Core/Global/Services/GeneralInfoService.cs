@@ -65,7 +65,7 @@ public class GeneralInfoService : IGeneralInfoService
 
     public async Task UpdateGeneralInfoAsync(UpdateGeneralInfoDto updateGeneralInfo)
     {
-        if (!await _context.IvaTaxes.AnyAsync(t => t.Id == updateGeneralInfo.IvaId))
+        if (!await _context.Taxes.AnyAsync(t => t.Id == updateGeneralInfo.IvaId))
         {
             throw new Exception("Não existe esta taxa de Iva.");
         }

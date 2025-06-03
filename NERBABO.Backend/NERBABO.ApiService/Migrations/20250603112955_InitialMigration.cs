@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace NERBABO.ApiService.Data.Migrations
+namespace NERBABO.ApiService.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration
@@ -12,6 +12,56 @@ namespace NERBABO.ApiService.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Frames",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Program = table.Column<string>(type: "varchar(150)", nullable: false),
+                    Intervention = table.Column<string>(type: "varchar(55)", nullable: false),
+                    InterventionType = table.Column<string>(type: "varchar(150)", nullable: false),
+                    Operation = table.Column<string>(type: "varchar(150)", nullable: false),
+                    OperationType = table.Column<string>(type: "varchar(150)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Frames", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "People",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FirstName = table.Column<string>(type: "varchar(100)", nullable: false),
+                    LastName = table.Column<string>(type: "varchar(100)", nullable: false),
+                    NIF = table.Column<string>(type: "char(9)", nullable: false),
+                    IdentificationNumber = table.Column<string>(type: "varchar(10)", nullable: true),
+                    IdentificationValidationDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    IdentificationType = table.Column<string>(type: "varchar(25)", nullable: false),
+                    NISS = table.Column<string>(type: "varchar(11)", nullable: true),
+                    IBAN = table.Column<string>(type: "varchar(25)", nullable: true),
+                    BirthDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    Address = table.Column<string>(type: "text", nullable: true),
+                    ZipCode = table.Column<string>(type: "varchar(8)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "varchar(9)", nullable: true),
+                    Email = table.Column<string>(type: "varchar(100)", nullable: true),
+                    Naturality = table.Column<string>(type: "varchar(100)", nullable: true),
+                    Nationality = table.Column<string>(type: "text", nullable: true),
+                    Gender = table.Column<string>(type: "varchar(25)", nullable: false),
+                    Habilitation = table.Column<string>(type: "varchar(25)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_People", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
@@ -27,6 +77,22 @@ namespace NERBABO.ApiService.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Taxes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "varchar(50)", nullable: false),
+                    ValuePercent = table.Column<int>(type: "integer", nullable: false),
+                    boolean = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    Type = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Taxes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -35,6 +101,7 @@ namespace NERBABO.ApiService.Data.Migrations
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastLogin = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PersonId = table.Column<long>(type: "bigint", nullable: false),
                     UserName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     NormalizedUserName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -53,6 +120,12 @@ namespace NERBABO.ApiService.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_People_PersonId",
+                        column: x => x.PersonId,
+                        principalTable: "People",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,6 +147,35 @@ namespace NERBABO.ApiService.Data.Migrations
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GeneralInfo",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Designation = table.Column<string>(type: "varchar(255)", nullable: false),
+                    IvaId = table.Column<int>(type: "integer", nullable: true),
+                    Site = table.Column<string>(type: "text", nullable: false),
+                    HourValueTeacher = table.Column<float>(type: "decimal", nullable: false),
+                    HourValueAlimentation = table.Column<float>(type: "decimal", nullable: false),
+                    BankEntity = table.Column<string>(type: "varchar(50)", nullable: false),
+                    Iban = table.Column<string>(type: "char(25)", nullable: false),
+                    Nipc = table.Column<string>(type: "char(9)", nullable: false),
+                    LogoFinancing = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GeneralInfo", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GeneralInfo_Taxes_IvaId",
+                        column: x => x.IvaId,
+                        principalTable: "Taxes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -172,6 +274,24 @@ namespace NERBABO.ApiService.Data.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Frames_Operation_Program",
+                table: "Frames",
+                columns: new[] { "Operation", "Program" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GeneralInfo_IvaId",
+                table: "GeneralInfo",
+                column: "IvaId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_People_NIF",
+                table: "People",
+                column: "NIF",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
                 table: "Roles",
                 column: "NormalizedName",
@@ -193,6 +313,12 @@ namespace NERBABO.ApiService.Data.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_PersonId",
+                table: "Users",
+                column: "PersonId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "Users",
                 column: "NormalizedUserName",
@@ -212,6 +338,12 @@ namespace NERBABO.ApiService.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Frames");
+
+            migrationBuilder.DropTable(
+                name: "GeneralInfo");
+
+            migrationBuilder.DropTable(
                 name: "UserClaims");
 
             migrationBuilder.DropTable(
@@ -221,7 +353,13 @@ namespace NERBABO.ApiService.Data.Migrations
                 name: "Roles");
 
             migrationBuilder.DropTable(
+                name: "Taxes");
+
+            migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "People");
         }
     }
 }

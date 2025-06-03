@@ -11,7 +11,7 @@ namespace NERBABO.ApiService.Data;
 public class AppDbContext : IdentityDbContext<User>
 {
     public DbSet<Person> People { get; set; }
-    public DbSet<IvaTax> IvaTaxes { get; set; }
+    public DbSet<Tax> Taxes { get; set; }
     public DbSet<GeneralInfo> GeneralInfo { get; set; } // only 1 instance
     public DbSet<Frame> Frames { get; set; }
 
@@ -36,7 +36,7 @@ public class AppDbContext : IdentityDbContext<User>
         builder.ApplyConfiguration(new IdentityRoleConfiguration());
         builder.ApplyConfiguration(new PersonConfiguration());
         builder.ApplyConfiguration(new GeneralInfoConfiguration());
-        builder.ApplyConfiguration(new IvaTaxConfiguration());
+        builder.ApplyConfiguration(new TaxConfiguration());
         builder.ApplyConfiguration(new FrameConfiguration());
     }
 

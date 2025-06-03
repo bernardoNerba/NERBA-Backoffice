@@ -4,10 +4,12 @@ using NERBABO.ApiService.Core.Global.Models;
 
 namespace NERBABO.ApiService.Data.Configurations;
 
-public class IvaTaxConfiguration : IEntityTypeConfiguration<IvaTax>
+public class TaxConfiguration : IEntityTypeConfiguration<Tax>
 {
-    public void Configure(EntityTypeBuilder<IvaTax> builder)
+    public void Configure(EntityTypeBuilder<Tax> builder)
     {
+        builder.ToTable("Taxes");
+
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
@@ -19,7 +21,8 @@ public class IvaTaxConfiguration : IEntityTypeConfiguration<IvaTax>
             .IsRequired(true);
 
         builder.Property(x => x.IsActive)
-            .HasColumnName("boolean")
+            .HasColumnName("IsActive")
+            .HasColumnType("boolean")
             .HasDefaultValue(true);
     }
 }

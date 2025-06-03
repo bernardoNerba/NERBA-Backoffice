@@ -12,75 +12,75 @@ namespace NERBABO.ApiService.Core.Global.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class IvaTaxController : ControllerBase
+    public class TaxController : ControllerBase
     {
-        private readonly IIvaTaxService _ivaTaxService;
-        private readonly ILogger<IvaTaxController> _logger;
+        private readonly ITaxService _TaxService;
+        private readonly ILogger<TaxController> _logger;
         private readonly UserManager<User> _userManager;
-        public IvaTaxController(
-            IIvaTaxService ivaTaxService,
-            ILogger<IvaTaxController> logger,
+        public TaxController(
+            ITaxService TaxService,
+            ILogger<TaxController> logger,
             UserManager<User> userManager)
         {
-            _ivaTaxService = ivaTaxService;
+            _TaxService = TaxService;
             _logger = logger;
             _userManager = userManager;
         }
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RetrieveIvaTaxDto>>> GetAllIvaTaxesAsync()
+        public async Task<ActionResult<IEnumerable<RetrieveTaxDto>>> GetAllTaxesAsync()
         {
             try
             {
-                var taxes = await _ivaTaxService.GetAllIvaTaxesAsync();
+                var taxes = await _TaxService.GetAllTaxesAsync();
                 if (!taxes.Any())
                 {
-                    _logger.LogError("There is none iva taxes, did you forget to load them?");
-                    return NotFound("Não foram encontradas taxas de iva");
+                    _logger.LogError("There is none  taxes, did you forget to load them?");
+                    return NotFound("Não foram encontradas taxas");
                 }
 
                 return Ok(taxes);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error Fetching all iva taxes.");
-                return BadRequest("Erro ao obter taxas de iva");
+                _logger.LogError(ex, "Error Fetching all taxes.");
+                return BadRequest("Erro ao obter taxas");
             }
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost("create")]
-        public async Task<ActionResult> CreateIvaTaxAsync([FromBody] CreateIvaTaxDto taxIva)
+        public async Task<ActionResult> CreateTaxAsync([FromBody] CreateTaxDto tax)
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
 
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
 
             try
             {
-                await _ivaTaxService.CreateTaxIvaAsync(taxIva);
+                await _TaxService.CreateTaxAsync(tax);
                 return Ok(new OkMessage(
-                    $"Taxa Iva {taxIva.Name} criada com sucesso.",
-                    "Taxa Iva criada com sucesso.",
+                    $"Taxa {tax.Name} criada com sucesso.",
+                    "Taxa criada com sucesso.",
                     true
                 ));
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error creating taxa iva");
+                _logger.LogError(e, "Error creating tax.");
                 return BadRequest(e.Message);
             }
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("update/{id:int}")]
-        public async Task<ActionResult> UpdateIvaTaxAsync(int id, [FromBody] UpdateIvaTaxDto tax)
+        public async Task<ActionResult> UpdateTaxAsync(int id, [FromBody] UpdateTaxDto tax)
         {
             if (id != tax.Id)
                 return BadRequest("Id mismatch.");
@@ -89,52 +89,52 @@ namespace NERBABO.ApiService.Core.Global.Controllers
             var user = await _userManager.FindByIdAsync(User.FindFirst
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
 
             try
             {
-                await _ivaTaxService.UpdateIvaTaxAsync(tax);
+                await _TaxService.UpdateTaxAsync(tax);
                 return Ok(new OkMessage(
-                    $"Taxa Iva {tax.Name} atualizada com sucesso.",
-                    "Taxa Iva atualizada com sucesso.",
+                    $"Taxa {tax.Name} atualizada com sucesso.",
+                    "Taxa atualizada com sucesso.",
                     true
                 ));
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error updating taxa iva");
-                return BadRequest("Ocorreu um erro inesperado ao atualizar a taxa de iva.");
+                _logger.LogError(e, "Error updating taxa.");
+                return BadRequest("Ocorreu um erro inesperado ao atualizar a taxa.");
             }
 
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{id:int}")]
-        public async Task<ActionResult> DeleteTaxIvaAsync(int id)
+        public async Task<ActionResult> DeleteTaxAsync(int id)
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
                 (ClaimTypes.NameIdentifier)?.Value ?? "");
             // Check if the user is null or if they are not an admin
-            if (!await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
             {
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
             try
             {
-                await _ivaTaxService.DeleteTaxIvaAsync(id);
+                await _TaxService.DeleteTaxAsync(id);
                 return Ok(new OkMessage(
-                    $"Taxa Iva {id} eliminada com sucesso.",
-                    "Taxa Iva eliminada com sucesso.",
+                    $"Taxa {id} eliminada com sucesso.",
+                    "Taxa eliminada com sucesso.",
                     true
                 ));
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error deleting taxa iva");
+                _logger.LogError(e, "Error deleting tax");
                 return BadRequest(e.Message);
             }
         }
