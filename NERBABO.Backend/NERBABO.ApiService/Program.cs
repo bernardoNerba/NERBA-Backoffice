@@ -13,6 +13,7 @@ using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
 using NERBABO.ApiService.Core.People.Services;
+using NERBABO.ApiService.Core.Teachers.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Services;
@@ -44,6 +45,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IGeneralInfoService, GeneralInfoService>();
 builder.Services.AddScoped<ITaxService, TaxService>();
 builder.Services.AddScoped<IFrameService, FrameService>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>

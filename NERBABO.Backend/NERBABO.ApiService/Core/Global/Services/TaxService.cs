@@ -50,7 +50,9 @@ public class TaxService : ITaxService
         var taxIva = await _context.Taxes.FirstOrDefaultAsync(t => t.Id == id)
             ?? throw new Exception("Taxa não encontrada.");
 
-        if ((await _context.GeneralInfo.Where(g => g.Id == 1).FirstAsync()).IvaId == id)
+        if ((await _context.GeneralInfo.Where(g => g.Id == 1).FirstAsync()).IvaId == id ||
+            (await _context.Teachers.Where(t => t.IvaRegimeId == id).AnyAsync()) ||
+            (await _context.Teachers.Where(t => t.IrsRegimeId == id).AnyAsync()))
         {
             throw new Exception("Não é possível eliminar esta taxa sendo que existem entidades associadas");
         }
