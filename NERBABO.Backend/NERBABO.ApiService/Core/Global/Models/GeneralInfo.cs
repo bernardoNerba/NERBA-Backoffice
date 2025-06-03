@@ -48,7 +48,8 @@ public class GeneralInfo : Entity
             Iban = updateGeneralInfo.Iban,
             Nipc = updateGeneralInfo.Nipc,
             LogoFinancing = updateGeneralInfo.LogoFinancing,
-            IvaId = updateGeneralInfo.IvaId
+            IvaId = updateGeneralInfo.IvaId,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 

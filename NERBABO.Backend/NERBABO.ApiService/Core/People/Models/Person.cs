@@ -51,7 +51,10 @@ public class Person : Entity
             Nationality = personDto.Nationality,
             Gender = personDto.Gender?.DehumanizeTo<GenderEnum>() ?? GenderEnum.Unknown,
             Habilitation = personDto.Habilitation?.DehumanizeTo<HabilitationEnum>() ?? HabilitationEnum.WithoutProof,
-            IdentificationType = personDto.IdentificationType?.DehumanizeTo<IdentificationTypeEnum>() ?? IdentificationTypeEnum.Unknown
+            IdentificationType = personDto.IdentificationType?.DehumanizeTo<IdentificationTypeEnum>() ?? IdentificationTypeEnum.Unknown,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+
         };
     }
 
@@ -102,7 +105,8 @@ public class Person : Entity
             Nationality = personDto.Nationality,
             Gender = personDto.Gender?.DehumanizeTo<GenderEnum>() ?? GenderEnum.Unknown,
             Habilitation = personDto.Habilitation?.DehumanizeTo<HabilitationEnum>() ?? HabilitationEnum.WithoutProof,
-            IdentificationType = personDto.IdentificationType?.DehumanizeTo<IdentificationTypeEnum>() ?? IdentificationTypeEnum.Unknown
+            IdentificationType = personDto.IdentificationType?.DehumanizeTo<IdentificationTypeEnum>() ?? IdentificationTypeEnum.Unknown,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 }

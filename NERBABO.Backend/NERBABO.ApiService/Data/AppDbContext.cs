@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Data.Configurations;
@@ -12,6 +13,7 @@ public class AppDbContext : IdentityDbContext<User>
     public DbSet<Person> People { get; set; }
     public DbSet<IvaTax> IvaTaxes { get; set; }
     public DbSet<GeneralInfo> GeneralInfo { get; set; } // only 1 instance
+    public DbSet<Frame> Frames { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -35,6 +37,7 @@ public class AppDbContext : IdentityDbContext<User>
         builder.ApplyConfiguration(new PersonConfiguration());
         builder.ApplyConfiguration(new GeneralInfoConfiguration());
         builder.ApplyConfiguration(new IvaTaxConfiguration());
+        builder.ApplyConfiguration(new FrameConfiguration());
     }
 
 }
