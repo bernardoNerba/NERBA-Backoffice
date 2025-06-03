@@ -12,6 +12,7 @@ public class TeacherService : ITeacherService
 {
     private readonly AppDbContext _context;
     private readonly ILogger<TeacherService> _logger;
+    
     public TeacherService(
         AppDbContext context,
         ILogger<TeacherService> logger)
@@ -19,34 +20,40 @@ public class TeacherService : ITeacherService
         _context = context;
         _logger = logger;
     }
+
     public async Task<RetrieveTeacherDto> CreateTeacherAsync(CreateTeacherDto createTeacherDto)
     {
-        var iva = await _context.Taxes.FindAsync(createTeacherDto.IvaRegimeId);
-        var irs = await _context.Taxes.FindAsync(createTeacherDto.IrsRegimeId);
-        var person = await _context.People.FindAsync(createTeacherDto.PersonId);
+        var iva = await _context.Taxes.FindAsync(createTeacherDto.IvaRegimeId)
+            ?? throw new KeyNotFoundException("Regime de IVA não encontrado.");
 
-        if (iva == null || irs == null || person == null)
-        {
-            _logger.LogError("IVA, IRS regime or Person not found for Teacher creation.");
-            throw new ArgumentException("IVA, IRS regime ou Pessoa não encontrados.");
-        }
+        var irs = await _context.Taxes.FindAsync(createTeacherDto.IrsRegimeId)
+            ?? throw new KeyNotFoundException("Regime de IRS não encontrado.");
 
-        if (iva.Type != TaxEnum.IVA || irs.Type != TaxEnum.IRS)
+        var person = await _context.People.FindAsync(createTeacherDto.PersonId)
+            ?? throw new KeyNotFoundException("Pessoa não encontrado.");
+
+        if (iva.Type != TaxEnum.IVA)
         {
             _logger.LogError("Invalid tax types for Teacher creation.");
-            throw new ArgumentException("IVA e IRS regime devem ser do tipo correto.");
+            throw new ArgumentException("IVA regime devem ser do tipo correto.");
+        }
+
+        if (irs.Type != TaxEnum.IRS)
+        {
+            _logger.LogError("Invalid tax types for Teacher creation.");
+            throw new ArgumentException("IRS regime devem ser do tipo correto.");
         }
 
         if (await _context.Teachers.AnyAsync(t => t.PersonId == createTeacherDto.PersonId))
         {
             _logger.LogWarning("Teacher already exists for Person ID: {PersonId}", createTeacherDto.PersonId);
-            throw new Exception("Já existe um Formador associado a esta pessoa.");
+            throw new InvalidOperationException("Já existe um Formador associado a esta pessoa.");
         }
 
         if (await _context.Teachers.AnyAsync(t => t.Ccp == createTeacherDto.Ccp))
         {
             _logger.LogWarning("Teacher already exists with CCP: {Ccp}", createTeacherDto.Ccp);
-            throw new Exception("Já existe um Formador com este CCP.");
+            throw new InvalidOperationException("Já existe um Formador com este CCP.");
         }
 
         var teacher = Teacher.ConvertCreateDtoToTeacher(createTeacherDto, person, iva, irs);
@@ -61,12 +68,8 @@ public class TeacherService : ITeacherService
     public async Task<bool> DeleteTeacherAsync(long teacherId)
     {
         // TODO: Implemente deletion logic when ready
-        var teacher = _context.Teachers.Find(teacherId);
-        if (teacher == null)
-        {
-            _logger.LogWarning("Teacher not found for ID: {TeacherId}", teacherId);
-            throw new KeyNotFoundException("Formador não encontrado para o ID fornecido.");
-        }
+        var teacher = _context.Teachers.Find(teacherId)
+            ?? throw new KeyNotFoundException("Formador não encontrado.");
 
         _context.Teachers.Remove(teacher);
         await _context.SaveChangesAsync();
@@ -75,64 +78,55 @@ public class TeacherService : ITeacherService
 
     public async Task<RetrieveTeacherDto> GetTeacherByPersonIdAsync(long personId)
     {
-        var person = await _context.People.FindAsync(personId);
-        if (person == null)
-        {
-            _logger.LogWarning("Person not found for ID: {PersonId}", personId);
-            throw new KeyNotFoundException("Pessoa não encontrada para o ID fornecido.");
-        }
+        var person = await _context.People.FindAsync(personId)
+            ?? throw new KeyNotFoundException("Pessoa não encontrada");
 
         var teacher = await _context.Teachers
             .Include(t => t.IvaRegime)
             .Include(t => t.IrsRegime)
             .Include(t => t.Person)
-            .FirstOrDefaultAsync(t => t.PersonId == personId);
-
-        if (teacher == null)
-        {
-            _logger.LogWarning("Teacher not found for Person ID: {PersonId}", personId);
-            throw new KeyNotFoundException("Formador não encontrado para o ID da pessoa fornecido.");
-        }
+            .FirstOrDefaultAsync(t => t.PersonId == personId)
+            ?? throw new InvalidOperationException("Falha ao filtrar Formador.");
 
         return Teacher.ConvertTeacherToRetrieveDto(teacher);
     }
 
     public async Task<RetrieveTeacherDto> UpdateTeacherAsync(UpdateTeacherDto updateTeacherDto)
     {
-        var existingTeacher = _context.Teachers.Find(updateTeacherDto.Id);
+        var existingTeacher = _context.Teachers.Find(updateTeacherDto.Id)
+            ?? throw new KeyNotFoundException("Formador não encontrado.");
 
-        if (existingTeacher == null)
-        {
-            _logger.LogWarning("Teacher not found for ID: {Id}", updateTeacherDto.Id);
-            throw new Exception("Formador não encontrado para o ID fornecido.");
-        }
+        var iva = await _context.Taxes.FindAsync(updateTeacherDto.IvaRegimeId)
+            ?? throw new KeyNotFoundException("Regime de IVA não encontrado.");
 
-        var iva = await _context.Taxes.FindAsync(updateTeacherDto.IvaRegimeId);
-        var irs = await _context.Taxes.FindAsync(updateTeacherDto.IrsRegimeId);
-        var person = await _context.People.FindAsync(updateTeacherDto.PersonId);
+        var irs = await _context.Taxes.FindAsync(updateTeacherDto.IrsRegimeId)
+            ?? throw new KeyNotFoundException("Regime de IRS não encontrado.");
 
-        if (iva == null || irs == null || person == null)
-        {
-            _logger.LogError("IVA, IRS regime or Person not found for Teacher creation.");
-            throw new ArgumentException("IVA, IRS regime ou Pessoa não encontrados.");
-        }
+        var person = await _context.People.FindAsync(updateTeacherDto.PersonId)
+            ?? throw new KeyNotFoundException("Pessoa não encontrado.");
 
-        if (iva.Type != TaxEnum.IVA || irs.Type != TaxEnum.IRS)
+        if (iva.Type != TaxEnum.IVA)
         {
             _logger.LogError("Invalid tax types for Teacher creation.");
-            throw new ArgumentException("IVA e IRS regime devem ser do tipo correto.");
+            throw new ArgumentException("IVA regime devem ser do tipo correto.");
+        }
+
+        if (irs.Type != TaxEnum.IRS)
+        {
+            _logger.LogError("Invalid tax types for Teacher creation.");
+            throw new ArgumentException("IRS regime devem ser do tipo correto.");
         }
 
         if (await _context.Teachers.AnyAsync(t => t.PersonId == updateTeacherDto.PersonId && t.Id != updateTeacherDto.Id))
         {
             _logger.LogWarning("Teacher already exists for Person ID: {PersonId}", updateTeacherDto.PersonId);
-            throw new Exception("Já existe um Formador associado a esta pessoa.");
+            throw new InvalidOperationException("Já existe um Formador associado a esta pessoa.");
         }
 
         if (await _context.Teachers.AnyAsync(t => t.Ccp == updateTeacherDto.Ccp && t.Id != updateTeacherDto.Id))
         {
             _logger.LogWarning("Teacher already exists with CCP: {Ccp}", updateTeacherDto.Ccp);
-            throw new Exception("Já existe um Formador com este CCP.");
+            throw new InvalidOperationException("Já existe um Formador com este CCP.");
         }
 
         var teacher = Teacher.ConvertUpdateDtoToTeacher(updateTeacherDto, person, iva, irs);
