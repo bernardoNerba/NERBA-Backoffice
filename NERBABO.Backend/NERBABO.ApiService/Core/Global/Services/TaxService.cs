@@ -110,6 +110,20 @@ public class TaxService : ITaxService
         await _context.SaveChangesAsync();
     }
 
+    public async Task<IEnumerable<RetrieveTaxDto>> GetTaxesByTypeAsync(string type)
+    {
+        if (!IsValidTaxType(type))
+        {
+            throw new Exception("Tipo de taxa inválido.");
+        }
+
+        var taxType = type.DehumanizeTo<TaxEnum>();
+
+        return await _context.Taxes
+            .Where(t => t.Type == taxType)
+            .Select(t => Tax.ConvertEntityToRetrieveDto(t))
+            .ToListAsync();
+    }
 
     #region Private Helper Methods
     private static bool IsValidTaxType(string type)
@@ -117,5 +131,6 @@ public class TaxService : ITaxService
         return type.Equals(TaxEnum.IVA.Humanize(), StringComparison.OrdinalIgnoreCase) ||
                type.Equals(TaxEnum.IRS.Humanize(), StringComparison.OrdinalIgnoreCase);
     }
-    #endregion  
+
+    #endregion
 }

@@ -138,5 +138,27 @@ namespace NERBABO.ApiService.Core.Global.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [Authorize]
+        [HttpGet("type/{type}")]
+        public async Task<ActionResult<IEnumerable<RetrieveTaxDto>>> GetTaxesByTypeAsync(string type)
+        {
+            try
+            {
+                var taxes = await _TaxService.GetTaxesByTypeAsync(type);
+                if (!taxes.Any())
+                {
+                    _logger.LogError($"There is no taxes of type {type}, did you forget to load them?");
+                    return NotFound($"Não foram encontradas taxas do tipo {type}");
+                }
+
+                return Ok(taxes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Fetching taxes by type.");
+                return BadRequest("Erro ao obter taxas por tipo");
+            }
+        }
     }
 }

@@ -8,4 +8,5 @@ public interface ITaxService
     Task UpdateTaxAsync(UpdateTaxDto updateTax);
     Task CreateTaxAsync(CreateTaxDto createTax);
     Task DeleteTaxAsync(int id);
+    Task<IEnumerable<RetrieveTaxDto>> GetTaxesByTypeAsync(string type);
 }
