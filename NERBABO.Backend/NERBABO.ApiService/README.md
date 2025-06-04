@@ -19,3 +19,10 @@ foreach (var item in seq)
 ## Using Humanizer Pt
 
 Humanizer meets all your .NET needs for manipulating and displaying strings, enums, dates, times, timespans, numbers and quantities. Please refer to https://github.com/Humanizr/Humanizer
+
+## Services
+
+Contains de business logic for the controller to use.
+
+- Always use `.FindAsync(id)` method to get a object by the key and throw `KeyNotFoundException` as one liner.
+- Check if a given argument that must be unic in the system exists already with `.AnyAsync()` and throw `InvalidOperationException` with a message in pt-PT for the Frontend to use.

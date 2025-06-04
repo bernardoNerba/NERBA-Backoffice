@@ -30,67 +30,66 @@ public class PeopleService : IPeopleService
 
     public async Task<RetrievePersonDto> CreatePersonAsync(CreatePersonDto person)
     {
-        if (person == null)
-        {
-            _logger.LogError("CreatePersonAsync: person is null");
-            throw new ArgumentNullException(nameof(person));
-        }
-
+        // Unique constraints checks
         if (await _context.People.AnyAsync(p => p.NIF == person.NIF))
         {
-            throw new Exception("O NIF da pessoa deve ser único. Já existe no sistema.");
+            _logger.LogWarning("Duplicated NIF try detected.");
+            throw new InvalidOperationException("O NIF da pessoa deve ser único. Já existe no sistema.");
         }
 
         if (await _context.People.AnyAsync(p => p.NISS == person.NISS)
             && !string.IsNullOrEmpty(person.NISS))
         {
-            throw new Exception("O NISS da pessoa deve ser único. Já existe no sistema.");
+            _logger.LogWarning("Duplicated NISS try detected.");
+            throw new InvalidOperationException("O NISS da pessoa deve ser único. Já existe no sistema.");
         }
 
         if (await _context.People.AnyAsync(p => p.IdentificationNumber == person.IdentificationNumber)
             && !string.IsNullOrEmpty(person.IdentificationNumber))
         {
-            throw new Exception("O Número de Identificação da pessoa deve ser único. Já existe no sistema.");
+            _logger.LogWarning("Duplicated IdentificationNumber try detected.");
+            throw new InvalidOperationException("O Número de Identificação da pessoa deve ser único. Já existe no sistema.");
         }
 
         if (await _context.People.AnyAsync(p => p.Email == person.Email)
             && !string.IsNullOrEmpty(person.Email))
         {
-            throw new Exception("O Email da pessoa deve ser único. Já existe no sistema.");
+            _logger.LogWarning("Duplicated Email try detected.");
+            throw new InvalidOperationException("O Email da pessoa deve ser único. Já existe no sistema.");
         }
 
-        var newPerson = Person.ConvertCreateDtoToEntity(person);
-
-        var createdPerson = _context.People.Add(newPerson);
+        // create person on database
+        var createdPerson = _context.People.Add(Person.ConvertCreateDtoToEntity(person));
         await _context.SaveChangesAsync();
 
+        var personToRetrieve = Person.ConvertEntityToRetrieveDto(createdPerson.Entity);
+        // update cache
         var cache_key = $"person:{createdPerson.Entity.Id}";
-
-        await _cacheService.SetAsync(cache_key, Person.ConvertEntityToRetrieveDto(createdPerson.Entity), TimeSpan.FromMinutes(30));
+        await _cacheService.SetAsync(cache_key, personToRetrieve, TimeSpan.FromMinutes(30));
         await _cacheService.RemoveAsync("people:list");
 
-        return Person.ConvertEntityToRetrieveDto(newPerson);
+        return personToRetrieve;
     }
 
     public async Task<bool> DeletePersonAsync(long id)
     {
-
+        // Check if person exists
         var existingPerson = await _context.People
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FindAsync(id)
+            ?? throw new KeyNotFoundException("Pessoa não encontrada.");
 
-        if (existingPerson == null)
-        {
-            throw new Exception("Pessoa não foi encontrada");
-        }
-
+        // Check if person is associated with a user
         if (await _userManager.Users.Where(u => u.PersonId == id).AnyAsync())
         {
-            throw new Exception("Não pode eliminar uma pessoa que é um utilizador.");
+            _logger.LogWarning("Duplicated User association detected.");
+            throw new InvalidOperationException("Não pode eliminar uma pessoa que é um utilizador.");
         }
 
+        // remove from database
         _context.Remove(existingPerson);
         await _context.SaveChangesAsync();
 
+        // Remove from cache
         await _cacheService.RemoveAsync($"person:{id}");
         await _cacheService.RemoveAsync("people:list");
 
@@ -99,100 +98,87 @@ public class PeopleService : IPeopleService
 
     public async Task<IEnumerable<RetrievePersonDto>> GetAllPeopleAsync()
     {
+        // Check if entry exists in cache
         var cacheKey = "people:list";
-        List<RetrievePersonDto> peopleToReturn = [];
-
         var cachedPeople = await _cacheService.GetAsync<List<RetrievePersonDto>>(cacheKey);
-
         if (cachedPeople != null && cachedPeople.Any())
-        {
-            peopleToReturn = cachedPeople;
-        }
-        else
-        {
-            var dbPeople = await _context.People
-                .Include(p => p.User)
-                .ToListAsync();
+            return cachedPeople;
 
-            foreach (var person in dbPeople)
-            {
-                peopleToReturn.Add(Person.ConvertEntityToRetrieveDto(person));
-            }
+        // Not in cache so fetch from database
+        var existingPeople = _context.People
+            .Include(p => p.User)
+            .Select(p => Person.ConvertEntityToRetrieveDto(p))
+            .AsValueEnumerable()
+            .OrderByDescending(p => p.FullName)
+            .ToList();
 
-            await _cacheService.SetAsync(cacheKey, peopleToReturn, TimeSpan.FromMinutes(30));
-        }
+        // update cache
+        await _cacheService.SetAsync(cacheKey, existingPeople, TimeSpan.FromMinutes(30));
 
-
-        return [..peopleToReturn
-                .AsValueEnumerable()
-                .OrderByDescending(p => p.FullName)];
+        return existingPeople;
     }
 
-    public async Task<RetrievePersonDto?> GetPersonByIdAsync(long id)
+    public async Task<RetrievePersonDto> GetPersonByIdAsync(long id)
     {
+        // Check if entry exists in cache
         var cacheKey = $"person:{id}";
-
         var cachedPerson = await _cacheService.GetAsync<RetrievePersonDto>(cacheKey);
         if (cachedPerson != null)
-        {
             return cachedPerson;
-        }
 
-        var dbPerson = await _context.People
+        // Not in cache so fetch from database
+        var existingPeople = await _context.People
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id)
+                ?? throw new KeyNotFoundException("Pessoa não encontrada");
 
-        if (dbPerson == null)
-        {
-            _logger.LogWarning("GetPersonByIdAsync: Person not found");
-            return null;
-        }
+        // update cache
+        await _cacheService.SetAsync(cacheKey, Person.ConvertEntityToRetrieveDto(existingPeople), TimeSpan.FromMinutes(30));
 
-        await _cacheService.SetAsync(cacheKey, Person.ConvertEntityToRetrieveDto(dbPerson), TimeSpan.FromMinutes(30));
-
-        return Person.ConvertEntityToRetrieveDto(dbPerson);
+        return Person.ConvertEntityToRetrieveDto(existingPeople);
     }
 
-    public async Task<RetrievePersonDto?> UpdatePersonAsync(UpdatePersonDto person)
+    public async Task<RetrievePersonDto> UpdatePersonAsync(UpdatePersonDto person)
     {
-        var existingPerson = await _context.People
-                .FirstOrDefaultAsync(p => p.Id == person.Id);
-
-        if (existingPerson == null)
-        {
-            _logger.LogWarning("UpdatePersonAsync: Person not found.");
-            return null;
-        }
+        var existingPerson = await _context.People.FindAsync(person.Id)
+            ?? throw new KeyNotFoundException("Pessoa não encontrada.");
 
         // Check for unique constraints
         if (await _context.People.AnyAsync(p => p.NIF == person.NIF
-        && p.Id != existingPerson.Id))
+            && p.Id != existingPerson.Id))
         {
-            throw new Exception("O NIF da pessoa deve ser único. Já existe no sistema.");
+            _logger.LogWarning("Duplicated NIF try detected.");
+            throw new InvalidOperationException("O NIF da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (!string.IsNullOrEmpty(person.NISS) &&
-            await _context.People.AnyAsync(p => p.NISS == person.NISS && p.Id != existingPerson.Id))
+        if (!string.IsNullOrEmpty(person.NISS)
+            && await _context.People.AnyAsync(p => p.NISS == person.NISS
+            && p.Id != existingPerson.Id))
         {
-            throw new Exception("O NISS da pessoa deve ser único. Já existe no sistema.");
+            _logger.LogWarning("Duplicated NISS try detected.");
+            throw new InvalidOperationException("O NISS da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (!string.IsNullOrEmpty(person.IdentificationNumber) &&
-            await _context.People.AnyAsync(p => p.IdentificationNumber == person.IdentificationNumber && p.Id != existingPerson.Id))
+        if (!string.IsNullOrEmpty(person.IdentificationNumber)
+            && await _context.People.AnyAsync(p => p.IdentificationNumber == person.IdentificationNumber
+            && p.Id != existingPerson.Id))
         {
-            throw new Exception("O Número de Identificação da pessoa deve ser único. Já existe no sistema.");
+            _logger.LogWarning("Duplicated IdentificationNumber try detected.");
+            throw new InvalidOperationException("O Número de Identificação da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (!string.IsNullOrEmpty(person.Email) &&
-            await _context.People.AnyAsync(p => p.Email == person.Email && p.Id != existingPerson.Id))
+        if (!string.IsNullOrEmpty(person.Email)
+            && await _context.People.AnyAsync(p => p.Email == person.Email
+            && p.Id != existingPerson.Id))
         {
-            throw new Exception("O Email da pessoa deve ser único. Já existe no sistema.");
+            _logger.LogWarning("Duplicated Email try detected.");
+            throw new InvalidOperationException("O Email da pessoa deve ser único. Já existe no sistema.");
         }
 
         _context.Entry(existingPerson).CurrentValues.SetValues(Person.ConvertUpdateDtoToEntity(person));
-
         await _context.SaveChangesAsync();
 
+        // Update cache
         var cacheKey = $"person:{existingPerson.Id}";
         await _cacheService.SetAsync(cacheKey, Person.ConvertEntityToRetrieveDto(existingPerson), TimeSpan.FromMinutes(30));
         await _cacheService.RemoveAsync("people:list");
