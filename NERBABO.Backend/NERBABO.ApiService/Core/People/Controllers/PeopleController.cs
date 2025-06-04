@@ -38,24 +38,45 @@ namespace NERBABO.ApiService.Core.People.Controllers
                     ));
 
             }
+            catch (InvalidOperationException e)
+            {
+                _logger.LogWarning(e, "Invalid operation while creating person");
+                return BadRequest(e.Message);
+            }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error creating person");
+                _logger.LogError(e, "Unexpected error creating person");
                 return BadRequest(e.Message);
             }
         }
 
         [Authorize]
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<RetrievePersonDto>>> GetAllPersonsAsync()
         {
-            var persons = await _peopleService.GetAllPeopleAsync();
-            if (persons == null || !persons.Any())
+            try
             {
-                _logger.LogWarning("No persons found.");
+                var persons = await _peopleService.GetAllPeopleAsync();
+
+                if (!persons.Any())
+                {
+                    _logger.LogWarning("No persons found.");
+                    return NotFound("Não foram encontradas pessoas no sistema.");
+                }
+
+                _logger.LogInformation("Fetching all persons.");
+                return Ok(persons);
+            }
+            catch (ArgumentNullException e)
+            {
+                _logger.LogWarning(e, "Argument null exception while fetching all persons");
                 return NotFound("Não foram encontradas pessoas no sistema.");
             }
-            return Ok(persons);
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Unexpected error logging fetching all persons");
+                return BadRequest(e.Message);
+            }
         }
 
         [Authorize]
@@ -65,11 +86,14 @@ namespace NERBABO.ApiService.Core.People.Controllers
             try
             {
                 var person = await _peopleService.GetPersonByIdAsync(id);
-                if (person == null)
-                {
-                    return NotFound("Pessoa não encontrada.");
-                }
+
+                _logger.LogInformation("Fetching person with ID: {Id}", id);
                 return Ok(person);
+            }
+            catch (KeyNotFoundException e)
+            {
+                _logger.LogWarning(e, "Person not found for ID: {Id}", id);
+                return NotFound("Pessoa não encontrada.");
             }
             catch (Exception e)
             {
@@ -83,24 +107,29 @@ namespace NERBABO.ApiService.Core.People.Controllers
         public async Task<ActionResult<RetrievePersonDto>> UpdatePersonAsync(long id, [FromBody] UpdatePersonDto person)
         {
             if (id != person.Id)
-            {
-                _logger.LogWarning("The id from the person passed on the body is not the same as the one passed on the url params");
                 return BadRequest("ID mismatch");
-            }
 
             try
             {
                 var updatedPerson = await _peopleService.UpdatePersonAsync(person);
-                if (updatedPerson == null)
-                {
-                    return NotFound("Pessoa não encontrada.");
-                }
+
+                _logger.LogInformation("Person updated successfully with ID: {Id}", id);
 
                 return Ok(new OkMessage(
                     "Pessoa Atualizada.",
                     $"Foi atualizada a pessoa com o nome {updatedPerson.FullName}.",
                     updatedPerson
                     ));
+            }
+            catch (KeyNotFoundException e)
+            {
+                _logger.LogWarning(e, "Person not found for ID: {Id}", id);
+                return NotFound(e.Message);
+            }
+            catch (InvalidOperationException e)
+            {
+                _logger.LogWarning(e, "Invalid operation while updating person");
+                return BadRequest(e.Message);
             }
             catch (Exception e)
             {
@@ -113,25 +142,28 @@ namespace NERBABO.ApiService.Core.People.Controllers
         [HttpDelete("delete/{id:long}")]
         public async Task<ActionResult> DeletePersonAsync(long id)
         {
-            if (id <= 0)
-            {
-                return BadRequest("Id de pessoa inválido");
-            }
-
             try
             {
-                var result = await _peopleService.DeletePersonAsync(id);
-                if (!result)
-                {
-                    return NotFound("Pessoa não encontrada.");
-                }
+                await _peopleService.DeletePersonAsync(id);
+
+                _logger.LogInformation("Person deleted successfully with ID: {Id}", id);
 
                 return Ok(new OkMessage()
                 {
                     Title = "Pessoa Eliminada",
                     Message = $"Foi eliminada a pessoa com o id {id}",
-                    Data = result
+                    Data = null
                 });
+            }
+            catch (KeyNotFoundException e)
+            {
+                _logger.LogWarning("Person not found for ID: {Id}", id);
+                return NotFound(e.Message);
+            }
+            catch (InvalidOperationException e)
+            {
+                _logger.LogWarning("Invalid operation while deleting person: {e}", e.Message);
+                return BadRequest(e.Message);
             }
             catch (Exception e)
             {

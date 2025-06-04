@@ -8,5 +8,5 @@ public interface IPeopleService
     Task<RetrievePersonDto> GetPersonByIdAsync(long id);
     Task<RetrievePersonDto> CreatePersonAsync(CreatePersonDto person);
     Task<RetrievePersonDto> UpdatePersonAsync(UpdatePersonDto person);
-    Task<bool> DeletePersonAsync(long id);
+    Task DeletePersonAsync(long id);
 }

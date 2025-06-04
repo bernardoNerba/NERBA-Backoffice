@@ -71,7 +71,7 @@ public class PeopleService : IPeopleService
         return personToRetrieve;
     }
 
-    public async Task<bool> DeletePersonAsync(long id)
+    public async Task DeletePersonAsync(long id)
     {
         // Check if person exists
         var existingPerson = await _context.People
@@ -92,8 +92,6 @@ public class PeopleService : IPeopleService
         // Remove from cache
         await _cacheService.RemoveAsync($"person:{id}");
         await _cacheService.RemoveAsync("people:list");
-
-        return true;
     }
 
     public async Task<IEnumerable<RetrievePersonDto>> GetAllPeopleAsync()
@@ -101,7 +99,7 @@ public class PeopleService : IPeopleService
         // Check if entry exists in cache
         var cacheKey = "people:list";
         var cachedPeople = await _cacheService.GetAsync<List<RetrievePersonDto>>(cacheKey);
-        if (cachedPeople != null && cachedPeople.Any())
+        if (cachedPeople != null && cachedPeople.Count > 0)
             return cachedPeople;
 
         // Not in cache so fetch from database
