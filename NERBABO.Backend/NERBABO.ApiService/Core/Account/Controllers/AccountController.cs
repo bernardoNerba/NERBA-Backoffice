@@ -60,20 +60,25 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             try
             {
                 await _accountService.RegistUserAsync(model);
+
+                _logger.LogInformation("User {UserName} created successfully.", model.UserName);
+
+                return Ok(new OkMessage(
+                    "Conta Criada",
+                    "A sua conta foi criada, pode iniciar sessão.",
+                    new { model.UserName, model.Email })
+                    );
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "User creation failed due to existing email or username.");
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating user {UserName}.", model.UserName);
-                return BadRequest(ex);
+                _logger.LogError(ex, "Unexpected error during user registration.");
+                return StatusCode(500, new { error = "Internal server error." });
             }
-
-            // Display success message
-            _logger.LogInformation("User {UserName} created successfully.", model.UserName);
-            return Ok(new OkMessage(
-                "Conta Criada",
-                "A sua conta foi criada, pode iniciar sessão.",
-                new { model.UserName, model.Email })
-                );
         }
 
         [Authorize(Roles = "Admin")]
@@ -90,30 +95,27 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 return Unauthorized("Não está autorizado a aceder a esta informação.");
             }
 
-            var retrieveUser = new RetrieveUserDto();
-
             try
             {
-                retrieveUser = await _accountService.BlockUserAsync(userId);
+                var retrieveUser = await _accountService.BlockUserAsync(userId);
 
                 if (retrieveUser == null)
                 {
                     _logger.LogWarning("User with ID {UserId} not found.", userId);
                     return NotFound($"Utilizador com ID {userId} não encontrado.");
                 }
+
+                return Ok(new OkMessage(
+                    $"Utilizador {(retrieveUser.IsActive ? "desbloqueado" : "bloqueado")}",
+                    $"O utilizador com ID {userId} foi {(retrieveUser.IsActive ? "desbloqueado" : "bloqueado")} com sucesso.",
+                    new { retrieveUser })
+                );
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while blocking user with ID {UserId}.", userId);
                 return BadRequest(ex);
             }
-
-            return Ok(new OkMessage(
-                $"Utilizador {(retrieveUser.IsActive ? "desbloqueado" : "bloqueado")}",
-                $"O utilizador com ID {userId} foi {(retrieveUser.IsActive ? "desbloqueado" : "bloqueado")} com sucesso.",
-                new { retrieveUser })
-            );
-
         }
 
         [Authorize(Roles = "Admin")]

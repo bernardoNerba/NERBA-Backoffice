@@ -29,59 +29,71 @@ public class AccountService : IAccountService
 
     public async Task RegistUserAsync(RegisterDto registerDto)
     {
+
         // Check email duplication
         if (await _userManager.FindByEmailAsync(registerDto.Email.ToLower()) != null)
         {
             _logger.LogWarning("Email {Email} already exists.", registerDto.Email);
-            throw new Exception($"Email {registerDto.Email} já existe.");
+            throw new InvalidOperationException($"Email {registerDto.Email} já existe.");
         }
 
         // check username duplication
         if (await _userManager.FindByNameAsync(registerDto.UserName.ToLower()) != null)
         {
             _logger.LogWarning("Username {UserName} already exists.", registerDto.UserName);
-            throw new Exception($"Nome de Utilizador {registerDto.UserName} já existe.");
+            throw new InvalidOperationException($"Nome de Utilizador {registerDto.UserName} já existe.");
         }
 
         // checks if the person exists
         if (!await _context.People.AnyAsync(p => p.Id == registerDto.PersonId))
         {
             _logger.LogWarning("Person with ID {PersonId} does not exist.", registerDto.PersonId);
-            throw new Exception($"A pessoa com o ID {registerDto.PersonId} não existe.");
+            throw new InvalidOperationException($"A pessoa com o ID {registerDto.PersonId} não existe.");
         }
 
         // checks if there is already a user associated with the person
         if (_userManager.Users.Any(u => u.PersonId == registerDto.PersonId))
         {
             _logger.LogWarning("User with PersonId {PersonId} already exists.", registerDto.PersonId);
-            throw new Exception("Já existe um utilizador associado a esta pessoa.");
+            throw new InvalidOperationException("Já existe um utilizador associado a esta pessoa.");
         }
 
-        // Create a new user object
-        // TODO: Implement email confirmation logic
-        var userToAdd = new User(registerDto.UserName.ToLower(), registerDto.Email.ToLower(), registerDto.PersonId);
+        var transaction = await _context.Database.BeginTransactionAsync();
 
-        var result = await _userManager.CreateAsync(userToAdd, registerDto.Password);
-        if (!result.Succeeded)
+        try
         {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            _logger.LogWarning("User creation failed for {UserName}. Errors: {Errors}",
-                registerDto.UserName, errors);
-            throw new Exception($"Falha ao criar o utilizador: {errors}");
-        }
 
-        var roleAssignmentResult = await _userManager.AddToRoleAsync(userToAdd, "User");
-        if (!roleAssignmentResult.Succeeded)
+            // Create a new user object
+            // TODO: Implement email confirmation logic
+            var userToAdd = new User(registerDto.UserName.ToLower(), registerDto.Email.ToLower(), registerDto.PersonId);
+
+            var result = await _userManager.CreateAsync(userToAdd, registerDto.Password);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogWarning("User creation failed for {UserName}. Errors: {Errors}",
+                    registerDto.UserName, errors);
+                throw new InvalidOperationException($"Falha ao criar o utilizador: {errors}");
+            }
+
+            var roleAssignmentResult = await _userManager.AddToRoleAsync(userToAdd, "User");
+            if (!roleAssignmentResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleAssignmentResult.Errors.Select(e => e.Description));
+                _logger.LogWarning("Role assignment failed for {UserName}. Errors: {Errors}",
+                    registerDto.UserName, errors);
+                throw new InvalidOperationException($"Falha ao atribuir a função: {errors}");
+            }
+
+
+            await transaction.CommitAsync();
+            await _cacheService.RemoveAsync("users:list");
+        }
+        catch (Exception)
         {
-            var errors = string.Join(", ", roleAssignmentResult.Errors.Select(e => e.Description));
-            _logger.LogWarning("Role assignment failed for {UserName}. Errors: {Errors}",
-                registerDto.UserName, errors);
-            throw new Exception($"Falha ao atribuir a função: {errors}");
+            transaction.Rollback();
+            throw;
         }
-
-        await _cacheService.RemoveAsync("users:list");
-        await _cacheService.SetAsync($"user:{userToAdd.Id}", User.ConvertEntityToRetrieveDto(userToAdd, _userManager), TimeSpan.FromMinutes(30));
-
     }
 
     public async Task<RetrieveUserDto?> BlockUserAsync(string userId)
