@@ -33,13 +33,11 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
             try
             {
@@ -65,29 +63,20 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
+
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
-            try
-            {
-                var newFrame = await _frameService.CreateFrameAsync(frame);
-                _logger.LogInformation("Frame created successfully.");
+            var newFrame = await _frameService.CreateFrameAsync(frame);
+            _logger.LogInformation("Frame created successfully.");
 
-                return Ok(new OkMessage(
-                    "Enquadramento Criado.",
-                    $"Foi criado um enquadramento com o programa {newFrame.Operation}.",
-                    newFrame
-                    ));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error creating frame");
-                return BadRequest(e.Message);
-            }
+            return Ok(new OkMessage(
+                "Enquadramento Criado.",
+                $"Foi criado um enquadramento com o programa {newFrame.Operation}.",
+                newFrame
+            ));
         }
 
         [Authorize(Roles = "Admin")]
@@ -96,66 +85,42 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
+
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
-            try
-            {
-                var frame = await _frameService.GetFrameByIdAsync(id);
-                if (frame == null)
-                {
-                    return NotFound("Enquadramento não encontrado.");
-                }
-                return Ok(frame);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error getting single frame");
-                return BadRequest(e.Message);
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+
+            var frame = await _frameService.GetFrameByIdAsync(id)
+                ?? throw new KeyNotFoundException("Enquadramento não encontrado.");
+            
+            return Ok(frame);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("update/{id:long}")]
         public async Task<ActionResult<RetrieveFrameDto>> UpdateFrameAsync(long id, [FromBody] UpdateFrameDto frame)
         {
+            if (id != frame.Id)
+                return BadRequest("ID mismatch");
+
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
+
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
-            if (id != frame.Id)
-            {
-                _logger.LogWarning("The id from the frame passed on the body is not the same as the one passed on the url params");
-                return BadRequest("ID mismatch");
-            }
 
-            try
-            {
-                var updatedFrame = await _frameService.UpdateFrameAsync(frame);
-                if (updatedFrame == null)
-                {
-                    return NotFound("Enquadramento não encontrada.");
-                }
+            var updatedFrame = await _frameService.UpdateFrameAsync(frame)
+                    ?? throw new KeyNotFoundException("Enquadramento não encontrado.");
 
-                return Ok(new OkMessage(
-                    "Enquadramento Atualizada.",
-                    $"Foi atualizada o enquadramento com o programa {updatedFrame.Program}.",
-                    updatedFrame
-                    ));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error updating frame");
-                return BadRequest(e.Message);
-            }
+            return Ok(new OkMessage(
+                "Enquadramento Atualizada.",
+                $"Foi atualizada o enquadramento com o programa {updatedFrame.Program}.",
+                updatedFrame
+            ));
         }
 
         [Authorize(Roles = "Admin")]
@@ -164,38 +129,25 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
+
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user!.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+
+            var result = await _frameService.DeleteFrameAsync(id);
+            if (!result)
             {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
+                return NotFound("Enquadramento não encontrado.");
             }
 
-            if (id <= 0)
+            return Ok(new OkMessage()
             {
-                return BadRequest("Id de enquadramento inválido");
-            }
+                Title = "Enquadramento Eliminado",
+                Message = $"Foi eliminado o enquadramento com o id {id}",
+                Data = result
+            });
 
-            try
-            {
-                var result = await _frameService.DeleteFrameAsync(id);
-                if (!result)
-                {
-                    return NotFound("Enquadramento não encontrado.");
-                }
-
-                return Ok(new OkMessage()
-                {
-                    Title = "Enquadramento Eliminado",
-                    Message = $"Foi eliminado o enquadramento com o id {id}",
-                    Data = result
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Error while trying to delete frame: {e}", e.Message);
-                return BadRequest(e.Message);
-            }
         }
     }
 }

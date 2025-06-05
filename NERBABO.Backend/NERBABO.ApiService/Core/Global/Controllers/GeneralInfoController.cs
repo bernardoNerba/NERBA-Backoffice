@@ -33,29 +33,19 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
-            try
+            var config = await _generalInfoService.GetGeneralInfoAsync();
+            if (config == null)
             {
-                var config = await _generalInfoService.GetGeneralInfoAsync();
-                if (config == null)
-                {
-                    _logger.LogWarning("Is possible that there is no general information configuration.");
-                    return NotFound("Não foi encontrada nenhum configuração geral no sistema.");
-                }
-                return Ok(config);
+                _logger.LogWarning("Is possible that there is no general information configuration.");
+                return NotFound("Não foi encontrada nenhum configuração geral no sistema.");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting general information configuration.");
-                return BadRequest(ex.Message);
-            }
+            return Ok(config);
 
         }
 
@@ -65,28 +55,18 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
-            try
-            {
-                await _generalInfoService.UpdateGeneralInfoAsync(updateConfig);
-                return Ok(new OkMessage(
-                    $"Configurações Gerais Atualizadas.",
-                    "Foram atualizadas as configurações gerais.",
-                    true
-                ));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error updating configurações gerais");
-                return BadRequest(e.Message);
-            }
+            await _generalInfoService.UpdateGeneralInfoAsync(updateConfig);
+            return Ok(new OkMessage(
+                $"Configurações Gerais Atualizadas.",
+                "Foram atualizadas as configurações gerais.",
+                true
+            ));
 
         }
     }

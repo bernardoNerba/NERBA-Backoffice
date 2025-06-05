@@ -16,6 +16,7 @@ using NERBABO.ApiService.Core.People.Services;
 using NERBABO.ApiService.Core.Teachers.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
+using NERBABO.ApiService.Shared.Middleware;
 using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;
 
@@ -46,6 +47,9 @@ builder.Services.AddScoped<IGeneralInfoService, GeneralInfoService>();
 builder.Services.AddScoped<ITaxService, TaxService>();
 builder.Services.AddScoped<IFrameService, FrameService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
+
+// Register Middleware as a service
+builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
@@ -173,6 +177,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.MapControllers();
 

@@ -54,13 +54,11 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
             try
             {
@@ -87,12 +85,11 @@ namespace NERBABO.ApiService.Core.Global.Controllers
 
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
+
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
             try
             {
@@ -117,12 +114,12 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
+
             // Check if the user is null or if they are not an admin
-            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+
             try
             {
                 await _TaxService.DeleteTaxAsync(id);

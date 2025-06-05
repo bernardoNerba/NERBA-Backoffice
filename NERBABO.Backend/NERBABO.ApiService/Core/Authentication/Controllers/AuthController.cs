@@ -158,22 +158,13 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
-            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            // Check if the user is null or if they are not an admin
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
-            try
-            {
-                await _roleService.UpdateUserRolesAsync(userRole);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao atribuir papéis ao utilizador.");
-                return BadRequest("Erro ao atribuir papéis ao utilizador: " + ex.Message);
-            }
+            await _roleService.UpdateUserRolesAsync(userRole);
 
             return Ok(new OkMessage()
             {
@@ -193,18 +184,14 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
+                (ClaimTypes.NameIdentifier)?.Value
+                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
-            if (user == null || !await user.CheckUserHasRoleAndActive("Admin", _userManager, _logger))
-            {
-                return Unauthorized("Não está autorizado a aceder a esta informação.");
-            }
+            // Check if the user is null or if they are not an admin
+            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
 
-            var userToModify = await _userManager.FindByIdAsync(userId);
-            if (userToModify == null)
-            {
-                return NotFound("User not found.");
-            }
+            var userToModify = await _userManager.FindByIdAsync(userId)
+                ?? throw new KeyNotFoundException("Utilizador não encontrado");
 
             var roles = await _userManager.GetRolesAsync(userToModify);
             return Ok(roles.ToList());

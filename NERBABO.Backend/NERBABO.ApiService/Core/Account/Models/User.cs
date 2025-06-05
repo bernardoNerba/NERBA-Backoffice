@@ -15,14 +15,10 @@ public class User : IdentityUser
     public long PersonId { get; set; }
     public Person? Person { get; set; }
 
-    public async Task<bool> CheckUserHasRoleAndActive(string role, UserManager<User> userManager, ILogger logger)
+    public async Task CheckUserHasRoleAndActive(string role, UserManager<User> userManager)
     {
-        bool result = (this != null) || await userManager.IsInRoleAsync(this, role) || IsActive;
-
-        if (!result)
-            logger.LogWarning("User not found or not authorized");
-
-        return result;
+        if ((this == null) || !await userManager.IsInRoleAsync(this, role) || !IsActive)
+            throw new UnauthorizedAccessException("Não está autorizado a aceder a esta informação.");
     }
 
     public User() { }
