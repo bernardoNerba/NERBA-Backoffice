@@ -58,7 +58,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             try
             {
@@ -89,7 +89,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             try
             {
@@ -118,7 +118,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             try
             {

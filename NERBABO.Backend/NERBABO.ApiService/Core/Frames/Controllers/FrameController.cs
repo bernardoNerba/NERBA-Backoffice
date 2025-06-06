@@ -1,4 +1,5 @@
-using System.Security.Claims;
+
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Shared.Models;
+using System.Security.Claims;
 
 namespace NERBABO.ApiService.Core.Frames.Controllers
 {
@@ -32,12 +34,12 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
         public async Task<ActionResult<IEnumerable<RetrieveFrameDto>>> GetAllFramesAsync()
         {
             // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
+            var userInstance = await _userManager.FindByIdAsync(User.FindFirst
                 (ClaimTypes.NameIdentifier)?.Value
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(userInstance!, "Admin", _userManager);
 
             try
             {
@@ -67,7 +69,7 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             var newFrame = await _frameService.CreateFrameAsync(frame);
             _logger.LogInformation("Frame created successfully.");
@@ -89,7 +91,7 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             var frame = await _frameService.GetFrameByIdAsync(id)
                 ?? throw new KeyNotFoundException("Enquadramento não encontrado.");
@@ -110,7 +112,7 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
 
             var updatedFrame = await _frameService.UpdateFrameAsync(frame)
@@ -133,19 +135,15 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            var result = await _frameService.DeleteFrameAsync(id);
-            if (!result)
-            {
-                return NotFound("Enquadramento não encontrado.");
-            }
+            await _frameService.DeleteFrameAsync(id);
 
             return Ok(new OkMessage()
             {
                 Title = "Enquadramento Eliminado",
                 Message = $"Foi eliminado o enquadramento com o id {id}",
-                Data = result
+                Data = null
             });
 
         }

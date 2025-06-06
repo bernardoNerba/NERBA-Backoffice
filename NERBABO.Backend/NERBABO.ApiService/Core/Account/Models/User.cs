@@ -15,12 +15,6 @@ public class User : IdentityUser
     public long PersonId { get; set; }
     public Person? Person { get; set; }
 
-    public async Task CheckUserHasRoleAndActive(string role, UserManager<User> userManager)
-    {
-        if ((this == null) || !await userManager.IsInRoleAsync(this, role) || !IsActive)
-            throw new UnauthorizedAccessException("Não está autorizado a aceder a esta informação.");
-    }
-
     public User() { }
 
     public User(string userName, string email, long personId) // Create user from account controller
@@ -33,10 +27,10 @@ public class User : IdentityUser
         LastLogin = DateTime.UtcNow;
     }
 
-    public async static Task<RetrieveUserDto?> ConvertEntityToRetrieveDto(User user, UserManager<User> userManager)
+    public async static Task<RetrieveUserDto> ConvertEntityToRetrieveDto(User user, UserManager<User> userManager)
     {
         if (user == null || user.Person == null)
-            return null;
+            throw new KeyNotFoundException("Utilizador ou Pessoa Associado ao mesmo não encontrado.");
 
         var roles = await userManager.GetRolesAsync(user);
 

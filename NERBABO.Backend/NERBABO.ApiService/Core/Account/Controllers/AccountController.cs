@@ -52,7 +52,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // Create the user in the identity system
             await _accountService.RegistUserAsync(model);
@@ -76,16 +76,16 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            var retrieveUser = await _accountService.BlockUserAsync(userId)
-                ?? throw new KeyNotFoundException("Utilizador não encontrado.");
+            // block user
+            await _accountService.BlockUserAsync(userId);
 
             return Ok(new OkMessage(
-                $"Utilizador {(retrieveUser.IsActive ? "desbloqueado" : "bloqueado")}",
-                $"O utilizador com ID {userId} foi {(retrieveUser.IsActive ? "desbloqueado" : "bloqueado")} com sucesso.",
-                new { retrieveUser })
-            );
+                "Estado da conta do utilizador alterado.",
+                "Estado da conta do utilizador alterado com sucesso.",
+                null
+            ));
         }
 
         [Authorize(Roles = "Admin")]
@@ -98,7 +98,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // Get all users
             var users = await _accountService.GetAllUsersAsync();
@@ -121,7 +121,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // Get the user by ID
             var singleUser = await _accountService.GetUserByIdAsync(id)
@@ -146,16 +146,10 @@ namespace NERBABO.ApiService.Core.Account.Controllers
                 ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
 
             // Check if the user is null or if they are not an admin
-            await user!.CheckUserHasRoleAndActive("Admin", _userManager);
-
+            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // try update the user
-            var result = await _accountService.UpdateUserAsync(model);
-            if (!result)
-            {
-                _logger.LogWarning("Failed to update the user");
-                return BadRequest("Falha ao editar o utilizador.");
-            }
+            await _accountService.UpdateUserAsync(model);
 
             // return message for UI
             return Ok(new OkMessage(

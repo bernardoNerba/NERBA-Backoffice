@@ -7,10 +7,12 @@ namespace NERBABO.ApiService.Shared.Middleware
     public class GlobalExceptionHandlerMiddleware : IMiddleware
     {
         private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
+        private readonly JsonSerializerOptions _serializer;
 
         public GlobalExceptionHandlerMiddleware(ILogger<GlobalExceptionHandlerMiddleware> logger)
         {
             _logger = logger;
+            _serializer = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -34,7 +36,7 @@ namespace NERBABO.ApiService.Shared.Middleware
 
             switch (exception)
             {
-                case KeyNotFoundException:
+                case KeyNotFoundException or ObjectNullException:
                     _logger.LogWarning(exception, "Resource not found: {Message}", exception.Message);
                     response.StatusCode = StatusCodes.Status404NotFound;
                     errorResponse.Message = "Recurso não encontrado.";
@@ -82,10 +84,7 @@ namespace NERBABO.ApiService.Shared.Middleware
                     break;
             }
 
-            var jsonResponse = JsonSerializer.Serialize(errorResponse, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            var jsonResponse = JsonSerializer.Serialize(errorResponse, _serializer);
 
             await response.WriteAsync(jsonResponse);
         }
