@@ -173,7 +173,7 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
                 Data = new
                 {
                     UserId = user.Id,
-                    Roles = userRole.Roles
+                    userRole.Roles
                 }
             });
         }

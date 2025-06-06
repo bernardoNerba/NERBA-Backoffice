@@ -145,7 +145,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
                 var taxes = await _TaxService.GetTaxesByTypeAsync(type);
                 if (!taxes.Any())
                 {
-                    _logger.LogError($"There is no taxes of type {type}, did you forget to load them?");
+                    _logger.LogError("There is no taxes of type {type}, did you forget to load them?", type);
                     return NotFound($"Não foram encontradas taxas do tipo {type}");
                 }
 

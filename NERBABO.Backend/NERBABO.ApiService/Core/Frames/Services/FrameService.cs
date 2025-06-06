@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Exceptions;
+using System.Linq.Expressions;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Frames.Services;
@@ -26,11 +28,11 @@ public class FrameService : IFrameService
         }
         if (await _context.Frames.AnyAsync(f => f.Program == frame.Program))
         {
-            throw new Exception("O Programa deve ser único. Já existe no sistema.");
+            throw new ValidationException("O Programa deve ser único. Já existe no sistema.");
         }
         if (await _context.Frames.AnyAsync(f => f.Operation == frame.Operation))
         {
-            throw new Exception("A Operação deve ser única. Já existe no sistema.");
+            throw new ValidationException("A Operação deve ser única. Já existe no sistema.");
         }
 
         var newFrame = Frame.ConvertCreateDtoToEntity(frame);
@@ -40,19 +42,14 @@ public class FrameService : IFrameService
         return Frame.ConvertEntityToRetrieveDto(newFrame);
     }
 
-    public async Task<bool> DeleteFrameAsync(long id)
+    public async Task DeleteFrameAsync(long id)
     {
         // TODO: When dependencies are added, check if the frame can be deleted
-        var existingFrame = await _context.Frames
-            .FirstOrDefaultAsync(f => f.Id == id);
-
-        if (existingFrame == null)
-            throw new Exception("Enquadramento não foi encontrado.");
+        var existingFrame = await _context.Frames.FindAsync(id)
+            ?? throw new KeyNotFoundException("Enquadramento não foi encontrado.") ;
 
         _context.Remove(existingFrame);
         await _context.SaveChangesAsync();
-
-        return true;
     }
 
     public async Task<IEnumerable<RetrieveFrameDto>> GetAllFramesAsync()
@@ -74,43 +71,29 @@ public class FrameService : IFrameService
                 .ThenBy(f => f.Program)];
     }
 
-    public async Task<RetrieveFrameDto?> GetFrameByIdAsync(long id)
+    public async Task<RetrieveFrameDto> GetFrameByIdAsync(long id)
     {
-        var existingFrame = await _context.Frames
-            .AsNoTracking()
-            .Where(f => f.Id == id)
-            .FirstOrDefaultAsync();
-
-        if (existingFrame == null)
-        {
-            _logger.LogWarning("GetFrameByIdAsync: Frame not found.");
-            return null;
-        }
+        var existingFrame = await _context.Frames.FindAsync(id)
+            ?? throw new KeyNotFoundException("Enquadramento não foi encontrado.");
 
         return Frame.ConvertEntityToRetrieveDto(existingFrame);
     }
 
-    public async Task<RetrieveFrameDto?> UpdateFrameAsync(UpdateFrameDto frame)
+    public async Task<RetrieveFrameDto> UpdateFrameAsync(UpdateFrameDto frame)
     {
         var existingFrame = await _context.Frames
-            .Where(f => f.Id == frame.Id)
-            .FirstOrDefaultAsync();
-
-        if (existingFrame == null)
-        {
-            _logger.LogWarning("UpdateFrameAsync: Frame not found");
-            return null;
-        }
+            .FindAsync(frame.Id)
+            ?? throw new KeyNotFoundException("Enquadramento não foi encontrado.");
 
         if (!string.IsNullOrEmpty(frame.Program)
         && await _context.Frames.AnyAsync(f => f.Program == frame.Program && f.Id != existingFrame.Id))
         {
-            throw new Exception("O Programa deve ser único. Já existe no sistema.");
+            throw new ValidationException("O Programa deve ser único. Já existe no sistema.");
         }
         if (!string.IsNullOrEmpty(frame.Operation)
         && await _context.Frames.AnyAsync(f => f.Operation == frame.Operation && f.Id != existingFrame.Id))
         {
-            throw new Exception("A Operação deve ser única. Já existe no sistema.");
+            throw new ValidationException("A Operação deve ser única. Já existe no sistema.");
         }
 
         _context.Entry(existingFrame).CurrentValues.SetValues(Frame.ConvertUpdateDtoToEntity(frame));
