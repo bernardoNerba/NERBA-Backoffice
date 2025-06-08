@@ -8,6 +8,7 @@ using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Authentication.Controllers
 {
@@ -21,13 +22,15 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         private readonly AppDbContext _context;
         private readonly IJwtService _jwtService;
         private readonly IRoleService _roleService;
+        private readonly IResponseHandler _responseHandler;
 
         public AuthController(ILogger<AuthController> logger,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             AppDbContext context,
             IJwtService jwtService,
-            IRoleService roleService)
+            IRoleService roleService,
+            IResponseHandler responseHandler)
         {
             _logger = logger;
             _userManager = userManager;
@@ -35,6 +38,7 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
             _context = context;
             _jwtService = jwtService;
             _roleService = roleService;
+            _responseHandler = responseHandler;
         }
         /// <summary>
         /// Refreshes the authentication token for the currently logged-in user.
@@ -154,7 +158,7 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("set-role")]
-        public async Task<ActionResult> SetRoleToUserAsync([FromBody] UserRoleDto userRole)
+        public async Task<IActionResult> SetRoleToUserAsync([FromBody] UserRoleDto userRole)
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
@@ -164,18 +168,8 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            await _roleService.UpdateUserRolesAsync(userRole);
-
-            return Ok(new OkMessage()
-            {
-                Title = "Papeis atribuídos com sucesso.",
-                Message = "Os papéis foram atribuídos com sucesso ao usuário.",
-                Data = new
-                {
-                    UserId = user!.Id,
-                    userRole.Roles
-                }
-            });
+            Result result = await _roleService.UpdateUserRolesAsync(userRole);
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]

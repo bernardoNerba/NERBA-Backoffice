@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
+using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Authentication.Services;
 
@@ -20,13 +21,15 @@ public class RoleService : IRoleService
 
     }
 
-    public async Task UpdateUserRolesAsync(UserRoleDto userRole)
+    public async Task<Result> UpdateUserRolesAsync(UserRoleDto userRole)
     {
         var userToModify = await _userManager.FindByIdAsync(userRole.UserId);
-        if (userToModify == null)
+        if (userToModify is null)
         {
             _logger.LogError("Utilizador com ID {UserId} não encontrado.", userRole.UserId);
-            throw new Exception("Utilizador não encontrado.");
+            return Result
+                .Fail("Não encontrado.", "Utilizador não encontrado.",
+                StatusCodes.Status404NotFound);
         }
 
         // Check if the roles exist
@@ -36,7 +39,9 @@ public class RoleService : IRoleService
             if (!roleExists)
             {
                 _logger.LogError("O papel '{Role}' não existe no sistema.", role);
-                throw new Exception($"O papel '{role}' não existe no sistema.");
+                return Result
+                .Fail("Não encontrado.", $"O papel '{role}' não existe no sistema.",
+                StatusCodes.Status404NotFound);
             }
         }
 
@@ -52,7 +57,9 @@ public class RoleService : IRoleService
             if (!removeResult.Succeeded)
             {
                 _logger.LogError("Erro ao remover papeis: {Errors}", string.Join(", ", removeResult.Errors.Select(e => e.Description)));
-                throw new Exception("Erro ao atribuir papeis.");
+                return Result
+                    .Fail("Não encontrado.", "Erro ao atribuir papeis.");
+
             }
         }
 
@@ -63,9 +70,12 @@ public class RoleService : IRoleService
             if (!addResult.Succeeded)
             {
                 _logger.LogError("Erro ao adicionar papeis: {Errors}", string.Join(", ", addResult.Errors.Select(e => e.Description)));
-                throw new Exception("Erro ao atribuir papeis.");
+                return Result.Fail("Não encontrado.", "Erro ao atribuir papeis.");
             }
         }
+
+        return Result
+            .Ok("Papeis atribuídos com sucesso.", "Os papéis foram atribuídos com sucesso ao usuário.");
 
     }
 

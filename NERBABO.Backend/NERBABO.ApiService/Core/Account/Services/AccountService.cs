@@ -97,19 +97,24 @@ public class AccountService : IAccountService
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"{errors}");
+                return Result
+                    .Fail("Falha ao registar utilizador.", errors);
             }
 
             var roleAssignmentResult = await _userManager.AddToRoleAsync(userToAdd, "User");
             if (!roleAssignmentResult.Succeeded)
             {
                 var errors = string.Join(", ", roleAssignmentResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Falha ao atribuir a função: {errors}");
+                return Result
+                    .Fail("Falha ao atribuir a função", errors);
             }
 
             // Update the cache
             await transaction.CommitAsync();
             await _cacheService.RemoveAsync("users:list");
+
+            return Result
+                .Ok("Utilizador registado.", $"Utilizador {userToAdd.UserName} registado com sucesso.", StatusCodes.Status201Created);
         }
         catch (Exception)
         {
@@ -141,12 +146,15 @@ public class AccountService : IAccountService
     /// 4. Refreshes the user cache (both individual user and users list)
     /// Note: This is a toggle operation - it will reverse the current IsActive state.
     /// </remarks>
-    public async Task BlockUserAsync(string userId)
+    public async Task<Result> BlockUserAsync(string userId)
     {
         var user = await _userManager.Users
             .Include(u => u.Person)
-            .FirstOrDefaultAsync(u => u.Id == userId)
-            ?? throw new KeyNotFoundException($"Utilizador não encontrado.");
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user is null)
+            return Result
+                .Fail("Não encontrado.", "Utilizador não encontrado.", StatusCodes.Status404NotFound);
 
         // Toggle the IsActive property
         user.IsActive = !user.IsActive;
@@ -156,82 +164,98 @@ public class AccountService : IAccountService
         if (!result.Succeeded)
         {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            throw new ValidationException($"Falha ao bloquear o utilizador: {errors}");
+            return Result
+                .Fail("Falha ao atualizar.", errors);
         }
 
         var retrievedUserDto = await User.ConvertEntityToRetrieveDto(user, _userManager);
 
+        // update cache
         await _cacheService.RemoveAsync("users:list");
         await _cacheService.SetAsync($"user:{user.Id}", retrievedUserDto, TimeSpan.FromMinutes(30));
+
+        return Result
+            .Ok("Estado da conta do utilizador alterado.", "Estado da conta do utilizador alterado com sucesso.");
     }
 
-    public async Task<IEnumerable<RetrieveUserDto>> GetAllUsersAsync()
+    public async Task<Result<IEnumerable<RetrieveUserDto>>> GetAllUsersAsync()
     {
 
         // Check if the users are cached
         var cacheKey = "users:list";
         var cachedUsers = await _cacheService.GetAsync<IEnumerable<RetrieveUserDto>>(cacheKey);
-        if (cachedUsers != null)
-            return cachedUsers;
+        if (cachedUsers is not null)
+            return Result<IEnumerable<RetrieveUserDto>>.Ok(cachedUsers);
 
         // Fetch users from the database
         List<User> existingUsers = await _userManager.Users
             .Include(u => u.Person)
-            .ToListAsync() ?? throw new("No users found in the database.");
+            .ToListAsync();
 
-        if (existingUsers == null || existingUsers.Count == 0)
+        // check if there is data
+        if (existingUsers is null || existingUsers.Count == 0)
         {
             _logger.LogWarning("No users found in the database.");
-            throw new KeyNotFoundException("No users found in the database.");
+            return Result<IEnumerable<RetrieveUserDto>>
+                .Fail("Não encontrado.", "Não foram encontrados utilizadores.",
+                StatusCodes.Status404NotFound);
         }
 
-        // Get all users from the database
+        // Query users
         var users = existingUsers
             .AsValueEnumerable()
             .Select(u => User.ConvertEntityToRetrieveDto(u, _userManager).Result)
-            .OrderByDescending(u => u?.Roles.Count)
-            .ThenBy(u => u?.FullName)
+            .OrderByDescending(u => u.Roles.Count)
+            .ThenBy(u => u.FullName)
             .ToList();
 
         await _cacheService.SetAsync(cacheKey, users, TimeSpan.FromMinutes(30));
 
         // Return the users sorted by roles quantity and then by full name
-        return users!;
+        return Result<IEnumerable<RetrieveUserDto>>
+            .Ok(users);
     }
 
-    public async Task<RetrieveUserDto> GetUserByIdAsync(string id)
+    public async Task<Result<RetrieveUserDto>> GetUserByIdAsync(string id)
     {
 
         // Try to get from cache
         var cacheKey = $"user:{id}";
         var cachedUser = await _cacheService.GetAsync<RetrieveUserDto>(cacheKey);
-        if (cachedUser != null)
-            return cachedUser;
+        if (cachedUser is not null)
+            return Result<RetrieveUserDto>.Ok(cachedUser);
 
         // Get user from DB
         var userEntity = await _userManager.Users
             .Include(u => u.Person)
-            .FirstOrDefaultAsync(u => u.Id == id)
-            ?? throw new KeyNotFoundException("Utilizador não encontrado."); ;
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (userEntity is null)
+            return Result<RetrieveUserDto>
+                .Fail("Não encontrado.", "Utilizador não encontrado.",
+                StatusCodes.Status404NotFound);
 
 
         // Convert to DTO
-        var userDto = await User.ConvertEntityToRetrieveDto(userEntity, _userManager);
+        var user = await User.ConvertEntityToRetrieveDto(userEntity, _userManager);
 
         // Cache the DTO
-        await _cacheService.SetAsync(cacheKey, userDto, TimeSpan.FromMinutes(30));
+        await _cacheService.SetAsync(cacheKey, user, TimeSpan.FromMinutes(30));
 
-        return userDto;
+        return Result<RetrieveUserDto>.Ok(user);
     }
 
-    public async Task UpdateUserAsync(UpdateUserDto model)
+    public async Task<Result> UpdateUserAsync(UpdateUserDto model)
     {
         // Get the user from the database
         var user = await _userManager.Users
             .Include(u => u.Person)
-            .FirstOrDefaultAsync(u => u.Id == model.Id)
-            ?? throw new KeyNotFoundException("Utilizador não encontrado");
-
+            .FirstOrDefaultAsync(u => u.Id == model.Id);
+        
+        if (user is null)
+            return Result
+                .Fail("Não encontrado", "Utilizador não encontrado.", StatusCodes.Status404NotFound);
+        
         // assign the new values to the user
         user.Email = model.Email;
         user.UserName = model.UserName;
@@ -243,7 +267,8 @@ public class AccountService : IAccountService
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
             if (!result.Succeeded)
-                throw new ValidationException("Formato de password inválido");
+                return Result
+                    .Fail("Password Inválida.", "O formato da password fornecida está inválido.");
         }
 
         // update the user
@@ -252,5 +277,8 @@ public class AccountService : IAccountService
         // update cache
         await _cacheService.RemoveAsync("users:list");
         await _cacheService.SetAsync($"user:{user.Id}", await User.ConvertEntityToRetrieveDto(user, _userManager), TimeSpan.FromMinutes(30));
+
+        return Result
+            .Ok("Utilizador atualizado.", $"Utilizador {user.UserName} atualizado.");
     }
 }

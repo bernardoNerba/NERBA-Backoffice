@@ -6,6 +6,7 @@ using NERBABO.ApiService.Core.Account.Dtos;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Account.Controllers
 {
@@ -16,14 +17,18 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<User> _userManager;
         private readonly IAccountService _accountService;
+        private readonly IResponseHandler _responseHandler;
+
         public AccountController(
             ILogger<AccountController> logger,
             UserManager<User> userManager,
-            IAccountService accountService)
+            IAccountService accountService,
+            IResponseHandler responseHandler)
         {
             _logger = logger;
             _userManager = userManager;
             _accountService = accountService;
+            _responseHandler = responseHandler;
         }
 
         /// <summary>
@@ -55,15 +60,9 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // Create the user in the identity system
-            await _accountService.RegistUserAsync(model);
+            Result result = await _accountService.RegistUserAsync(model);
+            return _responseHandler.HandleResult(result);
 
-            _logger.LogInformation("User {UserName} created successfully.", model.UserName);
-
-            return Ok(new OkMessage(
-                "Conta Criada",
-                "A sua conta foi criada, pode iniciar sessão.",
-                new { model.UserName, model.Email })
-                );
         }
 
         [Authorize(Roles = "Admin")]
@@ -79,13 +78,9 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // block user
-            await _accountService.BlockUserAsync(userId);
-
-            return Ok(new OkMessage(
-                "Estado da conta do utilizador alterado.",
-                "Estado da conta do utilizador alterado com sucesso.",
-                null
-            ));
+            Result result = await _accountService.BlockUserAsync(userId);
+            return _responseHandler.HandleResult(result);
+            
         }
 
         [Authorize(Roles = "Admin")]
@@ -101,14 +96,8 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // Get all users
-            var users = await _accountService.GetAllUsersAsync();
-            if (!users.Any()) // No users found
-            {
-                _logger.LogWarning("No users found while performing query.");
-                return NotFound("Não foram encontrados utilizadores.");
-            }
-
-            return Ok(users);
+            Result<IEnumerable<RetrieveUserDto>> result = await _accountService.GetAllUsersAsync();
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]
@@ -124,10 +113,9 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // Get the user by ID
-            var singleUser = await _accountService.GetUserByIdAsync(id)
-                ?? throw new KeyNotFoundException("Utilizador não encontrado.");
+            var result = await _accountService.GetUserByIdAsync(id);
             
-            return Ok(singleUser);
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]
@@ -136,9 +124,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         {
             // Check model id is same as id from url
             if (id != model.Id)
-            {
                 return BadRequest("User ID mismatch.");
-            }
 
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
@@ -149,14 +135,10 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
             // try update the user
-            await _accountService.UpdateUserAsync(model);
+            Result result = await _accountService.UpdateUserAsync(model);
 
             // return message for UI
-            return Ok(new OkMessage(
-                "Utilizador atualizado.",
-                $"Utilizador com o email {model.Email} atualizado.",
-                model
-                ));
+            return _responseHandler.HandleResult(result);
         }
 
 
