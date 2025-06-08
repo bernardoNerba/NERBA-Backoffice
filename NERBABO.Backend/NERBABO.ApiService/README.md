@@ -16,13 +16,78 @@ foreach (var item in seq)
 }
 ```
 
+## Comments Documentation
+
+Services and Helper methods are the prioritary target to maintain documentated following this pattern:
+
+```c#
+        /// <summary>
+        /// What does it do ?
+        /// </summary>
+        /// <param name="foo">
+        /// </param>
+        /// foo Info related like what is it describing
+        /// <param name="bar">
+        /// </param>
+        /// bar Info related like what is it describing
+        /// <param name="baz">
+        /// baza Info related like what is it describing
+        /// </param>
+        /// <returns>
+        /// Returns what ?
+        /// </returns>
+```
+
+## Modifiying database
+
+Always that one Service handles more than one critical database operation, use transactions:
+
+```C#
+var transaction = await _context.Database.BeginTransactionAsync();
+
+try
+{
+    // do operations to database
+    await transaction.CommitAsync();
+} catch (Exception)
+{
+    transaction.Rollback();
+}
+```
+
 ## Using Humanizer Pt
 
 Humanizer meets all your .NET needs for manipulating and displaying strings, enums, dates, times, timespans, numbers and quantities. Please refer to https://github.com/Humanizr/Humanizer
 
-## Services
+## Global Exceptions Handler
 
-Contains de business logic for the controller to use.
+Global Exceptions Handler The GlobalExceptionHandlerMiddleware is a centralized error-handling component that implements the IMiddleware interface. It intercepts unhandled exceptions that occur during the request pipeline and converts them into standardized API responses. This approach promotes cleaner, more maintainable, and scalable code by separating error-handling logic from business logic.
 
-- Always use `.FindAsync(id)` method to get a object by the key and throw `KeyNotFoundException` as one liner.
-- Check if a given argument that must be unic in the system exists already with `.AnyAsync()` and throw `InvalidOperationException` with a message in pt-PT for the Frontend to use.
+Purpose Centralized exception handling across the application.
+
+Consistent error responses to clients.
+
+Improved logging and diagnostics.
+
+Facilitates environment-aware error reporting (e.g., hiding stack traces in production).
+
+Exception Handling Logic The middleware processes exceptions based on their type and maps them to appropriate HTTP status codes and user-friendly messages:
+
+| Exception Type | HTTP Status Code | Message | Description |
+| --- | --- | --- | --- |
+| `KeyNotFoundException`, `ObjectNullException` | `404 Not Found` | `"Recurso não encontrado."` | Used when a requested resource does not exist. |
+| `InvalidOperationException` | `400 Bad Request` | `"Operação inválida."` | Indicates that the operation is not allowed in the current context. |
+| `ArgumentNullException`, `ArgumentException` | `400 Bad Request` | `"Parâmetros inválidos."` | Thrown when an invalid or null parameter is passed. |
+| `UnauthorizedAccessException` | `401 Unauthorized` | `"Acesso não autorizado."` | Used when the request lacks valid authentication credentials. |
+| `ValidationException` | `400 Bad Request` | `"Erro de validação."` | Indicates one or more validation errors occurred. |
+| _(Default case — all other exceptions)_ | `500 Internal Server Error` | `"Erro interno do servidor."` | Catch-all for unexpected errors. Detailed information is included **only in development** environments. |
+
+Response Format Each handled exception returns a structured JSON response typically containing:
+
+```json
+{
+  "message": "Erro de validação.",
+  "details": "The field 'Email' is required.",
+  "stackTrace": "..." // Included only in Development
+}
+```

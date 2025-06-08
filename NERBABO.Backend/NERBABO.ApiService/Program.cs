@@ -48,8 +48,9 @@ builder.Services.AddScoped<ITaxService, TaxService>();
 builder.Services.AddScoped<IFrameService, FrameService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
 
-// Register Middleware as a service
+// Register Other like middleware services
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
+builder.Services.AddTransient<IResponseHandler, ResponseHandler>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>

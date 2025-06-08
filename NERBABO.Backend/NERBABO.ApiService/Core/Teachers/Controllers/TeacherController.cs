@@ -24,7 +24,7 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult> CreateTeacherAsync([FromBody] CreateTeacherDto createTeacherDto)
+        public async Task<IActionResult> CreateTeacherAsync([FromBody] CreateTeacherDto createTeacherDto)
         {
             var newTeacher = await _teacherService.CreateTeacherAsync(createTeacherDto);
                 

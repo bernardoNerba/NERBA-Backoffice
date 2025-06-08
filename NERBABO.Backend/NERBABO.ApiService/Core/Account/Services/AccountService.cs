@@ -1,11 +1,10 @@
-using System;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Dtos;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Exceptions;
+using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 using ZLinq;
 
@@ -29,35 +28,65 @@ public class AccountService : IAccountService
         _cacheService = cacheService;
     }
 
-    public async Task RegistUserAsync(RegisterDto registerDto)
+    /// <summary>
+    /// Registers a new user within the system after performing validation checks.
+    /// </summary>
+    /// <param name="registerDto">
+    /// The registration data containing username, email, password, and associated person ID.
+    /// </param>
+    /// <returns>
+    /// async task
+    /// </returns>
+    /// <exception cref="ValidationException">
+    /// Thrown when: 
+    /// - Email already exists
+    /// - Username already exists
+    /// - Person doesn't exist
+    /// - Person already has a user account
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when user creation or role assignment fails.
+    /// </exception>
+    /// <remarks>
+    /// This method performs the following operations:
+    /// 1. Validates email and username uniqueness
+    /// 2. Verifies the associated person exists
+    /// 3. Creates the user account
+    /// 4. Assigns the default "User" role
+    /// 5. Updates the users cache
+    /// All operations are performed within a transaction.
+    /// </remarks>
+    public async Task<Result> RegistUserAsync(RegisterDto registerDto)
     {
-
         // Check email duplication
-        if (await _userManager.FindByEmailAsync(registerDto.Email.ToLower()) != null)
+        if (await _userManager.FindByEmailAsync(registerDto.Email.ToLower()) is not null)
         {
-            throw new ValidationException($"Email {registerDto.Email} já existe.");
+            return Result
+                .Fail("Email duplicado.", $"Email {registerDto.Email} já existe.");
         }
 
         // check username duplication
-        if (await _userManager.FindByNameAsync(registerDto.UserName.ToLower()) != null)
+        if (await _userManager.FindByNameAsync(registerDto.UserName.ToLower()) is not null)
         {
-            throw new ValidationException($"Nome de Utilizador {registerDto.UserName} já existe.");
+            return Result
+                .Fail("Username duplicado.", $"Nome de Utilizador {registerDto.UserName} já existe.");
         }
 
         // checks if the person exists
-        if (!await _context.People.AnyAsync(p => p.Id == registerDto.PersonId))
-        {
-            throw new ValidationException($"A pessoa com o ID {registerDto.PersonId} não existe.");
-        }
+        var person = await _context.People.FindAsync(registerDto.PersonId);
+        if (person is null)
+            return Result
+                .Fail("Não encontrado.", $"A pessoa que tentou associar ao utilizador não existe.", 
+                StatusCodes.Status404NotFound);
 
         // checks if there is already a user associated with the person
-        if (_userManager.Users.Any(u => u.PersonId == registerDto.PersonId))
-        {
-            throw new ValidationException("Já existe um utilizador associado a esta pessoa.");
-        }
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.PersonId == person.Id);
+        if (user is not null)
+            return Result
+                    .Fail("Pessoa já tem uma conta.", $"A pessoa que tentou associar já é um utilizador.");
 
+        // Begin database transaction
         var transaction = await _context.Database.BeginTransactionAsync();
-
         try
         {
             // Create a new user object
@@ -89,6 +118,29 @@ public class AccountService : IAccountService
         }
     }
 
+    /// <summary>
+    /// Toggles the active status of a user (blocks/unblocks).
+    /// </summary>
+    /// <param name="userId">
+    /// The unique identifier of the user to block/unblock.
+    /// </param>
+    /// <returns>
+    /// A Task representing the asynchronous operation.
+    /// </returns>
+    /// <exception cref="KeyNotFoundException">
+    /// Thrown when the specified user is not found.
+    /// </exception>
+    /// <exception cref="ValidationException">
+    /// Thrown when the user status update fails.
+    /// </exception>
+    /// <remarks>
+    /// This method:
+    /// 1. Finds the user by ID (including associated Person data)
+    /// 2. Toggles the IsActive status
+    /// 3. Updates the user in the database
+    /// 4. Refreshes the user cache (both individual user and users list)
+    /// Note: This is a toggle operation - it will reverse the current IsActive state.
+    /// </remarks>
     public async Task BlockUserAsync(string userId)
     {
         var user = await _userManager.Users
@@ -190,7 +242,7 @@ public class AccountService : IAccountService
             // generate token to reset password and update it
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
-            if (!result.Succeeded) 
+            if (!result.Succeeded)
                 throw new ValidationException("Formato de password inválido");
         }
 
