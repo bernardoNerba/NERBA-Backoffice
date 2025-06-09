@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Shared.Services
@@ -70,6 +68,5 @@ namespace NERBABO.ApiService.Shared.Services
                 StatusCode = result.StatusCode ?? StatusCodes.Status400BadRequest
             };
         }
-
     }
 }

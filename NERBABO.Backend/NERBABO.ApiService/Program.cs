@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -9,9 +8,11 @@ using Microsoft.IdentityModel.Tokens;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
 using NERBABO.ApiService.Core.Authentication.Services;
+using NERBABO.ApiService.Core.Companies.Services;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
 using NERBABO.ApiService.Core.People.Services;
+using NERBABO.ApiService.Core.Students.Services;
 using NERBABO.ApiService.Core.Teachers.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
@@ -46,6 +47,8 @@ builder.Services.AddScoped<IGeneralInfoService, GeneralInfoService>();
 builder.Services.AddScoped<ITaxService, TaxService>();
 builder.Services.AddScoped<IFrameService, FrameService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 // Register Other like middleware services
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
@@ -54,20 +57,10 @@ builder.Services.AddTransient<IResponseHandler, ResponseHandler>();
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 {
-    try
-    {
-        var connectionString = sp.GetRequiredService<IConfiguration>()
-                .GetConnectionString("postgres");
-        options.UseNpgsql(connectionString);
-
-    }
-    catch (InvalidOperationException ex)
-    {
-        Debug.WriteLine($"Something went wrong with database connection:\n{ex}");
-    }
+    var connectionString = sp.GetRequiredService<IConfiguration>()
+            .GetConnectionString("postgres");
+    options.UseNpgsql(connectionString);
 });
-
-
 
 // Configure Identity
 builder.Services.AddIdentityCore<User>(options =>
@@ -123,12 +116,17 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         .SelectMany(e => e.Value!.Errors)
         .Select(x => x.ErrorMessage).ToArray();
 
-        var toReturn = new
+        var problemDetails = new ProblemDetails()
         {
-            Errors = errors
+            Title = "Erro de Validação",
+            Detail = errors.ToString(),
+            Status = StatusCodes.Status400BadRequest
         };
 
-        return new BadRequestObjectResult(toReturn);
+        return new ObjectResult(problemDetails)
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
     };
 });
 
@@ -138,8 +136,6 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
-
-
 
 // Handle migrations and seed the database
 using (var scope = app.Services.CreateScope())
@@ -153,7 +149,6 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<User>>();
 
     var seeder = new SeedDataHelp(userManager, roleManager, dbContext, builder.Configuration);
-
 
     await seeder.InitializeAsync();
 }
