@@ -1,5 +1,3 @@
-
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +5,7 @@ using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 using System.Security.Claims;
 
 namespace NERBABO.ApiService.Core.Frames.Controllers
@@ -18,20 +17,23 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
         private readonly IFrameService _frameService;
         private readonly ILogger<FrameController> _logger;
         private readonly UserManager<User> _userManager;
+        private readonly IResponseHandler _responseHandler;
 
         public FrameController(
             IFrameService frameService,
             ILogger<FrameController> logger,
-            UserManager<User> userManager)
+            UserManager<User> userManager,
+            IResponseHandler responseHandler)
         {
             _frameService = frameService;
             _logger = logger;
             _userManager = userManager;
+            _responseHandler = responseHandler;
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RetrieveFrameDto>>> GetAllFramesAsync()
+        public async Task<IActionResult> GetAllFramesAsync()
         {
             // Get the user from the token
             var userInstance = await _userManager.FindByIdAsync(User.FindFirst
@@ -41,27 +43,15 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(userInstance!, "Admin", _userManager);
 
-            try
-            {
-                // Get all frames
-                var frames = await _frameService.GetAllFramesAsync();
-                if (frames.ToList().Count == 0) // No frames found
-                {
-                    _logger.LogInformation("No frames found while performing query.");
-                    return NotFound("Não foram encontrados enquadramentos");
-                }
-                return Ok(frames);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error retrieving frames");
-                return BadRequest(e.Message);
-            }
+            // Get all frames
+            Result<IEnumerable<RetrieveFrameDto>> frames = await _frameService.GetAllFramesAsync();
+            
+            return _responseHandler.HandleResult(frames);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost("create")]
-        public async Task<ActionResult> CreateFrameAsync([FromBody] CreateFrameDto frame)
+        public async Task<IActionResult> CreateFrameAsync([FromBody] CreateFrameDto frame)
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
@@ -71,19 +61,14 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            var newFrame = await _frameService.CreateFrameAsync(frame);
-            _logger.LogInformation("Frame created successfully.");
+            Result<RetrieveFrameDto> result = await _frameService.CreateFrameAsync(frame);
 
-            return Ok(new OkMessage(
-                "Enquadramento Criado.",
-                $"Foi criado um enquadramento com o programa {newFrame.Operation}.",
-                newFrame
-            ));
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id:long}")]
-        public async Task<ActionResult<RetrieveFrameDto>> GetFrameAsync(long id)
+        public async Task<IActionResult> GetFrameAsync(long id)
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
@@ -93,15 +78,13 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            var frame = await _frameService.GetFrameByIdAsync(id)
-                ?? throw new KeyNotFoundException("Enquadramento não encontrado.");
-            
-            return Ok(frame);
+            Result<RetrieveFrameDto> result = await _frameService.GetFrameByIdAsync(id);
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("update/{id:long}")]
-        public async Task<ActionResult<RetrieveFrameDto>> UpdateFrameAsync(long id, [FromBody] UpdateFrameDto frame)
+        public async Task<IActionResult> UpdateFrameAsync(long id, [FromBody] UpdateFrameDto frame)
         {
             if (id != frame.Id)
                 return BadRequest("ID mismatch");
@@ -115,19 +98,14 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
 
-            var updatedFrame = await _frameService.UpdateFrameAsync(frame)
-                    ?? throw new KeyNotFoundException("Enquadramento não encontrado.");
+            Result<RetrieveFrameDto> result = await _frameService.UpdateFrameAsync(frame);
 
-            return Ok(new OkMessage(
-                "Enquadramento Atualizada.",
-                $"Foi atualizada o enquadramento com o programa {updatedFrame.Program}.",
-                updatedFrame
-            ));
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{id:long}")]
-        public async Task<ActionResult> DeleteFrameAsync(long id)
+        public async Task<IActionResult> DeleteFrameAsync(long id)
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
@@ -137,14 +115,9 @@ namespace NERBABO.ApiService.Core.Frames.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            await _frameService.DeleteFrameAsync(id);
+            Result result = await _frameService.DeleteFrameAsync(id);
 
-            return Ok(new OkMessage()
-            {
-                Title = "Enquadramento Eliminado",
-                Message = $"Foi eliminado o enquadramento com o id {id}",
-                Data = null
-            });
+            return _responseHandler.HandleResult(result);
 
         }
     }
