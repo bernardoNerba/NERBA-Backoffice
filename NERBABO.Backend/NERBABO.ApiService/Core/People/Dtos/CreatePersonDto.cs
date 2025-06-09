@@ -65,11 +65,11 @@ public class CreatePersonDto
         ErrorMessage = "Nacionalidade deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public string? Nationality { get; set; } = string.Empty;
 
-    public string? IdentificationType { get; set; } = IdentificationTypeEnum.Unknown.Humanize().Transform(To.TitleCase);
+    public string? IdentificationType { get; set; }
 
-    public string? Gender { get; set; } = GenderEnum.Unknown.Humanize().Transform(To.TitleCase);
+    public string? Gender { get; set; }
 
-    public string? Habilitation { get; set; } = HabilitationEnum.WithoutProof.Humanize().Transform(To.TitleCase);
+    public string? Habilitation { get; set; }
 
 
 }

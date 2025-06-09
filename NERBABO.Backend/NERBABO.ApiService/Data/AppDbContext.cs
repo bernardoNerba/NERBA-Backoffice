@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.Companies.Models;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.People.Models;
+using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Data.Configurations;
 
@@ -16,6 +18,8 @@ public class AppDbContext : IdentityDbContext<User>
     public DbSet<GeneralInfo> GeneralInfo { get; set; } // only 1 instance
     public DbSet<Frame> Frames { get; set; }
     public DbSet<Teacher> Teachers { get; set; }
+    public DbSet<Company> Companies { get; set; }
+    public DbSet<Student> Students { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)

@@ -135,9 +135,9 @@ public class JwtService : IJwtService
                 .Fail("Erro de Validação", "Email/Username ou password inválidos.");
         }
 
-
+        var loggedInUser = await GetPersonAndBuildJwt(user);
         return Result<LoggedInUserDto>
-            .Ok(await GetPersonAndBuildJwt(user));
+            .Ok(loggedInUser);
     }
 
 
@@ -151,7 +151,5 @@ public class JwtService : IJwtService
             person?.LastName ?? "",
             await CreateJwt(user)
             );
-
-
     }
 }

@@ -104,7 +104,8 @@ public class TeacherService : ITeacherService
 
         if (person is null)
             return Result<RetrieveTeacherDto>
-                .Fail("Não encontrado", "Formador não encontrado.", StatusCodes.Status404NotFound);
+                .Fail("Não encontrado", "Formador não encontrado.", 
+                StatusCodes.Status404NotFound);
 
         var teacher = await _context.Teachers
             .Include(t => t.IvaRegime)

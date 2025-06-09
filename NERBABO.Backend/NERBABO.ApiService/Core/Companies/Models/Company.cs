@@ -1,4 +1,6 @@
-﻿using NERBABO.ApiService.Core.Students.Models;
+﻿using Humanizer;
+using NERBABO.ApiService.Core.Companies.Dtos;
+using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 
@@ -17,5 +19,52 @@ namespace NERBABO.ApiService.Core.Companies.Models
 
 
         public List<Student> Students { get; set; } = [];
+
+        public static RetrieveCompanyDto ConvertEntityToRetrieveDto(Company c)
+        {
+            return new RetrieveCompanyDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Address = c.Address,
+                PhoneNumber = c.PhoneNumber,
+                Locality = c.Locality,
+                ZipCode = c.ZipCode,
+                Email = c.Email,
+                AtivitySector = c.AtivitySector.Humanize().Transform(To.TitleCase),
+                Size = c.Size.Humanize().Transform(To.TitleCase)
+            };
+        }
+
+        public static Company ConvertCreateDtoToEntity(CreateCompanyDto c)
+        {
+            return new Company
+            {
+                Name = c.Name,
+                Address = c.Address,
+                PhoneNumber = c.PhoneNumber,
+                Locality = c.Locality,
+                ZipCode = c.ZipCode,
+                Email = c.Email,
+                AtivitySector = c.AtivitySector.DehumanizeTo<AtivitySectorEnum>(),
+                Size = c.Size.DehumanizeTo<CompanySizeEnum>()
+            };
+        }
+
+        public static Company ConvertUpdateDtoToEntity(UpdateCompanyDto c)
+        {
+            return new Company
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Address = c.Address,
+                PhoneNumber = c.PhoneNumber,
+                Locality = c.Locality,
+                ZipCode = c.ZipCode,
+                Email = c.Email,
+                AtivitySector = c.AtivitySector.DehumanizeTo<AtivitySectorEnum>(),
+                Size = c.Size.DehumanizeTo<CompanySizeEnum>()
+            };
+        }
     }
 }

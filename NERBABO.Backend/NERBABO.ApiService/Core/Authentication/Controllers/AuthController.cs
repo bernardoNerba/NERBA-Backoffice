@@ -94,7 +94,7 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto model)
         {
-            Result result = await _jwtService.GenerateJwtOnLoginAsync(model);
+            Result<LoggedInUserDto> result = await _jwtService.GenerateJwtOnLoginAsync(model);
             return _responseHandler.HandleResult(result);
         }
 

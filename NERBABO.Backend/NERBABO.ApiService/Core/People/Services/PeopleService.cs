@@ -1,11 +1,15 @@
+using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Helper;
+using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
+using System;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.People.Services;
@@ -57,6 +61,28 @@ public class PeopleService : IPeopleService
         {
             _logger.LogWarning("Duplicated Email try detected.");
             return Result<RetrievePersonDto>.Fail("Email duplicado.", "O Email da pessoa deve ser único. Já existe no sistema.");
+        }
+
+        // enum checks
+        if (!string.IsNullOrEmpty(person.Gender) 
+            && !EnumHelp.IsValidEnum<GenderEnum>(person.Gender))
+        {
+            return Result<RetrievePersonDto>
+                .Fail("Não encontrado", "Género não encontrado", StatusCodes.Status404NotFound);
+        }
+
+        if (!string.IsNullOrEmpty(person.Habilitation) 
+            && !EnumHelp.IsValidEnum<HabilitationEnum>(person.Habilitation))
+        {
+            return Result<RetrievePersonDto>
+                .Fail("Não encontrado", "Tipo de Habilitações não encontrado", StatusCodes.Status404NotFound);
+        }
+
+        if (!string.IsNullOrEmpty(person.IdentificationType) 
+            && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(person.IdentificationType))
+        {
+            return Result<RetrievePersonDto>
+                .Fail("Não encontrado", "Tipo de Identificação não encontrado", StatusCodes.Status404NotFound);
         }
 
         // create person on database
@@ -210,6 +236,29 @@ public class PeopleService : IPeopleService
             return Result<RetrievePersonDto>.Fail("Email duplicado.", "O Email da pessoa deve ser único. Já existe no sistema.");
         }
 
+
+        // enum checks
+        if (!string.IsNullOrEmpty(person.Gender)
+            && !EnumHelp.IsValidEnum<GenderEnum>(person.Gender))
+        {
+            return Result<RetrievePersonDto>
+                .Fail("Não encontrado", "Género não encontrado", StatusCodes.Status404NotFound);
+        }
+
+        if (!string.IsNullOrEmpty(person.Habilitation)
+            && !EnumHelp.IsValidEnum<HabilitationEnum>(person.Habilitation))
+        {
+            return Result<RetrievePersonDto>
+                .Fail("Não encontrado", "Tipo de Habilitações não encontrado", StatusCodes.Status404NotFound);
+        }
+
+        if (!string.IsNullOrEmpty(person.IdentificationType)
+            && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(person.IdentificationType))
+        {
+            return Result<RetrievePersonDto>
+                .Fail("Não encontrado", "Tipo de Identificação não encontrado", StatusCodes.Status404NotFound);
+        }
+
         _context.Entry(existingPerson).CurrentValues.SetValues(Person.ConvertUpdateDtoToEntity(person));
         await _context.SaveChangesAsync();
 
@@ -223,4 +272,5 @@ public class PeopleService : IPeopleService
                 "Pessoa Atualizada.", 
                 $"Foi atualizada a pessoa com o nome {existingPerson.FirstName} {existingPerson.LastName}.");
     }
+
 }
