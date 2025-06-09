@@ -2,6 +2,8 @@
 using NERBABO.ApiService.Core.Companies.Dtos;
 using NERBABO.ApiService.Core.Companies.Models;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Helper;
+using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Companies.Services
@@ -48,6 +50,22 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 _logger.LogWarning("Duplicated Comapny PhoneNumber");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Número de Telefone da Empresa está duplicado.");
+            }
+
+            //enums check
+            if (!string.IsNullOrEmpty(createCompanyDto.AtivitySector)
+                && !EnumHelp.IsValidEnum<AtivitySectorEnum>(createCompanyDto.AtivitySector))
+            {
+                return Result<RetrieveCompanyDto>
+                    .Fail("Não encontrado", "Setor de atividade não encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+            if(!string.IsNullOrEmpty(createCompanyDto.Size)
+                && !EnumHelp.IsValidEnum<CompanySizeEnum>(createCompanyDto.Size))
+            {
+                return Result<RetrieveCompanyDto>
+                    .Fail("Não encontrado", "Tamanho da Empresa não encontrado.",
+                    StatusCodes.Status404NotFound);
             }
 
             var company = Company.ConvertCreateDtoToEntity(createCompanyDto);
@@ -119,6 +137,23 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 _logger.LogWarning("Duplicated Comapny PhoneNumber");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Número de Telefone da Empresa está duplicado.");
+            }
+
+
+            //enums check
+            if (!string.IsNullOrEmpty(updateCompanyDto.AtivitySector)
+                && !EnumHelp.IsValidEnum<AtivitySectorEnum>(updateCompanyDto.AtivitySector))
+            {
+                return Result<RetrieveCompanyDto>
+                    .Fail("Não encontrado", "Setor de atividade não encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+            if (!string.IsNullOrEmpty(updateCompanyDto.Size)
+                && !EnumHelp.IsValidEnum<CompanySizeEnum>(updateCompanyDto.Size))
+            {
+                return Result<RetrieveCompanyDto>
+                    .Fail("Não encontrado", "Tamanho da Empresa não encontrado.",
+                    StatusCodes.Status404NotFound);
             }
 
             var company = Company.ConvertUpdateDtoToEntity(updateCompanyDto);
