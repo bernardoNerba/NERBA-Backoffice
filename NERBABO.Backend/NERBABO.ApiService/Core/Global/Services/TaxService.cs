@@ -68,8 +68,9 @@ public class TaxService : ITaxService
     {
         
         var existingTaxes = await _context.Taxes
-            .Select(t => Tax.ConvertEntityToRetrieveDto(t))
             .OrderBy(t => t.Id)
+            .ThenByDescending(t => t.ValuePercent)
+            .Select(t => Tax.ConvertEntityToRetrieveDto(t))
             .ToListAsync();
 
         if (existingTaxes is null || existingTaxes.Count == 0)
@@ -95,7 +96,7 @@ public class TaxService : ITaxService
                 StatusCodes.Status404NotFound);
 
         if (existingTax.Name != tax.Name
-            && !_context.Taxes.Any(i => i.Name == tax.Name))
+            && await _context.Taxes.AnyAsync(i => i.Name == tax.Name))
         {
             return Result
                 .Fail("Erro de Validação", "Já existe uma taxa com estas caracteristicas");

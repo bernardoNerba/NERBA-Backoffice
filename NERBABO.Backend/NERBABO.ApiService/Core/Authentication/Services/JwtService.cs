@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NERBABO.ApiService.Core.Account.Models;
-using NERBABO.ApiService.Core.Authentication.Services;
+using NERBABO.ApiService.Core.Authentication.Dtos;
+using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace NerbaApp.Api.Services.AccountServices;
+namespace NERBABO.ApiService.Core.Authentication.Services;
 
 /// <summary>
 /// Service for handling JWT (JSON Web Token) creation and management.
@@ -16,6 +19,9 @@ public class JwtService : IJwtService
     private readonly IConfiguration _config;
     private readonly SymmetricSecurityKey _jwtKey;
     private readonly UserManager<User> _userManager;
+    private readonly AppDbContext _context;
+    private readonly ILogger<JwtService> _logger;
+    private readonly SignInManager<User> _signInManager;
 
     /// <summary>
     /// Initializes a new instance of the JwtService.
@@ -27,16 +33,22 @@ public class JwtService : IJwtService
     /// <param name="config">Application configuration containg JWT settings
     /// set on appsettings.json</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public JwtService(IConfiguration config,
-    UserManager<User> userManager)
+    public JwtService(
+        IConfiguration config,
+        UserManager<User> userManager,
+        AppDbContext context,
+        ILogger<JwtService> logger,
+        SignInManager<User> signInManager)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _jwtKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["JWT:Key"]
-            ?? throw new ArgumentNullException("JWT:Key is not configured"))
+            ?? throw new ("JWT:Key is not configured"))
         );
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-
+        _context = context;
+        _logger = logger;
+        _signInManager = signInManager;
     }
 
     /// <summary>
@@ -52,7 +64,7 @@ public class JwtService : IJwtService
     /// - GivenName (first name)
     /// - Surname (last name)
     /// </remarks>
-    public async Task<string> CreateJwt(User user)
+    private async Task<string> CreateJwt(User user)
     {
         ArgumentNullException.ThrowIfNull(user);
 
@@ -88,5 +100,58 @@ public class JwtService : IJwtService
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwt = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(jwt);
+    }
+
+    public async Task<Result<LoggedInUserDto>> GenerateRefreshTokenAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return Result<LoggedInUserDto>
+                .Fail("Não autorizado.", "Token não é válido.");
+
+        return Result<LoggedInUserDto>
+            .Ok(await GetPersonAndBuildJwt(user));
+    }
+
+    public async Task<Result<LoggedInUserDto>> GenerateJwtOnLoginAsync(LoginDto model)
+    {
+        // Try to find user by username first, then fall back to email
+        var user = await _userManager.FindByNameAsync(model.UsernameOrEmail)
+            ?? await _userManager.FindByEmailAsync(model.UsernameOrEmail);
+
+        if (user is null)
+        {
+            _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User not found.", model.UsernameOrEmail);
+            return Result<LoggedInUserDto>
+                .Fail("Erro de Validação", "Email/Username ou password inválidos.");
+        }
+
+        var validPassword = await _signInManager
+            .CheckPasswordSignInAsync(user, model.Password, false);
+        if (!validPassword.Succeeded)
+        {
+            _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. Inválid Password.", model.UsernameOrEmail);
+            return Result<LoggedInUserDto>
+                .Fail("Erro de Validação", "Email/Username ou password inválidos.");
+        }
+
+
+        return Result<LoggedInUserDto>
+            .Ok(await GetPersonAndBuildJwt(user));
+    }
+
+
+    private async Task<LoggedInUserDto> GetPersonAndBuildJwt(User user)
+    {
+        var person = await _context.People
+            .FirstOrDefaultAsync(p => p.Id == user.PersonId);
+
+        return new LoggedInUserDto(
+            person?.FirstName ?? "",
+            person?.LastName ?? "",
+            await CreateJwt(user)
+            );
+
+
     }
 }

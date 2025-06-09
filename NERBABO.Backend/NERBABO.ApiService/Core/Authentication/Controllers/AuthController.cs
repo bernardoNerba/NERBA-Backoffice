@@ -56,24 +56,14 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         /// <response code="400">If the token is invalid or user cannot be found</response>
         [Authorize]
         [HttpGet("refresh-user-token")]
-        public async Task<ActionResult> RefreshUserToken()
+        public async Task<IActionResult> RefreshUserToken()
         {
-            var userToBuildJWT = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value ?? "");
-
-            if (userToBuildJWT == null)
-            {
-                _logger.LogWarning("User not found for token refresh. Invalid token or user not found.");
-                return BadRequest("Token Inválido. Porfavor efetue login para obter um novo token");
-            }
-
-            var loogedUser = new LoggedInUserDto(
-                userToBuildJWT.Person!.FirstName,
-                userToBuildJWT.Person!.LastName,
-                _jwtService.CreateJwt(userToBuildJWT).Result
-            );
-            _logger.LogInformation("Token refreshed successfully for {UserId}", userToBuildJWT.Id);
-            return Ok(loogedUser);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                throw new UnauthorizedAccessException();
+           
+            Result<LoggedInUserDto> result = await _jwtService.GenerateRefreshTokenAsync(userId);
+            return _responseHandler.HandleResult(result);
         }
 
         /// <summary>
@@ -102,57 +92,10 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         /// <response code="200">Returns the authenticated user's details.</response>
         /// <response code="400">Invalid username/email or password.</response>
         [HttpPost("login")]
-        public async Task<ActionResult> Login(LoginDto model)
+        public async Task<IActionResult> Login(LoginDto model)
         {
-            // Try to find user by username first, then fall back to email
-            var user = await _userManager.FindByNameAsync(model.UsernameOrEmail)
-                ?? await _userManager.FindByEmailAsync(model.UsernameOrEmail);
-
-            if (user == null)
-            {
-                _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User not found.", model.UsernameOrEmail);
-                return BadRequest("Email/Username ou password inválidos.");
-            }
-
-            // Verify password
-            var result = await _signInManager
-                .CheckPasswordSignInAsync(user, model.Password, false);
-            if (!result.Succeeded)
-            {
-                _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User not found.", model.UsernameOrEmail);
-                return BadRequest("Email/Username ou password inválidos.");
-            }
-
-            // Map user entity to DTO (excludes sensitive data)
-            var userToBuildJWT = await _context.Users
-                .Include(u => u.Person)
-                .FirstOrDefaultAsync(u => u == user);
-
-
-            if (userToBuildJWT == null)
-            {
-                _logger.LogWarning("Bad user to generate JWT token {user}", model.UsernameOrEmail);
-                return BadRequest("Email/Username ou password inválidos.");
-            }
-
-            // CHeck if user is not bloqued
-            if (!userToBuildJWT.IsActive)
-            {
-                _logger.LogWarning("User {UsernameOrEmail} is blocked.", model.UsernameOrEmail);
-                return BadRequest("Utilizador bloqueado.");
-            }
-
-            // Update last login time
-            userToBuildJWT.LastLogin = DateTime.UtcNow;
-            await _userManager.UpdateAsync(userToBuildJWT);
-
-            var userDto = new LoggedInUserDto(
-                userToBuildJWT.Person!.FirstName,
-                userToBuildJWT.Person!.LastName,
-                _jwtService.CreateJwt(userToBuildJWT).Result
-            );
-            _logger.LogInformation("User {UsernameOrEmail} logged in successfully.", model.UsernameOrEmail);
-            return Ok(userDto);
+            Result result = await _jwtService.GenerateJwtOnLoginAsync(model);
+            return _responseHandler.HandleResult(result);
         }
 
 

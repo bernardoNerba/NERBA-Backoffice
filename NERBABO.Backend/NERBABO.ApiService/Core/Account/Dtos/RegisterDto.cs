@@ -19,5 +19,5 @@ public class RegisterDto
     public string Password { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "É obrigatório associar uma pessoa ao utilizador.")]
-    public int PersonId { get; set; }
+    public long PersonId { get; set; }
 }

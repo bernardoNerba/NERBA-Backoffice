@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using NerbaApp.Api.Services.AccountServices;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
 using NERBABO.ApiService.Core.Authentication.Services;

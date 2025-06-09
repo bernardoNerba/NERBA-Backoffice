@@ -68,10 +68,11 @@ public class FrameService : IFrameService
     public async Task<Result<IEnumerable<RetrieveFrameDto>>> GetAllFramesAsync()
     {
         var existingFrames = await _context.Frames
-            .Select(f => Frame.ConvertEntityToRetrieveDto(f))
             .OrderByDescending(f => f.CreatedAt)
             .ThenBy(f => f.Program)
+            .Select(f => Frame.ConvertEntityToRetrieveDto(f))
             .ToListAsync();
+
 
         if (existingFrames is null || existingFrames.Count == 0)
         {

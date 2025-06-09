@@ -2,6 +2,8 @@ using Humanizer;
 using NERBABO.ApiService.Core.Global.Dtos;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Global.Models;
 
@@ -33,6 +35,8 @@ public class Tax
         Type = type;
     }
 
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public int ValuePercent { get; set; }
