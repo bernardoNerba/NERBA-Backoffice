@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Global.Dtos;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Models;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
@@ -23,17 +24,19 @@ public class GeneralInfoService : IGeneralInfoService
         _logger = logger;
     }
 
-    public async Task<RetrieveGeneralInfoDto> GetGeneralInfoAsync()
+    public async Task<Result<RetrieveGeneralInfoDto>> GetGeneralInfoAsync()
     {
-        if (_cachedConfig != null)
-            return GeneralInfo.ConvertEntityToRetrieveDto(_cachedConfig);
+        if (_cachedConfig is not null)
+            return Result<RetrieveGeneralInfoDto>
+                .Ok(GeneralInfo.ConvertEntityToRetrieveDto(_cachedConfig));
 
         await _cacheLock.WaitAsync();
         try
         {
             // Double-check in case another thread loaded it while we were waiting
-            if (_cachedConfig != null)
-                return GeneralInfo.ConvertEntityToRetrieveDto(_cachedConfig);
+            if (_cachedConfig is not null)
+                return Result<RetrieveGeneralInfoDto>
+                    .Ok(GeneralInfo.ConvertEntityToRetrieveDto(_cachedConfig));
 
             _cachedConfig = await _context.GeneralInfo
                 .Include(c => c.IvaTax)
@@ -41,7 +44,8 @@ public class GeneralInfoService : IGeneralInfoService
                 .Where(c => c.Id == 1)
                 .FirstAsync(); // Will throw if no records exist
 
-            return GeneralInfo.ConvertEntityToRetrieveDto(_cachedConfig);
+            return Result<RetrieveGeneralInfoDto>
+                    .Ok(GeneralInfo.ConvertEntityToRetrieveDto(_cachedConfig));
         }
         catch (InvalidOperationException ex)
         {
@@ -63,11 +67,12 @@ public class GeneralInfoService : IGeneralInfoService
         GC.SuppressFinalize(this);
     }
 
-    public async Task UpdateGeneralInfoAsync(UpdateGeneralInfoDto updateGeneralInfo)
+    public async Task<Result> UpdateGeneralInfoAsync(UpdateGeneralInfoDto updateGeneralInfo)
     {
-        if (!await _context.Taxes.AnyAsync(t => t.Id == updateGeneralInfo.IvaId))
+        if (await _context.Taxes.FindAsync(updateGeneralInfo.IvaId) is null)
         {
-            throw new Exception("Não existe esta taxa de Iva.");
+            return Result
+                .Fail("Não encontrado.", "Taxa de Iva não encontrada.");
         }
 
         var config = GeneralInfo.ConvertUpdateDtoToEntity(updateGeneralInfo);
@@ -83,6 +88,9 @@ public class GeneralInfoService : IGeneralInfoService
             c.LogoFinancing = config.LogoFinancing;
             c.IvaId = config.IvaId;
         });
+
+        return Result
+            .Ok("Informação Atualizada.", "Foram atualizadas as configurações gerais.");
     }
 
 

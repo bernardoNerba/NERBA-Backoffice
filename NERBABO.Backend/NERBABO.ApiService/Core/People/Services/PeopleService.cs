@@ -89,9 +89,28 @@ public class PeopleService : IPeopleService
             return Result.Fail("Falha ao eliminar pessoa.", "Não pode eliminar uma pessoa que é um utilizador.");
         }
 
-        // remove from database
-        _context.Remove(existingPerson);
-        await _context.SaveChangesAsync();
+        var transaction = _context.Database.BeginTransaction();
+        try
+        {
+            var existingTeacher = await _context.Teachers.FirstOrDefaultAsync(t => t.PersonId == id);
+            if (existingTeacher is not null)
+            {
+                _context.Teachers.Remove(existingTeacher);
+            }
+            
+            // remove from database
+            _context.People.Remove(existingPerson);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception) 
+        {
+            transaction.Rollback();
+            throw;
+        } 
+        finally 
+        { 
+            await transaction.CommitAsync(); 
+        }
 
         // Remove from cache
         await _cacheService.RemoveAsync($"person:{id}");

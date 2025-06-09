@@ -110,7 +110,6 @@ public class AccountService : IAccountService
             }
 
             // Update the cache
-            await transaction.CommitAsync();
             await _cacheService.RemoveAsync("users:list");
 
             return Result
@@ -120,6 +119,10 @@ public class AccountService : IAccountService
         {
             transaction.Rollback();
             throw;
+        }
+        finally
+        {
+            await transaction.CommitAsync();
         }
     }
 

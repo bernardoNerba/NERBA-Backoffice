@@ -1,10 +1,13 @@
 
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.Latency;
 using NERBABO.ApiService.Core.Global.Dtos;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Enums;
+using NERBABO.ApiService.Shared.Models;
+using System.Collections.Generic;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
@@ -20,111 +23,110 @@ public class TaxService : ITaxService
         _context = context;
         _logger = logger;
     }
-    public async Task CreateTaxAsync(CreateTaxDto tax)
+    public async Task<Result> CreateTaxAsync(CreateTaxDto tax)
     {
         if (!IsValidTaxType(tax.Type))
-        {
-            throw new Exception("Tipo de taxa inválido.");
-        }
+            return Result
+                .Fail("Erro de Validação.", "Taxa inválida.");
 
         if (await _context.Taxes.AnyAsync(t => t.Name == tax.Name))
-        {
-            throw new Exception("Já existe uma taxa com este regime.");
-        }
+            return Result
+                .Fail("Erro de Validação", "Já existe uma taxa com este regime.",
+                StatusCodes.Status404NotFound);
 
-        try
-        {
-            _context.Taxes.Add(Tax.ConvertCreateDtoToEntity(tax));
-            await _context.SaveChangesAsync();
+        _context.Taxes.Add(Tax.ConvertCreateDtoToEntity(tax));
+        await _context.SaveChangesAsync();
 
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating tax.");
-            throw new Exception("Erro ao criar taxa.");
-        }
+        return Result
+            .Ok("Taxa Criada.", $"Taxa {tax.Name} criada com sucesso.", StatusCodes.Status201Created);
     }
 
-    public async Task DeleteTaxAsync(int id)
+    public async Task<Result> DeleteTaxAsync(int id)
     {
-        var taxIva = await _context.Taxes.FirstOrDefaultAsync(t => t.Id == id)
-            ?? throw new Exception("Taxa não encontrada.");
+        var taxIva = await _context.Taxes.FindAsync(id);
+        if (taxIva is null)
+            return Result
+                .Fail("Não encontrado.", "Taxa não encontrada.",
+                StatusCodes.Status404NotFound);
 
         if ((await _context.GeneralInfo.Where(g => g.Id == 1).FirstAsync()).IvaId == id ||
             (await _context.Teachers.Where(t => t.IvaRegimeId == id).AnyAsync()) ||
             (await _context.Teachers.Where(t => t.IrsRegimeId == id).AnyAsync()))
         {
-            throw new Exception("Não é possível eliminar esta taxa sendo que existem entidades associadas");
+            return Result
+                .Fail("Erro de Validação", "Não é possível eliminar esta taxa sendo que existem entidades associadas");
         }
 
-        try
-        {
-            _context.Taxes.Remove(taxIva);
-            await _context.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting tax Iva");
-            throw new Exception("Erro ao eliminar taxa de IVA.");
-        }
+        _context.Taxes.Remove(taxIva);
+        await _context.SaveChangesAsync();
+
+        return Result
+            .Ok("Taxa Iva Eliminada.", "Taxa de Iva eliminada com sucesso.");
     }
 
-    public async Task<IEnumerable<RetrieveTaxDto>> GetAllTaxesAsync()
+    public async Task<Result<IEnumerable<RetrieveTaxDto>>> GetAllTaxesAsync()
     {
-        List<RetrieveTaxDto> taxes = [];
-        try
-        {
-            var existingTaxes = await _context.Taxes
-                .OrderBy(t => t.Id)
-                .ToListAsync();
+        
+        var existingTaxes = await _context.Taxes
+            .Select(t => Tax.ConvertEntityToRetrieveDto(t))
+            .OrderBy(t => t.Id)
+            .ToListAsync();
 
-            foreach (var tax in existingTaxes)
-            {
-                taxes.Add(Tax.ConvertEntityToRetrieveDto(tax));
-            }
-            return taxes;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Error :");
-            return [];
-        }
+        if (existingTaxes is null || existingTaxes.Count == 0)
+            return Result<IEnumerable<RetrieveTaxDto>>
+                .Fail("Não encontrado.", "Não foram encontradas taxas.");
+
+        return Result<IEnumerable<RetrieveTaxDto>>
+            .Ok(existingTaxes);
     }
 
-    public async Task UpdateTaxAsync(UpdateTaxDto tax)
+    public async Task<Result> UpdateTaxAsync(UpdateTaxDto tax)
     {
         if (!IsValidTaxType(tax.Type))
-        {
-            throw new Exception("Tipo de taxa inválido.");
-        }
+            return Result
+                    .Fail("Erro de Validação.", "Taxa inválida.");
 
         var existingTax = await _context.Taxes
-            .FirstAsync(i => i.Id == tax.Id)
-            ?? throw new Exception("Operação Inválida");
+            .FirstAsync(i => i.Id == tax.Id);
+
+        if (existingTax is null)
+            return Result
+                .Fail("Não encontrado.", "Taxa para atualizar não encontrada.",
+                StatusCodes.Status404NotFound);
 
         if (existingTax.Name != tax.Name
             && !_context.Taxes.Any(i => i.Name == tax.Name))
         {
-            throw new Exception("Já existe uma taxa com estas caracteristicas");
+            return Result
+                .Fail("Erro de Validação", "Já existe uma taxa com estas caracteristicas");
         }
 
         _context.Entry(existingTax).CurrentValues.SetValues(Tax.ConvertUpdateDtoToEntity(tax));
         await _context.SaveChangesAsync();
+        return Result
+            .Ok("Taxa Atualizada.", "Taxa atualizada com sucesso.");
     }
 
-    public async Task<IEnumerable<RetrieveTaxDto>> GetTaxesByTypeAsync(string type)
+    public async Task<Result<IEnumerable<RetrieveTaxDto>>> GetTaxesByTypeAsync(string type)
     {
         if (!IsValidTaxType(type))
-        {
-            throw new Exception("Tipo de taxa inválido.");
-        }
+            return Result<IEnumerable<RetrieveTaxDto>>
+                .Fail("Erro de Validação.", "Taxa inválida.");
 
         var taxType = type.DehumanizeTo<TaxEnum>();
 
-        return await _context.Taxes
+        var existingTaxes = await _context.Taxes
             .Where(t => t.Type == taxType)
             .Select(t => Tax.ConvertEntityToRetrieveDto(t))
             .ToListAsync();
+
+        if (existingTaxes is null || existingTaxes.Count == 0)
+            return Result<IEnumerable<RetrieveTaxDto>>
+                .Fail("Não encontrado.", "Não foram encontradas taxas",
+                StatusCodes.Status404NotFound);
+
+        return Result<IEnumerable<RetrieveTaxDto>>
+            .Ok(existingTaxes);
     }
 
     #region Private Helper Methods

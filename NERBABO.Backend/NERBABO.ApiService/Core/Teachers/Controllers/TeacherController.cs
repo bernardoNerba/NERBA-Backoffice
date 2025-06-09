@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.Teachers.Dtos;
 using NERBABO.ApiService.Core.Teachers.Services;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Teachers.Controllers
 {
@@ -14,74 +15,51 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
     {
         private readonly ITeacherService _teacherService;
         private readonly ILogger<TeacherController> _logger;
+        private readonly IResponseHandler _responseHandler;
+
         public TeacherController(
             ITeacherService teacherService,
-            ILogger<TeacherController> logger)
+            ILogger<TeacherController> logger,
+            IResponseHandler responseHandler)
         {
             _teacherService = teacherService;
             _logger = logger;
+            _responseHandler = responseHandler;
         }
 
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateTeacherAsync([FromBody] CreateTeacherDto createTeacherDto)
         {
-            var newTeacher = await _teacherService.CreateTeacherAsync(createTeacherDto);
-                
-            _logger.LogInformation("Teacher created successfully.");
-                
-            return Ok(new OkMessage(
-                "Formador Criado.",
-                $"Foi criado um formador com sucesso.",
-                newTeacher
-            ));
+            Result<RetrieveTeacherDto> result = await _teacherService.CreateTeacherAsync(createTeacherDto);
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize]
         [HttpGet("person/{personId}")]
-        public async Task<ActionResult<RetrieveTeacherDto>> GetTeacherByPersonIdAsync(long personId)
+        public async Task<IActionResult> GetTeacherByPersonIdAsync(long personId)
         {
-            var teacher = await _teacherService.GetTeacherByPersonIdAsync(personId);
-            if (teacher == null)
-            {
-                _logger.LogWarning("Teacher not found for Person ID: {PersonId}", personId);
-                return NotFound("Formador não encontrado para o ID de pessoa fornecido.");
-            }
-            return Ok(teacher);
+            Result<RetrieveTeacherDto> result = await _teacherService.GetTeacherByPersonIdAsync(personId);
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize]
         [HttpPut("update/{id:long}")]
-        public async Task<ActionResult> UpdateTeacherAsync(long id, [FromBody] UpdateTeacherDto updateTeacherDto)
+        public async Task<IActionResult> UpdateTeacherAsync(long id, [FromBody] UpdateTeacherDto updateTeacherDto)
         {
             if (id != updateTeacherDto.Id)
-            {
                 return BadRequest("ID missmatch.");
-            }
-            var updatedTeacher = await _teacherService.UpdateTeacherAsync(updateTeacherDto);
-
-            _logger.LogInformation("Teacher updated successfully.");
-
-            return Ok(new OkMessage(
-                "Formador Atualizado.",
-                $"Foi atualizado o formador com sucesso.",
-                updatedTeacher
-            ));
+            
+            Result<RetrieveTeacherDto> result = await _teacherService.UpdateTeacherAsync(updateTeacherDto);
+            return _responseHandler.HandleResult(result);
         }
 
         [Authorize]
         [HttpDelete("delete/{id:long}")]
-        public async Task<ActionResult> DeleteTeacherAsync(long id)
+        public async Task<IActionResult> DeleteTeacherAsync(long id)
         {
-            var result = await _teacherService.DeleteTeacherAsync(id);
-
-            _logger.LogInformation("Teacher created successfully.");
-
-            return Ok(new OkMessage(
-                "Formador Eliminado.",
-                $"Foi eliminado um formador com sucesso.",
-                result
-            ));
+            Result result = await _teacherService.DeleteTeacherAsync(id);
+            return _responseHandler.HandleResult(result);
         }
     
     }
