@@ -41,6 +41,8 @@ public class AppDbContext : IdentityDbContext<User>
         builder.ApplyConfiguration(new TaxConfiguration());
         builder.ApplyConfiguration(new FrameConfiguration());
         builder.ApplyConfiguration(new TeacherConfiguration());
+        builder.ApplyConfiguration(new CompanyConfiguration());
+        builder.ApplyConfiguration(new StudentConfiguration());
     }
 
 }

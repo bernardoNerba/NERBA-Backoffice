@@ -1,4 +1,6 @@
-﻿using NERBABO.ApiService.Shared.Models;
+﻿using NERBABO.ApiService.Core.Students.Models;
+using NERBABO.ApiService.Shared.Enums;
+using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Companies.Models
 {
@@ -10,7 +12,10 @@ namespace NERBABO.ApiService.Core.Companies.Models
         public string? Locality { get; set; }
         public string? ZipCode { get; set; }
         public string? Email { get; set; }
-        public string? AtivitySector { get; set; }
-        // micro pequena media 
+        public AtivitySectorEnum AtivitySector { get; set; } = AtivitySectorEnum.Unknown;
+        public CompanySizeEnum Size { get; set; } = CompanySizeEnum.Micro;
+
+
+        public List<Student> Students { get; set; } = [];
     }
 }

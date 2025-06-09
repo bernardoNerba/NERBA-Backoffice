@@ -1,6 +1,7 @@
 using Humanizer;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.People.Dtos;
+using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
@@ -30,6 +31,7 @@ public class Person : Entity
 
     public User? User { get; set; }
     public Teacher? Teacher { get; set; }
+    public Student? Student { get; set; }
 
     public Person() { }
 

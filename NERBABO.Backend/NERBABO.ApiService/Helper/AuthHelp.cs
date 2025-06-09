@@ -10,10 +10,5 @@ namespace NERBABO.ApiService.Helper
             if ((user == null) || !await userManager.IsInRoleAsync(user, role) || !user.IsActive)
                 throw new UnauthorizedAccessException("Não está autorizado a aceder a esta informação.");
         }
-
-        internal static async Task CheckUserHasRoleAndActive(object value, string v, UserManager<User> userManager)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
