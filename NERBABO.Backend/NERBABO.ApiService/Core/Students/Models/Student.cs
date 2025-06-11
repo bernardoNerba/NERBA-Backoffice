@@ -1,12 +1,35 @@
 ﻿using NERBABO.ApiService.Core.Companies.Models;
 using NERBABO.ApiService.Core.People.Models;
+using NERBABO.ApiService.Core.Students.Dtos;
 using NERBABO.ApiService.Shared.Models;
-using System.Reflection;
 
 namespace NERBABO.ApiService.Core.Students.Models
 {
     public class Student: Entity
     {
+        public Student()
+        {
+        }
+
+        public Student(long personId, long? companyId, bool isEmployeed, bool isRegisteredWithJobCenter, string? companyRole)
+        {
+            PersonId = personId;
+            CompanyId = companyId;
+            IsEmployeed = isEmployeed;
+            IsRegisteredWithJobCenter = isRegisteredWithJobCenter;
+            CompanyRole = companyRole;
+        }
+
+        public Student(long id, long personId, long? companyId, bool isEmployeed, bool isRegisteredWithJobCenter, string? companyRole)
+        {
+            Id = id;
+            PersonId = personId;
+            CompanyId = companyId;
+            IsEmployeed = isEmployeed;
+            IsRegisteredWithJobCenter = isRegisteredWithJobCenter;
+            CompanyRole = companyRole;
+        }
+
         public long PersonId { get; set; }
         public long? CompanyId { get; set; }
         public bool IsEmployeed { get; set; }
@@ -17,5 +40,51 @@ namespace NERBABO.ApiService.Core.Students.Models
         public Company? Company { get; set; }
 
 
+        public static RetrieveStudentDto ConvertEntityToRetrieveDto(Student s, Company? c)
+        {
+            return new RetrieveStudentDto(
+                s.Id, 
+                s.PersonId,
+                c?.Id,
+                c?.Name ?? "N/A",
+                s.CompanyRole ?? "N/A",
+                s.IsEmployeed,
+                s.IsRegisteredWithJobCenter
+                );
+        }
+
+        public static Student ConvertCreateDtoToEntity(CreateStudentDto s, Person p, Company? c)
+        {
+            return new Student(
+                p.Id,
+                c?.Id,
+                s.IsEmployeed,
+                s.IsRegisteredWithJobCenter,
+                s.CompanyRole
+                )
+            {
+                Person = p,
+                Company = c,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+        }
+
+        public static Student ConvertCreateDtoToEntity(UpdateStudentDto s, Person p, Company? c)
+        {
+            return new Student(
+                s.Id,
+                p.Id,
+                c?.Id,
+                s.IsEmployeed,
+                s.IsRegisteredWithJobCenter,
+                s.CompanyRole
+                )
+            {
+                Person = p,
+                Company = c,
+                UpdatedAt = DateTime.Now
+            };
+        }
     }
 }
