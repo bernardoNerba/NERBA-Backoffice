@@ -102,17 +102,18 @@ public class PeopleService : IPeopleService
     public async Task<Result> DeletePersonAsync(long id)
     {
         // Check if person exists
-        var existingPerson = await _context.People
-            .FindAsync(id);
+        var existingPerson = await _context.People.FindAsync(id);
 
         if (existingPerson is null)
-            return Result.Fail("Não encontrado.", $"Pessoa não encontrada.", 404);
+            return Result
+                .Fail("Não encontrado.", $"Pessoa não encontrada.", 404);
 
         // Check if person is associated with a user
         if (await _userManager.Users.Where(u => u.PersonId == id).AnyAsync())
         {
             _logger.LogWarning("Duplicated User association detected.");
-            return Result.Fail("Falha ao eliminar pessoa.", "Não pode eliminar uma pessoa que é um utilizador.");
+            return Result
+                .Fail("Falha ao eliminar pessoa.", "Não pode eliminar uma pessoa que é um utilizador.");
         }
 
         var transaction = _context.Database.BeginTransaction();
@@ -122,6 +123,12 @@ public class PeopleService : IPeopleService
             if (existingTeacher is not null)
             {
                 _context.Teachers.Remove(existingTeacher);
+            }
+
+            var existingStudent = await _context.Students.FirstOrDefaultAsync(t => t.PersonId == id);
+            if (existingStudent is not null)
+            {
+                _context.Students.Remove(existingStudent);
             }
             
             // remove from database

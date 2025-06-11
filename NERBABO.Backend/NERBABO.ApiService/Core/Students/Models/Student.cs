@@ -65,8 +65,8 @@ namespace NERBABO.ApiService.Core.Students.Models
             {
                 Person = p,
                 Company = c,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
         }
 
@@ -83,7 +83,7 @@ namespace NERBABO.ApiService.Core.Students.Models
             {
                 Person = p,
                 Company = c,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = DateTime.UtcNow
             };
         }
     }

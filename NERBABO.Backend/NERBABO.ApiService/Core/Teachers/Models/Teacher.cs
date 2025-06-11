@@ -63,8 +63,8 @@ public class Teacher : Entity
             Person = person,
             IvaRegime = regimeIva,
             IrsRegime = regimeIrs,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
         };
     }
 
@@ -84,7 +84,7 @@ public class Teacher : Entity
             Person = person,
             IvaRegime = regimeIva,
             IrsRegime = regimeIrs,
-            UpdatedAt= DateTime.Now
+            UpdatedAt= DateTime.UtcNow
         };
     }
 

@@ -1,4 +1,7 @@
-﻿using NERBABO.ApiService.Core.Students.Dtos;
+﻿using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.People.Models;
+using NERBABO.ApiService.Core.Students.Dtos;
+using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
 
@@ -12,9 +15,37 @@ namespace NERBABO.ApiService.Core.Students.Services
         private readonly ILogger<StudentService> _logger = logger;
         private readonly AppDbContext _context = context;
 
-        public Task<Result<RetrieveStudentDto>> CreateStudentAsync(CreateStudentDto studentDto)
+        public async Task<Result<RetrieveStudentDto>> CreateStudentAsync(CreateStudentDto studentDto)
         {
-            throw new NotImplementedException();
+            var person = await _context.People.FindAsync(studentDto.PersonId);
+            var company = await _context.Companies.FindAsync(studentDto.CompanyId);
+
+            // relationship validation
+            if (person is null)
+            {
+                _logger.LogWarning("Person with id {id} not found", studentDto.PersonId);
+                return Result<RetrieveStudentDto>
+                    .Fail("Não encontrado", "Pessoa associada não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            if (await _context.Students.AnyAsync(s => s.PersonId == studentDto.PersonId))
+            {
+                _logger.LogWarning("There is already a student associated with this person");
+                return Result<RetrieveStudentDto>
+                    .Fail("Erro de Validação", "Já existe um formando associado a esta pessoa.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            var student = Student.ConvertCreateDtoToEntity(studentDto, person, company);
+
+            _context.Students.Add(student);
+            await _context.SaveChangesAsync();
+            
+            return Result<RetrieveStudentDto>
+                .Ok( Student.ConvertEntityToRetrieveDto(student, company),"Formando Criado.", "Formando criado com sucesso.",
+                StatusCodes.Status201Created);
+
         }
 
         public Task<Result> DeleteStudentAsync(long id)
@@ -27,9 +58,22 @@ namespace NERBABO.ApiService.Core.Students.Services
             throw new NotImplementedException();
         }
 
-        public Task<Result<RetrieveStudentDto>> GetStudentByIdAsync(long id)
+        public async Task<Result<RetrieveStudentDto>> GetStudentByIdAsync(long id)
         {
-            throw new NotImplementedException();
+            var existingStudent = await _context.Students.FindAsync(id);
+
+            if (existingStudent is null)
+            {
+                _logger.LogWarning("Student with id {id} not found", id);
+                return Result<RetrieveStudentDto>
+                    .Fail("Não encontrado.", "Formando não encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+            
+            var company = await _context.Companies.FindAsync(existingStudent.CompanyId);
+
+            return Result<RetrieveStudentDto>
+                .Ok(Student.ConvertEntityToRetrieveDto(existingStudent, company));
         }
 
         public Task<Result<RetrieveStudentDto>> UpdateStudentAsync(UpdateStudentDto studentDto)
