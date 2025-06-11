@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using NerbaApp.Api.Validators;
 
 namespace NERBABO.ApiService.Core.Teachers.Dtos;

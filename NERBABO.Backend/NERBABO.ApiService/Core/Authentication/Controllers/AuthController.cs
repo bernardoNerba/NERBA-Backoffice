@@ -2,11 +2,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Core.Authentication.Services;
-using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 
@@ -14,32 +12,18 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(
+        UserManager<User> userManager,
+        IJwtService jwtService,
+        IRoleService roleService,
+        IResponseHandler responseHandler
+        ) : ControllerBase
     {
-        private readonly ILogger<AuthController> _logger;
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly AppDbContext _context;
-        private readonly IJwtService _jwtService;
-        private readonly IRoleService _roleService;
-        private readonly IResponseHandler _responseHandler;
+        private readonly UserManager<User> _userManager = userManager;
+        private readonly IJwtService _jwtService = jwtService;
+        private readonly IRoleService _roleService = roleService;
+        private readonly IResponseHandler _responseHandler = responseHandler;
 
-        public AuthController(ILogger<AuthController> logger,
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            AppDbContext context,
-            IJwtService jwtService,
-            IRoleService roleService,
-            IResponseHandler responseHandler)
-        {
-            _logger = logger;
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _context = context;
-            _jwtService = jwtService;
-            _roleService = roleService;
-            _responseHandler = responseHandler;
-        }
         /// <summary>
         /// Refreshes the authentication token for the currently logged-in user.
         /// </summary>

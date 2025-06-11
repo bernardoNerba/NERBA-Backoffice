@@ -1,6 +1,4 @@
-﻿using NERBABO.ApiService.Core.Companies.Models;
-using NERBABO.ApiService.Core.People.Models;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NERBABO.ApiService.Core.Students.Dtos
 {

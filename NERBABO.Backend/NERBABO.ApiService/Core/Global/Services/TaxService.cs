@@ -1,28 +1,22 @@
-
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.Latency;
 using NERBABO.ApiService.Core.Global.Dtos;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using System.Collections.Generic;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
 
-public class TaxService : ITaxService
+public class TaxService(
+    AppDbContext context,
+    ILogger<TaxService> logger
+    ) : ITaxService
 {
-    private readonly AppDbContext _context;
-    private readonly ILogger<TaxService> _logger;
-    public TaxService(
-        AppDbContext context,
-        ILogger<TaxService> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
+    private readonly AppDbContext _context = context;
+    private readonly ILogger<TaxService> _logger = logger;
+
     public async Task<Result> CreateTaxAsync(CreateTaxDto tax)
     {
         if (!IsValidTaxType(tax.Type))

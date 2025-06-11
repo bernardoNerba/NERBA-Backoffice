@@ -9,21 +9,15 @@ namespace NERBABO.ApiService.Core.People.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PeopleController : ControllerBase
+    public class PeopleController(
+        ILogger<PeopleController> logger,
+        IPeopleService peopleService,
+        IResponseHandler responseHandler
+        ) : ControllerBase
     {
-        private readonly ILogger<PeopleController> _logger;
-        private readonly IPeopleService _peopleService;
-        private readonly IResponseHandler _responseHandler;
-
-        public PeopleController(
-            ILogger<PeopleController> logger,
-            IPeopleService peopleService,
-            IResponseHandler responseHandler)
-        {
-            _logger = logger;
-            _peopleService = peopleService;
-            _responseHandler = responseHandler;
-        }
+        private readonly ILogger<PeopleController> _logger = logger;
+        private readonly IPeopleService _peopleService = peopleService;
+        private readonly IResponseHandler _responseHandler = responseHandler;
 
         [Authorize]
         [HttpPost("create")]

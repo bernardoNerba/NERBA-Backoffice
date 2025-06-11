@@ -7,22 +7,19 @@ using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
 
-public class GeneralInfoService : IGeneralInfoService
+public class GeneralInfoService(
+    AppDbContext context,
+    ILogger<GeneralInfoService> logger
+    ) : IGeneralInfoService
 {
-    private readonly AppDbContext _context;
-    private readonly ILogger<GeneralInfoService> _logger;
+    private readonly AppDbContext _context = context;
+    private readonly ILogger<GeneralInfoService> _logger = logger;
     private GeneralInfo? _cachedConfig;
 
     // https://stackoverflow.com/questions/20056727/need-to-understand-the-usage-of-semaphoreslim 
     // Good SemaphoreSlim explanation above
     private readonly SemaphoreSlim _cacheLock = new(1, 1);
     private bool _disposed;
-
-    public GeneralInfoService(AppDbContext context, ILogger<GeneralInfoService> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
 
     public async Task<Result<RetrieveGeneralInfoDto>> GetGeneralInfoAsync()
     {

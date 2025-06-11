@@ -12,24 +12,16 @@ namespace NERBABO.ApiService.Core.Account.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController(
+        UserManager<User> userManager,
+        IAccountService accountService,
+        IResponseHandler responseHandler
+        ) : ControllerBase
     {
-        private readonly ILogger<AccountController> _logger;
-        private readonly UserManager<User> _userManager;
-        private readonly IAccountService _accountService;
-        private readonly IResponseHandler _responseHandler;
+        private readonly UserManager<User> _userManager = userManager;
+        private readonly IAccountService _accountService = accountService;
+        private readonly IResponseHandler _responseHandler = responseHandler;
 
-        public AccountController(
-            ILogger<AccountController> logger,
-            UserManager<User> userManager,
-            IAccountService accountService,
-            IResponseHandler responseHandler)
-        {
-            _logger = logger;
-            _userManager = userManager;
-            _accountService = accountService;
-            _responseHandler = responseHandler;
-        }
 
         /// <summary>
         /// Registers a new user in the system.

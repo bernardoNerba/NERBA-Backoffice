@@ -35,6 +35,9 @@ namespace NERBABO.ApiService.Core.Students.Models
         public bool IsEmployeed { get; set; }
         public bool IsRegisteredWithJobCenter { get; set; }
         public string? CompanyRole { get; set; }
+
+        public bool EnrolledInFM { get; set; }
+        public bool EnrolledInCQ { get; set; }
         
         public required Person Person { get; set; }
         public Company? Company { get; set; }

@@ -14,7 +14,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
     public class CompaniesController(
         ICompanyService companyService,
         IResponseHandler responseHandler
-            ) : ControllerBase
+        ) : ControllerBase
     {
         private readonly ICompanyService _companyService = companyService;
         private readonly IResponseHandler _responseHandler = responseHandler;

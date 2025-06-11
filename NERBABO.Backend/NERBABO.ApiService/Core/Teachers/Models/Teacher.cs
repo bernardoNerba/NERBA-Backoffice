@@ -13,8 +13,8 @@ public class Teacher : Entity
     public string Ccp { get; set; } = string.Empty;
     public string Competences { get; set; } = string.Empty;
     public float AvarageRating { get; set; } = 0.0f;
-    public bool IsActive { get; set; }
-
+    public bool IsLecturingFM { get; set; }
+    public bool IsLecturingCQ { get; set; }
 
 
     public required Tax IvaRegime { get; set; }
@@ -25,7 +25,9 @@ public class Teacher : Entity
 
     public Teacher() { }
 
-    public Teacher(long id, int ivaRegimeId, int irsRegimeId, long personId, string ccp, string competences, float avarageRating, bool isActive)
+    public Teacher(long id, int ivaRegimeId, int irsRegimeId, long personId, 
+        string ccp, string competences,float avarageRating, bool isLecturingFM, 
+        bool isLecturingCQ)
     {
         Id = id;
         IvaRegimeId = ivaRegimeId;
@@ -34,10 +36,13 @@ public class Teacher : Entity
         Ccp = ccp;
         Competences = competences;
         AvarageRating = avarageRating;
-        IsActive = isActive;
+        IsLecturingCQ = isLecturingCQ;
+        IsLecturingFM = isLecturingFM;
     }
 
-    public Teacher(int ivaRegimeId, int irsRegimeId, long personId, string ccp, string competences, float avarageRating, bool isActive)
+    public Teacher(int ivaRegimeId, int irsRegimeId, long personId, string ccp,
+        string competences, float avarageRating, bool isLecturingFM,
+        bool isLecturingCQ)
     {
         IvaRegimeId = ivaRegimeId;
         IrsRegimeId = irsRegimeId;
@@ -45,7 +50,8 @@ public class Teacher : Entity
         Ccp = ccp;
         Competences = competences;
         AvarageRating = avarageRating;
-        IsActive = isActive;
+        IsLecturingCQ = isLecturingCQ;
+        IsLecturingFM = isLecturingFM;
     }
 
     public static Teacher ConvertCreateDtoToTeacher(
@@ -58,7 +64,8 @@ public class Teacher : Entity
             createTeacherDto.Ccp,
             createTeacherDto.Competences,
             0.0f,
-            true)
+            false,
+            false)
         {
             Person = person,
             IvaRegime = regimeIva,
@@ -73,13 +80,14 @@ public class Teacher : Entity
     {
         return new Teacher(
             updateTeacherDto.Id,
-            updateTeacherDto.IvaRegimeId
-            , updateTeacherDto.IrsRegimeId
-            , person.Id
-            , updateTeacherDto.Ccp
-            , updateTeacherDto.Competences
-            , 0.0f
-            , updateTeacherDto.IsActive)
+            updateTeacherDto.IvaRegimeId, 
+            updateTeacherDto.IrsRegimeId, 
+            person.Id, 
+            updateTeacherDto.Ccp, 
+            updateTeacherDto.Competences,
+            0.0f,
+            updateTeacherDto.IsLecturingFM,
+            updateTeacherDto.IsLecturingCQ)
         {
             Person = person,
             IvaRegime = regimeIva,
@@ -99,7 +107,8 @@ public class Teacher : Entity
             Ccp = teacher.Ccp,
             Competences = teacher.Competences,
             AvarageRating = teacher.AvarageRating,
-            IsActive = teacher.IsActive
+            IsLecturingCQ = teacher.IsLecturingCQ,
+            IsLecturingFM = teacher.IsLecturingFM
         };
     }
 }

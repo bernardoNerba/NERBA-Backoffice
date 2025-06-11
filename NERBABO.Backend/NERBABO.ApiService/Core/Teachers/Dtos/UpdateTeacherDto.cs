@@ -25,6 +25,7 @@ public class UpdateTeacherDto : EntityDto
         ErrorMessage = "Competências deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public string Competences { get; set; } = string.Empty;
 
-    public bool IsActive { get; set; }
+    public bool IsLecturingFM { get; set; }
+    public bool IsLecturingCQ { get; set; }
 
 }

@@ -1,6 +1,4 @@
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
-using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.Teachers.Dtos;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Data;
@@ -9,18 +7,13 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Teachers.Services;
 
-public class TeacherService : ITeacherService
+public class TeacherService(
+    AppDbContext context,
+    ILogger<TeacherService> logger
+    ) : ITeacherService
 {
-    private readonly AppDbContext _context;
-    private readonly ILogger<TeacherService> _logger;
-    
-    public TeacherService(
-        AppDbContext context,
-        ILogger<TeacherService> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
+    private readonly AppDbContext _context = context;
+    private readonly ILogger<TeacherService> _logger = logger;
 
     public async Task<Result<RetrieveTeacherDto>> CreateTeacherAsync(CreateTeacherDto createTeacherDto)
     {

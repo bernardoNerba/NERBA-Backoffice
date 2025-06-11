@@ -11,21 +11,13 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TeacherController : ControllerBase
+    public class TeacherController(
+        ITeacherService teacherService,
+        IResponseHandler responseHandler
+        ) : ControllerBase
     {
-        private readonly ITeacherService _teacherService;
-        private readonly ILogger<TeacherController> _logger;
-        private readonly IResponseHandler _responseHandler;
-
-        public TeacherController(
-            ITeacherService teacherService,
-            ILogger<TeacherController> logger,
-            IResponseHandler responseHandler)
-        {
-            _teacherService = teacherService;
-            _logger = logger;
-            _responseHandler = responseHandler;
-        }
+        private readonly ITeacherService _teacherService = teacherService;
+        private readonly IResponseHandler _responseHandler = responseHandler;
 
         [Authorize]
         [HttpPost]

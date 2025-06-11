@@ -7,17 +7,14 @@ using ZLinq;
 
 namespace NERBABO.ApiService.Core.Frames.Services;
 
-public class FrameService : IFrameService
+public class FrameService(
+    AppDbContext context,
+    ILogger<FrameService> logger
+    ) : IFrameService
 {
-    private readonly AppDbContext _context;
-    private readonly ILogger<FrameService> _logger;
-    public FrameService(
-        AppDbContext context,
-        ILogger<FrameService> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
+    private readonly AppDbContext _context = context;
+    private readonly ILogger<FrameService> _logger = logger;
+
     public async Task<Result<RetrieveFrameDto>> CreateFrameAsync(CreateFrameDto frame)
     {
         if (frame is null)

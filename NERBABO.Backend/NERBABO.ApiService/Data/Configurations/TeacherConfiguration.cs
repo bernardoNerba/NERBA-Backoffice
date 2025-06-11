@@ -41,9 +41,13 @@ public class TeacherConfiguration : IEntityTypeConfiguration<Teacher>
             .HasColumnType("text")
             .HasDefaultValue("N/A");
 
-        builder.Property(t => t.IsActive)
+        builder.Property(t => t.IsLecturingCQ)
             .HasColumnType("boolean")
-            .HasDefaultValue(true);
+            .HasDefaultValue(false);
+
+        builder.Property(t => t.IsLecturingFM)
+            .HasColumnType("boolean")
+            .HasDefaultValue(false);
 
 
 

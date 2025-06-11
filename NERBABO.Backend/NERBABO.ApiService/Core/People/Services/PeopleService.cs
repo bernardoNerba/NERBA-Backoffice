@@ -194,7 +194,6 @@ public class PeopleService(
 
         return Result<RetrievePersonDto>.Ok(Person.ConvertEntityToRetrieveDto(existingPerson));
     }
-
     public async Task<Result<RetrievePersonDto>> UpdatePersonAsync(UpdatePersonDto person)
     {
         var existingPerson = await _context.People.FindAsync(person.Id);
