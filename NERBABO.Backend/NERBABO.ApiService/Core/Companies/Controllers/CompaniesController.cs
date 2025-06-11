@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.Companies.Dtos;
@@ -10,22 +11,13 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CompaniesController : ControllerBase
+    public class CompaniesController(
+        ICompanyService companyService,
+        IResponseHandler responseHandler
+            ) : ControllerBase
     {
-        private readonly ICompanyService _companyService;
-        private readonly ILogger<CompaniesController> _logger;
-        private readonly IResponseHandler _responseHandler;
-
-        public CompaniesController(
-            ICompanyService companyService,
-            ILogger<CompaniesController> logger,
-            IResponseHandler responseHandler
-            )
-        {
-            _companyService = companyService;
-            _logger = logger;
-            _responseHandler = responseHandler;
-        }
+        private readonly ICompanyService _companyService = companyService;
+        private readonly IResponseHandler _responseHandler = responseHandler;
 
         [Authorize]
         [HttpPost]
@@ -40,6 +32,31 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         public async Task<IActionResult> GetCompanyByIdAsync(long id)
         {
             Result<RetrieveCompanyDto> result = await _companyService.GetCompanyAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> UpdateCompanyAsync(long id, [FromBody] UpdateCompanyDto companyDto)
+        {
+            if (id != companyDto.Id) return BadRequest("ID Missmatch");
+            Result<RetrieveCompanyDto> result = await _companyService.UpdateCompanyAsync(companyDto);
+            return _responseHandler.HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetAllCompaniesAsync()
+        {
+            Result<IEnumerable<RetrieveCompanyDto>> result = await _companyService.GetAllCompaniesAsync();
+            return _responseHandler.HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> DelteCompanyAsync(long id)
+        {
+            Result result = await _companyService.DeleteCompanyAsync(id);
             return _responseHandler.HandleResult(result);
         }
     }

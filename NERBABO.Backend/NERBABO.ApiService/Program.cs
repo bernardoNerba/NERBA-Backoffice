@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -112,16 +113,19 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.InvalidModelStateResponseFactory = context =>
     {
         var errors = context.ModelState
-        .Where(e => e.Value!.Errors.Count > 0)
-        .SelectMany(e => e.Value!.Errors)
-        .Select(x => x.ErrorMessage).ToArray();
+            .Where(e => e.Value!.Errors.Count > 0)
+            .SelectMany(e => e.Value!.Errors)
+            .Select(x => x.ErrorMessage)
+            .ToArray();
 
         var problemDetails = new ProblemDetails()
         {
             Title = "Erro de Validação",
-            Detail = errors.ToString(),
             Status = StatusCodes.Status400BadRequest
         };
+
+        problemDetails.Extensions["errors"] = errors;
+
 
         return new ObjectResult(problemDetails)
         {

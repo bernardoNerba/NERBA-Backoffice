@@ -5,6 +5,7 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
+using ZLinq;
 
 namespace NERBABO.ApiService.Core.Companies.Services
 {
@@ -78,14 +79,42 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 .Ok(Company.ConvertEntityToRetrieveDto(company));
         }
 
-        public Task<Result> DeleteCompanyAsync(long id)
+        public async Task<Result> DeleteCompanyAsync(long id)
         {
-            throw new NotImplementedException();
+            var existingCompany = await _context.Companies.FindAsync(id);
+            
+            if (existingCompany is null)
+            {
+                _logger.LogWarning("Company with id {id} tryed to delete but not found", id);
+                return Result
+                    .Fail("Não encontrado.", "Empresa não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            _context.Remove(existingCompany);
+            await _context.SaveChangesAsync();
+
+            return Result
+                .Ok("Empresa eliminada", "Empresa eliminada com sucesso.");
         }
 
-        public Task<Result<IEnumerable<RetrieveCompanyDto>>> GetAllCompaniesAsync()
+        public async Task<Result<IEnumerable<RetrieveCompanyDto>>> GetAllCompaniesAsync()
         {
-            throw new NotImplementedException();
+            var existingCompanies = await _context.Companies.ToListAsync();
+
+            if (existingCompanies is null || existingCompanies.Count == 0)
+                return Result<IEnumerable<RetrieveCompanyDto>>
+                    .Fail("Não encontrado.", "Não foram encontradas empresas.");
+
+            var orderedCompanies = existingCompanies
+                .AsValueEnumerable()
+                .OrderBy(c => c.Name)
+                .ThenByDescending(c => c.Size)
+                .Select(c => Company.ConvertEntityToRetrieveDto(c))
+                .ToList();
+
+            return Result<IEnumerable<RetrieveCompanyDto>>
+                .Ok(orderedCompanies);
         }
 
         public async Task<Result<RetrieveCompanyDto>> GetCompanyAsync(long id)
@@ -93,7 +122,7 @@ namespace NERBABO.ApiService.Core.Companies.Services
             var existingCompany = await _context.Companies.FindAsync(id);
             if (existingCompany is null)
                 return Result<RetrieveCompanyDto>
-                    .Fail("Não encontrado.", "Empresa não encontrado.",
+                    .Fail("Não encontrado.", "Empresa não encontrada.",
                     StatusCodes.Status404NotFound);
 
             return Result<RetrieveCompanyDto>
@@ -164,7 +193,7 @@ namespace NERBABO.ApiService.Core.Companies.Services
             _logger.LogInformation("Company updated successfully.");
             return Result<RetrieveCompanyDto>
                 .Ok(Company.ConvertEntityToRetrieveDto(company),
-                "Empresa Atualizada.", "Foi atualizado a empresa com sucesso.");
+                "Empresa Atualizada.", $"A empresa {company.Name} foi atualizada com sucesso.");
         }
     }
 }
