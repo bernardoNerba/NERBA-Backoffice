@@ -104,7 +104,8 @@ namespace NERBABO.ApiService.Core.Companies.Services
 
             if (existingCompanies is null || existingCompanies.Count == 0)
                 return Result<IEnumerable<RetrieveCompanyDto>>
-                    .Fail("Não encontrado.", "Não foram encontradas empresas.");
+                    .Fail("Não encontrado.", "Não foram encontradas empresas.",
+                    StatusCodes.Status404NotFound);
 
             var orderedCompanies = existingCompanies
                 .AsValueEnumerable()

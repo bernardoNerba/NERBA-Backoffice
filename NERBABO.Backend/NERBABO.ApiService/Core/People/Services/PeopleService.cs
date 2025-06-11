@@ -1,4 +1,3 @@
-using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
@@ -9,29 +8,21 @@ using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
-using System;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.People.Services;
 
-public class PeopleService : IPeopleService
-{
-    private readonly ILogger<PeopleService> _logger;
-    private readonly AppDbContext _context;
-    private readonly UserManager<User> _userManager;
-    private readonly ICacheService _cacheService;
-
-    public PeopleService(
+public class PeopleService(
         ILogger<PeopleService> logger,
         AppDbContext context,
         UserManager<User> userManager,
-        ICacheService cacheService)
-    {
-        _logger = logger;
-        _context = context;
-        _userManager = userManager;
-        _cacheService = cacheService;
-    }
+        ICacheService cacheService
+    ) : IPeopleService
+{
+    private readonly ILogger<PeopleService> _logger = logger;
+    private readonly AppDbContext _context = context;
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly ICacheService _cacheService = cacheService;
 
     public async Task<Result<RetrievePersonDto>> CreatePersonAsync(CreatePersonDto person)
     {
