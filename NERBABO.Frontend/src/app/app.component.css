@@ -1,0 +1,32 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
+body {
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.login-page {
+  background: linear-gradient(135deg, #198754 0%, #C0DC74 100%);
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.page-container {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  height: 100%;
+}

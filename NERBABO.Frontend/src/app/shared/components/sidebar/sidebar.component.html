@@ -1,0 +1,71 @@
+<div class="sidebar" [class.collapsed]="isCollapsed">
+  <!-- NERBA LOGO -->
+  <div class="logo-container">
+    <img src="images/logo.jpeg" alt="Logo" class="logo" />
+    @if(!isCollapsed){
+    <h1 class="app-title">Backoffice</h1>
+    }
+  </div>
+  <!-- END NERBA LOGO -->
+
+  <!-- MAIN MENU OPTIONS - FOR ALL USERS -->
+  <div class="menu-section">
+    <ul class="menu-list">
+      @for (item of mainMenuItems; track item.name;){
+      <li
+        [class.active]="activePage === item.name"
+        (click)="setActivePage(item.route, item.name)"
+        [title]="isCollapsed ? item.name : ''"
+      >
+        <span class="material-icons">{{ item.icon }}</span>
+        @if(!isCollapsed){
+        <span class="menu-text">{{ item.name }}</span>
+        }
+      </li>
+      }
+    </ul>
+  </div>
+
+  @if(isAdmin){
+  <!-- ADMIN MENU OPTIONS -  -->
+  <div class="menu-section">
+    @if(!isCollapsed){
+    <h2 class="section-title">Painel de admin</h2>
+    }
+    <ul class="menu-list">
+      @for (item of adminMenuItems; track item.name;) {
+      <li
+        [class.active]="activePage === item.name"
+        (click)="setActivePage(item.route, item.name)"
+        [title]="isCollapsed ? item.name : ''"
+      >
+        <span class="material-icons">{{ item.icon }}</span>
+        @if(!isCollapsed){
+        <span class="menu-text">{{ item.name }}</span>
+        }
+      </li>
+      }
+    </ul>
+  </div>
+  <!-- END MENU OPTIONS -->
+  }
+
+  <!-- NOTIFICATIONS | LOGOUT -->
+  <div class="menu-section bottom-menu">
+    <ul class="menu-list">
+      @for(item of bottomMenuItems; track item.name){
+      <li
+        [class.active]="activePage === item.name"
+        (click)="setActivePage(item.route, item.name)"
+        [title]="isCollapsed ? item.name : ''"
+      >
+        <span class="material-icons">{{ item.icon }}</span>
+        @if(!isCollapsed){
+        <span class="menu-text">{{ item.name }}</span>
+        }
+      </li>
+      }
+    </ul>
+  </div>
+  <!-- END NOTIFICATION | LOGOUT -->
+</div>

@@ -82,6 +82,8 @@ builder.Services.AddIdentityCore<User>(options =>
     .AddUserManager<UserManager<User>>()         // make use of user manager in order to create user
     .AddDefaultTokenProviders();                 // to be able to create tokens for email confirmation
 
+
+
 // Authenticate user using JWT Token Bearer
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
@@ -99,7 +101,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 });
 
 // Cors
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.SetIsOriginAllowed(origin => true) // Allow any origin
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 // Add Controllers with Route Convention
 builder.Services.AddControllers(options =>
@@ -156,23 +167,17 @@ using (var scope = app.Services.CreateScope())
 
     await seeder.InitializeAsync();
 }
-
-app.UseCors(options =>
-{
-    options.AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials()
-        .AllowAnyOrigin()
-        .WithOrigins(builder.Configuration["JWT:ClientUrl"] ?? "");
-});
-
+app.UseCors();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+} 
+else
+{
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

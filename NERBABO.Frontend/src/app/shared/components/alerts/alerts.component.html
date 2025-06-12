@@ -1,0 +1,13 @@
+@if(alerts.length > 0) {
+<div class="alert-container">
+  @for(alert of alerts; track alert){
+  <alert
+    [type]="alert.type"
+    [dismissible]="alert.dismissible"
+    (dismiss)="removeAlert(alerts.indexOf(alert))"
+  >
+    {{ alert.message }}
+  </alert>
+  }
+</div>
+}

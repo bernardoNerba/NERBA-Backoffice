@@ -1,0 +1,164 @@
+<!-- button that triggers modal -->
+<div class="modal-header">
+  <h4 class="modal-title pull-left">Registar Utilizador</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <!-- resgistration form -->
+  <form (submit)="onSubmit()" [formGroup]="registrationForm">
+    <!-- person -->
+    <div class="mb-3">
+      <label for="email"
+        >Pessoa
+        <span class="text-danger">*</span>
+      </label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Comece a escrever o nome..."
+        [(ngModel)]="selectedPersonDisplay"
+        [typeahead]="peopleForTypeahead"
+        [typeaheadMinLength]="0"
+        typeaheadOptionField="displayName"
+        (typeaheadOnSelect)="onPersonSelected($event)"
+        [typeaheadScrollable]="true"
+        [typeaheadOptionsLimit]="8"
+        [class.is-invalid]="
+          submitted && registrationForm.get('personId')?.errors
+        "
+        [ngModelOptions]="{ standalone: true }"
+      />
+      <input type="hidden" formControlName="personId" />
+    </div>
+    <!-- end person -->
+
+    <!-- email -->
+    <div class="mb-3">
+      <label for="email"
+        >Email
+        <span class="text-danger">*</span>
+      </label>
+      <input
+        formControlName="email"
+        type="email"
+        class="form-control"
+        [class.is-invalid]="submitted && registrationForm.get('email')?.errors"
+      />
+      @if (submitted && registrationForm.get('email')?.hasError("required")) {
+      <span class="text-danger"> Email é um campo obrigatório. </span>
+      } @else if (submitted &&
+      registrationForm.get('email')?.hasError("minlength") ||
+      registrationForm.get('email')?.hasError("maxlength")) {
+      <span class="text-danger"> Email deve ter entre 5 e 50 caracteres. </span>
+      } @else if (submitted && registrationForm.get('email')?.hasError("email"))
+      {
+      <span class="text-danger"> Email inválido. </span>
+      }
+    </div>
+    <!-- end email -->
+
+    <!-- username -->
+    <div class="mb-3">
+      <label for="username">Username <span class="text-danger">*</span></label>
+      <input
+        formControlName="userName"
+        type="text"
+        class="form-control"
+        [class.is-invalid]="
+          submitted && registrationForm.get('userName')?.errors
+        "
+      />
+      @if (submitted && registrationForm.get('userName')?.hasError("required"))
+      {
+      <span class="text-danger"> Username é um campo obrigatório. </span>
+      } @else if (submitted &&
+      registrationForm.get('userName')?.hasError("minlength") ||
+      registrationForm.get('userName')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Username deve ter entre 5 e 50 caracteres.
+      </span>
+      }
+    </div>
+    <!-- end username -->
+
+    <!-- password -->
+    <div class="mb-3">
+      <label for="password">Password <span class="text-danger">*</span></label>
+      <input
+        formControlName="password"
+        type="password"
+        class="form-control"
+        [class.is-invalid]="
+          submitted && registrationForm.get('password')?.errors
+        "
+      />
+      @if (submitted && registrationForm.get('password')?.hasError("required"))
+      {
+      <span class="text-danger"> Password é um campo obrigatório. </span>
+      } @else if (submitted &&
+      registrationForm.get('password')?.hasError("minlength") ||
+      registrationForm.get('password')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Password deve ter entre 5 e 50 caracteres.
+      </span>
+      }
+    </div>
+    <!-- end password -->
+
+    <!-- confirm password -->
+    <div class="mb-3">
+      <label for="confirmPassword"
+        >Confirmação Password <span class="text-danger">*</span></label
+      >
+      <input
+        formControlName="confirmPassword"
+        type="password"
+        class="form-control"
+        [class.is-invalid]="
+          submitted && registrationForm.get('confirmPassword')?.errors
+        "
+      />
+      @if (submitted &&
+      registrationForm.get('confirmPassword')?.hasError("required")) {
+      <span class="text-danger">
+        Confirm Password é um campo obrigatório.
+      </span>
+      } @if (submitted && registrationForm.errors?.['mismatchedPasswords']) {
+      <span class="text-danger"> As palavras-passe não coincidem. </span>
+      }
+    </div>
+    <!-- end confirm password -->
+
+    <!-- bullet points for helping setting a valid password -->
+    <div class="container my-2">
+      <strong>Requisitos da Palavra-passe:</strong>
+      <ul>
+        <li>Mínimo de 8 caracteres;</li>
+        <li>Pelo menos 1 carácter especial (ex: !, ., #, $, %, etc.);</li>
+        <li>Incluir 1 letra maiúscula e 1 letra minúscula;</li>
+        <li>Incluir pelo menos 1 número.</li>
+      </ul>
+    </div>
+    <!-- end bulltet points -->
+
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+
+    <!-- submit button -->
+    <div class="text-end">
+      <button type="button" class="btn-gray me-2" (click)="modalRef?.hide()">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-main">
+        @if (loading){
+        <span class="spinner-border spinner-border-sm me-1"></span>
+        } Registar
+      </button>
+    </div>
+    <!-- end submit button -->
+  </form>
+</div>

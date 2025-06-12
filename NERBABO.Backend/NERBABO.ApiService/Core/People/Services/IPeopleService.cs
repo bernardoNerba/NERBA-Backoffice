@@ -6,8 +6,10 @@ namespace NERBABO.ApiService.Core.People.Services;
 public interface IPeopleService
 {
     Task<Result<IEnumerable<RetrievePersonDto>>> GetAllPeopleAsync();
+    Task<Result<IEnumerable<RetrievePersonDto>>> GetPeopleWithoutUserAsync();
     Task<Result<RetrievePersonDto>> GetPersonByIdAsync(long id);
     Task<Result<RetrievePersonDto>> CreatePersonAsync(CreatePersonDto person);
     Task<Result<RetrievePersonDto>> UpdatePersonAsync(UpdatePersonDto person);
     Task<Result> DeletePersonAsync(long id);
+
 }

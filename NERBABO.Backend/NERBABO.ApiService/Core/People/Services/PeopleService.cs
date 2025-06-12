@@ -171,6 +171,32 @@ public class PeopleService(
         return Result<IEnumerable<RetrievePersonDto>>.Ok(existingPeople);
     }
 
+    public async Task<Result<IEnumerable<RetrievePersonDto>>> GetPeopleWithoutUserAsync()
+    {
+        var existingUsers = await _context.Users.ToListAsync();
+        var existingPeople = await _context.People.ToListAsync();
+
+        var userIdsWithPeople = existingUsers
+            .AsValueEnumerable()
+            .Select(u => u.PersonId)
+            .ToHashSet();
+
+        var peopleWithoutUser = existingPeople
+            .AsValueEnumerable()
+            .Where(p => !userIdsWithPeople.Contains(p.Id))
+            .Select(p => Person.ConvertEntityToRetrieveDto(p))
+            .ToList();
+
+        // Check if data
+        if (peopleWithoutUser is null || peopleWithoutUser.Count == 0)
+            return Result<IEnumerable<RetrievePersonDto>>
+                .Fail("Não encontrado.", "Não foram encontradas pessoas sem conta no sistema",
+                StatusCodes.Status404NotFound);
+
+        return Result<IEnumerable<RetrievePersonDto>>
+            .Ok(peopleWithoutUser);
+    }
+
     public async Task<Result<RetrievePersonDto>> GetPersonByIdAsync(long id)
     {
         // Check if entry exists in cache

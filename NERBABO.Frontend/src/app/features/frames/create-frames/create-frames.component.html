@@ -1,0 +1,135 @@
+<div class="modal-header">
+  <h4 class="modal-title">Registar Enquadramento</h4>
+  <button
+    type="button"
+    class="btn-close"
+    (click)="bsModalRef.hide()"
+    aria-label="Close"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="program"
+        >Programa
+        <span class="text-danger">*</span>
+      </label>
+      <input
+        type="text"
+        class="form-control"
+        id="program"
+        formControlName="program"
+        [class.is-invalid]="submitted && form.get('program')?.errors"
+      />
+      @if (submitted && form.get('program')?.hasError("required")) {
+      <span class="text-danger"> Programa é um campo obrigatório. </span>
+      } @else if (submitted && form.get('program')?.hasError("minlength") ||
+      form.get('program')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Programa deve ter entre 3 e 150 caracteres.
+      </span>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="intervention"
+        >Intervenção
+        <span class="text-danger">*</span>
+      </label>
+      <input
+        type="text"
+        class="form-control"
+        id="intervention"
+        formControlName="intervention"
+        [class.is-invalid]="submitted && form.get('intervention')?.errors"
+      />
+      @if (submitted && form.get('intervention')?.hasError("required")) {
+      <span class="text-danger"> Intervenção é um campo obrigatório. </span>
+      } @else if (submitted && form.get('intervention')?.hasError("minlength")
+      || form.get('intervention')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Intervenção deve ter entre 3 e 55 caracteres.
+      </span>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="interventionType"
+        >Tipo de Intervenção <span class="text-danger">*</span></label
+      >
+      <input
+        type="text"
+        class="form-control"
+        id="interventionType"
+        formControlName="interventionType"
+        [class.is-invalid]="submitted && form.get('interventionType')?.errors"
+      />
+      @if (submitted && form.get('interventionType')?.hasError("required")) {
+      <span class="text-danger">
+        Tipo de Intervenção é um campo obrigatório.
+      </span>
+      } @else if (submitted &&
+      form.get('interventionType')?.hasError("minlength") ||
+      form.get('interventionType')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Tipo de Intervenção deve ter entre 3 e 150 caracteres.
+      </span>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="operation">Operação <span class="text-danger">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        id="operation"
+        formControlName="operation"
+        [class.is-invalid]="submitted && form.get('operation')?.errors"
+      />
+      @if (submitted && form.get('operation')?.hasError("required")) {
+      <span class="text-danger"> Operação é um campo obrigatório. </span>
+      } @else if (submitted && form.get('operation')?.hasError("minlength") ||
+      form.get('operation')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Operação deve ter entre 3 e 150 caracteres.
+      </span>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="operationType"
+        >Tipo de Operação <span class="text-danger">*</span></label
+      >
+      <input
+        type="text"
+        class="form-control"
+        id="operationType"
+        formControlName="operationType"
+        [class.is-invalid]="submitted && form.get('operationType')?.errors"
+      />
+      @if (submitted && form.get('operationType')?.hasError("required")) {
+      <span class="text-danger">
+        Tipo de Operação é um campo obrigatório.
+      </span>
+      } @else if (submitted && form.get('operationType')?.hasError("minlength")
+      || form.get('operationType')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Tipo de Operação deve ter entre 3 e 150 caracteres.
+      </span>
+      }
+    </div>
+
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+    <div class="text-end">
+      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-main" [disabled]="loading">
+        @if (loading){
+        <span class="spinner-border spinner-border-sm me-1"></span>
+        } Submeter
+      </button>
+    </div>
+  </form>
+</div>

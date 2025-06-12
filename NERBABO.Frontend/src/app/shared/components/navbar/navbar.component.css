@@ -1,0 +1,27 @@
+nav {
+  background-color: var(--gray-1) !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  height: 50px;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--gray-3);
+  cursor: pointer;
+  display: flex;
+  height: 35px;
+  width: 35px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background-color: #fff;
+  color: black;
+}

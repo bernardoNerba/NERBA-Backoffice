@@ -1,0 +1,108 @@
+.sidebar {
+  width: 200px;
+  height: 100vh;
+  background-color: var(--gray-1);
+  color: var(--gray-3);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  padding: 20px 15px;
+  border-bottom: 1px solid var(--gray-3);
+  position: relative;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+
+.app-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--primary-green);
+  white-space: nowrap;
+}
+
+
+.menu-section {
+  padding: 15px 0;
+  border-bottom: 1px solid var(--gray-3);
+  box-sizing: border-box
+}
+
+.menu-section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-3);
+  padding: 0 15px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-list li {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.sidebar.collapsed .menu-list li {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.menu-list li:hover {
+  background-color: #fff;
+}
+
+.menu-list li.active {
+  background-color: #fff;
+  color: #000;
+}
+
+li .material-icons {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.sidebar.collapsed .material-icons {
+  margin-right: 0;
+}
+
+.menu-text {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.bottom-menu {
+  margin-top: auto;
+}

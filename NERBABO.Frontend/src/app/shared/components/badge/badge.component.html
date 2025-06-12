@@ -1,0 +1,7 @@
+<div
+  class="filter-badge me-2 mb-md-2"
+  [ngClass]="{ green: isActive, gray: !isActive }"
+>
+  <span class="badge-dot" [ngClass]="{ green: isActive }"></span>
+  {{ name() }}
+</div>

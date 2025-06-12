@@ -1,0 +1,365 @@
+@if (person$ | async; as person){
+<div class="row">
+  <div class="col-md-8 col-6 mb-2">
+    <h3 class="text-break">{{ person.fullName }}</h3>
+  </div>
+  <!-- ACTION MENU -->
+  <div
+    class="col-md-auto col-6 ms-md-auto d-flex gap-2 justify-content-end mb-3"
+  >
+    <button
+      class="btn-main"
+      type="button"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item"
+          ><i class="bi bi-person-fill-add me-3"></i>Criar Como Colaborador</a
+        >
+      </li>
+
+      <li>
+        <a class="dropdown-item"
+          ><i class="bi bi-person-fill-add me-3"></i>Criar Como Formando</a
+        >
+      </li>
+
+      <li>
+        <a class="dropdown-item"
+          ><i class="bi bi-person-fill-add me-3"></i>Criar Como Formador</a
+        >
+      </li>
+      <li>
+        <a class="dropdown-item" (click)="updatePersonModal()"
+          ><i class="bi bi-pencil-fill me-3"></i>Editar Pessoa</a
+        >
+      </li>
+      <li>
+        <a class="dropdown-item" (click)="deletePersonModal()"
+          ><i class="bi bi-exclamation-triangle-fill me-3"></i>Eliminar
+          Pessoa</a
+        >
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="card w-100 hv-100 mt-2">
+  <div class="card-header">
+    <ul class="nav nav-tabs card-header-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="true" href="#">Pessoa</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Formando</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Formador</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Colaborador</a>
+      </li>
+    </ul>
+  </div>
+  <div class="card-body">
+    <div class="container-fluid px-0 my-4">
+      <!-- LIST OF PAGES -->
+      <!-- END LIST OF PAGES -->
+      <div class="accordion" id="general-info-accordion">
+        <!-- GENERAL INFO ACCORDION-->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-general-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#general-info-content"
+              aria-expanded="false"
+              aria-controls="general-info-content"
+            >
+              <i class="bi bi-person-bounding-box me-3"></i>
+              <h5>Informações Gerais</h5>
+            </button>
+          </h2>
+          <div
+            id="general-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-general-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                  <div class="col">
+                    <div class="property">
+                      <strong>Nome</strong>
+                      <p class="text-break mb-0">
+                        {{ person.fullName || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Genero</strong>
+                      <p class="text-break mb-0">
+                        {{ person.genero || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Data de Nascimento</strong>
+                      <p class="text-break mb-0">
+                        {{ (person.birthDate | date : "dd/MM/yyyy") || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Nacionalidade</strong>
+                      <p class="text-break mb-0">
+                        {{ person.nationality || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Naturalidade</strong>
+                      <p class="text-break mb-0">
+                        {{ person.naturality || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Habilitações</strong>
+                      <p class="text-break mb-0">
+                        {{ person.habilitation || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END GENERAL INFO ACCORDION -->
+
+        <!-- CONTACT INFO ACCORDION -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-contact-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#contact-info-content"
+              aria-expanded="true"
+              aria-controls="contact-info-content"
+            >
+              <i class="bi bi-person-lines-fill me-3"></i>
+              <h5>Contactos da Pessoa</h5>
+            </button>
+          </h2>
+          <div
+            id="contact-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-contact-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                  <div class="col">
+                    <div class="property">
+                      <strong>Email</strong>
+                      <p class="text-break mb-0">{{ person.email || "N/A" }}</p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Tel.</strong>
+                      <p class="text-break mb-0">
+                        {{ person.phoneNumber || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Código-Postal</strong>
+                      <p class="text-break mb-0">
+                        {{ person.postalCode || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Morada</strong>
+                      <p class="text-break mb-0">
+                        {{ person.address || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END CONTACT INFO ACCORDION -->
+
+        <!-- IDENTIFICATION INFO ACCORDION -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-identification-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#identification-info-content"
+              aria-expanded="true"
+              aria-controls="identification-info-content"
+            >
+              <i class="bi bi-info-circle-fill me-3"></i>
+              <h5>Identificação da Pessoa</h5>
+            </button>
+          </h2>
+          <div
+            id="identification-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-identification-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                  <div class="col">
+                    <div class="property">
+                      <strong>NIF</strong>
+                      <p class="text-break mb-0">{{ person.nif || "N/A" }}</p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>NISS</strong>
+                      <p class="text-break mb-0">{{ person.niss || "N/A" }}</p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>nº identificação</strong>
+                      <p class="text-break mb-0">
+                        {{ person.identificationNumber || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Tipo de identificação</strong>
+                      <p class="text-break mb-0">
+                        {{ person.identificationType || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Validade da identificação</strong>
+                      <p class="text-break mb-0">
+                        {{
+                          (person.identificationValidationDate
+                            | date : "dd/MM/yyyy") || "N/A"
+                        }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="col">
+                    <div class="property">
+                      <strong>IBAN</strong>
+                      <p class="text-break mb-0">
+                        {{ person.iban || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END IDENTIFICATION INFO ACCORDION -->
+
+        <!-- DOCUMENTATION ACCORDION -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-documentation">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#documentation-content"
+              aria-expanded="true"
+              aria-controls="documentation-content"
+            >
+              <i class="bi bi-filetype-doc me-3"></i>
+              <h5>Documentação Armazenada</h5>
+            </button>
+          </h2>
+          <div
+            id="documentation-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-documentation"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex align-items-center">
+                    <button class="btn btn-sm btn-outline-secondary me-2">
+                      <i class="bi bi-cloud-download-fill"></i>
+                    </button>
+                    <span class="text-break"
+                      >certificado_de_habilitacoes.pdf</span
+                    >
+                  </li>
+                  <li class="list-group-item d-flex align-items-center">
+                    <button class="btn btn-sm btn-outline-secondary me-2">
+                      <i class="bi bi-cloud-download-fill"></i>
+                    </button>
+                    <span class="text-break"
+                      >certificado_de_habilitacoes.pdf</span
+                    >
+                  </li>
+                  <li class="list-group-item d-flex align-items-center">
+                    <button class="btn btn-sm btn-outline-secondary me-2">
+                      <i class="bi bi-cloud-download-fill"></i>
+                    </button>
+                    <span class="text-break"
+                      >certificado_de_habilitacoes.pdf</span
+                    >
+                  </li>
+                </ul>
+
+                <div class="container mt-4">
+                  <form>
+                    <div class="row">
+                      <div class="col-10">
+                        <input
+                          class="form-control"
+                          type="file"
+                          id="formFileMultiple"
+                          multiple
+                        />
+                      </div>
+                      <div class="col-2">
+                        <button class="btn-main">Guardar</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END DOCUMENTATION ACCORDION -->
+      </div>
+    </div>
+  </div>
+</div>
+
+}

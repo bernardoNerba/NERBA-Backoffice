@@ -9,6 +9,7 @@ import { type Login } from '../models/login';
 import { type JwtPayload } from '../models/jwtPayload';
 import { UserRole } from '../models/userRole';
 import { OkResponse } from '../models/okResponse';
+import { API_ENDPOINTS } from '../objects/apiEndpoints';
 
 @Injectable({
   providedIn: 'root',
@@ -45,15 +46,13 @@ export class AuthService {
   }
 
   login(model: Login): Observable<void> {
-    return this.http
-      .post<User>(`${environment.appUrl}/api/auth/login`, model)
-      .pipe(
-        map((user: User) => {
-          if (user) {
-            this.setUser(user);
-          }
-        })
-      );
+    return this.http.post<User>(API_ENDPOINTS.login, model).pipe(
+      map((user: User) => {
+        if (user) {
+          this.setUser(user);
+        }
+      })
+    );
   }
 
   get isAuthenticated(): boolean {

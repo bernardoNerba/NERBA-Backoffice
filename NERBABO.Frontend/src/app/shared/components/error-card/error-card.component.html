@@ -1,0 +1,18 @@
+@if (submitted && errors.length > 0) {
+<div class="card my-3">
+  <div class="card-header">
+    <h6 class="card-title text-danger fw-bold">Erro(s) de Submissão</h6>
+  </div>
+  <div class="card-body">
+    <div class="container">
+      <ul class="list-group list-group-flush">
+        @for(message of errors; track errors){
+        <li class="list-group-item list-group-item-danger">
+          {{ message }}
+        </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>
+}
