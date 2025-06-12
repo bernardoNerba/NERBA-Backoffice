@@ -88,7 +88,10 @@ export class CreateAccComponent implements OnInit {
         personId: ['', Validators.required],
       },
       {
-        validators: PasswordValidators.mismatchedPasswords(),
+        validators: PasswordValidators.mismatchedPasswords(
+          'password',
+          'confirmPassword'
+        ),
       }
     );
   }

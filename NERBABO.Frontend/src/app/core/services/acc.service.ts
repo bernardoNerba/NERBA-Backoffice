@@ -28,10 +28,7 @@ export class AccService {
   }
 
   blockUser(userId: string): Observable<OkResponse> {
-    return this.http.put<OkResponse>(
-      `${API_ENDPOINTS.single_acc}${userId}`,
-      {}
-    );
+    return this.http.put<OkResponse>(`${API_ENDPOINTS.block_acc}${userId}`, {});
   }
 
   private fetchUsers(): void {

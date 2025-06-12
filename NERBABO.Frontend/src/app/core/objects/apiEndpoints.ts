@@ -13,4 +13,5 @@ export const API_ENDPOINTS = {
   single_acc: `${environment.appUrl}/api/account/user/`,
   create_acc: `${environment.appUrl}/api/account/register/`,
   update_acc: `${environment.appUrl}/api/account/user/update/`,
+  block_acc: `${environment.appUrl}/api/account/block-user/`,
 };

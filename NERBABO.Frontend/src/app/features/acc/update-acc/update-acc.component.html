@@ -1,1 +1,126 @@
-<p>update-acc works!</p>
+<div class="modal-header">
+  <h4 class="modal-title">Editar User</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <!-- Update user info form -->
+  <form [formGroup]="updateUserForm" (ngSubmit)="onSubmit()">
+    <!-- email -->
+    <div class="mb-3">
+      <label for="email"
+        >Email
+        <span class="text-danger">*</span>
+      </label>
+      <input
+        formControlName="email"
+        type="email"
+        class="form-control"
+        [class.is-invalid]="submitted && updateUserForm.get('email')?.errors"
+      />
+      @if (submitted && updateUserForm.get('email')?.hasError("required")) {
+      <span class="text-danger"> Email é um campo obrigatório. </span>
+      } @else if (submitted &&
+      updateUserForm.get('email')?.hasError("minlength") ||
+      updateUserForm.get('email')?.hasError("maxlength")) {
+      <span class="text-danger"> Email deve ter entre 5 e 50 caracteres. </span>
+      } @else if (submitted && updateUserForm.get('email')?.hasError("email")) {
+      <span class="text-danger"> Email inválido. </span>
+      }
+    </div>
+    <!-- end email -->
+
+    <!-- username -->
+    <div class="mb-3">
+      <label for="username">Username <span class="text-danger">*</span></label>
+      <input
+        formControlName="userName"
+        type="text"
+        class="form-control"
+        [class.is-invalid]="submitted && updateUserForm.get('userName')?.errors"
+      />
+      @if (submitted && updateUserForm.get('userName')?.hasError("required")) {
+      <span class="text-danger"> Username é um campo obrigatório. </span>
+      } @else if (submitted &&
+      updateUserForm.get('userName')?.hasError("minlength") ||
+      updateUserForm.get('userName')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Username deve ter entre 5 e 50 caracteres.
+      </span>
+      }
+    </div>
+    <!-- end username -->
+
+    <!-- password -->
+    <div class="mb-3">
+      <label for="password">Password <span class="text-danger">*</span></label>
+      <input
+        formControlName="password"
+        type="password"
+        class="form-control"
+        [class.is-invalid]="submitted && updateUserForm.get('password')?.errors"
+      />
+      @if (submitted && updateUserForm.get('password')?.hasError("required")) {
+      <span class="text-danger"> Password é um campo obrigatório. </span>
+      } @else if (submitted &&
+      updateUserForm.get('password')?.hasError("minlength") ||
+      updateUserForm.get('password')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Password deve ter entre 5 e 50 caracteres.
+      </span>
+      }
+    </div>
+    <!-- end password -->
+
+    <!-- confirm password -->
+    <div class="mb-3">
+      <label for="confirmPassword"
+        >Confirmação Password <span class="text-danger">*</span></label
+      >
+      <input
+        formControlName="confirmPassword"
+        type="password"
+        class="form-control"
+        [class.is-invalid]="
+          submitted && updateUserForm.get('confirmPassword')?.errors
+        "
+      />
+      @if (submitted &&
+      updateUserForm.get('confirmPassword')?.hasError("required")) {
+      <span class="text-danger">
+        Confirm Password é um campo obrigatório.
+      </span>
+      } @else if (submitted && submitted &&
+      updateUserForm.errors?.['mismatchedPasswords']) {
+      <span class="text-danger"> As palavras-passe não coincidem. </span>
+      }
+    </div>
+    <!-- end confirm password -->
+
+    <!-- bullet points for helping setting a valid password -->
+    <div class="container my-2">
+      <strong>Requisitos da Palavra-passe:</strong>
+      <ul>
+        <li>Mínimo de 8 caracteres;</li>
+        <li>Pelo menos 1 carácter especial (ex: !, ., #, $, %, etc.);</li>
+        <li>Incluir 1 letra maiúscula e 1 letra minúscula;</li>
+        <li>Incluir pelo menos 1 número.</li>
+      </ul>
+    </div>
+    <!-- end bulltet points -->
+
+    <!-- submit button -->
+    <div class="text-end">
+      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-main">Modificar</button>
+    </div>
+    <!-- end submit button -->
+  </form>
+  <!-- END Update user info form -->
+</div>
