@@ -1,0 +1,22 @@
+export type Person = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  nif: string;
+  niss: string;
+  address: string;
+  birthDate: Date;
+  email: string;
+  genero: string;
+  habilitation: string;
+  iban: string;
+  identificationNumber: string;
+  identificationValidationDate: Date;
+  identificationType: string;
+  nationality: string;
+  naturality: string;
+  phoneNumber: string;
+  postalCode: string;
+  age: number;
+};
