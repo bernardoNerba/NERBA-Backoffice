@@ -1,17 +1,17 @@
 # NERBA - Backoffice
 
 ## About NERBA
----
+
 **NERBA – Business Association of the District of Bragança** is a private, non-profit organization recognized as being of public utility. Operating across the district, it focuses on promoting **entrepreneurship**, organizing **events**, and delivering **training and qualification programs**.
 
 ## About the Backoffice System
----
+
 This project was born out of the need to **automate repetitive tasks**, **organize operations**, and **securely manage critical data**. The Backoffice system is designed to be a daily-use tool supporting NERBA’s internal management processes, particularly in the **training and qualification** sector.
 
 In line with its commitment to innovation, NERBA has made this software **open and accessible**, encouraging **collaboration** and enabling others to **adapt and reuse** it for their own organizational needs.
 
 ## Getting Started
----
+
 This project uses .NET Aspire as a Orchestrator, so in order to run it you will need in your machine the following tools:
 - [.NET SDK 9.0](https://dotnet.microsoft.com/pt-br/download) 
 - .NET Aspire Workload
@@ -72,7 +72,7 @@ Once running, you can access:
 - **Redis** with **RedisInsight**
 
 ### Working on Angular Separately
----
+
 ``` bash 
 cd NERBABO.Frontend
 npm install
@@ -80,7 +80,7 @@ ng serve
 ```
 
 ### Apply EF Core migrations
----
+
 ``` bash
 dotnet ef migrations add <MigrationName>
 ```
