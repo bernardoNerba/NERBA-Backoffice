@@ -84,3 +84,12 @@ ng serve
 ``` bash
 dotnet ef migrations add <MigrationName>
 ```
+
+
+## Code of Conduct
+
+This project follows the Contributor Covenant v2.1
+
+## Licencing
+
+Apache License 2.0
