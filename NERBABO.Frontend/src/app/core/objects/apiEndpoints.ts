@@ -3,6 +3,7 @@ import { environment } from '../../../environments/environment.development';
 export const API_ENDPOINTS = {
   // auth
   login: `${environment.appUrl}/api/auth/login/`,
+  set_role: `${environment.appUrl}/api/auth/set-role/`,
 
   // people
   all_people: `${environment.appUrl}/api/people/`,

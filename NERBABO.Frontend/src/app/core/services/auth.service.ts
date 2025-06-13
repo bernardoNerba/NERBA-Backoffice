@@ -95,9 +95,6 @@ export class AuthService {
   }
 
   assignRole(model: UserRole): Observable<OkResponse> {
-    return this.http.post<OkResponse>(
-      `${environment.appUrl}/api/atuh/set-role/`,
-      model
-    );
+    return this.http.post<OkResponse>(API_ENDPOINTS.set_role, model);
   }
 }

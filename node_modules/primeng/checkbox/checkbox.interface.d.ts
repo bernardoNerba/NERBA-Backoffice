@@ -1,0 +1,26 @@
+import { TemplateRef } from '@angular/core';
+/**
+ * Custom change event.
+ * @see {@link Checkbox.onChange}
+ * @group Events
+ */
+export interface CheckboxChangeEvent {
+    /**
+     * Checked value.
+     */
+    checked?: any;
+    /**
+     * Browser event.
+     */
+    originalEvent?: Event;
+}
+/**
+ * Defines valid templates in Checkbox.
+ * @group Templates
+ */
+export interface CheckboxTemplates {
+    /**
+     * Custom checkbox icon template
+     */
+    icon(): TemplateRef<any>;
+}
