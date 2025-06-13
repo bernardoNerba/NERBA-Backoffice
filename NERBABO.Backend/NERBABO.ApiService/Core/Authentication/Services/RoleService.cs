@@ -2,24 +2,21 @@ using Microsoft.AspNetCore.Identity;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Authentication.Services;
 
-public class RoleService : IRoleService
-{
-    private readonly UserManager<User> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly ILogger<RoleService> _logger;
-    public RoleService(
-        UserManager<User> userManager,
+public class RoleService(
+    UserManager<User> userManager,
         RoleManager<IdentityRole> roleManager,
-        ILogger<RoleService> logger)
-    {
-        _userManager = userManager;
-        _roleManager = roleManager;
-        _logger = logger;
-
-    }
+        ILogger<RoleService> logger,
+        ICacheService cacheService
+) : IRoleService
+{
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+    private readonly ILogger<RoleService> _logger = logger;
+    private readonly ICacheService _cacheService = cacheService;
 
     public async Task<Result> UpdateUserRolesAsync(UserRoleDto userRole)
     {
@@ -73,6 +70,9 @@ public class RoleService : IRoleService
                 return Result.Fail("Não encontrado.", "Erro ao atribuir papeis.");
             }
         }
+
+        await _cacheService.RemoveAsync("users:list");
+        await _cacheService.RemoveAsync($"user:{userRole.UserId}");
 
         return Result
             .Ok("Papeis atribuídos com sucesso.", "Os papéis foram atribuídos com sucesso ao usuário.");
