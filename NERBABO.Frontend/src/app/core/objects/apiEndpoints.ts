@@ -15,4 +15,12 @@ export const API_ENDPOINTS = {
   create_acc: `${environment.appUrl}/api/account/register/`,
   update_acc: `${environment.appUrl}/api/account/user/update/`,
   block_acc: `${environment.appUrl}/api/account/block-user/`,
+
+  // config
+  get_general_conf: `${environment.appUrl}/api/generalinfo/`,
+  update_general_conf: `${environment.appUrl}/api/generalinfo/update/`,
+  get_taxes: `${environment.appUrl}/api/tax/`,
+  create_tax: `${environment.appUrl}/api/tax/create/`,
+  update_tax: `${environment.appUrl}/api/tax/update/`,
+  delete_tax: `${environment.appUrl}/api/tax/delete/`,
 };

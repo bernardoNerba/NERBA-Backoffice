@@ -48,14 +48,14 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
-  // {
-  //   path: 'config',
-  //   loadComponent: () =>
-  //     import('./features/configurations/config/config.component').then(
-  //       (m) => m.ConfigComponent
-  //     ),
-  //   canActivate: [authGuard],
-  // },
+  {
+    path: 'config',
+    loadComponent: () =>
+      import('./features/global-config/global-config.component').then(
+        (m) => m.GlobalConfigComponent
+      ),
+    canActivate: [authGuard],
+  },
   {
     path: 'accs',
     loadComponent: () =>

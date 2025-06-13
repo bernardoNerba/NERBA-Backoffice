@@ -1,0 +1,362 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 col-12 mb-2">
+      <h3 class="text-break">Gestão de Configurações Globais</h3>
+    </div>
+  </div>
+</div>
+@if (loading$ | async){
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading configurações...</p>
+</div>
+} @else { @if ((configurationInfo$ | async) === null || (taxes$ | async) ===
+null){
+<!-- Empty state -->
+<div class="text-center py-5">
+  <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+  <h5>Erro ao carregar configurações.</h5>
+</div>
+} @else {
+<div class="container px-0 my-4">
+  <!-- LIST OF PAGES -->
+  <!-- END LIST OF PAGES -->
+  <div class="accordion" id="general-info-accordion">
+    <!-- GENERAL INFO ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-general-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#general-info-content"
+          aria-expanded="false"
+          aria-controls="general-info-content"
+        >
+          <i class="bi bi-building me-3"></i>
+          <h5>Informações Gerais NERBA</h5>
+        </button>
+      </h2>
+      <div
+        id="general-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-general-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <app-error-card
+              [errors]="errorMessagesGeneralInfo"
+              [submitted]="submittedGeneralInfo"
+            />
+
+            <form
+              [formGroup]="formGeneralInfo"
+              (submit)="onSubmitGeneralInfo()"
+            >
+              <div class="row">
+                <div class="col-md-6">
+                  <!-- DESIGNAÇÃO -->
+                  <div class="mb-3">
+                    <label for="designation"
+                      >Designação
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="designation"
+                      formControlName="designation"
+                      [class.is-invalid]="
+                        submittedGeneralInfo &&
+                        formGeneralInfo.get('designation')?.errors
+                      "
+                    />
+                    @if (submittedGeneralInfo &&
+                    formGeneralInfo.get('designation')?.hasError("required")) {
+                    <span class="text-danger">
+                      Designação é um campo obrigatório.
+                    </span>
+                    } @else if (
+                    formGeneralInfo.get('designation')?.hasError("minlength") ||
+                    formGeneralInfo.get('designation')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Designação deve ter entre 3 e 255 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <!-- NIPC -->
+                  <div class="mb-3">
+                    <label for="nipc"
+                      >NIPC
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="nipc"
+                      formControlName="nipc"
+                      [class.is-invalid]="
+                        submittedGeneralInfo &&
+                        formGeneralInfo.get('nipc')?.errors
+                      "
+                    />
+                    @if (submittedGeneralInfo &&
+                    formGeneralInfo.get('nipc')?.hasError("required")) {
+                    <span class="text-danger">
+                      NIPC é um campo obrigatório.
+                    </span>
+                    } @else if (
+                    formGeneralInfo.get('nipc')?.hasError("minlength") ||
+                    formGeneralInfo.get('nipc')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      NIPC deve ter exatamente 9 caracteres.
+                    </span>
+                    } @else if
+                    (formGeneralInfo.get('nipc')?.hasError("numberRequired")) {
+                    <span class="text-danger">
+                      NIPC deve conter somente números.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <!-- SEDE -->
+                  <div class="mb-3">
+                    <label for="site"
+                      >Sede
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="site"
+                      formControlName="site"
+                      [class.is-invalid]="
+                        submittedGeneralInfo &&
+                        formGeneralInfo.get('site')?.errors
+                      "
+                    />
+                    @if (submittedGeneralInfo &&
+                    formGeneralInfo.get('site')?.hasError("required")) {
+                    <span class="text-danger">
+                      Sede é um campo obrigatório.
+                    </span>
+                    } @else if (
+                    formGeneralInfo.get('site')?.hasError("minlength") ||
+                    formGeneralInfo.get('site')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Sede deve ter entre 3 e 500 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <!-- TAXA IVA -->
+                  <div class="mb-3">
+                    <label for="ivaId"
+                      >Taxa Iva
+                      <span class="text-danger">*</span>
+                    </label>
+                    <select
+                      formControlName="ivaId"
+                      id="ivaId"
+                      class="form-control"
+                      [class.is-invalid]="
+                        submittedGeneralInfo &&
+                        formGeneralInfo.get('ivaId')?.errors
+                      "
+                    >
+                      @for (iva of (taxes$ | async); track iva.id;){
+                      <option value="{{ iva.id }}">
+                        {{ iva.name }} - {{ iva.valuePercent }}%
+                      </option>
+                      }
+                    </select>
+                    @if (submittedGeneralInfo &&
+                    formGeneralInfo.get('ivaId')?.hasError("required")) {
+                    <span class="text-danger">
+                      Taxa Iva é um campo obrigatório.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <!-- VALOR HORA FORMADOR -->
+                  <div class="mb-3">
+                    <label for="hourValueTeacher"
+                      >Valor Hora Formador
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="hourValueTeacher"
+                      formControlName="hourValueTeacher"
+                      [class.is-invalid]="
+                        submittedGeneralInfo &&
+                        formGeneralInfo.get('hourValueTeacher')?.errors
+                      "
+                    />
+                    @if (submittedGeneralInfo &&
+                    formGeneralInfo.get('hourValueTeacher')?.hasError("required"))
+                    {
+                    <span class="text-danger">
+                      Valor Hora Formador é um campo obrigatório.
+                    </span>
+                    } @else if (
+                    formGeneralInfo.get('hourValueTeacher')?.hasError("numberRequired"))
+                    {
+                    <span class="text-danger">
+                      Valor Hora Formador deve ser um valor que possa ser
+                      traduzido para monetário.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <!-- VALOR HORA ALIMENTAÇÃO -->
+                  <div class="mb-3">
+                    <label for="hourValueAlimentation"
+                      >Valor Hora Alimentação
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="hourValueAlimentation"
+                      formControlName="hourValueAlimentation"
+                      [class.is-invalid]="
+                        submittedGeneralInfo &&
+                        formGeneralInfo.get('hourValueAlimentation')?.errors
+                      "
+                    />
+                    @if (submittedGeneralInfo &&
+                    formGeneralInfo.get('hourValueAlimentation')?.hasError("required"))
+                    {
+                    <span class="text-danger">
+                      Valor Hora Alimentação é um campo obrigatório.
+                    </span>
+                    } @else if (
+                    formGeneralInfo.get('hourValueAlimentation')?.hasError("numberRequired"))
+                    {
+                    <span class="text-danger">
+                      Valor Hora Alimentação deve ser um valor que possa ser
+                      traduzido para monetário.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <!-- Entidade Bancária -->
+                  <div class="mb-3">
+                    <label for="bankEntity"
+                      >Entidade Bancária
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="bankEntity"
+                      formControlName="bankEntity"
+                      [class.is-invalid]="
+                        submittedGeneralInfo &&
+                        formGeneralInfo.get('bankEntity')?.errors
+                      "
+                    />
+                    @if (submittedGeneralInfo &&
+                    formGeneralInfo.get('bankEntity')?.hasError("required")) {
+                    <span class="text-danger">
+                      Entidade Bancária é um campo obrigatório.
+                    </span>
+                    } @else if (
+                    formGeneralInfo.get('bankEntity')?.hasError("minlength") ||
+                    formGeneralInfo.get('bankEntity')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Entidade Bancária deve ter entre 3 e 50 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <!-- IBAN -->
+                  <div class="mb-3">
+                    <label for="iban"
+                      >IBAN
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="iban"
+                      formControlName="iban"
+                      [class.is-invalid]="
+                        submittedGeneralInfo &&
+                        formGeneralInfo.get('iban')?.errors
+                      "
+                    />
+                    @if (submittedGeneralInfo &&
+                    formGeneralInfo.get('iban')?.hasError("required")) {
+                    <span class="text-danger">
+                      IBAN é um campo obrigatório.
+                    </span>
+                    } @else if ( formGeneralInfo.get('iban')?.hasError("") ||
+                    formGeneralInfo.get('iban')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      IBAN deve ter exatamente 25 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- TODO: LOGO FINANCIAMENTO -->
+
+              <div class="text-end">
+                <button
+                  type="submit"
+                  class="btn-main"
+                  [disabled]="loadingGeneralInfo"
+                >
+                  @if (loadingGeneralInfo){
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                  } Guardar Informações
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END GENERAL INFO ACCORDION -->
+
+    <!-- IVA INFO ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-iva-config">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#iva-config-content"
+          aria-expanded="false"
+          aria-controls="iva-config-content"
+        >
+          <i class="bi bi-tag me-3"></i>
+          <h5>Configurações IVA</h5>
+        </button>
+      </h2>
+      <div
+        id="iva-config-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-iva-config"
+      >
+        <div class="accordion-body">
+          <app-index-taxes />
+        </div>
+      </div>
+    </div>
+    <!-- END IVA INFO ACCORDION -->
+  </div>
+</div>
+} }

@@ -4,52 +4,47 @@ import { Tax } from '../models/tax';
 import { GeneralInfo } from '../models/generalInfo';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
-import { environment } from '../../../environments/environment.development';
 import { OkResponse } from '../models/okResponse';
+import { API_ENDPOINTS } from '../objects/apiEndpoints';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConfigService {
-  private ivaTaxesSubject = new BehaviorSubject<Array<Tax>>([]);
+  private taxesSubject = new BehaviorSubject<Array<Tax>>([]);
   private configurationInfoSubject = new BehaviorSubject<GeneralInfo | null>(
     null
   );
   private loadingSubject = new BehaviorSubject<boolean>(false);
 
-  ivaTaxes$ = this.ivaTaxesSubject.asObservable();
+  taxes$ = this.taxesSubject.asObservable();
   configurationInfo$ = this.configurationInfoSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
-    this.loadGeneralInfo();
+    this.loadConfigs();
   }
 
   createIvaTax(
     model: Omit<Tax, 'id' | 'valueDecimal | isActive'>
   ): Observable<OkResponse> {
-    return this.http.post<OkResponse>(
-      `${environment.appUrl}/api/tax/create`,
-      model
-    );
+    return this.http.post<OkResponse>(API_ENDPOINTS.create_tax, model);
   }
 
   updateIvaTax(model: Omit<Tax, 'valueDecimal'>): Observable<OkResponse> {
     return this.http.put<OkResponse>(
-      `${environment.appUrl}/api/tax/update/${model.id}`,
+      `${API_ENDPOINTS.update_tax}${model.id}`,
       model
     );
   }
 
   deleteIvaTax(id: number): Observable<OkResponse> {
-    return this.http.delete<OkResponse>(
-      `${environment.appUrl}/api/tax/delete/${id}`
-    );
+    return this.http.delete<OkResponse>(`${API_ENDPOINTS.delete_tax}${id}`);
   }
 
-  private loadGeneralInfo(): void {
+  private loadConfigs(): void {
     this.loadingSubject.next(true);
-    this.fetchConfigurationInfo().subscribe({
+    this.fetchGeneralInfo().subscribe({
       next: (data: GeneralInfo) => {
         this.configurationInfoSubject.next(data);
       },
@@ -64,11 +59,11 @@ export class ConfigService {
 
     this.fetchTaxes().subscribe({
       next: (data: Tax[]) => {
-        this.ivaTaxesSubject.next(data);
+        this.taxesSubject.next(data);
       },
       error: (err: any) => {
         console.error('Failed to fetch iva taxes info', err);
-        this.ivaTaxesSubject.next([]);
+        this.taxesSubject.next([]);
         if (err.status === 403 || err.status === 401) {
           this.sharedService.redirectUser();
         }
@@ -78,13 +73,19 @@ export class ConfigService {
     this.loadingSubject.next(false);
   }
 
-  private fetchConfigurationInfo(): Observable<GeneralInfo> {
-    return this.http.get<GeneralInfo>(`${environment.appUrl}/api/generalinfo/`);
+  private fetchTaxes(): Observable<Tax[]> {
+    return this.http.get<Tax[]>(`${API_ENDPOINTS.get_taxes}`);
   }
 
-  private fetchTaxes(): Observable<Array<Tax>> {
-    return this.http.get<Array<Tax>>(
-      `${environment.appUrl}/api/generalinfo/update`
-    );
+  private fetchGeneralInfo(): Observable<GeneralInfo> {
+    return this.http.get<GeneralInfo>(`${API_ENDPOINTS.get_general_conf}`);
+  }
+
+  updateGeneralInfo(model: GeneralInfo): Observable<OkResponse> {
+    return this.http.put<OkResponse>(API_ENDPOINTS.update_general_conf, model);
+  }
+
+  triggerFetchConfigs() {
+    this.loadConfigs();
   }
 }
