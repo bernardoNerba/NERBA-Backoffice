@@ -72,13 +72,17 @@
             <select
               id="type"
               formControlName="type"
-              class="form-control"
+              class="form-select"
               [class.is-invalid]="submitted && form.get('type')?.errors"
             >
+              <option value="" disabled selected hidden>
+                Escolha tipo de taxa
+              </option>
               @for (tax of allTaxes; track tax.key) {
               <option value="{{ tax.value }}">{{ tax.value }}</option>
               }
             </select>
+
             @if (submitted && form.get('type')?.hasError("required")) {
             <span class="text-danger">
               Tipo de taxa é um campo obrigatório.
