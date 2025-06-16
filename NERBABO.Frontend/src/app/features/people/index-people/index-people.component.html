@@ -120,7 +120,13 @@
               </div>
             </td>
             <td>
-              <a [routerLink]="['/people', person.id]">{{ person.fullName }}</a>
+              <a
+                class="btn btn-sm btn-light me-2"
+                [routerLink]="['/people', person.id]"
+              >
+                <app-icon [icon]="ICONS.link" />
+                {{ person.fullName }}</a
+              >
             </td>
             <td>{{ person.nif.trim() || "N/A" }}</td>
             <td>{{ person.age || "N/A" }}</td>
@@ -129,7 +135,11 @@
             </td>
             <td>
               @if(person.email.trim()){
-              <a href="mailto:{{ person.email }}">
+              <a
+                class="btn btn-sm btn-light me-2"
+                href="mailto:{{ person.email }}"
+              >
+                <app-icon [icon]="ICONS.email" />
                 {{ person.email.trim() }}
               </a>
               } @else { N/A }

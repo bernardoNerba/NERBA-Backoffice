@@ -18,10 +18,18 @@ import { CreatePeopleComponent } from '../create-people/create-people.component'
 import { UpdatePeopleComponent } from '../update-people/update-people.component';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ICONS } from '../../../core/objects/icons';
 
 @Component({
   selector: 'app-index-people',
-  imports: [CommonModule, SpinnerComponent, RouterLink, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    SpinnerComponent,
+    RouterLink,
+    ReactiveFormsModule,
+    IconComponent,
+  ],
   templateUrl: './index-people.component.html',
   styleUrl: './index-people.component.css',
 })
@@ -30,6 +38,7 @@ export class IndexPeopleComponent implements OnInit {
   loading$!: Observable<boolean>;
   columns = ['#', 'Nome', 'NIF', 'Idade', 'Habilitações', 'Email', 'Tel.'];
   filteredPeople$!: Observable<Person[]>;
+  ICONS = ICONS;
 
   searchControl = new FormControl('');
 

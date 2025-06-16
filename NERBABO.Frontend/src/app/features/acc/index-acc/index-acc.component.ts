@@ -144,8 +144,8 @@ export class IndexAccComponent implements OnInit {
         className: '',
       },
       {
-        displayName: 'Utilizadores',
-        url: '/users',
+        displayName: 'Contas',
+        url: '/accs',
         className: 'inactive',
       },
     ]);
