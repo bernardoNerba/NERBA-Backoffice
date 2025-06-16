@@ -11,7 +11,7 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
     [ApiController]
     public class ModuleController(
         IModuleService moduleService,
-        IResponseHandler responseHandler,
+        IResponseHandler responseHandler
         ) : ControllerBase
     {
         private readonly IModuleService _moduleService = moduleService;
@@ -59,11 +59,12 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
 
         [HttpDelete("{id:long}")]
         [Authorize(Roles = "Admin, FM")]
-        public async Task<IActionResult> DeleteModuleAsync([FromQuery] long id)
+        public async Task<IActionResult> DeleteModuleAsync(long id)
         {
             var result = await _moduleService.DeleteModuleAsync(id);
             return _responseHandler.HandleResult(result);
 
 
         }
+    }
 }

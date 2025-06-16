@@ -4,6 +4,7 @@ using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Companies.Models;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
@@ -20,6 +21,7 @@ public class AppDbContext : IdentityDbContext<User>
     public DbSet<Teacher> Teachers { get; set; }
     public DbSet<Company> Companies { get; set; }
     public DbSet<Student> Students { get; set; }
+    public DbSet<Module> Modules { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -47,6 +49,7 @@ public class AppDbContext : IdentityDbContext<User>
         builder.ApplyConfiguration(new TeacherConfiguration());
         builder.ApplyConfiguration(new CompanyConfiguration());
         builder.ApplyConfiguration(new StudentConfiguration());
+        builder.ApplyConfiguration(new ModuleConfiguration());
     }
 
 }
