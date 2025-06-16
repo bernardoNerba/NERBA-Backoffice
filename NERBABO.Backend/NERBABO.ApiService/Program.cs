@@ -12,6 +12,7 @@ using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Companies.Services;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
+using NERBABO.ApiService.Core.Modules.Services;
 using NERBABO.ApiService.Core.People.Services;
 using NERBABO.ApiService.Core.Students.Services;
 using NERBABO.ApiService.Core.Teachers.Services;
@@ -50,6 +51,7 @@ builder.Services.AddScoped<IFrameService, FrameService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<IModuleService, ModuleService>();
 
 // Register Other like middleware services
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
