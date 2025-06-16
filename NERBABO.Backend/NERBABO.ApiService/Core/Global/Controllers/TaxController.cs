@@ -89,15 +89,14 @@ namespace NERBABO.ApiService.Core.Global.Controllers
 
             Result result = await _TaxService.DeleteTaxAsync(id);
             return _responseHandler.HandleResult(result);
-                
+
         }
 
         [Authorize]
         [HttpGet("type/{type}")]
-        public async Task<IActionResult> GetTaxesByTypeAsync(string type)
+        public async Task<IActionResult> GetTaxesByTypeAndActiveAsync(string type)
         {
-            Result<IEnumerable<RetrieveTaxDto>> result = await _TaxService.GetTaxesByTypeAsync(type);
-
+            Result<IEnumerable<RetrieveTaxDto>> result = await _TaxService.GetTaxesByTypeAndIsActiveAsync(type);
             return _responseHandler.HandleResult(result);
         }
     }

@@ -2,33 +2,33 @@
 
 namespace NERBABO.ApiService.Shared.Models
 {
-    public class Result<T>: Result
+    public class Result<T> : Result
     {
         public T? Data { get; set; }
 
-        public static Result<T> Ok (T data, string title, string message) =>
-            new() 
-            { 
-                Success = true, 
-                Title = title, 
-                Message = message, 
-                StatusCode = StatusCodes.Status200OK, 
-                Data = data 
+        public static Result<T> Ok(T data, string title, string message) =>
+            new()
+            {
+                Success = true,
+                Title = title,
+                Message = message,
+                StatusCode = StatusCodes.Status200OK,
+                Data = data
             };
 
         public static Result<T> Ok(T data, string title, string message, int status)
         {
             if (status < 200 || status >= 300)
-                throw new ArgumentOutOfRangeException(nameof(status), 
+                throw new ArgumentOutOfRangeException(nameof(status),
                     $"Only 2xx status codes are allowed for a successful result. Received: {status}");
-            
-            return new() 
-            { 
-                Success = true, 
-                Title = title, 
-                Message = message, 
-                StatusCode = status, 
-                Data = data 
+
+            return new()
+            {
+                Success = true,
+                Title = title,
+                Message = message,
+                StatusCode = status,
+                Data = data
             };
         }
 
@@ -61,6 +61,8 @@ namespace NERBABO.ApiService.Shared.Models
         public string? Message { get; set; }
         public int? StatusCode { get; set; }
 
+        public object? errors { get; set; }
+
         public static Result Ok(string title, string message, int status = StatusCodes.Status200OK)
         {
             if (status < 200 || status >= 300)
@@ -82,6 +84,16 @@ namespace NERBABO.ApiService.Shared.Models
                 Title = title,
                 Message = message,
                 StatusCode = statusCode
+            };
+
+        public static Result Fail(string title, string message, object errors, int statusCode = StatusCodes.Status400BadRequest) =>
+            new()
+            {
+                Success = false,
+                Title = title,
+                Message = message,
+                StatusCode = statusCode,
+                errors = errors
             };
     }
 

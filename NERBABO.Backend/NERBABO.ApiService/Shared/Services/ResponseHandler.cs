@@ -14,7 +14,7 @@ namespace NERBABO.ApiService.Shared.Services
                 {
                     var okResult = new OkMessage<T>
                     (
-                        result.Title ,
+                        result.Title,
                         result.Message,
                         result.Data,
                         result.StatusCode
@@ -39,6 +39,7 @@ namespace NERBABO.ApiService.Shared.Services
                 Status = result.StatusCode
             };
 
+
             return new ObjectResult(problemDetails)
             {
                 StatusCode = result.StatusCode ?? StatusCodes.Status400BadRequest
@@ -49,12 +50,13 @@ namespace NERBABO.ApiService.Shared.Services
         {
             if (result.Success)
             {
-                
+
                 return new ObjectResult(new { result.Title, result.Message })
                 {
                     StatusCode = result.StatusCode ?? StatusCodes.Status200OK
                 };
             }
+
 
             var problemDetails = new ProblemDetails
             {
@@ -62,6 +64,11 @@ namespace NERBABO.ApiService.Shared.Services
                 Detail = result.Message,
                 Status = result.StatusCode
             };
+
+            if (result.errors is not null)
+            {
+                problemDetails.Extensions["errors"] = result.errors;
+            }
 
             return new ObjectResult(problemDetails)
             {

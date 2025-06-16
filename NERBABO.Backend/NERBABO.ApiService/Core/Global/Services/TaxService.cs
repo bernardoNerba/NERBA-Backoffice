@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Global.Dtos;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 using ZLinq;
@@ -60,7 +61,7 @@ public class TaxService(
 
     public async Task<Result<IEnumerable<RetrieveTaxDto>>> GetAllTaxesAsync()
     {
-        
+
         var existingTaxes = await _context.Taxes
             .OrderBy(t => t.Id)
             .ThenByDescending(t => t.ValuePercent)
@@ -102,22 +103,22 @@ public class TaxService(
             .Ok("Taxa Atualizada.", "Taxa atualizada com sucesso.");
     }
 
-    public async Task<Result<IEnumerable<RetrieveTaxDto>>> GetTaxesByTypeAsync(string type)
+    public async Task<Result<IEnumerable<RetrieveTaxDto>>> GetTaxesByTypeAndIsActiveAsync(string type)
     {
-        if (!IsValidTaxType(type))
-            return Result<IEnumerable<RetrieveTaxDto>>
-                .Fail("Erro de Validação.", "Taxa inválida.");
 
-        var taxType = type.DehumanizeTo<TaxEnum>();
+        if (!EnumHelp.IsValidEnum<TaxEnum>(type))
+            return Result<IEnumerable<RetrieveTaxDto>>
+                .Fail("Erro de Validação.", "Tipo de Taxa inválida.");
 
         var existingTaxes = await _context.Taxes
-            .Where(t => t.Type == taxType)
+            .Where(t => t.Type == type.DehumanizeTo<TaxEnum>()
+                && t.IsActive)
             .Select(t => Tax.ConvertEntityToRetrieveDto(t))
             .ToListAsync();
 
         if (existingTaxes is null || existingTaxes.Count == 0)
             return Result<IEnumerable<RetrieveTaxDto>>
-                .Fail("Não encontrado.", "Não foram encontradas taxas",
+                .Fail("Não encontrado.", "Não foram encontradas taxas ativas.",
                 StatusCodes.Status404NotFound);
 
         return Result<IEnumerable<RetrieveTaxDto>>
@@ -130,6 +131,5 @@ public class TaxService(
         return type.Equals(TaxEnum.IVA.Humanize(), StringComparison.OrdinalIgnoreCase) ||
                type.Equals(TaxEnum.IRS.Humanize(), StringComparison.OrdinalIgnoreCase);
     }
-
     #endregion
 }

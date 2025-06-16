@@ -74,6 +74,7 @@ namespace NERBABO.ApiService.Shared.Middleware
                     _logger.LogError(exception, "Unexpected error occurred: {Message}", exception.Message);
                     response.StatusCode = StatusCodes.Status500InternalServerError;
                     errorResponse.Message = "Erro interno do servidor.";
+                    errorResponse.Details = "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.";
 
                     // Don't expose internal error details in production
                     if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
