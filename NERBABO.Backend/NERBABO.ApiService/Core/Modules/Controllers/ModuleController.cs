@@ -49,10 +49,11 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        [HttpPut]
+        [HttpPut("{id:long}")]
         [Authorize(Roles = "Admin, FM")]
-        public async Task<IActionResult> UpdateModuleAsync([FromBody] UpdateModuleDto moduleDto)
+        public async Task<IActionResult> UpdateModuleAsync(long id, [FromBody] UpdateModuleDto moduleDto)
         {
+            if (id != moduleDto.Id) return BadRequest("ID Missmatch");
             var result = await _moduleService.UpdateModuleAsync(moduleDto);
             return _responseHandler.HandleResult(result);
         }

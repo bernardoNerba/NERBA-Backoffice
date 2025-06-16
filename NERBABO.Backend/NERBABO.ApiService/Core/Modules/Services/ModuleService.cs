@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.Modules.Models;
+using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
@@ -87,11 +88,10 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // If not in cache, retrieve from database
             var existingModules = await _context.Modules
-                .OrderByDescending(m => m.CreatedAt)
-                .ThenBy(m => m.Name)
-                .ThenBy(m => m.IsActive)
+                .OrderByDescending(m => m.IsActive) // true (1) first
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .ToListAsync();
+
 
             // Check if there is data on db
             if (existingModules is null || existingModules.Count == 0)
@@ -109,19 +109,84 @@ namespace NERBABO.ApiService.Core.Modules.Services
                 .Ok(existingModules);
         }
 
-        public Task<Result<RetrieveModuleDto>> GetModuleByIdAsync(long id)
+        public async Task<Result<RetrieveModuleDto>> GetModuleByIdAsync(long id)
         {
-            throw new NotImplementedException();
+            // Check if entry exists in cache
+            var cacheKey = $"module:{id}";
+            var cachedModule = await _cacheService.GetAsync<RetrieveModuleDto>(cacheKey);
+            if (cachedModule is not null)
+                return Result<RetrieveModuleDto>
+                    .Ok(cachedModule);
+
+            // If not in cache, retrieve from database
+            var existingModule = await _context.Modules
+                .Where(m => m.Id == id)
+                .Select(m => Module.ConvertEntityToRetrieveDto(m))
+                .FirstOrDefaultAsync();
+
+            if (existingModule is null)
+                return Result<RetrieveModuleDto>
+                    .Fail("Não encontrado.", "Módulo não encontrado.",
+                    StatusCodes.Status404NotFound);
+
+            // Cache the result for future requests
+            await _cacheService.SetAsync(cacheKey, existingModule, TimeSpan.FromMinutes(30));
+            return Result<RetrieveModuleDto>
+                .Ok(existingModule);
+
         }
 
-        public Task<Result<RetrieveModuleDto>> UpdateModuleAsync(UpdateModuleDto moduleDto)
+        public async Task<Result<RetrieveModuleDto>> UpdateModuleAsync(UpdateModuleDto moduleDto)
         {
-            throw new NotImplementedException();
+            var existingModule = await _context.Modules.FindAsync(moduleDto.Id);
+            if (existingModule is null)
+                return Result<RetrieveModuleDto>
+                    .Fail("Não encontrado", "Módulo não encontrado.",
+                    StatusCodes.Status404NotFound);
+
+            // Unique constrains check
+            if (existingModule.Name != moduleDto.Name
+                && await _context.Modules.AnyAsync(m => m.Name == moduleDto.Name))
+            {
+                _logger.LogWarning("Duplicated Module Name detected");
+                return Result<RetrieveModuleDto>
+                    .Fail("Nome duplicado.", "O nome do módulo deve ser único. Já existe no sistema.");
+            }
+
+
+            _context.Entry(existingModule).CurrentValues.SetValues(Module.ConvertUpdateDtoToEntity(moduleDto));
+            await _context.SaveChangesAsync();
+
+            // Update cache
+            var cacheKey = $"module:{existingModule.Id}";
+            await _cacheService.SetAsync(cacheKey, Module.ConvertEntityToRetrieveDto(existingModule), TimeSpan.FromMinutes(30));
+            await ClearCache();
+
+            return Result<RetrieveModuleDto>
+                .Ok(Module.ConvertEntityToRetrieveDto(existingModule),
+                "Módulo Atualizada.",
+                $"Foi atualizado o módulo com o nome {existingModule.Name}.");
         }
 
-        public Task<Result> DeleteModuleAsync(long id)
+        public async Task<Result> DeleteModuleAsync(long id)
         {
-            throw new NotImplementedException();
+            // TODO: Handle delete validation when associations with other classes is done
+            var existingModule = await _context.Modules.FindAsync(id);
+            if (existingModule is null)
+                return Result
+                    .Fail("Não encontrado", "Módulo não encontrado.",
+                    StatusCodes.Status404NotFound);
+
+
+            _context.Modules.Remove(existingModule);
+            await _context.SaveChangesAsync();
+
+            // Remove from cache
+            await _cacheService.RemoveAsync($"module:{id}");
+            await ClearCache();
+
+            return Result
+                .Ok("Módulo Eliminado", "Módulo eliminado com sucesso.");
         }
 
         #region Private Helper Methods

@@ -14,6 +14,8 @@ namespace NERBABO.ApiService.Core.Modules.Dtos
 
         [ValidateHours(0, 1000, true)]
         public float Hours { get; set; }
+
+        [Required(ErrorMessage = "Ativo é um campo obrigatório.")]
         public bool IsActive { get; set; }
     }
 }

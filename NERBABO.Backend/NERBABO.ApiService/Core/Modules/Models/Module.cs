@@ -46,7 +46,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
             };
         }
 
-        public static Module ConvertCreateDtoToEntity(UpdateModuleDto m)
+        public static Module ConvertUpdateDtoToEntity(UpdateModuleDto m)
         {
             return new Module(m.Id, m.Name, m.Hours, m.IsActive)
             {
