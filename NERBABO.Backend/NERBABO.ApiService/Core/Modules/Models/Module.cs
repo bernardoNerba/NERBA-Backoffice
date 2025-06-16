@@ -1,4 +1,5 @@
-﻿using NERBABO.ApiService.Shared.Models;
+﻿using NERBABO.ApiService.Core.Modules.Dtos;
+using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Modules.Models
 {
@@ -23,6 +24,34 @@ namespace NERBABO.ApiService.Core.Modules.Models
             Name = name;
             Hours = hours;
             IsActive = isActive;
+        }
+
+        public static RetrieveModuleDto ConvertEntityToRetrieveDto(Module module)
+        {
+            return new RetrieveModuleDto
+            {
+                Id = module.Id,
+                Name = module.Name,
+                Hours = module.Hours,
+                IsActive = module.IsActive
+            };
+        }
+
+        public static Module ConvertCreateDtoToEntity(CreateModuleDto m)
+        {
+            return new Module(m.Name, m.Hours, m.IsActive)
+            {
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+        }
+
+        public static Module ConvertCreateDtoToEntity(UpdateModuleDto m)
+        {
+            return new Module(m.Id, m.Name, m.Hours, m.IsActive)
+            {
+                UpdatedAt = DateTime.UtcNow
+            };
         }
     }
 }
