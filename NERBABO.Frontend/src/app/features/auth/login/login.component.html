@@ -1,0 +1,97 @@
+<div
+  class="container d-flex justify-content-center align-items-center min-vh-100"
+>
+  <div class="card login-card">
+    <div class="row g-0">
+      <!-- Left Side -->
+      <div class="col-md-6">
+        <div class="login-form">
+          <!-- Big logo at top -->
+          <div class="text-center">
+            <img
+              src="images/logo_grande.png"
+              alt="Logo"
+              class="left-image img-fluid"
+              height="100"
+              width="200"
+            />
+          </div>
+
+          <!-- Login Form -->
+          <form [formGroup]="loginForm" (ngSubmit)="login()" autocomplete="off">
+            <div class="text-start mb-4">
+              <h6 class="mb-3 fw-bold">
+                <span class="text-secondary">Iniciar Sessão no </span>
+                <span class="text-success fw-bold">Backoffice</span>
+              </h6>
+            </div>
+            <!-- USERNAME OR EMAIL -->
+            <div class="form-floating mb-3">
+              <input
+                formControlName="usernameOrEmail"
+                type="text"
+                placeholder="Username ou Email..."
+                class="form-control"
+                [class.is-invalid]="
+                  submitted && loginForm.get('usernameOrEmail')?.errors
+                "
+              />
+              <label for="usernameOrEmail" class="text-success"
+                >Username ou Email</label
+              >
+              @if (submitted &&
+              loginForm.get('usernameOrEmail')?.hasError("required")) {
+              <span class="text-danger">
+                Username ou Email é um campo obrigatório.
+              </span>
+              }
+            </div>
+            <!-- END USERNAME OR EMAIL -->
+
+            <!-- PASSWORD FIELD -->
+            <div class="form-floating mb-3">
+              <input
+                formControlName="password"
+                type="password"
+                placeholder="Password"
+                class="form-control"
+                [class.is-invalid]="
+                  submitted && loginForm.get('password')?.errors
+                "
+              />
+              <label for="password" class="text-success">Password</label>
+              <!-- PASSWORD VALIDATION -->
+              @if (submitted && loginForm.get('password')?.hasError("required"))
+              {
+              <span class="text-danger">
+                Password é um campo obrigatório.
+              </span>
+              }
+            </div>
+            <!-- END PASSWORD FIELD -->
+
+            <!-- ACTION -->
+            <div class="d-grid mt-4 px-1">
+              <button class="btn-main w-100" type="submit">
+                Iniciar Sessão
+              </button>
+            </div>
+            <!-- END ACTION -->
+          </form>
+          <!-- end Login Form -->
+        </div>
+      </div>
+      <!-- end left side -->
+
+      <!-- Right Side (Image) -->
+      <div class="col-md-6 d-none d-md-block">
+        <img
+          src="images/login_img.jpg"
+          alt="Login Visual"
+          class="right-image"
+        />
+      </div>
+      <!-- end right side -->
+    </div>
+  </div>
+</div>

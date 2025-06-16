@@ -76,7 +76,7 @@ public class AccountService : IAccountService
         var person = await _context.People.FindAsync(registerDto.PersonId);
         if (person is null)
             return Result
-                .Fail("Não encontrado.", $"A pessoa que tentou associar ao utilizador não existe.", 
+                .Fail("Não encontrado.", $"A pessoa que tentou associar ao utilizador não existe.",
                 StatusCodes.Status404NotFound);
 
         // checks if there is already a user associated with the person
@@ -96,17 +96,17 @@ public class AccountService : IAccountService
             var result = await _userManager.CreateAsync(userToAdd, registerDto.Password);
             if (!result.Succeeded)
             {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 return Result
-                    .Fail("Falha ao registar utilizador.", errors);
+                    .Fail("Falha ao registar utilizador.", "Formato da password Inálido",
+                    result.Errors.Select(e => e.Description).ToList());
             }
 
             var roleAssignmentResult = await _userManager.AddToRoleAsync(userToAdd, "User");
             if (!roleAssignmentResult.Succeeded)
             {
-                var errors = string.Join(", ", roleAssignmentResult.Errors.Select(e => e.Description));
                 return Result
-                    .Fail("Falha ao atribuir a função", errors);
+                    .Fail("Falha ao atribuir a função", "Erro ao atribuir função ao utilizador.",
+                    result.Errors.Select(e => e.Description).ToList());
             }
 
             // Update the cache
@@ -254,11 +254,11 @@ public class AccountService : IAccountService
         var user = await _userManager.Users
             .Include(u => u.Person)
             .FirstOrDefaultAsync(u => u.Id == model.Id);
-        
+
         if (user is null)
             return Result
                 .Fail("Não encontrado", "Utilizador não encontrado.", StatusCodes.Status404NotFound);
-        
+
         // assign the new values to the user
         user.Email = model.Email;
         user.UserName = model.UserName;

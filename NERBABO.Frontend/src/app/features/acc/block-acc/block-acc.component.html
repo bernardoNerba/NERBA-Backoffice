@@ -1,0 +1,26 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    {{ active ? "Bloquear" : "Desbloquear" }} Utilizador
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  Tem a certeza que deseja {{ active ? "Bloquear" : "Desbloquear" }} o
+  utilizador com o nome <strong>{{ fullName }}</strong
+  >?
+</div>
+<div class="modal-footer">
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancelar
+    </button>
+    <button type="submit" class="btn-main" (click)="blockUnblockUser()">
+      Sim
+    </button>
+  </div>
+</div>

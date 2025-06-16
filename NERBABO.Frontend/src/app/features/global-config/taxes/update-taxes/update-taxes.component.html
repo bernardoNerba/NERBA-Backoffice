@@ -1,0 +1,84 @@
+<div class="modal-header">
+  <h4 class="modal-title">Editar Regime de {{ type }}</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- form container -->
+    <div class="conatiner">
+      <div class="row p-4">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label for="name"
+              >Regime {{ type }}
+              <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              formControlName="name"
+              [class.is-invalid]="submitted && form.get('name')?.errors"
+            />
+            @if (submitted && form.get('name')?.hasError("required")) {
+            <span class="text-danger">
+              Regime {{ type }} é um campo obrigatório.
+            </span>
+            } @else if ( form.get('name')?.hasError("minlength") ||
+            form.get('name')?.hasError("maxlength")) {
+            <span class="text-danger">
+              Regime {{ type }} deve ter entre 3 e 50 caracteres.
+            </span>
+            }
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label for="valuePercent"
+              >Percentagem {{ type }}
+              <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="bankEntity"
+              formControlName="valuePercent"
+              [class.is-invalid]="submitted && form.get('valuePercent')?.errors"
+            />
+            @if (submitted && form.get('valuePercent')?.hasError("required")) {
+            <span class="text-danger">
+              Percentagem {{ type }} é um campo obrigatório.
+            </span>
+            } @else if ( form.get('valuePercent')?.hasError("numberRequired") ||
+            form.get('valuePercent')?.hasError("rangeValueToSmall") ||
+            form.get('valuePercent')?.hasError("rangeValueToBig")) {
+            <span class="text-danger">
+              Percentagem {{ type }} deve ser uma percentagem, um valor de 0 a
+              100.
+            </span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+
+    <!-- submit button -->
+    <div class="text-end">
+      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+        Cancel
+      </button>
+      <button type="submit" class="btn-main" [disabled]="loading">
+        @if (loading){
+        <span class="spinner-border spinner-border-sm me-1"></span>
+        } Save
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,1 +1,228 @@
 /* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --gray-1: #F3F3F3;
+  --gray-2: #9e9e9e;
+  --gray-3: #7B7A7A;
+  --primary-green: #009241;
+  --secondary-green: #19DA00;
+  --tertiery-warning: #daa400;
+  --dark-green: #015f2b;
+
+  --secondary-green-background: #19da0025;
+  --tertiary-green-background: #19da0011;
+  --gray-background: #85858552;
+  --warning-background: #daa40027;
+  --danger-background: #DC3545;
+
+  --danger-background-hover: #d1646f;
+}
+
+i {
+  font-size: 0.9rem !important;
+}
+
+label {
+  font-weight: 700;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+}
+
+a {
+  color: var(--dark-green);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--primary-green);
+  text-decoration: underline;
+}
+
+::-moz-selection {
+  /* Code for Firefox */
+  color: #000;
+  background: #3dff2379;
+}
+
+::selection {
+  color: #000;
+  background: #3dff2379;
+}
+
+.btn-main {
+  background: var(--primary-green);
+  color: white;
+  border-radius: 5px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  font-weight: 600;
+}
+
+.btn-main:hover {
+  background-color: #006c30;
+}
+
+.close-btn {
+  background-color: transparent;
+  border: none;
+  color: var(--primary-green) !important;
+}
+
+.btn-gray {
+  background: var(--gray-3);
+  color: white;
+  border-radius: 5px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  font-weight: 600;
+}
+
+.btn-gray:hover {
+  background-color: #535353;
+}
+
+.btn-danger-action {
+  background: var(--danger-background);
+  color: white;
+  border-radius: 5px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  font-weight: 600;
+}
+
+.btn-danger-action:hover {
+  background-color: var(--danger-background-hover);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--primary-green);
+  font-weight: 600;
+}
+
+.form-control:active,
+.form-control:focus {
+  border: 1px solid var(--primary-green);
+  box-shadow: 0 0 5px var(--primary-green);
+}
+
+.active {
+  background-color: var(--primary-green) !important;
+  color: white !important;
+}
+
+.inactive,
+.inactive:hover {
+  background-color: transparent !important;
+  color: var(--gray-3) !important;
+  text-decoration: none;
+}
+
+.dropdown-item:focus,
+.dropdown-item:hover {
+  cursor: pointer;
+  background-color: var(--primary-green) !important;
+  color: white !important;
+
+}
+
+.dropdown-item.active {
+  background-color: var(--primary-green) !important;
+  color: white !important;
+}
+
+.normal-badge-success {
+  font-weight: 500;
+  padding: 1px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--secondary-green-background);
+  border: 1px solid var(--primary-green);
+  color: var(--primary-green);
+  transition: all 0.3s ease;
+}
+
+.normal-badge-success.material-icons {
+  font-size: 10px !important;
+  margin-right: 4px;
+}
+
+.normal-badge-warning {
+  font-weight: 500;
+  padding: 1px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--warning-background);
+  border: 1px solid var(--tertiery-warning);
+  color: var(--tertiery-warning);
+  transition: all 0.3s ease;
+}
+
+.accordion-button,
+.accordion-button:active,
+.accordion-button:hover,
+.accordion-button:focus,
+.accordion-button:not(.collapsed) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.accordion-button.collapsed {
+  background-color: var(--tertiary-green-background, #e8f5e9) !important;
+  color: #198754;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: transparent !important;
+  color: #198754;
+}
+
+.property {
+  margin-bottom: 0.7rem;
+}
+
+.text-break {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.nav-link {
+  color: var(--primary-green) !important;
+}
+
+a.nav-link.active {
+  color: #fff !important;
+}
+
+a.nav-link:hover {
+  background-color: var(--secondary-green-background);
+  color: #fff;
+}

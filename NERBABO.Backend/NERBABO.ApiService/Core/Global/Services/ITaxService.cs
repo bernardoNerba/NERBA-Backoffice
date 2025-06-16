@@ -9,5 +9,5 @@ public interface ITaxService
     Task<Result> UpdateTaxAsync(UpdateTaxDto updateTax);
     Task<Result> CreateTaxAsync(CreateTaxDto createTax);
     Task<Result> DeleteTaxAsync(int id);
-    Task<Result<IEnumerable<RetrieveTaxDto>>> GetTaxesByTypeAsync(string type);
+    Task<Result<IEnumerable<RetrieveTaxDto>>> GetTaxesByTypeAndIsActiveAsync(string type);
 }

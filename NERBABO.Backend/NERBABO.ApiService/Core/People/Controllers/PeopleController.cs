@@ -36,6 +36,14 @@ namespace NERBABO.ApiService.Core.People.Controllers
         }
 
         [Authorize]
+        [HttpGet("not-user")]
+        public async Task<IActionResult> GetPeopleWithoutUserAsync()
+        {
+            var result = await _peopleService.GetPeopleWithoutUserAsync();
+            return _responseHandler.HandleResult(result);
+        }
+
+        [Authorize]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetPersonAsync(long id)
         {

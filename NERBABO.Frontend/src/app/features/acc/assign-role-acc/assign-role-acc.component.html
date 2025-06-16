@@ -1,0 +1,48 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    Atribuir Papel a <span class="text-secondary">{{ user.fullName }}</span>
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form">
+    <div class="form-group">
+      <label for="roleInput"
+        >Atribuir Papel <span class="text-danger">*</span></label
+      >
+      <input
+        id="roleInput"
+        type="text"
+        class="form-control"
+        formControlName="roleInput"
+        [typeahead]="filteredRoles"
+        [typeaheadMinLength]="0"
+        [typeaheadOptionField]="'name'"
+        (typeaheadOnSelect)="onSelectRole($event.item)"
+        placeholder="Comece a escrever um papel..."
+      />
+    </div>
+  </form>
+
+  <div class="mt-2">
+    @for(role of selectedRoles; track role;){
+    <span class="normal-badge-success me-1">
+      <button type="button" class="close-btn" (click)="removeRole(role)">
+        <i class="bi bi-x-circle-fill"></i>
+      </button>
+      {{ role }}
+    </span>
+    }
+  </div>
+</div>
+<div class="modal-footer text-end">
+  <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+    Cancelar
+  </button>
+  <button type="submit" class="btn-main" (click)="onSubmit()">Atribuir</button>
+</div>

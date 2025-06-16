@@ -1,0 +1,39 @@
+@if(user$ | async){
+<nav class="navbar bg-light navbar-light">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center w-100">
+      <!-- TOGGLE SIDEBAR -->
+      <div class="me-2">
+        <button class="toggle-btn" (click)="toggleSidebar()">
+          <span class="material-icons">
+            {{ isCollapsed ? "menu" : "menu_open" }}
+          </span>
+        </button>
+      </div>
+      <!-- END TOGGLE SIDEBAR -->
+
+      <!-- BREADCRUMB -->
+      <div class="flex-grow-1">
+        <nav
+          style="--bs-breadcrumb-divider: '>'"
+          aria-label="breadcrumb"
+          class="my-0"
+        >
+          <ol class="breadcrumb mb-0">
+            @for(item of breadcrumbs; track item.url) {
+            <li class="breadcrumb-item">
+              <a
+                class="{{ item.className }}"
+                [routerLink]="item.url"
+                routerLinkActive="router-link-active"
+                >{{ item.displayName }}</a
+              >
+            </li>
+            }
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+</nav>
+}
