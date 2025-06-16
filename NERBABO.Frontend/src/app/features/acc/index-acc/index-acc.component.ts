@@ -22,6 +22,8 @@ import { UpdateAccComponent } from '../update-acc/update-acc.component';
 import { BlockAccComponent } from '../block-acc/block-acc.component';
 import { AssignRoleAccComponent } from '../assign-role-acc/assign-role-acc.component';
 import { CreateAccComponent } from '../create-acc/create-acc.component';
+import { ICONS } from '../../../core/objects/icons';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-index-acc',
@@ -31,6 +33,7 @@ import { CreateAccComponent } from '../create-acc/create-acc.component';
     ReactiveFormsModule,
     SpinnerComponent,
     RouterLink,
+    IconComponent,
   ],
   templateUrl: './index-acc.component.html',
   styleUrl: './index-acc.component.css',
@@ -43,6 +46,7 @@ export class IndexAccComponent implements OnInit {
   filteredUsers$!: Observable<UserInfo[] | null>;
   selectedRoles$ = new BehaviorSubject<Set<string>>(new Set());
   loading$!: Observable<boolean>;
+  ICONS = ICONS;
 
   constructor(
     private accService: AccService,

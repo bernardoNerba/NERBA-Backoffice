@@ -142,19 +142,29 @@
                 </div>
               </td>
               <td>
-                <a [routerLink]="['/people', user.personId]">{{
-                  user.fullName
-                }}</a>
+                <a
+                  class="btn btn-sm btn-light me-2"
+                  [routerLink]="['/people', user.personId]"
+                >
+                  <app-icon [icon]="ICONS.link" />
+                  {{ user.fullName }}
+                </a>
               </td>
               <td>{{ user.userName }}</td>
               <td>
-                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                <a
+                  class="btn btn-sm btn-light me-2"
+                  href="mailto:{{ user.email }}"
+                >
+                  <app-icon [icon]="ICONS.email" />
+                  {{ user.email }}</a
+                >
               </td>
               <!-- ROLES -->
               <td>
                 @for(role of user.roles; track role;) {
-                <span class="normal-badge-success me-1">
-                  <i class="bi bi-check"></i>
+                <span class="badge bg-light me-1 text-dark">
+                  <app-icon [icon]="ICONS.success" />
                   {{ role | uppercase }}
                 </span>
                 }
