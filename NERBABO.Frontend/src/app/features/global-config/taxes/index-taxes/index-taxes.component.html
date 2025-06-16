@@ -1,50 +1,110 @@
 <div class="container-fluid px-0">
-  <ul class="list-group list-group-flush">
-    @for (tax of (taxes$ | async); track tax.id;) {
-    <li class="list-group-item">
-      <button
-        class="btn btn-sm btn-outline-secondary me-2"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        <i class="bi bi-three-dots-vertical"></i>
-      </button>
-      <ul class="dropdown-menu">
-        <li>
-          <a class="dropdown-item" (click)="onUpdateIvaModal(tax)"
-            ><i class="bi bi-pencil-fill me-3"></i>Editar</a
-          >
-        </li>
+  <!-- IVA Section -->
+  <div class="mb-4">
+    <h5 class="mb-3">Taxas IVA</h5>
+    <ul class="list-group list-group-flush">
+      @for (tax of (ivaTaxes$ | async); track tax.id;) {
+      <li class="list-group-item">
+        <button
+          class="btn btn-sm btn-outline-secondary me-2"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" (click)="onUpdateIvaModal(tax)"
+              ><i class="bi bi-pencil-fill me-3"></i>Editar</a
+            >
+          </li>
 
-        <li>
-          <a class="dropdown-item" (click)="onDeleteIvaModal(tax.id, tax.name)"
-            ><i class="bi bi-exclamation-triangle-fill me-3"></i>Eliminar</a
-          >
-        </li>
+          <li>
+            <a
+              class="dropdown-item"
+              (click)="onDeleteIvaModal(tax.id, tax.name)"
+              ><i class="bi bi-exclamation-triangle-fill me-3"></i>Eliminar</a
+            >
+          </li>
 
-        <li>
-          <a class="dropdown-item"
-            ><i class="bi bi-exclamation-triangle-fill me-3"></i
-            >{{ tax.isActive ? "Ativar" : "Desativar" }}</a
-          >
-        </li>
-      </ul>
+          <li>
+            <a class="dropdown-item" (click)="onToggleTaxStatus(tax)"
+              ><i class="bi bi-exclamation-triangle-fill me-3"></i
+              >{{ tax.isActive ? "Desativar" : "Ativar" }}</a
+            >
+          </li>
+        </ul>
 
-      <!-- END ACTION DROPDOWN -->
-      <span
-        class="me-2 badge rounded-pill bg-{{
-          tax.isActive ? 'success' : 'danger'
-        }}"
-        style="width: 10px; height: 10px; display: inline-block; padding: 0"
-      ></span>
-      <strong>{{ tax.name }}</strong> - {{ tax.valuePercent }} %
-    </li>
-    }
-  </ul>
+        <!-- END ACTION DROPDOWN -->
+        <span
+          class="me-2 badge rounded-pill bg-{{
+            tax.isActive ? 'success' : 'danger'
+          }}"
+          style="width: 10px; height: 10px; display: inline-block; padding: 0"
+        ></span>
+        <strong>{{ tax.name }}</strong> - {{ tax.valuePercent }} %
+      </li>
+      } @empty {
+      <li class="list-group-item text-muted">Nenhuma taxa IVA encontrada</li>
+      }
+    </ul>
+  </div>
+
+  <!-- IRS Section -->
+  <div class="mb-4">
+    <h5 class="mb-3">Taxas IRS</h5>
+    <ul class="list-group list-group-flush">
+      @for (tax of (irsTaxes$ | async); track tax.id;) {
+      <li class="list-group-item">
+        <button
+          class="btn btn-sm btn-outline-secondary me-2"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" (click)="onUpdateIrsModal(tax)"
+              ><i class="bi bi-pencil-fill me-3"></i>Editar</a
+            >
+          </li>
+
+          <li>
+            <a
+              class="dropdown-item"
+              (click)="onDeleteIrsModal(tax.id, tax.name)"
+              ><i class="bi bi-exclamation-triangle-fill me-3"></i>Eliminar</a
+            >
+          </li>
+
+          <li>
+            <a class="dropdown-item" (click)="onToggleTaxStatus(tax)"
+              ><i class="bi bi-exclamation-triangle-fill me-3"></i
+              >{{ tax.isActive ? "Desativar" : "Ativar" }}</a
+            >
+          </li>
+        </ul>
+
+        <!-- END ACTION DROPDOWN -->
+        <span
+          class="me-2 badge rounded-pill bg-{{
+            tax.isActive ? 'success' : 'danger'
+          }}"
+          style="width: 10px; height: 10px; display: inline-block; padding: 0"
+        ></span>
+        <strong>{{ tax.name }}</strong> - {{ tax.valuePercent }} %
+      </li>
+      } @empty {
+      <li class="list-group-item text-muted">Nenhuma taxa IRS encontrada</li>
+      }
+    </ul>
+  </div>
 
   <div class="text-end mb-3 mt-3">
-    <button type="button" class="btn-main" (click)="onAddIvaModal()">
+    <button type="button" class="btn-main" (click)="onAddTaxModal()">
       Adicionar Taxa
     </button>
   </div>
