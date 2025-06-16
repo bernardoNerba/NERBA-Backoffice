@@ -19,6 +19,9 @@ namespace NERBABO.ApiService.Data.Configurations
             builder.Property(m => m.Hours)
                 .HasColumnType("float")
                 .HasDefaultValue(0.0f);
+
+            builder.Property(m => m.IsActive)
+                .HasDefaultValue(true);
         }
     }
 }

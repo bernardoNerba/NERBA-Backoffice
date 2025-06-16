@@ -39,7 +39,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
 
         public static Module ConvertCreateDtoToEntity(CreateModuleDto m)
         {
-            return new Module(m.Name, m.Hours, m.IsActive)
+            return new Module(m.Name, m.Hours, true)
             {
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
