@@ -84,6 +84,7 @@ export class UpdateTaxesComponent implements OnInit {
 
     const model = this.form.value;
     model.id = this.currentTax.id;
+    model.isActive = this.currentTax.isActive;
 
     this.confService.updateIvaTax(model).subscribe({
       next: (value: OkResponse) => {

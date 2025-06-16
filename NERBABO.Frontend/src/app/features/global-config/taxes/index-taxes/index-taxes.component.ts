@@ -58,16 +58,9 @@ export class IndexTaxesComponent implements OnInit {
     });
   }
 
-  onDeleteIvaModal(id: number, name: string) {
+  onDeleteModal(id: number, name: string) {
     this.modalService.show(DeleteTaxesComponent, {
-      initialState: { id: id, name: name, type: TaxType.Iva },
-      class: 'modal-md',
-    });
-  }
-
-  onDeleteIrsModal(id: number, name: string) {
-    this.modalService.show(DeleteTaxesComponent, {
-      initialState: { id: id, name: name, type: TaxType.Irs },
+      initialState: { id: id, name: name },
       class: 'modal-md',
     });
   }
