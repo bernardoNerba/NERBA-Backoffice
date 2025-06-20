@@ -15,27 +15,27 @@ public class FrameService(
     private readonly AppDbContext _context = context;
     private readonly ILogger<FrameService> _logger = logger;
 
-    public async Task<Result<RetrieveFrameDto>> CreateFrameAsync(CreateFrameDto frame)
+    public async Task<Result<RetrieveFrameDto>> CreateAsync(CreateFrameDto entityDto)
     {
-        if (frame is null)
+        if (entityDto is null)
         {
             _logger.LogError("CreateFrameAsync: frame is null");
             return Result<RetrieveFrameDto>
                 .Fail("Não encontrado.", "Enquadramento não encontrado.", 
                 StatusCodes.Status404NotFound);
         }
-        if (await _context.Frames.AnyAsync(f => f.Program == frame.Program))
+        if (await _context.Frames.AnyAsync(f => f.Program == entityDto.Program))
         {
             return Result<RetrieveFrameDto>
                 .Fail("Programa duplicado.", "O Programa deve ser único. Já existe no sistema.");
         }
-        if (await _context.Frames.AnyAsync(f => f.Operation == frame.Operation))
+        if (await _context.Frames.AnyAsync(f => f.Operation == entityDto.Operation))
         {
             return Result<RetrieveFrameDto>
                 .Fail("Operação duplicado.", "O Operação deve ser único. Já existe no sistema.");
         }
 
-        var newFrame = Frame.ConvertCreateDtoToEntity(frame);
+        var newFrame = Frame.ConvertCreateDtoToEntity(entityDto);
 
         _context.Frames.Add(newFrame);
         await _context.SaveChangesAsync();
@@ -45,7 +45,7 @@ public class FrameService(
                 StatusCodes.Status201Created);
     }
 
-    public async Task<Result> DeleteFrameAsync(long id)
+    public async Task<Result> DeleteAsync(long id)
     {
         // TODO: When dependencies are added, check if the frame can be deleted
         var existingFrame = await _context.Frames.FindAsync(id);
@@ -62,7 +62,7 @@ public class FrameService(
         return Result.Ok("Enquadramento eliminado.", "Enquadramento eliminado com sucesso.");
     }
 
-    public async Task<Result<IEnumerable<RetrieveFrameDto>>> GetAllFramesAsync()
+    public async Task<Result<IEnumerable<RetrieveFrameDto>>> GetAllAsync()
     {
         var existingFrames = await _context.Frames
             .OrderByDescending(f => f.CreatedAt)
@@ -82,7 +82,7 @@ public class FrameService(
             .Ok(existingFrames);
     }
 
-    public async Task<Result<RetrieveFrameDto>> GetFrameByIdAsync(long id)
+    public async Task<Result<RetrieveFrameDto>> GetByIdAsync(long id)
     {
         var existingFrame = await _context.Frames.FindAsync(id);
 
@@ -97,9 +97,9 @@ public class FrameService(
             .Ok(Frame.ConvertEntityToRetrieveDto(existingFrame));
     }
 
-    public async Task<Result<RetrieveFrameDto>> UpdateFrameAsync(UpdateFrameDto frame)
+    public async Task<Result<RetrieveFrameDto>> UpdateAsync(UpdateFrameDto entityDto)
     {
-        var existingFrame = await _context.Frames.FindAsync(frame.Id);
+        var existingFrame = await _context.Frames.FindAsync(entityDto.Id);
         if (existingFrame is null)
         {
             return Result<RetrieveFrameDto>
@@ -107,20 +107,20 @@ public class FrameService(
                 StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(frame.Program)
-        && await _context.Frames.AnyAsync(f => f.Program == frame.Program && f.Id != existingFrame.Id))
+        if (!string.IsNullOrEmpty(entityDto.Program)
+        && await _context.Frames.AnyAsync(f => f.Program == entityDto.Program && f.Id != existingFrame.Id))
         {
             return Result<RetrieveFrameDto>
                 .Fail("Programa duplicado.", "O Programa deve ser único. Já existe no sistema.");
         }
-        if (!string.IsNullOrEmpty(frame.Operation)
-        && await _context.Frames.AnyAsync(f => f.Operation == frame.Operation && f.Id != existingFrame.Id))
+        if (!string.IsNullOrEmpty(entityDto.Operation)
+        && await _context.Frames.AnyAsync(f => f.Operation == entityDto.Operation && f.Id != existingFrame.Id))
         {
             return Result<RetrieveFrameDto>
                 .Fail("Operação duplicado.", "O Operação deve ser único. Já existe no sistema.");
         }
 
-        _context.Entry(existingFrame).CurrentValues.SetValues(Frame.ConvertUpdateDtoToEntity(frame));
+        _context.Entry(existingFrame).CurrentValues.SetValues(Frame.ConvertUpdateDtoToEntity(entityDto));
 
         await _context.SaveChangesAsync();
         return Result<RetrieveFrameDto>

@@ -22,31 +22,31 @@ namespace NERBABO.ApiService.Core.Companies.Services
             _logger = logger;
         }
 
-        public async Task<Result<RetrieveCompanyDto>> CreateCompanyAsync(CreateCompanyDto createCompanyDto)
+        public async Task<Result<RetrieveCompanyDto>> CreateAsync(CreateCompanyDto entityDto)
         {
             
-            if (await _context.Companies.AnyAsync(c => c.Name == createCompanyDto.Name))
+            if (await _context.Companies.AnyAsync(c => c.Name == entityDto.Name))
             {
                 _logger.LogWarning("Duplicated Company Name");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Nome da Empresa está duplicado.");
             }
-            if (!string.IsNullOrEmpty(createCompanyDto.Email) 
-                && await _context.Companies.AnyAsync(c => c.Email == createCompanyDto.Email))
+            if (!string.IsNullOrEmpty(entityDto.Email) 
+                && await _context.Companies.AnyAsync(c => c.Email == entityDto.Email))
             {
                 _logger.LogWarning("Duplicated Comapny Email");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Email da Empresa está duplicado.");
             }
-            if (!string.IsNullOrEmpty(createCompanyDto.ZipCode)
-                && await _context.Companies.AnyAsync(c => c.ZipCode == createCompanyDto.ZipCode))
+            if (!string.IsNullOrEmpty(entityDto.ZipCode)
+                && await _context.Companies.AnyAsync(c => c.ZipCode == entityDto.ZipCode))
             {
                 _logger.LogWarning("Duplicated Comapny ZipCode");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Código Postal da Empresa está duplicado.");
             }
-            if (!string.IsNullOrEmpty(createCompanyDto.PhoneNumber)
-                && await _context.Companies.AnyAsync(c => c.PhoneNumber == createCompanyDto.PhoneNumber))
+            if (!string.IsNullOrEmpty(entityDto.PhoneNumber)
+                && await _context.Companies.AnyAsync(c => c.PhoneNumber == entityDto.PhoneNumber))
             {
                 _logger.LogWarning("Duplicated Comapny PhoneNumber");
                 return Result<RetrieveCompanyDto>
@@ -54,22 +54,22 @@ namespace NERBABO.ApiService.Core.Companies.Services
             }
 
             //enums check
-            if (!string.IsNullOrEmpty(createCompanyDto.AtivitySector)
-                && !EnumHelp.IsValidEnum<AtivitySectorEnum>(createCompanyDto.AtivitySector))
+            if (!string.IsNullOrEmpty(entityDto.AtivitySector)
+                && !EnumHelp.IsValidEnum<AtivitySectorEnum>(entityDto.AtivitySector))
             {
                 return Result<RetrieveCompanyDto>
                     .Fail("Não encontrado", "Setor de atividade não encontrado.",
                     StatusCodes.Status404NotFound);
             }
-            if(!string.IsNullOrEmpty(createCompanyDto.Size)
-                && !EnumHelp.IsValidEnum<CompanySizeEnum>(createCompanyDto.Size))
+            if(!string.IsNullOrEmpty(entityDto.Size)
+                && !EnumHelp.IsValidEnum<CompanySizeEnum>(entityDto.Size))
             {
                 return Result<RetrieveCompanyDto>
                     .Fail("Não encontrado", "Tamanho da Empresa não encontrado.",
                     StatusCodes.Status404NotFound);
             }
 
-            var company = Company.ConvertCreateDtoToEntity(createCompanyDto);
+            var company = Company.ConvertCreateDtoToEntity(entityDto);
 
             _context.Companies.Add(company);
             await _context.SaveChangesAsync();
@@ -79,7 +79,7 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 .Ok(Company.ConvertEntityToRetrieveDto(company));
         }
 
-        public async Task<Result> DeleteCompanyAsync(long id)
+        public async Task<Result> DeleteAsync(long id)
         {
             var existingCompany = await _context.Companies.FindAsync(id);
             
@@ -98,7 +98,7 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 .Ok("Empresa eliminada", "Empresa eliminada com sucesso.");
         }
 
-        public async Task<Result<IEnumerable<RetrieveCompanyDto>>> GetAllCompaniesAsync()
+        public async Task<Result<IEnumerable<RetrieveCompanyDto>>> GetAllAsync()
         {
             var existingCompanies = await _context.Companies.ToListAsync();
 
@@ -118,7 +118,7 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 .Ok(orderedCompanies);
         }
 
-        public async Task<Result<RetrieveCompanyDto>> GetCompanyAsync(long id)
+        public async Task<Result<RetrieveCompanyDto>> GetByIdAsync(long id)
         {
             var existingCompany = await _context.Companies.FindAsync(id);
             if (existingCompany is null)
@@ -130,39 +130,39 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 .Ok(Company.ConvertEntityToRetrieveDto(existingCompany));
         }
 
-        public async Task<Result<RetrieveCompanyDto>> UpdateCompanyAsync(UpdateCompanyDto updateCompanyDto)
+        public async Task<Result<RetrieveCompanyDto>> UpdateAsync(UpdateCompanyDto entityDto)
         {
-            var existingCompany = await _context.Companies.FindAsync(updateCompanyDto.Id);
+            var existingCompany = await _context.Companies.FindAsync(entityDto.Id);
             if (existingCompany is null)
                 return Result<RetrieveCompanyDto>
                     .Fail("Não encontrado.", "Empresa não encontrada", StatusCodes.Status404NotFound);
 
-            if (existingCompany.Name != updateCompanyDto.Name
-                && await _context.Companies.AnyAsync(c => c.Name == updateCompanyDto.Name))
+            if (existingCompany.Name != entityDto.Name
+                && await _context.Companies.AnyAsync(c => c.Name == entityDto.Name))
             {
                 _logger.LogWarning("Duplicated Company Name");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Nome da Empresa está duplicado.");
             }
-            if (existingCompany.Email != updateCompanyDto.Email
-                && !string.IsNullOrEmpty(updateCompanyDto.Email)
-                && await _context.Companies.AnyAsync(c => c.Email == updateCompanyDto.Email))
+            if (existingCompany.Email != entityDto.Email
+                && !string.IsNullOrEmpty(entityDto.Email)
+                && await _context.Companies.AnyAsync(c => c.Email == entityDto.Email))
             {
                 _logger.LogWarning("Duplicated Comapny Email");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Email da Empresa está duplicado.");
             }
-            if (existingCompany.ZipCode != updateCompanyDto.ZipCode
-                && !string.IsNullOrEmpty(updateCompanyDto.ZipCode)
-                && await _context.Companies.AnyAsync(c => c.ZipCode == updateCompanyDto.ZipCode))
+            if (existingCompany.ZipCode != entityDto.ZipCode
+                && !string.IsNullOrEmpty(entityDto.ZipCode)
+                && await _context.Companies.AnyAsync(c => c.ZipCode == entityDto.ZipCode))
             {
                 _logger.LogWarning("Duplicated Comapny ZipCode");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Código Postal da Empresa está duplicado.");
             }
-            if (existingCompany.PhoneNumber != updateCompanyDto.PhoneNumber
-                && !string.IsNullOrEmpty(updateCompanyDto.PhoneNumber)
-                && await _context.Companies.AnyAsync(c => c.PhoneNumber == updateCompanyDto.PhoneNumber))
+            if (existingCompany.PhoneNumber != entityDto.PhoneNumber
+                && !string.IsNullOrEmpty(entityDto.PhoneNumber)
+                && await _context.Companies.AnyAsync(c => c.PhoneNumber == entityDto.PhoneNumber))
             {
                 _logger.LogWarning("Duplicated Comapny PhoneNumber");
                 return Result<RetrieveCompanyDto>
@@ -171,22 +171,22 @@ namespace NERBABO.ApiService.Core.Companies.Services
 
 
             //enums check
-            if (!string.IsNullOrEmpty(updateCompanyDto.AtivitySector)
-                && !EnumHelp.IsValidEnum<AtivitySectorEnum>(updateCompanyDto.AtivitySector))
+            if (!string.IsNullOrEmpty(entityDto.AtivitySector)
+                && !EnumHelp.IsValidEnum<AtivitySectorEnum>(entityDto.AtivitySector))
             {
                 return Result<RetrieveCompanyDto>
                     .Fail("Não encontrado", "Setor de atividade não encontrado.",
                     StatusCodes.Status404NotFound);
             }
-            if (!string.IsNullOrEmpty(updateCompanyDto.Size)
-                && !EnumHelp.IsValidEnum<CompanySizeEnum>(updateCompanyDto.Size))
+            if (!string.IsNullOrEmpty(entityDto.Size)
+                && !EnumHelp.IsValidEnum<CompanySizeEnum>(entityDto.Size))
             {
                 return Result<RetrieveCompanyDto>
                     .Fail("Não encontrado", "Tamanho da Empresa não encontrado.",
                     StatusCodes.Status404NotFound);
             }
 
-            var company = Company.ConvertUpdateDtoToEntity(updateCompanyDto);
+            var company = Company.ConvertUpdateDtoToEntity(entityDto);
 
             _context.Entry(existingCompany).CurrentValues.SetValues(company);
             _context.SaveChanges();

@@ -1,14 +1,11 @@
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Frames.Services;
 
 public interface IFrameService
+    : IGenericService<RetrieveFrameDto, CreateFrameDto, UpdateFrameDto>
 {
-    Task<Result<IEnumerable<RetrieveFrameDto>>> GetAllFramesAsync();
-    Task<Result<RetrieveFrameDto>> GetFrameByIdAsync(long id);
-    Task<Result<RetrieveFrameDto>> CreateFrameAsync(CreateFrameDto frame);
-    Task<Result<RetrieveFrameDto>> UpdateFrameAsync(UpdateFrameDto frame);
-    Task<Result> DeleteFrameAsync(long id);
 
 }
