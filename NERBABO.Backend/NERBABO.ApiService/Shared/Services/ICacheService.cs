@@ -1,5 +1,4 @@
 namespace NERBABO.ApiService.Shared.Services;
-
 public interface ICacheService
 {
     Task<T?> GetAsync<T>(string key);

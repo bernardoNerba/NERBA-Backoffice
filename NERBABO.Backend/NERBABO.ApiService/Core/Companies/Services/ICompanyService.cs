@@ -5,7 +5,7 @@ using NERBABO.ApiService.Shared.Services;
 namespace NERBABO.ApiService.Core.Companies.Services
 {
     public interface ICompanyService
-        : IGenericService<RetrieveCompanyDto, CreateCompanyDto, UpdateCompanyDto>
+        : IGenericService<RetrieveCompanyDto, CreateCompanyDto, UpdateCompanyDto, long>
     {
 
     }
