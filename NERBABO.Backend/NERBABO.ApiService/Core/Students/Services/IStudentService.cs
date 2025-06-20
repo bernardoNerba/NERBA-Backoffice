@@ -1,14 +1,11 @@
 ﻿using NERBABO.ApiService.Core.Students.Dtos;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Students.Services
 {
-    public interface IStudentService
+    public interface IStudentService: IGenericService<RetrieveStudentDto, CreateStudentDto, UpdateStudentDto, long>
     {
-        Task<Result<RetrieveStudentDto>> GetStudentByIdAsync(long id);
-        Task<Result<RetrieveStudentDto>> GetStudentByPersonIdAsync(long personId);
-        Task<Result<RetrieveStudentDto>> CreateStudentAsync(CreateStudentDto studentDto);
-        Task<Result<RetrieveStudentDto>> UpdateStudentAsync(UpdateStudentDto studentDto);
-        Task<Result> DeleteStudentAsync(long id);
+        Task<Result<RetrieveStudentDto>> GetByPersonIdAsync(long personId);
     }
 }
