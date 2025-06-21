@@ -53,6 +53,17 @@ namespace NERBABO.ApiService.Shared.Models
             StatusCode = statusCode,
             Data = default
         };
+
+        public new static Result<T> Fail(string title, string message, object errors, int statusCode = StatusCodes.Status400BadRequest) =>
+        new()
+        {
+            Success = false,
+            Title = title,
+            Message = message,
+            StatusCode = statusCode,
+            Errors = errors,
+            Data = default
+        };
     }
     public class Result
     {
@@ -61,7 +72,7 @@ namespace NERBABO.ApiService.Shared.Models
         public string? Message { get; set; }
         public int? StatusCode { get; set; }
 
-        public object? errors { get; set; }
+        public object? Errors { get; set; }
 
         public static Result Ok(string title, string message, int status = StatusCodes.Status200OK)
         {
@@ -93,7 +104,7 @@ namespace NERBABO.ApiService.Shared.Models
                 Title = title,
                 Message = message,
                 StatusCode = statusCode,
-                errors = errors
+                Errors = errors
             };
     }
 
