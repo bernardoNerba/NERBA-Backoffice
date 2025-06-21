@@ -8,7 +8,7 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.People.Models;
 
-public class Person : Entity
+public class Person : Entity<long>
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;

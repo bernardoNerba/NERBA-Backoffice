@@ -1,8 +1,8 @@
 namespace NERBABO.ApiService.Shared.Models;
 
-public class Entity
+public class Entity<T>
 {
-    public long Id { get; set; }
+    public T? Id { get; set; }
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

@@ -13,27 +13,34 @@ In line with its commitment to innovation, NERBA has made this software **open a
 ## Getting Started
 
 This project uses .NET Aspire as a Orchestrator, so in order to run it you will need in your machine the following tools:
-- [.NET SDK 9.0](https://dotnet.microsoft.com/pt-br/download) 
+
+- [.NET SDK 9.0](https://dotnet.microsoft.com/pt-br/download)
 - .NET Aspire Workload
-``` bash
+
+```bash
 dotnet workload install aspire
 ```
+
 - [Docker](https://www.docker.com/products/docker-desktop/) - for containerized volumes and services like PostgreSQL, pgAdmin and Redis.
 - [Node.js](https://nodejs.org/) - required to build and run Angular frontend
 - [Angular v19 CLI (Optional)](https://angular.dev/tools/cli)
-``` bash
+
+```bash
 npm install -g @angular/cli
 ```
 
 ### Running the Project
 
 1. Clone the repo
-``` bash
+
+```bash
 git clone https://github.com/bernardoNerba/NERBA-Backoffice.git
 cd NERBA-Backoffice
 ```
+
 2. Create `appsettings.Development.json` on the root of `NERBABO.ApiService`
-``` json
+
+```json
 {
   "Logging": {
     "LogLevel": {
@@ -54,18 +61,21 @@ cd NERBA-Backoffice
   }
 }
 ```
-2. Start the Application
-Use the .NET Aspire orchestrator to run all services:
-``` bash
+
+2. Start the Application Use the .NET Aspire orchestrator to run all services:
+
+```bash
 dotnet run --project NERBABO.Backend/NERBABO.AppHost
 ```
+
 This will:
+
 - Spin up the ASP.NET Core Web API
 - Launch the Angular frontend
 - Start PostgreSQL, pgAdmin, and Redis containers
 
-3. Access the Applications
-Once running, you can access:
+3. Access the Applications Once running, you can access:
+
 - **Frontend(Angular)**: http://localhost:4200
 - **Backend (Web API)**: [http://localhost:8080](http://localhost:8080)
 - **Postgres** with **PgAdmin**
@@ -73,7 +83,7 @@ Once running, you can access:
 
 ### Working on Angular Separately
 
-``` bash 
+```bash
 cd NERBABO.Frontend
 npm install
 ng serve
@@ -81,13 +91,13 @@ ng serve
 
 ### Apply EF Core migrations
 
-``` bash
+```bash
 dotnet ef migrations add <MigrationName>
 ```
 
 ## Contributions
 
-We welcome and appreciate contributions of all kinds — whether it's developing *new features, writing integration tests, improving documentation, finding security vulnerabilities or anything else that helps the project grow*.
+We welcome and appreciate contributions of all kinds — whether it's developing _new features, writing integration tests, improving documentation, finding security vulnerabilities or anything else that helps the project grow_.
 
 As a token of appreciation, the **NERBA Association offers a formal letter of participation to contributors**. This letter outlines the specific tasks or areas you contributed to and can serve as evidence of your skills and involvement in open-source projects — useful for resumes, job applications, or professional portfolios.
 
@@ -98,7 +108,7 @@ If you're interested in contributing, please feel free to open a pull request or
 - [ ] Add new Integration tests project
 - [ ] Document, with comments, critical methods and classes
 - [ ] Write the frontend code for Teachers, Students, Modules, Companies features
-
+- [ ] Frontend data filtering for user-friendly and efficient interaction
 
 ## Code of Conduct
 

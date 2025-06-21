@@ -5,7 +5,7 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Teachers.Models;
 
-public class Teacher : Entity
+public class Teacher : Entity<long>
 {
     public int IvaRegimeId { get; set; }
     public int IrsRegimeId { get; set; }
@@ -25,8 +25,8 @@ public class Teacher : Entity
 
     public Teacher() { }
 
-    public Teacher(long id, int ivaRegimeId, int irsRegimeId, long personId, 
-        string ccp, string competences,float avarageRating, bool isLecturingFM, 
+    public Teacher(long id, int ivaRegimeId, int irsRegimeId, long personId,
+        string ccp, string competences, float avarageRating, bool isLecturingFM,
         bool isLecturingCQ)
     {
         Id = id;
@@ -80,10 +80,10 @@ public class Teacher : Entity
     {
         return new Teacher(
             updateTeacherDto.Id,
-            updateTeacherDto.IvaRegimeId, 
-            updateTeacherDto.IrsRegimeId, 
-            person.Id, 
-            updateTeacherDto.Ccp, 
+            updateTeacherDto.IvaRegimeId,
+            updateTeacherDto.IrsRegimeId,
+            person.Id,
+            updateTeacherDto.Ccp,
             updateTeacherDto.Competences,
             0.0f,
             updateTeacherDto.IsLecturingFM,
@@ -92,7 +92,7 @@ public class Teacher : Entity
             Person = person,
             IvaRegime = regimeIva,
             IrsRegime = regimeIrs,
-            UpdatedAt= DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow
         };
     }
 

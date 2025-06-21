@@ -6,7 +6,7 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Companies.Models
 {
-    public class Company: Entity
+    public class Company : Entity<long>
     {
         public string Name { get; set; } = string.Empty;
         public string? Address { get; set; }

@@ -5,7 +5,7 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Students.Models
 {
-    public class Student: Entity
+    public class Student : Entity<long>
     {
         public Student()
         {
@@ -38,7 +38,7 @@ namespace NERBABO.ApiService.Core.Students.Models
 
         public bool EnrolledInFM { get; set; }
         public bool EnrolledInCQ { get; set; }
-        
+
         public required Person Person { get; set; }
         public Company? Company { get; set; }
 
@@ -46,7 +46,7 @@ namespace NERBABO.ApiService.Core.Students.Models
         public static RetrieveStudentDto ConvertEntityToRetrieveDto(Student s, Company? c)
         {
             return new RetrieveStudentDto(
-                s.Id, 
+                s.Id,
                 s.PersonId,
                 c?.Id,
                 c?.Name ?? "N/A",

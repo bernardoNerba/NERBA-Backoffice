@@ -5,7 +5,7 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Frames.Models;
 
-public class Frame : Entity
+public class Frame : Entity<long>
 {
     public string Program { get; set; } = string.Empty;
     public string Intervention { get; set; } = string.Empty;
