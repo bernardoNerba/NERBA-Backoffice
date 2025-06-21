@@ -1,8 +1,7 @@
-﻿namespace NERBABO.ApiService.Shared.Enums
+﻿namespace NERBABO.ApiService.Shared.Enums;
+
+public enum TaxEnum
 {
-    public enum TaxEnum
-    {
-        IRS,
-        IVA
-    }
+    IRS,
+    IVA
 }

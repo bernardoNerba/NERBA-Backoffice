@@ -2,6 +2,11 @@ using System.ComponentModel;
 
 namespace NERBABO.ApiService.Shared.Enums;
 
+/// <summary>
+/// This enumeration defines the different levels of educational qualifications or habilitations.
+/// It includes options ranging from no proof of qualification to advanced degrees such as Doctorate.
+/// Use Humanizer to get the description of each enum value.
+/// </summary>
 public enum HabilitationEnum
 {
     [Description("Sem Comprovativo")]

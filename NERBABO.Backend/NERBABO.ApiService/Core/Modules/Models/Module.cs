@@ -3,15 +3,15 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Modules.Models
 {
-    public class Module : Entity
+    public class Module : Entity<long>
     {
         public string Name { get; set; } = string.Empty;
         public float Hours { get; set; }
         public bool IsActive { get; set; }
 
-        public Module() {}
+        public Module() { }
 
-        public Module(long id ,string name, float hours, bool isActive)
+        public Module(long id, string name, float hours, bool isActive)
         {
             Id = id;
             Name = name;

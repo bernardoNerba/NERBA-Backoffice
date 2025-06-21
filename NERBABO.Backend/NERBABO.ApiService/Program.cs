@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -133,7 +132,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
         var problemDetails = new ProblemDetails()
         {
-            Title = "Erro de Validação",
+            Title = "Erro de Validaï¿½ï¿½o",
             Status = StatusCodes.Status400BadRequest
         };
 
@@ -174,7 +173,7 @@ app.UseCors();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-} 
+}
 else
 {
     app.UseHttpsRedirection();

@@ -2,16 +2,26 @@ using StackExchange.Redis;
 using System.Text.Json;
 
 namespace NERBABO.ApiService.Shared.Services;
+
+/// <summary>
+/// Provides Redis-based caching functionality, including methods to get, set, and remove cached values.
+/// </summary>
+/// <param name="redis">
+/// Redis connection multiplexer used to access the Redis database and server.
+/// </param>
+/// <param name="logger">
+/// Logger instance used to log errors or cache operation information.
+/// </param>
 public class CacheService(
     IConnectionMultiplexer redis,
-    ILogger<CacheService> logger) 
+    ILogger<CacheService> logger)
     : ICacheService
 {
+    // Internal Redis database and server instance
     private readonly IDatabase _database = redis.GetDatabase();
     private readonly IServer _server = redis.GetServer(redis.GetEndPoints().FirstOrDefault()
         ?? throw new InvalidOperationException("Redis server endpoint not found."));
     private readonly ILogger<CacheService> _logger = logger;
-
 
     public async Task<T?> GetAsync<T>(string key)
     {

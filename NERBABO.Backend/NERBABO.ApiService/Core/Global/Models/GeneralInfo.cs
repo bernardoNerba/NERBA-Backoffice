@@ -3,7 +3,7 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Global.Models;
 
-public class GeneralInfo : Entity
+public class GeneralInfo : Entity<long>
 {
     public string Designation { get; set; } = string.Empty;
     public int? IvaId { get; set; }
