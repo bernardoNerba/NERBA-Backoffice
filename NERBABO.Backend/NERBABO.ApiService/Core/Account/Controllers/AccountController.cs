@@ -32,16 +32,19 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// - FirstName: The user's first name
         /// - LastName: The user's last name
         /// - Password: The user's password
+        /// - PersonId: The person id associated with the user
         /// </param>
         /// <returns>
         /// Returns IActionResult with the following possible outcomes:
         /// - BadRequest (400) if email or username already exists
         /// - BadRequest (400) if user creation fails with error details
-        /// - Ok (200) with success message if registration is successful
+        /// - BadRequest (400) if role assignment fails with error details
+        /// - BadRequest (404) if person associated with the user is not found
+        /// - Created (201) if registration is successful
         /// </returns>
         [Authorize(Roles = "Admin")]
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto model)
+        public async Task<IActionResult> CreateAccountAsync(RegisterDto model)
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
@@ -51,15 +54,14 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            // Create the user in the identity system
-            Result result = await _accountService.RegistUserAsync(model);
+            Result<RetrieveUserDto> result = await _accountService.CreateAsync(model);
             return _responseHandler.HandleResult(result);
 
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("block-user/{userId}")]
-        public async Task<IActionResult> BlockUserAsync(string userId)
+        public async Task<IActionResult> BlockAccountAsync(string userId)
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
@@ -69,15 +71,14 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            // block user
-            Result result = await _accountService.BlockUserAsync(userId);
+            Result result = await _accountService.BlockAsync(userId);
             return _responseHandler.HandleResult(result);
             
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("users")]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAccountsAsync()
         {
             // Get the user from the token
             var user = await _userManager.FindByIdAsync(User.FindFirst
@@ -87,8 +88,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            // Get all users
-            Result<IEnumerable<RetrieveUserDto>> result = await _accountService.GetAllUsersAsync();
+            Result<IEnumerable<RetrieveUserDto>> result = await _accountService.GetAllAsync();
             return _responseHandler.HandleResult(result);
         }
 
@@ -104,9 +104,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            // Get the user by ID
-            var result = await _accountService.GetUserByIdAsync(id);
-            
+            Result<RetrieveUserDto> result = await _accountService.GetByIdAsync(id);
             return _responseHandler.HandleResult(result);
         }
 
@@ -126,10 +124,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            // try update the user
-            Result result = await _accountService.UpdateUserAsync(model);
-
-            // return message for UI
+            Result<RetrieveUserDto> result = await _accountService.UpdateAsync(model);
             return _responseHandler.HandleResult(result);
         }
 

@@ -10,12 +10,10 @@ namespace NERBABO.ApiService.Core.People.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class PeopleController(
-        ILogger<PeopleController> logger,
         IPeopleService peopleService,
         IResponseHandler responseHandler
         ) : ControllerBase
     {
-        private readonly ILogger<PeopleController> _logger = logger;
         private readonly IPeopleService _peopleService = peopleService;
         private readonly IResponseHandler _responseHandler = responseHandler;
 
@@ -23,7 +21,7 @@ namespace NERBABO.ApiService.Core.People.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreatePersonAsync([FromBody] CreatePersonDto person)
         {
-            var result = await _peopleService.CreatePersonAsync(person);
+            var result = await _peopleService.CreateAsync(person);
             return _responseHandler.HandleResult(result);
         }
 
@@ -31,7 +29,7 @@ namespace NERBABO.ApiService.Core.People.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllPersonsAsync()
         {
-            var result = await _peopleService.GetAllPeopleAsync();            
+            var result = await _peopleService.GetAllAsync();            
             return _responseHandler.HandleResult(result);
         }
 
@@ -39,7 +37,7 @@ namespace NERBABO.ApiService.Core.People.Controllers
         [HttpGet("not-user")]
         public async Task<IActionResult> GetPeopleWithoutUserAsync()
         {
-            var result = await _peopleService.GetPeopleWithoutUserAsync();
+            var result = await _peopleService.GetAllWithoutUserAsync();
             return _responseHandler.HandleResult(result);
         }
 
@@ -47,7 +45,7 @@ namespace NERBABO.ApiService.Core.People.Controllers
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetPersonAsync(long id)
         {
-            var result = await _peopleService.GetPersonByIdAsync(id);
+            var result = await _peopleService.GetByIdAsync(id);
             return _responseHandler.HandleResult(result);
         }
 
@@ -57,8 +55,7 @@ namespace NERBABO.ApiService.Core.People.Controllers
         {
             if (id != person.Id) return BadRequest("ID mismatch");
 
-            var result = await _peopleService.UpdatePersonAsync(person);
-
+            var result = await _peopleService.UpdateAsync(person);
             return _responseHandler.HandleResult(result);
         }
 
@@ -66,8 +63,7 @@ namespace NERBABO.ApiService.Core.People.Controllers
         [HttpDelete("delete/{id:long}")]
         public async Task<IActionResult> DeletePersonAsync(long id)
         {
-            var result = await _peopleService.DeletePersonAsync(id);
-
+            var result = await _peopleService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
         }
     }

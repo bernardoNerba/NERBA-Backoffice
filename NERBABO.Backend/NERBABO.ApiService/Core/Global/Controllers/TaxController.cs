@@ -35,7 +35,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTaxesAsync()
         {
-            Result<IEnumerable<RetrieveTaxDto>> result = await _TaxService.GetAllTaxesAsync();
+            Result<IEnumerable<RetrieveTaxDto>> result = await _TaxService.GetAllAsync();
             return _responseHandler.HandleResult(result);
         }
 
@@ -51,7 +51,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            Result result = await _TaxService.CreateTaxAsync(tax);
+            Result<RetrieveTaxDto> result = await _TaxService.CreateAsync(tax);
             return _responseHandler.HandleResult(result);
         }
 
@@ -70,7 +70,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            Result result = await _TaxService.UpdateTaxAsync(tax);
+            Result<RetrieveTaxDto> result = await _TaxService.UpdateAsync(tax);
             return _responseHandler.HandleResult(result);
 
         }
@@ -87,7 +87,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
             // Check if the user is null or if they are not an admin
             await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-            Result result = await _TaxService.DeleteTaxAsync(id);
+            Result result = await _TaxService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
 
         }
@@ -96,7 +96,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         [HttpGet("type/{type}")]
         public async Task<IActionResult> GetTaxesByTypeAndActiveAsync(string type)
         {
-            Result<IEnumerable<RetrieveTaxDto>> result = await _TaxService.GetTaxesByTypeAndIsActiveAsync(type);
+            Result<IEnumerable<RetrieveTaxDto>> result = await _TaxService.GetByTypeAndIsActiveAsync(type);
             return _responseHandler.HandleResult(result);
         }
     }

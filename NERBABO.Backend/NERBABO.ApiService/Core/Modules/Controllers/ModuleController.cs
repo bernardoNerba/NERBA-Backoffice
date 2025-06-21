@@ -21,7 +21,7 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
         [Authorize(Roles = "Admin, FM")]
         public async Task<IActionResult> GetAllModulesAsync()
         {
-            var result = await _moduleService.GetAllModulesAsync();
+            var result = await _moduleService.GetAllAsync();
             return _responseHandler.HandleResult(result);
         }
 
@@ -29,7 +29,7 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
         [Authorize(Roles = "Admin, FM")]
         public async Task<IActionResult> GetModuleById(long id)
         {
-            var result = await _moduleService.GetModuleByIdAsync(id);
+            var result = await _moduleService.GetByIdAsync(id);
             return _responseHandler.HandleResult(result);
         }
 
@@ -45,7 +45,7 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
         [Authorize(Roles = "Admin, FM")]
         public async Task<IActionResult> CreateModuleAsync([FromBody] CreateModuleDto moduleDto)
         {
-            var result = await _moduleService.CreateModuleAsync(moduleDto);
+            var result = await _moduleService.CreateAsync(moduleDto);
             return _responseHandler.HandleResult(result);
         }
 
@@ -54,7 +54,7 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
         public async Task<IActionResult> UpdateModuleAsync(long id, [FromBody] UpdateModuleDto moduleDto)
         {
             if (id != moduleDto.Id) return BadRequest("ID Missmatch");
-            var result = await _moduleService.UpdateModuleAsync(moduleDto);
+            var result = await _moduleService.UpdateAsync(moduleDto);
             return _responseHandler.HandleResult(result);
         }
 
@@ -62,7 +62,7 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
         [Authorize(Roles = "Admin, FM")]
         public async Task<IActionResult> DeleteModuleAsync(long id)
         {
-            var result = await _moduleService.DeleteModuleAsync(id);
+            var result = await _moduleService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
 
 

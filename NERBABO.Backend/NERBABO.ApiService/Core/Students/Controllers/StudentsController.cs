@@ -21,7 +21,7 @@ public class StudentsController(
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetStudentByIdAsync(long id)
     {
-        Result<RetrieveStudentDto> result = await _studentService.GetStudentByIdAsync(id);
+        Result<RetrieveStudentDto> result = await _studentService.GetByIdAsync(id);
         return _responseHandler.HandleResult(result);
     }
 
@@ -29,7 +29,7 @@ public class StudentsController(
     [HttpGet("person/{personId:long}")]
     public async Task<IActionResult> GetStudentByPersonIdAsync(long personId)
     {
-        Result<RetrieveStudentDto> result = await _studentService.GetStudentByPersonIdAsync(personId);
+        Result<RetrieveStudentDto> result = await _studentService.GetByPersonIdAsync(personId);
         return _responseHandler.HandleResult(result);
     }
 
@@ -37,7 +37,7 @@ public class StudentsController(
     [HttpPost]
     public async Task<IActionResult> CreateStudentAsync([FromBody] CreateStudentDto studentDto)
     {
-        Result<RetrieveStudentDto> result = await _studentService.CreateStudentAsync(studentDto);
+        Result<RetrieveStudentDto> result = await _studentService.CreateAsync(studentDto);
         return _responseHandler.HandleResult(result);
     }
 
@@ -45,7 +45,7 @@ public class StudentsController(
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> DeleteStudentAsync(long id)
     {
-        Result result = await _studentService.DeleteStudentAsync(id);
+        Result result = await _studentService.DeleteAsync(id);
         return _responseHandler.HandleResult(result);
     }
 
@@ -54,7 +54,7 @@ public class StudentsController(
     public async Task<IActionResult> UpdateStudentAsync(long id, [FromBody] UpdateStudentDto studentDto)
     {
         if (id != studentDto.Id) return BadRequest("ID Missmatch.");
-        Result<RetrieveStudentDto> result = await _studentService.UpdateStudentAsync(studentDto);
+        Result<RetrieveStudentDto> result = await _studentService.UpdateAsync(studentDto);
         return _responseHandler.HandleResult(result);
     }
 }

@@ -9,6 +9,21 @@ namespace NERBABO.ApiService.Core.Global.Models;
 
 public class Tax
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int ValuePercent { get; set; }
+    public float ValueDecimal => (float)ValuePercent / 100;
+    public bool IsActive { get; set; }
+    public TaxEnum Type { get; set; } = TaxEnum.IVA;
+
+    // Navigation properties
+    public GeneralInfo? GeneralInfo { get; set; }
+    public List<Teacher> IvaTeachers { get; set; } = [];
+    public List<Teacher> IrsTeachers { get; set; } = [];
+
+    // constructors
     public Tax() { }
     public Tax(int id, string name, int valuePercent, TaxEnum type)
     {
@@ -35,19 +50,7 @@ public class Tax
         Type = type;
     }
 
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public int ValuePercent { get; set; }
-    public float ValueDecimal => (float)ValuePercent / 100;
-    public bool IsActive { get; set; }
-    public TaxEnum Type { get; set; } = TaxEnum.IVA;
-
-    public GeneralInfo? GeneralInfo { get; set; }
-    public List<Teacher> IvaTeachers { get; set; } = [];
-    public List<Teacher> IrsTeachers { get; set; } = [];
-
+    // convertion and validation helper class methods
     public static RetrieveTaxDto ConvertEntityToRetrieveDto(Tax tax)
     {
         return new RetrieveTaxDto()
@@ -70,4 +73,9 @@ public class Tax
         return new Tax(tax.Id, tax.Name, tax.ValuePercent, tax.IsActive, tax.Type.DehumanizeTo<TaxEnum>());
     }
 
+    public static bool IsValidTaxType(string type)
+    {
+        return type.Equals(TaxEnum.IVA.Humanize(), StringComparison.OrdinalIgnoreCase) ||
+               type.Equals(TaxEnum.IRS.Humanize(), StringComparison.OrdinalIgnoreCase);
+    }
 }

@@ -35,7 +35,7 @@ public class FrameController(
         await Helper.AuthHelp.CheckUserHasRoleAndActive(userInstance!, "Admin", _userManager);
 
         // Get all frames
-        Result<IEnumerable<RetrieveFrameDto>> frames = await _frameService.GetAllFramesAsync();
+        Result<IEnumerable<RetrieveFrameDto>> frames = await _frameService.GetAllAsync();
         
         return _responseHandler.HandleResult(frames);
     }
@@ -52,7 +52,7 @@ public class FrameController(
         // Check if the user is null or if they are not an admin
         await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-        Result<RetrieveFrameDto> result = await _frameService.CreateFrameAsync(frame);
+        Result<RetrieveFrameDto> result = await _frameService.CreateAsync(frame);
 
         return _responseHandler.HandleResult(result);
     }
@@ -69,7 +69,7 @@ public class FrameController(
         // Check if the user is null or if they are not an admin
         await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-        Result<RetrieveFrameDto> result = await _frameService.GetFrameByIdAsync(id);
+        Result<RetrieveFrameDto> result = await _frameService.GetByIdAsync(id);
         return _responseHandler.HandleResult(result);
     }
 
@@ -89,7 +89,7 @@ public class FrameController(
         await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
 
-        Result<RetrieveFrameDto> result = await _frameService.UpdateFrameAsync(frame);
+        Result<RetrieveFrameDto> result = await _frameService.UpdateAsync(frame);
 
         return _responseHandler.HandleResult(result);
     }
@@ -106,7 +106,7 @@ public class FrameController(
         // Check if the user is null or if they are not an admin
         await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
 
-        Result result = await _frameService.DeleteFrameAsync(id);
+        Result result = await _frameService.DeleteAsync(id);
 
         return _responseHandler.HandleResult(result);
 

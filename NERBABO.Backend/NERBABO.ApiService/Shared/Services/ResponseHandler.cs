@@ -7,72 +7,77 @@ namespace NERBABO.ApiService.Shared.Services
     {
         public IActionResult HandleResult<T>(Result<T> result)
         {
-            if (result.Success)
+            if (!result.Success)
             {
-                if (result.Title is not null && result.Title.Length > 0
-                    && result.Message is not null && result.Message.Length > 0)
+                var problemDetails = new ProblemDetails
                 {
-                    var okResult = new OkMessage<T>
-                    (
-                        result.Title,
-                        result.Message,
-                        result.Data,
-                        result.StatusCode
-                    );
+                    Title = result.Title,
+                    Detail = result.Message,
+                    Status = result.StatusCode,
+                    
+                };
 
-                    return new ObjectResult(okResult)
-                    {
-                        StatusCode = result.StatusCode ?? StatusCodes.Status200OK
-                    };
+                if (result.Errors is not null)
+                {
+                    problemDetails.Extensions["errors"] = result.Errors;
                 }
 
-                return new ObjectResult(result.Data)
+                return new ObjectResult(problemDetails)
+                {
+                    StatusCode = result.StatusCode ?? StatusCodes.Status400BadRequest
+                };
+            }
+            
+            
+            if (!string.IsNullOrEmpty(result.Title)
+                && !string.IsNullOrEmpty(result.Message))
+            {
+                var okResult = new OkMessage<T>
+                (
+                    result.Title,
+                    result.Message,
+                    result.Data,
+                    result.StatusCode
+                );
+
+                return new ObjectResult(okResult)
                 {
                     StatusCode = result.StatusCode ?? StatusCodes.Status200OK
                 };
             }
 
-            var problemDetails = new ProblemDetails
+            return new ObjectResult(result.Data)
             {
-                Title = result.Title,
-                Detail = result.Message,
-                Status = result.StatusCode
+                StatusCode = result.StatusCode ?? StatusCodes.Status200OK
             };
-
-
-            return new ObjectResult(problemDetails)
-            {
-                StatusCode = result.StatusCode ?? StatusCodes.Status400BadRequest
-            };
+            
         }
 
         public IActionResult HandleResult(Result result)
         {
-            if (result.Success)
+            if (!result.Success)
             {
-
-                return new ObjectResult(new { result.Title, result.Message })
+                var problemDetails = new ProblemDetails
                 {
-                    StatusCode = result.StatusCode ?? StatusCodes.Status200OK
+                    Title = result.Title,
+                    Detail = result.Message,
+                    Status = result.StatusCode
+                };
+
+                if (result.Errors is not null)
+                {
+                    problemDetails.Extensions["errors"] = result.Errors;
+                }
+
+                return new ObjectResult(problemDetails)
+                {
+                    StatusCode = result.StatusCode ?? StatusCodes.Status400BadRequest
                 };
             }
 
-
-            var problemDetails = new ProblemDetails
+            return new ObjectResult(new { result.Title, result.Message })
             {
-                Title = result.Title,
-                Detail = result.Message,
-                Status = result.StatusCode
-            };
-
-            if (result.errors is not null)
-            {
-                problemDetails.Extensions["errors"] = result.errors;
-            }
-
-            return new ObjectResult(problemDetails)
-            {
-                StatusCode = result.StatusCode ?? StatusCodes.Status400BadRequest
+                StatusCode = result.StatusCode ?? StatusCodes.Status200OK
             };
         }
     }

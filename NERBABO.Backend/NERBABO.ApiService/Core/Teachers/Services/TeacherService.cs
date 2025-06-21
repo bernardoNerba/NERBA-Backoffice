@@ -15,21 +15,21 @@ public class TeacherService(
     private readonly AppDbContext _context = context;
     private readonly ILogger<TeacherService> _logger = logger;
 
-    public async Task<Result<RetrieveTeacherDto>> CreateTeacherAsync(CreateTeacherDto createTeacherDto)
+    public async Task<Result<RetrieveTeacherDto>> CreateAsync(CreateTeacherDto entityDto)
     {
-        var iva = await _context.Taxes.FindAsync(createTeacherDto.IvaRegimeId);
+        var iva = await _context.Taxes.FindAsync(entityDto.IvaRegimeId);
         if (iva is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Regime de IVA não encontrado.",
                 StatusCodes.Status404NotFound);
 
-        var irs = await _context.Taxes.FindAsync(createTeacherDto.IrsRegimeId);
+        var irs = await _context.Taxes.FindAsync(entityDto.IrsRegimeId);
         if (irs is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Regime de IRS não encontrado.",
                 StatusCodes.Status404NotFound);
 
-        var person = await _context.People.FindAsync(createTeacherDto.PersonId);
+        var person = await _context.People.FindAsync(entityDto.PersonId);
         if (person is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Pessoa não encontrado.",
@@ -49,31 +49,31 @@ public class TeacherService(
                 .Fail("Erro Validação.", "IRS regime devem ser do tipo correto.");
         }
 
-        if (await _context.Teachers.AnyAsync(t => t.PersonId == createTeacherDto.PersonId))
+        if (await _context.Teachers.AnyAsync(t => t.PersonId == entityDto.PersonId))
         {
-            _logger.LogWarning("Teacher already exists for Person ID: {PersonId}", createTeacherDto.PersonId);
+            _logger.LogWarning("Teacher already exists for Person ID: {PersonId}", entityDto.PersonId);
             return Result<RetrieveTeacherDto>
                 .Fail("Erro Validação.", "Já existe um Formador associado a esta pessoa.");
         }
 
-        if (await _context.Teachers.AnyAsync(t => t.Ccp == createTeacherDto.Ccp))
+        if (await _context.Teachers.AnyAsync(t => t.Ccp == entityDto.Ccp))
         {
-            _logger.LogWarning("Teacher already exists with CCP: {Ccp}", createTeacherDto.Ccp);
+            _logger.LogWarning("Teacher already exists with CCP: {Ccp}", entityDto.Ccp);
             return Result<RetrieveTeacherDto>
                 .Fail("Erro Validação.", "Já existe um Formador com este CCP.");
         }
 
-        var teacher = Teacher.ConvertCreateDtoToTeacher(createTeacherDto, person, iva, irs);
+        var teacher = Teacher.ConvertCreateDtoToEntity(entityDto, person, iva, irs);
 
         _context.Teachers.Add(teacher);
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Teacher created successfully with ID: {Id}", teacher.Id);
         return Result<RetrieveTeacherDto>
-            .Ok(Teacher.ConvertTeacherToRetrieveDto(teacher));
+            .Ok(Teacher.ConvertEntityToRetrieveDto(teacher));
     }
 
-    public async Task<Result> DeleteTeacherAsync(long teacherId)
+    public async Task<Result> DeleteAsync(long teacherId)
     {
         // TODO: Implemente deletion logic when ready
         var existingTeacher = await _context.Teachers.FindAsync(teacherId);
@@ -91,7 +91,44 @@ public class TeacherService(
             .Ok("Formador Eliminado.", "Foi eliminado um formador com sucesso.");
     }
 
-    public async Task<Result<RetrieveTeacherDto>> GetTeacherByPersonIdAsync(long personId)
+    public async Task<Result<IEnumerable<RetrieveTeacherDto>>> GetAllAsync()
+    {
+        var existingTeachers = await _context.Teachers
+            .Include(t => t.IvaRegime)
+            .Include(t => t.IrsRegime)
+            .Include(t => t.Person)
+            .Select(t => Teacher.ConvertEntityToRetrieveDto(t))
+            .ToListAsync();
+
+        if (existingTeachers is null || existingTeachers.Count == 0)
+            return Result<IEnumerable<RetrieveTeacherDto>>
+                .Fail("Não encontrado", "Não existem formadores.", 
+                StatusCodes.Status404NotFound);
+
+        return Result<IEnumerable<RetrieveTeacherDto>>
+            .Ok(existingTeachers);
+    }
+
+    public async Task<Result<RetrieveTeacherDto>> GetByIdAsync(long id)
+    {
+        var existingTeacher = await _context.Teachers
+            .Include(t => t.IvaRegime)
+            .Include(t => t.IrsRegime)
+            .Include(t => t.Person)
+            .Where(t => t.Id == id)
+            .Select(t => Teacher.ConvertEntityToRetrieveDto(t))
+            .FirstOrDefaultAsync();
+
+        if (existingTeacher is null)
+            return Result<RetrieveTeacherDto>
+                .Fail("Não encontrado", "Formador não encontrado.",
+                StatusCodes.Status404NotFound);
+
+        return Result<RetrieveTeacherDto>
+            .Ok(existingTeacher);
+    }
+
+    public async Task<Result<RetrieveTeacherDto>> GetByPersonIdAsync(long personId)
     {
         var person = await _context.People.FindAsync(personId);
 
@@ -111,30 +148,30 @@ public class TeacherService(
                 .Fail("Não encontrado", "Formador não encontrado.", StatusCodes.Status404NotFound);
 
         return Result<RetrieveTeacherDto>
-            .Ok(Teacher.ConvertTeacherToRetrieveDto(teacher));
+            .Ok(Teacher.ConvertEntityToRetrieveDto(teacher));
     }
 
-    public async Task<Result<RetrieveTeacherDto>> UpdateTeacherAsync(UpdateTeacherDto updateTeacherDto)
+    public async Task<Result<RetrieveTeacherDto>> UpdateAsync(UpdateTeacherDto entityDto)
     {
-        var existingTeacher = _context.Teachers.Find(updateTeacherDto.Id);
+        var existingTeacher = _context.Teachers.Find(entityDto.Id);
         if (existingTeacher is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Formador não encontrado.",
                 StatusCodes.Status404NotFound);
 
-        var iva = await _context.Taxes.FindAsync(updateTeacherDto.IvaRegimeId);
+        var iva = await _context.Taxes.FindAsync(entityDto.IvaRegimeId);
         if (iva is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Regime de IVA não encontrado.",
                 StatusCodes.Status404NotFound);
 
-        var irs = await _context.Taxes.FindAsync(updateTeacherDto.IrsRegimeId);
+        var irs = await _context.Taxes.FindAsync(entityDto.IrsRegimeId);
         if (irs is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Regime de IRS não encontrado.",
                 StatusCodes.Status404NotFound);
 
-        var person = await _context.People.FindAsync(updateTeacherDto.PersonId);
+        var person = await _context.People.FindAsync(entityDto.PersonId);
         if (person is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Pessoa não encontrado.",
@@ -154,21 +191,21 @@ public class TeacherService(
                 .Fail("Erro Validação.", "IRS regime devem ser do tipo correto.");
         }
 
-        if (await _context.Teachers.AnyAsync(t => t.PersonId == updateTeacherDto.PersonId && t.Id != updateTeacherDto.Id))
+        if (await _context.Teachers.AnyAsync(t => t.PersonId == entityDto.PersonId && t.Id != entityDto.Id))
         {
-            _logger.LogWarning("Teacher already exists for Person ID: {PersonId}", updateTeacherDto.PersonId);
+            _logger.LogWarning("Teacher already exists for Person ID: {PersonId}", entityDto.PersonId);
             return Result<RetrieveTeacherDto>
                 .Fail("Erro Validação.", "Já existe um Formador associado a esta pessoa.");
         }
 
-        if (await _context.Teachers.AnyAsync(t => t.Ccp == updateTeacherDto.Ccp && t.Id != updateTeacherDto.Id))
+        if (await _context.Teachers.AnyAsync(t => t.Ccp == entityDto.Ccp && t.Id != entityDto.Id))
         {
-            _logger.LogWarning("Teacher already exists with CCP: {Ccp}", updateTeacherDto.Ccp);
+            _logger.LogWarning("Teacher already exists with CCP: {Ccp}", entityDto.Ccp);
             return Result<RetrieveTeacherDto>
                 .Fail("Erro Validação.", "Já existe um Formador com este CCP.");
         }
 
-        var teacher = Teacher.ConvertUpdateDtoToTeacher(updateTeacherDto, person, iva, irs);
+        var teacher = Teacher.ConvertUpdateDtoToEntity(entityDto, person, iva, irs);
 
 
         _context.Entry(existingTeacher).CurrentValues.SetValues(teacher);
@@ -176,7 +213,7 @@ public class TeacherService(
 
         _logger.LogInformation("Teacher updated successfully with ID: {Id}", existingTeacher.Id);
         return Result<RetrieveTeacherDto>
-            .Ok(Teacher.ConvertTeacherToRetrieveDto(existingTeacher), 
+            .Ok(Teacher.ConvertEntityToRetrieveDto(existingTeacher), 
             "Formador Atualizado.", "Foi atualizado o formador com sucesso.");
 
     }

@@ -54,7 +54,7 @@ public class Teacher : Entity
         IsLecturingFM = isLecturingFM;
     }
 
-    public static Teacher ConvertCreateDtoToTeacher(
+    public static Teacher ConvertCreateDtoToEntity(
         CreateTeacherDto createTeacherDto, Person person, Tax regimeIva, Tax regimeIrs)
     {
         return new Teacher(
@@ -75,7 +75,7 @@ public class Teacher : Entity
         };
     }
 
-    public static Teacher ConvertUpdateDtoToTeacher(
+    public static Teacher ConvertUpdateDtoToEntity(
         UpdateTeacherDto updateTeacherDto, Person person, Tax regimeIva, Tax regimeIrs)
     {
         return new Teacher(
@@ -96,7 +96,7 @@ public class Teacher : Entity
         };
     }
 
-    public static RetrieveTeacherDto ConvertTeacherToRetrieveDto(
+    public static RetrieveTeacherDto ConvertEntityToRetrieveDto(
         Teacher teacher)
     {
         return new RetrieveTeacherDto

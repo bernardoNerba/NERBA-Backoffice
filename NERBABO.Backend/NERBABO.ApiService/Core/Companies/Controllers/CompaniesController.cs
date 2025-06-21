@@ -23,7 +23,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCompanyAsync([FromBody] CreateCompanyDto companyDto)
         {
-            Result<RetrieveCompanyDto> result = await _companyService.CreateCompanyAsync(companyDto);
+            Result<RetrieveCompanyDto> result = await _companyService.CreateAsync(companyDto);
             return _responseHandler.HandleResult(result);
         }
 
@@ -31,7 +31,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetCompanyByIdAsync(long id)
         {
-            Result<RetrieveCompanyDto> result = await _companyService.GetCompanyAsync(id);
+            Result<RetrieveCompanyDto> result = await _companyService.GetByIdAsync(id);
             return _responseHandler.HandleResult(result);
         }
 
@@ -40,7 +40,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         public async Task<IActionResult> UpdateCompanyAsync(long id, [FromBody] UpdateCompanyDto companyDto)
         {
             if (id != companyDto.Id) return BadRequest("ID Missmatch");
-            Result<RetrieveCompanyDto> result = await _companyService.UpdateCompanyAsync(companyDto);
+            Result<RetrieveCompanyDto> result = await _companyService.UpdateAsync(companyDto);
             return _responseHandler.HandleResult(result);
         }
 
@@ -48,7 +48,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllCompaniesAsync()
         {
-            Result<IEnumerable<RetrieveCompanyDto>> result = await _companyService.GetAllCompaniesAsync();
+            Result<IEnumerable<RetrieveCompanyDto>> result = await _companyService.GetAllAsync();
             return _responseHandler.HandleResult(result);
         }
 
@@ -56,7 +56,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> DelteCompanyAsync(long id)
         {
-            Result result = await _companyService.DeleteCompanyAsync(id);
+            Result result = await _companyService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
         }
     }

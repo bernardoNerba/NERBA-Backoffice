@@ -1,21 +1,17 @@
-using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;
 using System.Text.Json;
 
-public class CacheService : ICacheService
+namespace NERBABO.ApiService.Shared.Services;
+public class CacheService(
+    IConnectionMultiplexer redis,
+    ILogger<CacheService> logger) 
+    : ICacheService
 {
-    private readonly IDatabase _database;
-    private readonly IServer _server;
-    private readonly ILogger<CacheService> _logger;
-
-    public CacheService(IConnectionMultiplexer redis,
-    ILogger<CacheService> logger)
-    {
-        _database = redis.GetDatabase();
-        _server = redis.GetServer(redis.GetEndPoints().FirstOrDefault()
+    private readonly IDatabase _database = redis.GetDatabase();
+    private readonly IServer _server = redis.GetServer(redis.GetEndPoints().FirstOrDefault()
         ?? throw new InvalidOperationException("Redis server endpoint not found."));
-        _logger = logger;
-    }
+    private readonly ILogger<CacheService> _logger = logger;
+
 
     public async Task<T?> GetAsync<T>(string key)
     {
@@ -29,7 +25,7 @@ public class CacheService : ICacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to get cache for {key}: {ex.Message}");
+            _logger.LogError("Failed to get cache for {key}: {ex.Message}", key, ex.Message);
             return default;
         }
     }
@@ -43,7 +39,7 @@ public class CacheService : ICacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to set cache for {key}: {ex.Message}");
+            _logger.LogError("Failed to set cache for {key}: {ex.Message}", key, ex.Message);
         }
     }
 
@@ -55,7 +51,7 @@ public class CacheService : ICacheService
         }
         catch (Exception)
         {
-            _logger.LogError($"Failed to remove cache for key: {key}");
+            _logger.LogError("Failed to remove cache for key: {key}", key);
         }
     }
 
@@ -71,7 +67,7 @@ public class CacheService : ICacheService
         }
         catch (Exception)
         {
-            _logger.LogError($"Failed to remove cache for pattern: {pattern}");
+            _logger.LogError("Failed to remove cache for pattern: {pattern}", pattern);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTeacherAsync([FromBody] CreateTeacherDto createTeacherDto)
         {
-            Result<RetrieveTeacherDto> result = await _teacherService.CreateTeacherAsync(createTeacherDto);
+            Result<RetrieveTeacherDto> result = await _teacherService.CreateAsync(createTeacherDto);
             return _responseHandler.HandleResult(result);
         }
 
@@ -31,7 +31,7 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         [HttpGet("person/{personId}")]
         public async Task<IActionResult> GetTeacherByPersonIdAsync(long personId)
         {
-            Result<RetrieveTeacherDto> result = await _teacherService.GetTeacherByPersonIdAsync(personId);
+            Result<RetrieveTeacherDto> result = await _teacherService.GetByPersonIdAsync(personId);
             return _responseHandler.HandleResult(result);
         }
 
@@ -42,7 +42,7 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
             if (id != updateTeacherDto.Id)
                 return BadRequest("ID missmatch.");
             
-            Result<RetrieveTeacherDto> result = await _teacherService.UpdateTeacherAsync(updateTeacherDto);
+            Result<RetrieveTeacherDto> result = await _teacherService.UpdateAsync(updateTeacherDto);
             return _responseHandler.HandleResult(result);
         }
 
@@ -50,7 +50,7 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         [HttpDelete("delete/{id:long}")]
         public async Task<IActionResult> DeleteTeacherAsync(long id)
         {
-            Result result = await _teacherService.DeleteTeacherAsync(id);
+            Result result = await _teacherService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
         }
     

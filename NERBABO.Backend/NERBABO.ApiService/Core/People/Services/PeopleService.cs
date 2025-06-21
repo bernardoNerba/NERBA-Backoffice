@@ -24,60 +24,60 @@ public class PeopleService(
     private readonly UserManager<User> _userManager = userManager;
     private readonly ICacheService _cacheService = cacheService;
 
-    public async Task<Result<RetrievePersonDto>> CreatePersonAsync(CreatePersonDto person)
+    public async Task<Result<RetrievePersonDto>> CreateAsync(CreatePersonDto entityDto)
     {
         // Unique constraints checks
-        if (await _context.People.AnyAsync(p => p.NIF == person.NIF))
+        if (await _context.People.AnyAsync(p => p.NIF == entityDto.NIF))
         {
             _logger.LogWarning("Duplicated NIF try detected.");
             return Result<RetrievePersonDto>.Fail("NIF duplicado.", "O NIF da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (await _context.People.AnyAsync(p => p.NISS == person.NISS)
-            && !string.IsNullOrEmpty(person.NISS))
+        if (await _context.People.AnyAsync(p => p.NISS == entityDto.NISS)
+            && !string.IsNullOrEmpty(entityDto.NISS))
         {
             _logger.LogWarning("Duplicated NISS try detected.");
             return Result<RetrievePersonDto>.Fail("NISS duplicado.", "O NISS da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (await _context.People.AnyAsync(p => p.IdentificationNumber == person.IdentificationNumber)
-            && !string.IsNullOrEmpty(person.IdentificationNumber))
+        if (await _context.People.AnyAsync(p => p.IdentificationNumber == entityDto.IdentificationNumber)
+            && !string.IsNullOrEmpty(entityDto.IdentificationNumber))
         {
             _logger.LogWarning("Duplicated IdentificationNumber try detected.");
             return Result<RetrievePersonDto>.Fail("Número de Identificação duplicado.", "O Número de Identificação da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (await _context.People.AnyAsync(p => p.Email == person.Email)
-            && !string.IsNullOrEmpty(person.Email))
+        if (await _context.People.AnyAsync(p => p.Email == entityDto.Email)
+            && !string.IsNullOrEmpty(entityDto.Email))
         {
             _logger.LogWarning("Duplicated Email try detected.");
             return Result<RetrievePersonDto>.Fail("Email duplicado.", "O Email da pessoa deve ser único. Já existe no sistema.");
         }
 
         // enum checks
-        if (!string.IsNullOrEmpty(person.Gender) 
-            && !EnumHelp.IsValidEnum<GenderEnum>(person.Gender))
+        if (!string.IsNullOrEmpty(entityDto.Gender) 
+            && !EnumHelp.IsValidEnum<GenderEnum>(entityDto.Gender))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Género não encontrado", StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(person.Habilitation) 
-            && !EnumHelp.IsValidEnum<HabilitationEnum>(person.Habilitation))
-        {
+        if (!string.IsNullOrEmpty(entityDto.Habilitation) 
+            && !EnumHelp.IsValidEnum<HabilitationEnum>(entityDto.Habilitation))
+        {   
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Tipo de Habilitações não encontrado", StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(person.IdentificationType) 
-            && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(person.IdentificationType))
+        if (!string.IsNullOrEmpty(entityDto.IdentificationType) 
+            && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(entityDto.IdentificationType))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Tipo de Identificação não encontrado", StatusCodes.Status404NotFound);
         }
 
         // create person on database
-        var createdPerson = _context.People.Add(Person.ConvertCreateDtoToEntity(person));
+        var createdPerson = _context.People.Add(Person.ConvertCreateDtoToEntity(entityDto));
         await _context.SaveChangesAsync();
 
         var personToRetrieve = Person.ConvertEntityToRetrieveDto(createdPerson.Entity);
@@ -90,7 +90,7 @@ public class PeopleService(
             .Ok(personToRetrieve,"Pessoa Criada.", $"Foi criada uma pessoa com o nome {personToRetrieve.FullName}.", 201);
     }
 
-    public async Task<Result> DeletePersonAsync(long id)
+    public async Task<Result> DeleteAsync(long id)
     {
         // Check if person exists
         var existingPerson = await _context.People.FindAsync(id);
@@ -143,7 +143,7 @@ public class PeopleService(
         return Result.Ok("Pessoa Eliminada.", "Pessoa eliminada com sucesso.");
     }
 
-    public async Task<Result<IEnumerable<RetrievePersonDto>>> GetAllPeopleAsync()
+    public async Task<Result<IEnumerable<RetrievePersonDto>>> GetAllAsync()
     {
         // Check if entry exists in cache
         var cacheKey = "people:list";
@@ -171,7 +171,7 @@ public class PeopleService(
         return Result<IEnumerable<RetrievePersonDto>>.Ok(existingPeople);
     }
 
-    public async Task<Result<IEnumerable<RetrievePersonDto>>> GetPeopleWithoutUserAsync()
+    public async Task<Result<IEnumerable<RetrievePersonDto>>> GetAllWithoutUserAsync()
     {
         var existingUsers = await _context.Users.ToListAsync();
         var existingPeople = await _context.People.ToListAsync();
@@ -197,7 +197,7 @@ public class PeopleService(
             .Ok(peopleWithoutUser);
     }
 
-    public async Task<Result<RetrievePersonDto>> GetPersonByIdAsync(long id)
+    public async Task<Result<RetrievePersonDto>> GetByIdAsync(long id)
     {
         // Check if entry exists in cache
         var cacheKey = $"person:{id}";
@@ -220,39 +220,39 @@ public class PeopleService(
 
         return Result<RetrievePersonDto>.Ok(Person.ConvertEntityToRetrieveDto(existingPerson));
     }
-    public async Task<Result<RetrievePersonDto>> UpdatePersonAsync(UpdatePersonDto person)
+    public async Task<Result<RetrievePersonDto>> UpdateAsync(UpdatePersonDto entityDto)
     {
-        var existingPerson = await _context.People.FindAsync(person.Id);
+        var existingPerson = await _context.People.FindAsync(entityDto.Id);
 
         if (existingPerson is null)
             return Result<RetrievePersonDto>.Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
 
         // Check for unique constraints
-        if (await _context.People.AnyAsync(p => p.NIF == person.NIF
+        if (await _context.People.AnyAsync(p => p.NIF == entityDto.NIF
             && p.Id != existingPerson.Id))
         {
             _logger.LogWarning("Duplicated NIF try detected.");
             return Result<RetrievePersonDto>.Fail("NIF duplicado.", "O NIF da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (!string.IsNullOrEmpty(person.NISS)
-            && await _context.People.AnyAsync(p => p.NISS == person.NISS
+        if (!string.IsNullOrEmpty(entityDto.NISS)
+            && await _context.People.AnyAsync(p => p.NISS == entityDto.NISS
             && p.Id != existingPerson.Id))
         {
             _logger.LogWarning("Duplicated NISS try detected.");
             return Result<RetrievePersonDto>.Fail("NISS duplicado.", "O NISS da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (!string.IsNullOrEmpty(person.IdentificationNumber)
-            && await _context.People.AnyAsync(p => p.IdentificationNumber == person.IdentificationNumber
+        if (!string.IsNullOrEmpty(entityDto.IdentificationNumber)
+            && await _context.People.AnyAsync(p => p.IdentificationNumber == entityDto.IdentificationNumber
             && p.Id != existingPerson.Id))
         {
             _logger.LogWarning("Duplicated IdentificationNumber try detected.");
             return Result<RetrievePersonDto>.Fail("Numero de Identificação duplicado.", "O Numero de Identificação da pessoa deve ser único. Já existe no sistema.");
         }
 
-        if (!string.IsNullOrEmpty(person.Email)
-            && await _context.People.AnyAsync(p => p.Email == person.Email
+        if (!string.IsNullOrEmpty(entityDto.Email)
+            && await _context.People.AnyAsync(p => p.Email == entityDto.Email
             && p.Id != existingPerson.Id))
         {
             _logger.LogWarning("Duplicated Email try detected.");
@@ -261,28 +261,28 @@ public class PeopleService(
 
 
         // enum checks
-        if (!string.IsNullOrEmpty(person.Gender)
-            && !EnumHelp.IsValidEnum<GenderEnum>(person.Gender))
+        if (!string.IsNullOrEmpty(entityDto.Gender)
+            && !EnumHelp.IsValidEnum<GenderEnum>(entityDto.Gender))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Género não encontrado", StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(person.Habilitation)
-            && !EnumHelp.IsValidEnum<HabilitationEnum>(person.Habilitation))
+        if (!string.IsNullOrEmpty(entityDto.Habilitation)
+            && !EnumHelp.IsValidEnum<HabilitationEnum>(entityDto.Habilitation))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Tipo de Habilitações não encontrado", StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(person.IdentificationType)
-            && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(person.IdentificationType))
+        if (!string.IsNullOrEmpty(entityDto.IdentificationType)
+            && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(entityDto.IdentificationType))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Tipo de Identificação não encontrado", StatusCodes.Status404NotFound);
         }
 
-        _context.Entry(existingPerson).CurrentValues.SetValues(Person.ConvertUpdateDtoToEntity(person));
+        _context.Entry(existingPerson).CurrentValues.SetValues(Person.ConvertUpdateDtoToEntity(entityDto));
         await _context.SaveChangesAsync();
 
         // Update cache

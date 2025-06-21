@@ -3,6 +3,7 @@ using NERBABO.ApiService.Core.Students.Dtos;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using System.Collections.Generic;
 
 namespace NERBABO.ApiService.Core.Students.Services
 {
@@ -14,21 +15,21 @@ namespace NERBABO.ApiService.Core.Students.Services
         private readonly ILogger<StudentService> _logger = logger;
         private readonly AppDbContext _context = context;
 
-        public async Task<Result<RetrieveStudentDto>> CreateStudentAsync(CreateStudentDto studentDto)
+        public async Task<Result<RetrieveStudentDto>> CreateAsync(CreateStudentDto entityDto)
         {
-            var person = await _context.People.FindAsync(studentDto.PersonId);
-            var company = await _context.Companies.FindAsync(studentDto.CompanyId);
+            var person = await _context.People.FindAsync(entityDto.PersonId);
+            var company = await _context.Companies.FindAsync(entityDto.CompanyId);
 
             // relationship validation
             if (person is null)
             {
-                _logger.LogWarning("Person with id {id} not found", studentDto.PersonId);
+                _logger.LogWarning("Person with id {id} not found", entityDto.PersonId);
                 return Result<RetrieveStudentDto>
                     .Fail("Não encontrado", "Pessoa associada não encontrada.",
                     StatusCodes.Status404NotFound);
             }
 
-            if (await _context.Students.AnyAsync(s => s.PersonId == studentDto.PersonId))
+            if (await _context.Students.AnyAsync(s => s.PersonId == entityDto.PersonId))
             {
                 _logger.LogWarning("There is already a student associated with this person");
                 return Result<RetrieveStudentDto>
@@ -36,7 +37,7 @@ namespace NERBABO.ApiService.Core.Students.Services
                     StatusCodes.Status404NotFound);
             }
 
-            var student = Student.ConvertCreateDtoToEntity(studentDto, person, company);
+            var student = Student.ConvertCreateDtoToEntity(entityDto, person, company);
 
             _context.Students.Add(student);
             await _context.SaveChangesAsync();
@@ -47,7 +48,7 @@ namespace NERBABO.ApiService.Core.Students.Services
 
         }
 
-        public async Task<Result> DeleteStudentAsync(long id)
+        public async Task<Result> DeleteAsync(long id)
         {
             var existingStudent = await _context.Students.FindAsync(id);
 
@@ -65,7 +66,23 @@ namespace NERBABO.ApiService.Core.Students.Services
 
         }
 
-        public async Task<Result<RetrieveStudentDto>> GetStudentByIdAsync(long id)
+        public async Task<Result<IEnumerable<RetrieveStudentDto>>> GetAllAsync()
+        {
+            var existingStudents = await _context.Students
+                .Include(s => s.Company)
+                .Select( s => Student.ConvertEntityToRetrieveDto(s, s.Company))
+                .ToListAsync();
+
+            if (existingStudents is null || existingStudents.Count == 0)
+                return Result<IEnumerable<RetrieveStudentDto>>
+                    .Fail("Não encontrado.", "Não foram encontrados resultados de formandos.",
+                    StatusCodes.Status404NotFound);
+
+            return Result<IEnumerable<RetrieveStudentDto>>
+                .Ok(existingStudents, "Formandos obtidos.", "Formandos obtidos com sucesso.");
+        }
+
+        public async Task<Result<RetrieveStudentDto>> GetByIdAsync(long id)
         {
             var existingStudent = await _context.Students.FindAsync(id);
 
@@ -83,7 +100,7 @@ namespace NERBABO.ApiService.Core.Students.Services
                 .Ok(Student.ConvertEntityToRetrieveDto(existingStudent, company));
         }
 
-        public async Task<Result<RetrieveStudentDto>> GetStudentByPersonIdAsync(long personId)
+        public async Task<Result<RetrieveStudentDto>> GetByPersonIdAsync(long personId)
         {
             var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.PersonId == personId);
 
@@ -98,11 +115,11 @@ namespace NERBABO.ApiService.Core.Students.Services
                 .Ok(Student.ConvertEntityToRetrieveDto(existingStudent, company));
         }
 
-        public async Task<Result<RetrieveStudentDto>> UpdateStudentAsync(UpdateStudentDto studentDto)
+        public async Task<Result<RetrieveStudentDto>> UpdateAsync(UpdateStudentDto entityDto)
         {
-            var existingStudent = await _context.Students.FindAsync(studentDto.Id);
-            var person = await _context.People.FindAsync(studentDto.PersonId);
-            var company = await _context.Companies.FindAsync(studentDto.CompanyId);
+            var existingStudent = await _context.Students.FindAsync(entityDto.Id);
+            var person = await _context.People.FindAsync(entityDto.PersonId);
+            var company = await _context.Companies.FindAsync(entityDto.CompanyId);
 
             if (existingStudent is null)
                 return Result<RetrieveStudentDto>
@@ -115,8 +132,8 @@ namespace NERBABO.ApiService.Core.Students.Services
                     .Fail("Não encontrado", "Pessoa associada não encontrada.",
                     StatusCodes.Status404NotFound);
 
-            if (existingStudent.PersonId != studentDto.PersonId
-                && await _context.Students.AnyAsync(s => s.PersonId == studentDto.PersonId))
+            if (existingStudent.PersonId != entityDto.PersonId
+                && await _context.Students.AnyAsync(s => s.PersonId == entityDto.PersonId))
             {
                 _logger.LogWarning("There is already a student associated with this person");
                 return Result<RetrieveStudentDto>
@@ -124,7 +141,7 @@ namespace NERBABO.ApiService.Core.Students.Services
                     StatusCodes.Status404NotFound);
             }
 
-            var student = Student.ConvertCreateDtoToEntity(studentDto, person, company);
+            var student = Student.ConvertCreateDtoToEntity(entityDto, person, company);
 
             _context.Entry(existingStudent).CurrentValues.SetValues(student);
             await _context.SaveChangesAsync();

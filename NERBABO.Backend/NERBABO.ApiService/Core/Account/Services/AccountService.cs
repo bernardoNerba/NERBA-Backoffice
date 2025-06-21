@@ -3,30 +3,23 @@ using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Dtos;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Data;
-using NERBABO.ApiService.Shared.Exceptions;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Account.Services;
 
-public class AccountService : IAccountService
-{
-    private readonly UserManager<User> _userManager;
-    private readonly AppDbContext _context;
-    private readonly ILogger<AccountService> _logger;
-    private readonly ICacheService _cacheService;
-    public AccountService(
-        UserManager<User> userManager,
+public class AccountService(
+    UserManager<User> userManager,
         AppDbContext context,
         ILogger<AccountService> logger,
-        ICacheService cacheService)
-    {
-        _userManager = userManager;
-        _context = context;
-        _logger = logger;
-        _cacheService = cacheService;
-    }
+        ICacheService cacheService
+    ) : IAccountService
+{
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly AppDbContext _context = context;
+    private readonly ILogger<AccountService> _logger = logger;
+    private readonly ICacheService _cacheService = cacheService;
 
     /// <summary>
     /// Registers a new user within the system after performing validation checks.
@@ -37,52 +30,33 @@ public class AccountService : IAccountService
     /// <returns>
     /// async task
     /// </returns>
-    /// <exception cref="ValidationException">
-    /// Thrown when: 
-    /// - Email already exists
-    /// - Username already exists
-    /// - Person doesn't exist
-    /// - Person already has a user account
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown when user creation or role assignment fails.
-    /// </exception>
-    /// <remarks>
-    /// This method performs the following operations:
-    /// 1. Validates email and username uniqueness
-    /// 2. Verifies the associated person exists
-    /// 3. Creates the user account
-    /// 4. Assigns the default "User" role
-    /// 5. Updates the users cache
-    /// All operations are performed within a transaction.
-    /// </remarks>
-    public async Task<Result> RegistUserAsync(RegisterDto registerDto)
+    public async Task<Result<RetrieveUserDto>> CreateAsync(RegisterDto entityDto)
     {
         // Check email duplication
-        if (await _userManager.FindByEmailAsync(registerDto.Email.ToLower()) is not null)
+        if (await _userManager.FindByEmailAsync(entityDto.Email.ToLower()) is not null)
         {
-            return Result
-                .Fail("Email duplicado.", $"Email {registerDto.Email} já existe.");
+            return Result<RetrieveUserDto>
+                .Fail("Email duplicado.", $"Email {entityDto.Email} já existe.");
         }
 
         // check username duplication
-        if (await _userManager.FindByNameAsync(registerDto.UserName.ToLower()) is not null)
+        if (await _userManager.FindByNameAsync(entityDto.UserName.ToLower()) is not null)
         {
-            return Result
-                .Fail("Username duplicado.", $"Nome de Utilizador {registerDto.UserName} já existe.");
+            return Result<RetrieveUserDto>
+                .Fail("Username duplicado.", $"Nome de Utilizador {entityDto.UserName} já existe.");
         }
 
         // checks if the person exists
-        var person = await _context.People.FindAsync(registerDto.PersonId);
+        var person = await _context.People.FindAsync(entityDto.PersonId);
         if (person is null)
-            return Result
+            return Result<RetrieveUserDto>
                 .Fail("Não encontrado.", $"A pessoa que tentou associar ao utilizador não existe.",
                 StatusCodes.Status404NotFound);
 
         // checks if there is already a user associated with the person
         var user = await _context.Users.FirstOrDefaultAsync(x => x.PersonId == person.Id);
         if (user is not null)
-            return Result
+            return Result<RetrieveUserDto>
                     .Fail("Pessoa já tem uma conta.", $"A pessoa que tentou associar já é um utilizador.");
 
         // Begin database transaction
@@ -91,12 +65,12 @@ public class AccountService : IAccountService
         {
             // Create a new user object
             // TODO: Implement email confirmation logic
-            var userToAdd = new User(registerDto.UserName.ToLower(), registerDto.Email.ToLower(), registerDto.PersonId);
+            var userToAdd = new User(entityDto.UserName.ToLower(), entityDto.Email.ToLower(), entityDto.PersonId);
 
-            var result = await _userManager.CreateAsync(userToAdd, registerDto.Password);
+            var result = await _userManager.CreateAsync(userToAdd, entityDto.Password);
             if (!result.Succeeded)
             {
-                return Result
+                return Result<RetrieveUserDto>
                     .Fail("Falha ao registar utilizador.", "Formato da password Inálido",
                     result.Errors.Select(e => e.Description).ToList());
             }
@@ -104,7 +78,7 @@ public class AccountService : IAccountService
             var roleAssignmentResult = await _userManager.AddToRoleAsync(userToAdd, "User");
             if (!roleAssignmentResult.Succeeded)
             {
-                return Result
+                return Result<RetrieveUserDto>
                     .Fail("Falha ao atribuir a função", "Erro ao atribuir função ao utilizador.",
                     result.Errors.Select(e => e.Description).ToList());
             }
@@ -112,8 +86,10 @@ public class AccountService : IAccountService
             // Update the cache
             await _cacheService.RemoveAsync("users:list");
 
-            return Result
-                .Ok("Utilizador registado.", $"Utilizador {userToAdd.UserName} registado com sucesso.", StatusCodes.Status201Created);
+            return Result<RetrieveUserDto>
+                .Ok(User.ConvertEntityToRetrieveDto(userToAdd, _userManager).Result,
+                "Utilizador registado.", $"Utilizador {userToAdd.UserName} registado com sucesso.",
+                StatusCodes.Status201Created);
         }
         catch (Exception)
         {
@@ -135,21 +111,7 @@ public class AccountService : IAccountService
     /// <returns>
     /// A Task representing the asynchronous operation.
     /// </returns>
-    /// <exception cref="KeyNotFoundException">
-    /// Thrown when the specified user is not found.
-    /// </exception>
-    /// <exception cref="ValidationException">
-    /// Thrown when the user status update fails.
-    /// </exception>
-    /// <remarks>
-    /// This method:
-    /// 1. Finds the user by ID (including associated Person data)
-    /// 2. Toggles the IsActive status
-    /// 3. Updates the user in the database
-    /// 4. Refreshes the user cache (both individual user and users list)
-    /// Note: This is a toggle operation - it will reverse the current IsActive state.
-    /// </remarks>
-    public async Task<Result> BlockUserAsync(string userId)
+    public async Task<Result> BlockAsync(string userId)
     {
         var user = await _userManager.Users
             .Include(u => u.Person)
@@ -181,7 +143,7 @@ public class AccountService : IAccountService
             .Ok("Estado da conta do utilizador alterado.", "Estado da conta do utilizador alterado com sucesso.");
     }
 
-    public async Task<Result<IEnumerable<RetrieveUserDto>>> GetAllUsersAsync()
+    public async Task<Result<IEnumerable<RetrieveUserDto>>> GetAllAsync()
     {
 
         // Check if the users are cached
@@ -219,7 +181,7 @@ public class AccountService : IAccountService
             .Ok(users);
     }
 
-    public async Task<Result<RetrieveUserDto>> GetUserByIdAsync(string id)
+    public async Task<Result<RetrieveUserDto>> GetByIdAsync(string id)
     {
 
         // Try to get from cache
@@ -248,7 +210,7 @@ public class AccountService : IAccountService
         return Result<RetrieveUserDto>.Ok(user);
     }
 
-    public async Task<Result> UpdateUserAsync(UpdateUserDto model)
+    public async Task<Result<RetrieveUserDto>> UpdateAsync(UpdateUserDto model)
     {
         // Get the user from the database
         var user = await _userManager.Users
@@ -256,8 +218,9 @@ public class AccountService : IAccountService
             .FirstOrDefaultAsync(u => u.Id == model.Id);
 
         if (user is null)
-            return Result
-                .Fail("Não encontrado", "Utilizador não encontrado.", StatusCodes.Status404NotFound);
+            return Result<RetrieveUserDto>
+                .Fail("Não encontrado", "Utilizador não encontrado.",
+                StatusCodes.Status404NotFound);
 
         // assign the new values to the user
         user.Email = model.Email;
@@ -270,7 +233,7 @@ public class AccountService : IAccountService
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
             if (!result.Succeeded)
-                return Result
+                return Result<RetrieveUserDto>
                     .Fail("Password Inválida.", "O formato da password fornecida está inválido.");
         }
 
@@ -281,7 +244,28 @@ public class AccountService : IAccountService
         await _cacheService.RemoveAsync("users:list");
         await _cacheService.SetAsync($"user:{user.Id}", await User.ConvertEntityToRetrieveDto(user, _userManager), TimeSpan.FromMinutes(30));
 
+        return Result<RetrieveUserDto>
+            .Ok(User.ConvertEntityToRetrieveDto(user, _userManager).Result,
+            "Utilizador atualizado.", $"Utilizador {user.UserName} atualizado.");
+    }
+
+    public async Task<Result> DeleteAsync(string id)
+    {
+        var existingUser = await _userManager.FindByIdAsync(id);
+        if (existingUser is null)
+            return Result
+                .Fail("Não encontrado", "Utilizador não encontrado.",
+                StatusCodes.Status404NotFound);
+        
+        
+        await _userManager.DeleteAsync(existingUser);
+        
+        // update cache
+        await _cacheService.RemoveAsync("users:list");
+        await _cacheService.RemoveAsync($"user:{id}");
+
         return Result
-            .Ok("Utilizador atualizado.", $"Utilizador {user.UserName} atualizado.");
+            .Ok("Utilizador eliminado.", $"Utilizador {existingUser.UserName} eliminado com sucesso.",
+            StatusCodes.Status200OK);
     }
 }
