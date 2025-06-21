@@ -85,6 +85,20 @@ ng serve
 dotnet ef migrations add <MigrationName>
 ```
 
+## Contributions
+
+We welcome and appreciate contributions of all kinds — whether it's developing *new features, writing integration tests, improving documentation, finding security vulnerabilities or anything else that helps the project grow*.
+
+As a token of appreciation, the **NERBA Association offers a formal letter of participation to contributors**. This letter outlines the specific tasks or areas you contributed to and can serve as evidence of your skills and involvement in open-source projects — useful for resumes, job applications, or professional portfolios.
+
+If you're interested in contributing, please feel free to open a pull request or reach out for guidance on where help is needed.
+
+## ToDo's
+
+- [ ] Add new Integration tests project
+- [ ] Document, with comments, critical methods and classes
+- [ ] Write the frontend code for Teachers, Students, Modules, Companies features
+
 
 ## Code of Conduct
 
