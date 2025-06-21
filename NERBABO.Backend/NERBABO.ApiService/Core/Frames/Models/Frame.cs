@@ -1,5 +1,6 @@
 using System.Globalization;
 using Humanizer;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Shared.Models;
 
@@ -7,13 +8,17 @@ namespace NERBABO.ApiService.Core.Frames.Models;
 
 public class Frame : Entity<long>
 {
+    // Properties
     public string Program { get; set; } = string.Empty;
     public string Intervention { get; set; } = string.Empty;
     public string InterventionType { get; set; } = string.Empty;
     public string Operation { get; set; } = string.Empty;
     public string OperationType { get; set; } = string.Empty;
 
+    // Navigation Properties
+    public List<Course> Courses { get; set; } = [];
 
+    // Converters
     public static Frame ConvertCreateDtoToEntity(CreateFrameDto frameDto)
     {
         return new Frame

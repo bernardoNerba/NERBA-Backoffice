@@ -20,7 +20,7 @@ namespace NERBABO.ApiService.Core.Courses.Dtos
         public string? Objectives { get; set; } = string.Empty;
 
         [ValidateLengthIfNotEmpty(155, MinimumLength = 3,
-        ErrorMessage = "Título / Nome do curso deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
+        ErrorMessage = "Destinatários deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
         public string? Destinators { get; set; } = string.Empty;
 
         [ValidateLengthIfNotEmpty(55, MinimumLength = 3,
