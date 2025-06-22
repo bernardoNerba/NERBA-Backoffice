@@ -42,21 +42,12 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// - BadRequest (404) if person associated with the user is not found
         /// - Created (201) if registration is successful
         /// </returns>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", Policy = "ActiveUser")]
         [HttpPost("register")]
         public async Task<IActionResult> CreateAccountAsync(RegisterDto model)
         {
-            // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value 
-                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-            // Check if the user is null or if they are not an admin
-            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
             Result<RetrieveUserDto> result = await _accountService.CreateAsync(model);
             return _responseHandler.HandleResult(result);
-
         }
 
         [Authorize(Roles = "Admin")]
