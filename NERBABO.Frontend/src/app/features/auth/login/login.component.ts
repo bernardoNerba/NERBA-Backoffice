@@ -83,7 +83,7 @@ export class LoginComponent implements OnInit {
         },
         error: (error) => {
           // display error from api
-          this.sharedService.showError(error.error);
+          this.sharedService.handleErrorResponse(error);
         },
       });
     }

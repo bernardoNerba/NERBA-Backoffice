@@ -1,5 +1,7 @@
-﻿using NERBABO.ApiService.Shared.Exceptions;
+﻿using Microsoft.AspNetCore.Mvc;
+using NERBABO.ApiService.Shared.Exceptions;
 using NERBABO.ApiService.Shared.Models;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace NERBABO.ApiService.Shared.Middleware
@@ -65,54 +67,55 @@ namespace NERBABO.ApiService.Shared.Middleware
             var response = context.Response;
             response.ContentType = "application/json";
 
-            var problemDetails = new ErrorMessage();
+            var problemDetails = new ProblemDetails();
 
             switch (exception)
             {
                 case KeyNotFoundException or ObjectNullException:
                     _logger.LogWarning(exception, "Resource not found: {Message}", exception.Message);
                     response.StatusCode = StatusCodes.Status404NotFound;
-                    problemDetails.Message = "Recurso não encontrado.";
-                    problemDetails.Details = exception.Message;
+                    problemDetails.Title = "Recurso não encontrado.";
+                    problemDetails.Detail = exception.Message;
                     break;
 
                 case InvalidOperationException:
                     _logger.LogWarning(exception, "Invalid operation: {Message}", exception.Message);
                     response.StatusCode = StatusCodes.Status400BadRequest;
-                    problemDetails.Message = "Operação inválida.";
-                    problemDetails.Details = exception.Message;
+                    problemDetails.Title = "Operação inválida.";
+                    problemDetails.Detail = exception.Message;
                     break;
 
                 case ArgumentNullException or ArgumentException:
                     _logger.LogWarning(exception, "Invalid argument: {Message}", exception.Message);
                     response.StatusCode = StatusCodes.Status400BadRequest;
-                    problemDetails.Message = "Parâmetros inválidos.";
-                    problemDetails.Details = exception.Message;
+                    problemDetails.Title = "Parâmetros inválidos.";
+                    problemDetails.Detail = exception.Message;
                     break;
 
                 case UnauthorizedAccessException:
                     _logger.LogWarning(exception, "Unauthorized access: {Message}", exception.Message);
                     response.StatusCode = StatusCodes.Status401Unauthorized;
-                    problemDetails.Message = "Acesso não autorizado.";
+                    problemDetails.Title = "Acesso não autorizado.";
+                    problemDetails.Detail = exception.Message;
                     break;
 
                 case ValidationException validationEx:
                     _logger.LogWarning(exception, "Validation error: {Message}", exception.Message);
                     response.StatusCode = StatusCodes.Status400BadRequest;
-                    problemDetails.Message = "Erro de validação.";
-                    problemDetails.Details = validationEx.Message;
+                    problemDetails.Title = "Erro de validação.";
+                    problemDetails.Detail = validationEx.Message;
                     break;
 
                 default:
                     _logger.LogError(exception, "Unexpected error occurred: {Message}", exception.Message);
                     response.StatusCode = StatusCodes.Status500InternalServerError;
-                    problemDetails.Message = "Erro interno do servidor.";
-                    problemDetails.Details = "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.";
+                    problemDetails.Title = "Erro interno do servidor.";
+                    problemDetails.Detail = "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.";
 
                     if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
                     {
-                        problemDetails.Details = exception.Message;
-                        problemDetails.StackTrace = exception.StackTrace;
+                        problemDetails.Detail = exception.Message;
+                        problemDetails.Extensions["StackTrace"] = exception.StackTrace;
                     }
                     break;
             }
