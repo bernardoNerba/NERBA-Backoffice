@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Companies.Models;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -22,6 +23,7 @@ public class AppDbContext : IdentityDbContext<User>
     public DbSet<Company> Companies { get; set; }
     public DbSet<Student> Students { get; set; }
     public DbSet<Module> Modules { get; set; }
+    public DbSet<Course> Courses { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)

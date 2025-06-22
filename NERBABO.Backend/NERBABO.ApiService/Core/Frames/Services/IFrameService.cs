@@ -6,5 +6,4 @@ namespace NERBABO.ApiService.Core.Frames.Services;
 public interface IFrameService
     : IGenericService<RetrieveFrameDto, CreateFrameDto, UpdateFrameDto, long>
 {
-
 }

@@ -47,14 +47,21 @@ public class FrameService(
 
     public async Task<Result> DeleteAsync(long id)
     {
-        // TODO: When dependencies are added, check if the frame can be deleted
         var existingFrame = await _context.Frames.FindAsync(id);
             
         if (existingFrame is null)
         {
+            _logger.LogWarning("Frame not found");
             return Result
                 .Fail("Não encontrado.", "Enquadramento não encontrado.", 
                 StatusCodes.Status404NotFound);
+        }
+
+        if(await _context.Courses.Where(c => c.FrameId == id).AnyAsync())
+        {
+            _logger.LogWarning("Cannot delete a frame that is associated with courses.");
+            return Result
+                .Fail("Não é possível eliminar.", "O enquadramento está associado a cursos.");
         }
 
         _context.Remove(existingFrame);
