@@ -22,6 +22,32 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         private readonly IAccountService _accountService = accountService;
         private readonly IResponseHandler _responseHandler = responseHandler;
 
+        [HttpGet("users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllAccountsAsync()
+        {
+            Result<IEnumerable<RetrieveUserDto>> result = await _accountService.GetAllAsync();
+            return _responseHandler.HandleResult(result);
+        }
+
+        [HttpGet("user/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetSingleAsync(string id)
+        {
+            Result<RetrieveUserDto> result = await _accountService.GetByIdAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        [HttpPut("user/update/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] UpdateUserDto model)
+        {
+            if (id != model.Id)
+                return BadRequest("ID mismatch.");
+
+            Result<RetrieveUserDto> result = await _accountService.UpdateAsync(model);
+            return _responseHandler.HandleResult(result);
+        }
 
         /// <summary>
         /// Registers a new user in the system.
@@ -42,92 +68,21 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// - BadRequest (404) if person associated with the user is not found
         /// - Created (201) if registration is successful
         /// </returns>
-        [Authorize(Roles = "Admin")]
         [HttpPost("register")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAccountAsync(RegisterDto model)
         {
-            // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value 
-                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-            // Check if the user is null or if they are not an admin
-            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
             Result<RetrieveUserDto> result = await _accountService.CreateAsync(model);
             return _responseHandler.HandleResult(result);
-
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("block-user/{userId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> BlockAccountAsync(string userId)
         {
-            // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value
-                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-            // Check if the user is null or if they are not an admin
-            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
             Result result = await _accountService.BlockAsync(userId);
             return _responseHandler.HandleResult(result);
-            
         }
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet("users")]
-        public async Task<IActionResult> GetAllAccountsAsync()
-        {
-            // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value
-                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-            // Check if the user is null or if they are not an admin
-            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
-            Result<IEnumerable<RetrieveUserDto>> result = await _accountService.GetAllAsync();
-            return _responseHandler.HandleResult(result);
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet("user/{id}")]
-        public async Task<IActionResult> GetSingleAsync(string id)
-        {
-            // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value
-                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-            // Check if the user is null or if they are not an admin
-            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
-            Result<RetrieveUserDto> result = await _accountService.GetByIdAsync(id);
-            return _responseHandler.HandleResult(result);
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPut("user/update/{id}")]
-        public async Task<IActionResult> UpdateAsync(string id, [FromBody] UpdateUserDto model)
-        {
-            // Check model id is same as id from url
-            if (id != model.Id)
-                return BadRequest("User ID mismatch.");
-
-            // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value
-                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-            // Check if the user is null or if they are not an admin
-            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
-            Result<RetrieveUserDto> result = await _accountService.UpdateAsync(model);
-            return _responseHandler.HandleResult(result);
-        }
-
 
 
     }

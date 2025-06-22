@@ -17,44 +17,46 @@ public class StudentsController(
     private readonly IStudentService _studentService = studentService;
     private readonly IResponseHandler _responseHandler = responseHandler;
 
-    [Authorize]
     [HttpGet("{id:long}")]
+    [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> GetStudentByIdAsync(long id)
     {
         Result<RetrieveStudentDto> result = await _studentService.GetByIdAsync(id);
         return _responseHandler.HandleResult(result);
     }
 
-    [Authorize]
     [HttpGet("person/{personId:long}")]
+    [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> GetStudentByPersonIdAsync(long personId)
     {
         Result<RetrieveStudentDto> result = await _studentService.GetByPersonIdAsync(personId);
         return _responseHandler.HandleResult(result);
     }
 
-    [Authorize]
     [HttpPost]
+    [Authorize(Roles = "Admin, CQ, FM", Policy = "ActiveUser")]
     public async Task<IActionResult> CreateStudentAsync([FromBody] CreateStudentDto studentDto)
     {
         Result<RetrieveStudentDto> result = await _studentService.CreateAsync(studentDto);
         return _responseHandler.HandleResult(result);
     }
 
-    [Authorize]
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> DeleteStudentAsync(long id)
+    [HttpPut("{id:long}")]
+    [Authorize(Roles = "Admin, CQ, FM", Policy = "ActiveUser")]
+    public async Task<IActionResult> UpdateStudentAsync(long id, [FromBody] UpdateStudentDto studentDto)
     {
-        Result result = await _studentService.DeleteAsync(id);
+        if (id != studentDto.Id)
+            return BadRequest("ID Missmatch.");
+        
+        Result<RetrieveStudentDto> result = await _studentService.UpdateAsync(studentDto);
         return _responseHandler.HandleResult(result);
     }
 
-    [Authorize]
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateStudentAsync(long id, [FromBody] UpdateStudentDto studentDto)
+    [HttpDelete("{id:long}")]
+    [Authorize(Roles = "Admin, CQ, FM", Policy = "ActiveUser")]
+    public async Task<IActionResult> DeleteStudentAsync(long id)
     {
-        if (id != studentDto.Id) return BadRequest("ID Missmatch.");
-        Result<RetrieveStudentDto> result = await _studentService.UpdateAsync(studentDto);
+        Result result = await _studentService.DeleteAsync(id);
         return _responseHandler.HandleResult(result);
     }
 }

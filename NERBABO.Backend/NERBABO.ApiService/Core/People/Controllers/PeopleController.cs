@@ -17,53 +17,53 @@ namespace NERBABO.ApiService.Core.People.Controllers
         private readonly IPeopleService _peopleService = peopleService;
         private readonly IResponseHandler _responseHandler = responseHandler;
 
-        [Authorize]
-        [HttpPost("create")]
-        public async Task<IActionResult> CreatePersonAsync([FromBody] CreatePersonDto person)
-        {
-            var result = await _peopleService.CreateAsync(person);
-            return _responseHandler.HandleResult(result);
-        }
-
-        [Authorize]
         [HttpGet]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetAllPersonsAsync()
         {
-            var result = await _peopleService.GetAllAsync();            
+            Result<IEnumerable<RetrievePersonDto>> result = await _peopleService.GetAllAsync();            
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
         [HttpGet("not-user")]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetPeopleWithoutUserAsync()
         {
-            var result = await _peopleService.GetAllWithoutUserAsync();
+            Result<IEnumerable<RetrievePersonDto>> result = await _peopleService.GetAllWithoutUserAsync();
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
         [HttpGet("{id:long}")]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetPersonAsync(long id)
         {
-            var result = await _peopleService.GetByIdAsync(id);
+            Result<RetrievePersonDto> result = await _peopleService.GetByIdAsync(id);
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
+        [HttpPost("create")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> CreatePersonAsync([FromBody] CreatePersonDto person)
+        {
+            Result<RetrievePersonDto> result = await _peopleService.CreateAsync(person);
+            return _responseHandler.HandleResult(result);
+        }
+
         [HttpPut("update/{id:long}")]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> UpdatePersonAsync(long id, [FromBody] UpdatePersonDto person)
         {
             if (id != person.Id) return BadRequest("ID mismatch");
 
-            var result = await _peopleService.UpdateAsync(person);
+            Result<RetrievePersonDto> result = await _peopleService.UpdateAsync(person);
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
         [HttpDelete("delete/{id:long}")]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> DeletePersonAsync(long id)
         {
-            var result = await _peopleService.DeleteAsync(id);
+            Result result = await _peopleService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
         }
     }

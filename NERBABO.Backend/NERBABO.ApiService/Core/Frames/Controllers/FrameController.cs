@@ -6,109 +6,59 @@ using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
-using System.Security.Claims;
 
 namespace NERBABO.ApiService.Core.Frames.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 public class FrameController(
-    IFrameService frameService,
-        UserManager<User> userManager,
+        IFrameService frameService,
         IResponseHandler responseHandler
     ) : ControllerBase
 {
     private readonly IFrameService _frameService = frameService;
-    private readonly UserManager<User> _userManager = userManager;
     private readonly IResponseHandler _responseHandler = responseHandler;
 
-    [Authorize(Roles = "Admin")]
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllFramesAsync()
     {
-        // Get the user from the token
-        var userInstance = await _userManager.FindByIdAsync(User.FindFirst
-            (ClaimTypes.NameIdentifier)?.Value
-            ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-        // Check if the user is null or if they are not an admin
-        await Helper.AuthHelp.CheckUserHasRoleAndActive(userInstance!, "Admin", _userManager);
-
-        // Get all frames
-        Result<IEnumerable<RetrieveFrameDto>> frames = await _frameService.GetAllAsync();
-        
+        Result<IEnumerable<RetrieveFrameDto>> frames = await _frameService.GetAllAsync();   
         return _responseHandler.HandleResult(frames);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPost("create")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateFrameAsync([FromBody] CreateFrameDto frame)
     {
-        // Get the user from the token
-        var user = await _userManager.FindByIdAsync(User.FindFirst
-            (ClaimTypes.NameIdentifier)?.Value
-            ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-        // Check if the user is null or if they are not an admin
-        await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
         Result<RetrieveFrameDto> result = await _frameService.CreateAsync(frame);
-
         return _responseHandler.HandleResult(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet("{id:long}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetFrameAsync(long id)
     {
-        // Get the user from the token
-        var user = await _userManager.FindByIdAsync(User.FindFirst
-            (ClaimTypes.NameIdentifier)?.Value
-            ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-        // Check if the user is null or if they are not an admin
-        await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
         Result<RetrieveFrameDto> result = await _frameService.GetByIdAsync(id);
         return _responseHandler.HandleResult(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPut("update/{id:long}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateFrameAsync(long id, [FromBody] UpdateFrameDto frame)
     {
         if (id != frame.Id)
             return BadRequest("ID mismatch");
 
-        // Get the user from the token
-        var user = await _userManager.FindByIdAsync(User.FindFirst
-            (ClaimTypes.NameIdentifier)?.Value
-            ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-        // Check if the user is null or if they are not an admin
-        await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
-
         Result<RetrieveFrameDto> result = await _frameService.UpdateAsync(frame);
-
         return _responseHandler.HandleResult(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpDelete("delete/{id:long}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteFrameAsync(long id)
     {
-        // Get the user from the token
-        var user = await _userManager.FindByIdAsync(User.FindFirst
-            (ClaimTypes.NameIdentifier)?.Value
-            ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-        // Check if the user is null or if they are not an admin
-        await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
         Result result = await _frameService.DeleteAsync(id);
-
         return _responseHandler.HandleResult(result);
-
     }
 }

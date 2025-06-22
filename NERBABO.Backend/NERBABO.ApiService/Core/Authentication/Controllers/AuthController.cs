@@ -38,7 +38,7 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         /// </returns>
         /// <response code="200">Returns the user DTO with refreshed token information</response>
         /// <response code="400">If the token is invalid or user cannot be found</response>
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         [HttpGet("refresh-user-token")]
         public async Task<IActionResult> RefreshUserToken()
         {
@@ -87,35 +87,8 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         [HttpPost("set-role")]
         public async Task<IActionResult> SetRoleToUserAsync([FromBody] UserRoleDto userRole)
         {
-            // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value
-                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-            // Check if the user is null or if they are not an admin
-            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
             Result result = await _roleService.UpdateUserRolesAsync(userRole);
             return _responseHandler.HandleResult(result);
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet("get-roles/{userId}")]
-        public async Task<ActionResult<IEnumerable<string>>> GeUserRolesAsync(string userId)
-        {
-            // Get the user from the token
-            var user = await _userManager.FindByIdAsync(User.FindFirst
-                (ClaimTypes.NameIdentifier)?.Value
-                ?? throw new KeyNotFoundException("Efetua autenticação antes de proceder."));
-
-            // Check if the user is null or if they are not an admin
-            await Helper.AuthHelp.CheckUserHasRoleAndActive(user!, "Admin", _userManager);
-
-            var userToModify = await _userManager.FindByIdAsync(userId)
-                ?? throw new KeyNotFoundException("Utilizador não encontrado");
-
-            var roles = await _userManager.GetRolesAsync(userToModify);
-            return Ok(roles.ToList());
         }
     }
 }

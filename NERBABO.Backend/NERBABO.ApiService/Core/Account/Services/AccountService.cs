@@ -13,13 +13,15 @@ public class AccountService(
     UserManager<User> userManager,
         AppDbContext context,
         ILogger<AccountService> logger,
-        ICacheService cacheService
+        ICacheService cacheService,
+        RoleManager<IdentityRole> roleManager
     ) : IAccountService
 {
     private readonly UserManager<User> _userManager = userManager;
     private readonly AppDbContext _context = context;
     private readonly ILogger<AccountService> _logger = logger;
     private readonly ICacheService _cacheService = cacheService;
+    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
     /// <summary>
     /// Registers a new user within the system after performing validation checks.
@@ -102,15 +104,6 @@ public class AccountService(
         }
     }
 
-    /// <summary>
-    /// Toggles the active status of a user (blocks/unblocks).
-    /// </summary>
-    /// <param name="userId">
-    /// The unique identifier of the user to block/unblock.
-    /// </param>
-    /// <returns>
-    /// A Task representing the asynchronous operation.
-    /// </returns>
     public async Task<Result> BlockAsync(string userId)
     {
         var user = await _userManager.Users
@@ -120,6 +113,12 @@ public class AccountService(
         if (user is null)
             return Result
                 .Fail("Não encontrado.", "Utilizador não encontrado.", StatusCodes.Status404NotFound);
+
+        // Check if the user is an admin and do not allow blocking
+        if (await _userManager.IsInRoleAsync(user, "Admin"))
+            return Result
+                .Fail("Não permitido.", "Não é possível bloquear um utilizador com a função de administrador.",
+                StatusCodes.Status403Forbidden);
 
         // Toggle the IsActive property
         user.IsActive = !user.IsActive;

@@ -19,15 +19,7 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         private readonly ITeacherService _teacherService = teacherService;
         private readonly IResponseHandler _responseHandler = responseHandler;
 
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> CreateTeacherAsync([FromBody] CreateTeacherDto createTeacherDto)
-        {
-            Result<RetrieveTeacherDto> result = await _teacherService.CreateAsync(createTeacherDto);
-            return _responseHandler.HandleResult(result);
-        }
-
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         [HttpGet("person/{personId}")]
         public async Task<IActionResult> GetTeacherByPersonIdAsync(long personId)
         {
@@ -35,7 +27,15 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, CQ, FM", Policy = "ActiveUser")]
+        [HttpPost]
+        public async Task<IActionResult> CreateTeacherAsync([FromBody] CreateTeacherDto createTeacherDto)
+        {
+            Result<RetrieveTeacherDto> result = await _teacherService.CreateAsync(createTeacherDto);
+            return _responseHandler.HandleResult(result);
+        }
+
+        [Authorize(Roles = "Admin, CQ, FM", Policy = "ActiveUser")]
         [HttpPut("update/{id:long}")]
         public async Task<IActionResult> UpdateTeacherAsync(long id, [FromBody] UpdateTeacherDto updateTeacherDto)
         {
@@ -46,7 +46,7 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, CQ, FM", Policy = "ActiveUser")]
         [HttpDelete("delete/{id:long}")]
         public async Task<IActionResult> DeleteTeacherAsync(long id)
         {

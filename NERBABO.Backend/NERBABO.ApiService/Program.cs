@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
+using NERBABO.ApiService.Core.Authentication.Models;
 using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Companies.Services;
 using NERBABO.ApiService.Core.Courses.Services;
@@ -54,9 +56,10 @@ builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IModuleService, ModuleService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 
-// Register Other like middleware services
+// Register Other services and middleware
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 builder.Services.AddTransient<IResponseHandler, ResponseHandler>();
+builder.Services.AddTransient<IAuthorizationHandler, ActiveUserHandler>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
@@ -101,6 +104,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidIssuer = builder.Configuration["JWT:Issuer"],
         ValidateAudience = false
     };
+});
+
+// Authorization Policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ActiveUser", policy =>
+    policy.Requirements.Add(new ActiveUserRequirement()));
 });
 
 // Cors

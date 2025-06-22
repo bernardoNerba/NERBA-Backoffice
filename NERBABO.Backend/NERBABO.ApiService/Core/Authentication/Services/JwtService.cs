@@ -118,16 +118,22 @@ public class JwtService : IJwtService
         // Try to find user by username first, then fall back to email
         var user = await _userManager.FindByNameAsync(model.UsernameOrEmail)
             ?? await _userManager.FindByEmailAsync(model.UsernameOrEmail);
-
         if (user is null)
         {
             _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User not found.", model.UsernameOrEmail);
             return Result<LoggedInUserDto>
                 .Fail("Erro de Validação", "Email/Username ou password inválidos.");
         }
+        
+        if (!user.IsActive)
+        {
+            _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User is blocked.", model.UsernameOrEmail);
+            return Result<LoggedInUserDto>
+                .Fail("Não Autorizado.", "Utilizador bloqueado.", 
+                StatusCodes.Status401Unauthorized);
+        }
 
-        var validPassword = await _signInManager
-            .CheckPasswordSignInAsync(user, model.Password, false);
+        var validPassword = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
         if (!validPassword.Succeeded)
         {
             _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. Inválid Password.", model.UsernameOrEmail);
