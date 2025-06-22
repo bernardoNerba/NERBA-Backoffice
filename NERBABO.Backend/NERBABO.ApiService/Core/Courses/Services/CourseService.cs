@@ -1,12 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
+using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 using OpenTelemetry.Trace;
+using ZLinq;
 
 namespace NERBABO.ApiService.Core.Courses.Services
 {
@@ -23,8 +26,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
         public async Task<Result<RetrieveCourseDto>> CreateAsync(CreateCourseDto entityDto)
         {
             // Check title uniqueness
-            if (await _context.Courses.AnyAsync(c => c.Title.Equals(entityDto.Title
-                , StringComparison.OrdinalIgnoreCase)))
+            if (await _context.Courses.AnyAsync(c => 
+                EF.Functions.Like(c.Title, entityDto.Title)))
             {
                 _logger.LogWarning("Duplicted Title detected.");
                 return Result<RetrieveCourseDto>
@@ -104,7 +107,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
                 .Where(c => c.Status)
-                .OrderBy(c => c.CreatedAt)
+                .OrderByDescending(c => c.CreatedAt)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .ToListAsync();
 
@@ -138,7 +141,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
                 .OrderBy(c => c.Status)
-                .ThenBy(c => c.CreatedAt)
+                    .ThenByDescending(c => c.CreatedAt)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .ToListAsync();
 
@@ -160,7 +163,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
         public async Task<Result<IEnumerable<RetrieveCourseDto>>> GetAllByFrameIdAsync(long frameId)
         {
-            var cacheKey = "course:list:frame";
+            var cacheKey = $"course:list:frame:{frameId}";
             var cachedCourses = await _cache.GetAsync<IEnumerable<RetrieveCourseDto>>(cacheKey);
             if (cachedCourses is not null)
             {
@@ -169,11 +172,20 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Ok(cachedCourses);
             }
 
+            var existingFrame = await _context.Frames.FindAsync(frameId);
+            if (existingFrame is null)
+            {
+                _logger.LogWarning("Frame passed does not exist");
+                return Result<IEnumerable<RetrieveCourseDto>>
+                    .Fail("Não encontrado.", "Enquadramento não foi encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
                 .Where(c => c.FrameId == frameId)
                 .OrderBy(c => c.Status)
-                    .ThenBy(c => c.CreatedAt)
+                    .ThenByDescending(c => c.CreatedAt)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .ToListAsync();
 
@@ -234,7 +246,6 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourse = await _context.Courses
                 .Include(c => c.Frame)
                 .FirstOrDefaultAsync(c => c.Id == entityDto.Id);
-
             if (existingCourse is null)
             {
                 _logger.LogWarning("Course not found for the given ID: {CourseId}", entityDto.Id);
@@ -243,23 +254,24 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     StatusCodes.Status404NotFound);
             }
 
-            // Check if the title is being changed and if it is unique
-            if (!string.IsNullOrEmpty(entityDto.Title)
-                && !existingCourse.Title.Equals(entityDto.Title, StringComparison.OrdinalIgnoreCase)
-                && await _context.Courses.AnyAsync(c => c.Title.Equals(entityDto.Title, StringComparison.OrdinalIgnoreCase)))
-            {
-                _logger.LogWarning("Duplicated Title detected for course ID: {CourseId}", entityDto.Id);
-                return Result<RetrieveCourseDto>
-                    .Fail("Título Duplicado.", "Já existe um curso com o mesmo título.");
-            }
-
             // Check if the frame exists
-            if (await _context.Frames.AnyAsync(f => f.Id == entityDto.FrameId))
+            var existingFrame = await _context.Frames.FindAsync(entityDto.FrameId);
+            if (existingFrame is null)
             {
                 _logger.LogWarning("Frame not found for the given FrameId: {FrameId}", entityDto.FrameId);
                 return Result<RetrieveCourseDto>
                     .Fail("Enquadramento não encontrado.", "O enquadramento para associar ao curso não existe.",
                     StatusCodes.Status404NotFound);
+            }
+
+            // Check if the title is being changed and if it is unique
+            if (!string.IsNullOrEmpty(entityDto.Title)
+                && !existingCourse.Title.Equals(entityDto.Title, StringComparison.OrdinalIgnoreCase)
+                && await _context.Courses.AnyAsync(c => EF.Functions.Like(c.Title, entityDto.Title)))
+            {
+                _logger.LogWarning("Duplicated Title detected for course ID: {CourseId}", entityDto.Id);
+                return Result<RetrieveCourseDto>
+                    .Fail("Título Duplicado.", "Já existe um curso com o mesmo título.");
             }
 
             // check if the Habilitation Level is valid
@@ -271,7 +283,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Nível inválido.", "O nível mínimo do curso fornecido não é válido.");
             }
 
-            _context.Entry(existingCourse).CurrentValues.SetValues(entityDto);
+            _context.Entry(existingCourse).CurrentValues.SetValues(Course.ConvertUpdateDtoToEntity(entityDto, existingFrame));
             await _context.SaveChangesAsync();
 
             var updatedCourse = Course.ConvertEntityToRetrieveDto(existingCourse);
@@ -285,16 +297,14 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 .Ok(updatedCourse, "Curso Atualizado", "Curso atualizado com sucesso.");
         }
 
-
         private async Task DeleteCacheAsync(long? id = null)
         {
             if (id is not null)
-            {
                 await _cache.RemoveAsync($"course:{id}");
-            }
+            
             await _cache.RemoveAsync("course:list");
             await _cache.RemoveAsync("course:list:active");
-            await _cache.RemoveAsync("course:list:frame");
+            await _cache.RemovePatternAsync("course:list:frame:*");
         }
     }
 }

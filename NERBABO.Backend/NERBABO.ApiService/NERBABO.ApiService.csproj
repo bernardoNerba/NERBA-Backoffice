@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <Folder Include="Core\Authentication\Models\" />
-    <Folder Include="Core\Courses\Controllers\" />
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
