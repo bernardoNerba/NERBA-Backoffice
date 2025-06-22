@@ -19,7 +19,7 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
 
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetAllCoursesAsync()
         {
             var result = await _courseService.GetAllAsync();
@@ -27,7 +27,7 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         [HttpGet("active")]
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetAllActiveCoursesAsync()
         {
             var result = await _courseService.GetAllActiveAsync();
@@ -35,7 +35,7 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         [HttpGet("frame/{frameId:long}")]
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetAllCoursesByFrameIdAsync(long frameId)
         {
             var result = await _courseService.GetAllByFrameIdAsync(frameId);
@@ -43,7 +43,7 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         [HttpGet("{id:long}")]
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetCourseByIdAsync(long id)
         {
             var result = await _courseService.GetByIdAsync(id);
@@ -51,7 +51,7 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, FM")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> CreateCourseAsync([FromBody] CreateCourseDto createCourseDto)
         {
             var result = await _courseService.CreateAsync(createCourseDto);
@@ -59,7 +59,7 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         [HttpPut("{id:long}")]
-        [Authorize(Roles = "Admin, FM")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> UpdateCourseAsync(long id, [FromBody] UpdateCourseDto updateCourseDto)
         {
             if (id != updateCourseDto.Id)
@@ -70,7 +70,7 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         [HttpDelete("{id:long}")]
-        [Authorize(Roles = "Admin, FM")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> DeleteCourseAsync(long id)
         {
             var result = await _courseService.DeleteAsync(id);

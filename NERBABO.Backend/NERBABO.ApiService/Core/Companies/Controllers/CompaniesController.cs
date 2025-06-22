@@ -19,7 +19,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         private readonly ICompanyService _companyService = companyService;
         private readonly IResponseHandler _responseHandler = responseHandler;
 
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         [HttpPost]
         public async Task<IActionResult> CreateCompanyAsync([FromBody] CreateCompanyDto companyDto)
         {
@@ -27,7 +27,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetCompanyByIdAsync(long id)
         {
@@ -35,7 +35,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         [HttpPut("{id:long}")]
         public async Task<IActionResult> UpdateCompanyAsync(long id, [FromBody] UpdateCompanyDto companyDto)
         {
@@ -44,7 +44,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         [HttpGet]
         public async Task<IActionResult> GetAllCompaniesAsync()
         {
@@ -52,7 +52,7 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        [Authorize]
+        [Authorize(Policy = "ActiveUser")]
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> DelteCompanyAsync(long id)
         {

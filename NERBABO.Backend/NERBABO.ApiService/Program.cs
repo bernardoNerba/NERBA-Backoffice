@@ -59,7 +59,7 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 // Register Other services and middleware
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 builder.Services.AddTransient<IResponseHandler, ResponseHandler>();
-builder.Services.AddSingleton<IAuthorizationHandler, ActiveUserHandler>();
+builder.Services.AddTransient<IAuthorizationHandler, ActiveUserHandler>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>

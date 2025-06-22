@@ -29,6 +29,10 @@ public class RoleService(
                 StatusCodes.Status404NotFound);
         }
 
+        if (!userToModify.IsActive && userRole.Roles.Contains("Admin"))
+            return Result
+                .Fail("Erro de Validação", "Não é permitido atribuir o papél de Admin a um utilizador bloqueado.");
+
         // Check if the roles exist
         foreach (var role in userRole.Roles)
         {
