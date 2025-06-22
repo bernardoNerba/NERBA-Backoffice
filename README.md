@@ -62,7 +62,33 @@ cd NERBA-Backoffice
 }
 ```
 
-2. Start the Application Use the .NET Aspire orchestrator to run all services:
+4. If this is the first time you are running a asp.net core web api project you may need to run:
+   
+```bash
+dotnet dev-certs https --trust
+```
+
+5. Install npm dependencies
+   
+```bash
+cd NERBABO.Frontend
+npm install
+```
+
+6. Create environment files
+Create: `src/environments/environment.development.ts`
+
+- `environment.development.ts` example:
+```json
+export const environment = {
+  production: false,
+  appUrl: 'http://localhost:8080',
+  userKey: 'NerbaBackofficeUser',
+  roles: ['Admin', 'User', 'CQ', 'FM'],
+};
+```
+
+7. Start the Application Use the .NET Aspire orchestrator to run all services:
 
 ```bash
 dotnet run --project NERBABO.Backend/NERBABO.AppHost
@@ -74,9 +100,9 @@ This will:
 - Launch the Angular frontend
 - Start PostgreSQL, pgAdmin, and Redis containers
 
-3. Access the Applications Once running, you can access:
+8. Access the Applications Once running, you can access:
 
-- **Frontend(Angular)**: http://localhost:4200
+- **Frontend(Angular)**: [http://localhost:4200](http://localhost:4200)
 - **Backend (Web API)**: [http://localhost:8080](http://localhost:8080)
 - **Postgres** with **PgAdmin**
 - **Redis** with **RedisInsight**
@@ -84,9 +110,9 @@ This will:
 ### Working on Angular Separately
 
 ```bash
-cd NERBABO.Frontend
-npm install
-ng serve
+ng serve #starts the application
+ng g c features/<feature_name>/<feature_component> #generates component
+ng g s core/services/<feature_name> #generates service bootstrap file
 ```
 
 ### Apply EF Core migrations
@@ -107,7 +133,7 @@ If you're interested in contributing, please feel free to open a pull request or
 
 - [ ] Add new Integration tests project
 - [ ] Document, with comments, critical methods and classes
-- [ ] Write the frontend code for Teachers, Students, Modules, Companies features
+- [ ] Write the frontend code for Teachers, Students, Modules, Companies, Courses features
 - [ ] Frontend data filtering for user-friendly and efficient interaction
 
 ## Code of Conduct
