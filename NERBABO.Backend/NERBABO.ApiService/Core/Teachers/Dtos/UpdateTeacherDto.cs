@@ -4,7 +4,7 @@ using NERBABO.ApiService.Shared.Dtos;
 
 namespace NERBABO.ApiService.Core.Teachers.Dtos;
 
-public class UpdateTeacherDto : EntityDto
+public class UpdateTeacherDto : EntityDto<long>
 {
     [Required(ErrorMessage = "Regime IVA é um campo obrigatório.")]
     public int IvaRegimeId { get; set; }

@@ -1,12 +1,10 @@
+using NERBABO.ApiService.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Global.Dtos;
 
-public class UpdateTaxDto
+public class UpdateTaxDto: EntityDto<int>
 {
-    [Required(ErrorMessage = "Id é um campo obrigatório")]
-    public int Id { get; set; }
-
     [Required(ErrorMessage = "Regime é um campo obrigatório")]
     [StringLength(50, MinimumLength = 3, ErrorMessage = "Regime deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public string Name { get; set; } = string.Empty;

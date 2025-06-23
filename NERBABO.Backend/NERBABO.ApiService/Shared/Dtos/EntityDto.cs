@@ -2,10 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Shared.Dtos;
 
-public class EntityDto
+public class EntityDto<T>
 {
     [Required(ErrorMessage = "Id é um campo obrigatório.")]
-    public long Id { get; set; } = 0;
-
-
+    public required T Id { get; set; }
 }

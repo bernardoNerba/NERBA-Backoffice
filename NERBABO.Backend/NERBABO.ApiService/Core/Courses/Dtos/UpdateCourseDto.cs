@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Courses.Dtos
 {
-    public class UpdateCourseDto: EntityDto
+    public class UpdateCourseDto: EntityDto<long>
     {
         [Required(ErrorMessage = "Enquadramento é um campo obrigatório.")]
         public long FrameId { get; set; }

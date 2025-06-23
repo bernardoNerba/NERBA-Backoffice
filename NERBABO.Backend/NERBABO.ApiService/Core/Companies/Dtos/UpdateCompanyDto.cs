@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Companies.Dtos
 {
-    public class UpdateCompanyDto: EntityDto
+    public class UpdateCompanyDto: EntityDto<long>
     {
         [Required(ErrorMessage = "Designação é um campo obrigatório.")]
         [ValidateLengthIfNotEmpty(155, MinimumLength = 3,

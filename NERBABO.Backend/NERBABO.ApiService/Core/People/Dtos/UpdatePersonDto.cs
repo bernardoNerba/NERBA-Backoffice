@@ -8,7 +8,7 @@ using NERBABO.ApiService.Shared.Enums;
 
 namespace NERBABO.ApiService.Core.People.Dtos;
 
-public class UpdatePersonDto : EntityDto
+public class UpdatePersonDto : EntityDto<long>
 {
     [Required(ErrorMessage = "Primeiro Nome é um campo obrigatório.")]
     [ValidateLengthIfNotEmpty(100, MinimumLength = 3,
