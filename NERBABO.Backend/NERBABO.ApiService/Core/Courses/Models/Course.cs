@@ -1,13 +1,14 @@
 ﻿using Humanizer;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Frames.Models;
+using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 using System.Globalization;
 
 namespace NERBABO.ApiService.Core.Courses.Models
 {
-    public class Course: Entity<long>
+    public class Course : Entity<long>
     {
 
         // Entity Properties
@@ -21,12 +22,19 @@ namespace NERBABO.ApiService.Core.Courses.Models
         public HabilitationEnum MinHabilitationLevel { get; set; } = HabilitationEnum.WithoutProof;
 
         // Calculated Properties
-        public string CourseStatus => Status 
-            ? "Em Andamento" 
+        public string CourseStatus => Status
+            ? "Em Andamento"
             : "Concluído";
+
+        public float CurrentDuration =>
+            Modules.Sum(m => m.Hours);
+
+        public float RemainingDuration =>
+            TotalDuration - CurrentDuration;
 
         // Navigation Properties
         public Frame Frame { get; set; }
+        public List<Module> Modules { get; set; } = [];
 
 
         // Constructors
@@ -51,7 +59,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
         }
 
         // Convert Methods
-        public static RetrieveCourseDto ConvertEntityToRetrieveDto(Course c) 
+        public static RetrieveCourseDto ConvertEntityToRetrieveDto(Course c)
         {
             return new RetrieveCourseDto
             {
@@ -65,7 +73,9 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 CourseStatus = c.CourseStatus,
                 Area = c.Area,
                 MinHabilitationLevel = c.MinHabilitationLevel.Humanize().Transform(To.TitleCase),
-                CreatedAt = c.CreatedAt.Humanize(culture: new CultureInfo("pt-PT"))
+                CreatedAt = c.CreatedAt.Humanize(culture: new CultureInfo("pt-PT")),
+                Modules = [.. c.Modules.Select(x => Module.ConvertEntityToRetrieveDto(x))],
+                RemainingDuration = c.RemainingDuration
             };
         }
 
@@ -109,6 +119,19 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 UpdatedAt = DateTime.UtcNow
             };
         }
+
+        public bool CanAddModule(float moduleHours)
+        {
+            // Check if adding the module would exceed the total duration
+            return CurrentDuration + moduleHours <= TotalDuration;
+        }
+
+        public bool IsModuleAlreadyAssigned(long moduleId)
+        {
+            // Check if the module is already assigned to the course
+            return Modules.Any(m => m.Id == moduleId);
+        }
+
 
     }
 }

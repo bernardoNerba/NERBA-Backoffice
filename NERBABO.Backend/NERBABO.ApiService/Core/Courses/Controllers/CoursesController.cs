@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Courses.Services;
+using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Courses.Controllers
@@ -74,6 +75,22 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         public async Task<IActionResult> DeleteCourseAsync(long id)
         {
             var result = await _courseService.DeleteAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        [HttpPost("{courseId:long}/module/{moduleId:long}")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> AssignModuleToCourseAsync(long courseId, long moduleId)
+        {
+            Result<RetrieveCourseDto> result = await _courseService.AssignModuleAsync(moduleId, courseId);
+            return _responseHandler.HandleResult(result);
+        }
+
+        [HttpPost("{courseId:long}/module/{moduleId:long}/unassign")]
+        [Authorize(Roles = "Admin", Policy = "ActiveUser")]
+        public async Task<IActionResult> UnassignModuleToCourseAsync(long courseId, long moduleId)
+        {
+            Result<RetrieveCourseDto> result = await _courseService.UnassignModuleAsync(moduleId, courseId);
             return _responseHandler.HandleResult(result);
         }
     }

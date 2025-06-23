@@ -1,4 +1,5 @@
-﻿using NERBABO.ApiService.Shared.Enums;
+﻿using NERBABO.ApiService.Core.Modules.Dtos;
+using NERBABO.ApiService.Shared.Enums;
 using System.Text.Json.Serialization;
 
 namespace NERBABO.ApiService.Core.Courses.Dtos
@@ -16,5 +17,7 @@ namespace NERBABO.ApiService.Core.Courses.Dtos
         public string Area { get; set; } = string.Empty;
         public string MinHabilitationLevel { get; set; } = string.Empty;
         public string CreatedAt { get; set; } = string.Empty;
+        public List<RetrieveModuleDto> Modules { get; set; } = [];
+        public float RemainingDuration { get; set; } = 0;
     }
 }

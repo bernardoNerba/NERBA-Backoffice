@@ -4,7 +4,7 @@ using NERBABO.ApiService.Shared.Dtos;
 
 namespace NERBABO.ApiService.Core.Frames.Dtos;
 
-public class UpdateFrameDto : EntityDto
+public class UpdateFrameDto : EntityDto<long>
 {
     [Required(ErrorMessage = "Programa é um campo obrigatório.")]
     [ValidateLengthIfNotEmpty(150, MinimumLength = 3,

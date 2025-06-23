@@ -22,6 +22,9 @@ namespace NERBABO.ApiService.Data.Configurations
 
             builder.Property(m => m.IsActive)
                 .HasDefaultValue(true);
+
+            builder.HasMany(m => m.Courses)
+                .WithMany(c => c.Modules);
         }
     }
 }

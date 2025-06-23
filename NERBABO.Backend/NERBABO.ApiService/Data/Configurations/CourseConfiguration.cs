@@ -34,7 +34,8 @@ namespace NERBABO.ApiService.Data.Configurations
                 .HasColumnType("varchar(55)")
                 .IsRequired(false);
 
-
+            builder.HasMany(c => c.Modules)
+                .WithMany(m => m.Courses);
         }
     }
 }
