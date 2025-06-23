@@ -1,14 +1,21 @@
-﻿using NERBABO.ApiService.Core.Modules.Dtos;
+﻿using NERBABO.ApiService.Core.Courses.Models;
+using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Modules.Models
 {
     public class Module : Entity<long>
     {
+        // Entity Properties
         public string Name { get; set; } = string.Empty;
         public float Hours { get; set; }
         public bool IsActive { get; set; }
 
+        // Navigation Properties
+        public List<Course> Courses { get; set; } = [];
+
+
+        // Constructors
         public Module() { }
 
         public Module(long id, string name, float hours, bool isActive)
@@ -26,6 +33,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
             IsActive = isActive;
         }
 
+        // Convert Methods
         public static RetrieveModuleDto ConvertEntityToRetrieveDto(Module module)
         {
             return new RetrieveModuleDto
