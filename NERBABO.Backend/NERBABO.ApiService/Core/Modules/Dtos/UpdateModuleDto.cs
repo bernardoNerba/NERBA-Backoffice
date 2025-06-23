@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Modules.Dtos
 {
-    public class UpdateModuleDto: EntityDto
+    public class UpdateModuleDto: EntityDto<long>
     {
         [Required(ErrorMessage = "Nome do Módulo é um campo obrigatório.")]
         [ValidateLengthIfNotEmpty(255, MinimumLength = 3,

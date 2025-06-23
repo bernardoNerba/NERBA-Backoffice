@@ -1,12 +1,10 @@
+using NERBABO.ApiService.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Account.Dtos;
 
-public class UpdateUserDto
+public class UpdateUserDto: EntityDto<string>
 {
-    [Required(ErrorMessage = "Id é um campo obrigatório")]
-    public string Id { get; set; } = string.Empty;
-
     [Required(ErrorMessage = "Email é um campo obrigatório")]
     [EmailAddress(ErrorMessage = "Formato do email inválido.")]
     public string Email { get; set; } = string.Empty;

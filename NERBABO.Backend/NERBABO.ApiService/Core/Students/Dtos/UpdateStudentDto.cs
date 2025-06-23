@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Students.Dtos
 {
-    public class UpdateStudentDto : EntityDto
+    public class UpdateStudentDto : EntityDto<long>
     {
         [Required(ErrorMessage = "O Formando deve estar associado a uma pessoa.")]
         public long PersonId { get; set; }
