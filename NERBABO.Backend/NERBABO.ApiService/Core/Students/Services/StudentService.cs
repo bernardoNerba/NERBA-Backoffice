@@ -79,7 +79,35 @@ namespace NERBABO.ApiService.Core.Students.Services
                     StatusCodes.Status404NotFound);
 
             return Result<IEnumerable<RetrieveStudentDto>>
-                .Ok(existingStudents, "Formandos obtidos.", "Formandos obtidos com sucesso.");
+                .Ok(existingStudents);
+        }
+
+        public async Task<Result<IEnumerable<RetrieveStudentDto>>> GetByCompanyIdAsync(long companyId)
+        {
+            var existingCompany = await _context.Companies.FindAsync(companyId);
+            if (existingCompany is null)
+            {
+                _logger.LogWarning("Company with id {id} not found", companyId);
+                return Result<IEnumerable<RetrieveStudentDto>>
+                    .Fail("Não encontrado.", "Empresa não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            var existingStudents = await _context.Students
+                .Where(s => s.CompanyId == companyId)
+                .Include(s => s.Company)
+                .Select(s => Student.ConvertEntityToRetrieveDto(s, s.Company))
+                .ToListAsync();
+            if (existingStudents is null || existingStudents.Count == 0)
+            {
+                _logger.LogWarning("No students found for company with id {id}", companyId);
+                return Result<IEnumerable<RetrieveStudentDto>>
+                    .Fail("Não encontrado.", "Não foram encontrados formandos para a empresa fornecida.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            return Result<IEnumerable<RetrieveStudentDto>>
+                .Ok(existingStudents);
         }
 
         public async Task<Result<RetrieveStudentDto>> GetByIdAsync(long id)

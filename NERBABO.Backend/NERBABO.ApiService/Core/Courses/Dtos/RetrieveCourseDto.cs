@@ -11,9 +11,9 @@ namespace NERBABO.ApiService.Core.Courses.Dtos
         public string FrameProgram { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Objectives { get; set; } = string.Empty;
-        public string Destinators { get; set; } = string.Empty;
+        public List<string> Destinators { get; set; } = [];
         public float TotalDuration { get; set; }
-        public string CourseStatus { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public string Area { get; set; } = string.Empty;
         public string MinHabilitationLevel { get; set; } = string.Empty;
         public string CreatedAt { get; set; } = string.Empty;

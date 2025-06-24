@@ -50,11 +50,11 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Erro de Validação", "O módulo fornecido não está ativo.");
             }
 
-            if(!existingCourse.Status)
+            if(!existingCourse.IsCourseActive())
             {
                 _logger.LogWarning("Course is not active for the given CourseId: {CourseId}", courseId);
                 return Result<RetrieveCourseDto>
-                    .Fail("Erro de Validação", "Não é possível atribuir um módulo a um curso concluído.");
+                    .Fail("Erro de Validação", "Não é possível atribuir um módulo a um curso concluído ou cancelado.");
             }
 
             // Verify if the module is already assigned to the course and
@@ -116,6 +116,26 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Nível inválido.", "O nível mínimo do curso fornecido não é válido.");
             }
 
+            // check if the status is valid
+            if (!string.IsNullOrEmpty(entityDto.Status)
+                && !EnumHelp.IsValidEnum<StatusEnum>(entityDto.Status))
+            {
+                _logger.LogWarning("Invalid Status provided.");
+                return Result<RetrieveCourseDto>
+                    .Fail("Status inválido.", $"O status '{entityDto.Status}' não é válido.");
+            }
+
+            // check if Destinator is valid
+            foreach (var destinator in entityDto.Destinators ?? [])
+            {
+                if (!EnumHelp.IsValidEnum<DestinatorTypeEnum>(destinator))
+                {
+                    _logger.LogWarning("Invalid Destinator Type provided: {Destinator}", destinator);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Destinatário inválido.", $"O destinatário do curso, '{destinator}', fornecido não é válido.");
+                }
+            }
+
             // Create course in database
             var createdCourse = await _context.Courses.AddAsync(Course.ConvertCreateDtoToEntity(entityDto, existingFrame));
             await _context.SaveChangesAsync();
@@ -170,12 +190,17 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
                 .Include(c => c.Modules)
-                .Where(c => c.Status)
-                .OrderByDescending(c => c.CreatedAt)
-                .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .ToListAsync();
 
-            if (existingCourses is null || existingCourses.Count == 0)
+            // perform in memory logic
+            var activeCourses = existingCourses
+                .AsValueEnumerable()
+                .Where(c => c.IsCourseActive())
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => Course.ConvertEntityToRetrieveDto(c))
+                .ToList();
+
+            if (activeCourses is null || activeCourses.Count == 0)
             {
                 _logger.LogWarning("There are no courses available.");
                 return Result<IEnumerable<RetrieveCourseDto>>
@@ -188,7 +213,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             _logger.LogInformation("Retrieved {CourseCount} active courses.", existingCourses.Count);
             return Result<IEnumerable<RetrieveCourseDto>>
-                .Ok(existingCourses);
+                .Ok(activeCourses);
         }
 
         public async Task<Result<IEnumerable<RetrieveCourseDto>>> GetAllAsync()
@@ -332,11 +357,11 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
 
-            if (!existingCourse.Status)
+            if (!existingCourse.IsCourseActive())
             {
                 _logger.LogWarning("Module is not active for the given ModuleId: {ModuleId}", moduleId);
                 return Result<RetrieveCourseDto>
-                    .Fail("Erro de Validação", "Não é possível remover um módulo a um curso concluído.");
+                    .Fail("Erro de Validação", "Não é possível remover um módulo a um curso concluído ou cancelado.");
             }
 
             // Assign the module to the course
@@ -390,7 +415,27 @@ namespace NERBABO.ApiService.Core.Courses.Services
             {
                 _logger.LogWarning("Invalid Habilitation Level provided.");
                 return Result<RetrieveCourseDto>
-                    .Fail("Nível inválido.", "O nível mínimo do curso fornecido não é válido.");
+                    .Fail("Nível inválido.", $"O nível mínimo do curso '{entityDto.MinHabilitationLevel}' não é válido.");
+            }
+
+            // check if the status is valid
+            if(!string.IsNullOrEmpty(entityDto.Status)
+                && !EnumHelp.IsValidEnum<StatusEnum>(entityDto.Status))
+            {
+                _logger.LogWarning("Invalid Status provided.");
+                return Result<RetrieveCourseDto>
+                    .Fail("Status inválido.", $"O status '{entityDto.Status}' não é válido.");
+            }
+
+            // check if Destinator is valid
+            foreach (var destinator in entityDto.Destinators ?? [])
+            {
+                if (!EnumHelp.IsValidEnum<DestinatorTypeEnum>(destinator))
+                {
+                    _logger.LogWarning("Invalid Destinator Type provided: {Destinator}", destinator);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Destinatário inválido.", $"O destinatário do curso '{destinator}' não é válido.");
+                }
             }
 
             _context.Entry(existingCourse).CurrentValues.SetValues(Course.ConvertUpdateDtoToEntity(entityDto, existingFrame));

@@ -15,17 +15,13 @@ namespace NERBABO.ApiService.Core.Courses.Models
         public long FrameId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Objectives { get; set; } = string.Empty;
-        public string Destinators { get; set; } = string.Empty;
         public float TotalDuration { get; set; }
-        public bool Status { get; set; }
+        public StatusEnum Status { get; set; }
         public string Area { get; set; } = string.Empty;
         public HabilitationEnum MinHabilitationLevel { get; set; } = HabilitationEnum.WithoutProof;
+        public List<DestinatorTypeEnum> Destinators { get; set; } = [];
 
         // Calculated Properties
-        public string CourseStatus => Status
-            ? "Em Andamento"
-            : "Concluído";
-
         public float CurrentDuration =>
             Modules.Sum(m => m.Hours);
 
@@ -44,8 +40,9 @@ namespace NERBABO.ApiService.Core.Courses.Models
         }
 
         public Course(long frameId, string title, string objectives,
-            string destinators, float totalDuration, bool status, string area,
-            Frame frame, HabilitationEnum minHabilitationLevel)
+            List<DestinatorTypeEnum> destinators, float totalDuration, 
+            StatusEnum status, string area, Frame frame, 
+            HabilitationEnum minHabilitationLevel)
         {
             FrameId = frameId;
             Title = title;
@@ -68,9 +65,9 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 FrameProgram = c.Frame.Program,
                 Title = c.Title,
                 Objectives = c.Objectives,
-                Destinators = c.Destinators,
+                Destinators = [.. c.Destinators.Select(c => c.Humanize().Transform(To.TitleCase))],
                 TotalDuration = c.TotalDuration,
-                CourseStatus = c.CourseStatus,
+                Status = c.Status.Humanize().Transform(To.TitleCase),
                 Area = c.Area,
                 MinHabilitationLevel = c.MinHabilitationLevel.Humanize().Transform(To.TitleCase),
                 CreatedAt = c.CreatedAt.Humanize(culture: new CultureInfo("pt-PT")),
@@ -86,8 +83,9 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 c.FrameId,
                 c.Title,
                 c.Objectives ?? "",
-                c.Destinators ?? "",
-                c.TotalDuration, true,
+                [.. c.Destinators?.Select(d => d.DehumanizeTo<DestinatorTypeEnum>()) ?? []],
+                c.TotalDuration,
+                c.Status.DehumanizeTo<StatusEnum>(),
                 c.Area ?? "",
                 f,
                 c.MinHabilitationLevel?.DehumanizeTo<HabilitationEnum>()
@@ -106,8 +104,9 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 c.FrameId,
                 c.Title,
                 c.Objectives ?? "",
-                c.Destinators ?? "",
-                c.TotalDuration, true,
+                [.. c.Destinators?.Select(d => d.DehumanizeTo<DestinatorTypeEnum>()) ?? []],
+                c.TotalDuration,
+                c.Status.DehumanizeTo<StatusEnum>(),
                 c.Area ?? "",
                 f,
                 c.MinHabilitationLevel?.DehumanizeTo<HabilitationEnum>()
@@ -115,7 +114,6 @@ namespace NERBABO.ApiService.Core.Courses.Models
             )
             {
                 Id = c.Id,
-                Status = c.Status,
                 UpdatedAt = DateTime.UtcNow
             };
         }
@@ -132,6 +130,10 @@ namespace NERBABO.ApiService.Core.Courses.Models
             return Modules.Any(m => m.Id == moduleId);
         }
 
-
+        public bool IsCourseActive()
+        {
+            // Check if the course is active based on its status
+            return Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
+        }
     }
 }

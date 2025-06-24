@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NERBABO.ApiService.Core.Courses.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace NERBABO.ApiService.Data.Configurations
 {
@@ -27,7 +27,7 @@ namespace NERBABO.ApiService.Data.Configurations
                 .IsRequired(false);
 
             builder.Property(c => c.Destinators)
-                .HasColumnType("varchar(155)")
+                .HasColumnType("integer[]")
                 .IsRequired(false);
 
             builder.Property(c => c.Area)
