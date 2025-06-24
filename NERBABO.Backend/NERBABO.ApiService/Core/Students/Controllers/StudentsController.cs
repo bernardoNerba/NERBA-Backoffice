@@ -25,6 +25,14 @@ public class StudentsController(
         return _responseHandler.HandleResult(result);
     }
 
+    [HttpGet("company/{id:long}")]
+    [Authorize(Policy = "ActiveUser")]
+    public async Task<IActionResult> GetStudentsByCompanyIdAsync(long id)
+    {
+        Result<IEnumerable<RetrieveStudentDto>> result = await _studentService.GetByCompanyIdAsync(id);
+        return _responseHandler.HandleResult(result);
+    }
+
     [HttpGet("person/{personId:long}")]
     [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> GetStudentByPersonIdAsync(long personId)
