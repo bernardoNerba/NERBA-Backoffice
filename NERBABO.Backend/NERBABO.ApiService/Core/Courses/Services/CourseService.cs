@@ -116,6 +116,17 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Nível inválido.", "O nível mínimo do curso fornecido não é válido.");
             }
 
+            // check if Destinator is valid
+            foreach (var destinator in entityDto.Destinators ?? [])
+            {
+                if (!EnumHelp.IsValidEnum<DestinatorTypeEnum>(destinator))
+                {
+                    _logger.LogWarning("Invalid Destinator Type provided: {Destinator}", destinator);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Destinatário inválido.", $"O destinatário do curso,{destinator} , fornecido não é válido.");
+                }
+            }
+
             // Create course in database
             var createdCourse = await _context.Courses.AddAsync(Course.ConvertCreateDtoToEntity(entityDto, existingFrame));
             await _context.SaveChangesAsync();
@@ -391,6 +402,17 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 _logger.LogWarning("Invalid Habilitation Level provided.");
                 return Result<RetrieveCourseDto>
                     .Fail("Nível inválido.", "O nível mínimo do curso fornecido não é válido.");
+            }
+
+            // check if Destinator is valid
+            foreach (var destinator in entityDto.Destinators ?? [])
+            {
+                if (!EnumHelp.IsValidEnum<DestinatorTypeEnum>(destinator))
+                {
+                    _logger.LogWarning("Invalid Destinator Type provided: {Destinator}", destinator);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Destinatário inválido.", $"O destinatário do curso,{destinator} , fornecido não é válido.");
+                }
             }
 
             _context.Entry(existingCourse).CurrentValues.SetValues(Course.ConvertUpdateDtoToEntity(entityDto, existingFrame));

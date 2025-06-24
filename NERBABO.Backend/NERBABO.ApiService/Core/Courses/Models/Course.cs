@@ -15,11 +15,11 @@ namespace NERBABO.ApiService.Core.Courses.Models
         public long FrameId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Objectives { get; set; } = string.Empty;
-        public string Destinators { get; set; } = string.Empty;
         public float TotalDuration { get; set; }
         public bool Status { get; set; }
         public string Area { get; set; } = string.Empty;
         public HabilitationEnum MinHabilitationLevel { get; set; } = HabilitationEnum.WithoutProof;
+        public List<DestinatorTypeEnum> Destinators { get; set; } = [];
 
         // Calculated Properties
         public string CourseStatus => Status
@@ -44,7 +44,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
         }
 
         public Course(long frameId, string title, string objectives,
-            string destinators, float totalDuration, bool status, string area,
+            List<DestinatorTypeEnum> destinators, float totalDuration, bool status, string area,
             Frame frame, HabilitationEnum minHabilitationLevel)
         {
             FrameId = frameId;
@@ -68,7 +68,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 FrameProgram = c.Frame.Program,
                 Title = c.Title,
                 Objectives = c.Objectives,
-                Destinators = c.Destinators,
+                Destinators = [.. c.Destinators.Select(c => c.Humanize().Transform(To.TitleCase))],
                 TotalDuration = c.TotalDuration,
                 CourseStatus = c.CourseStatus,
                 Area = c.Area,
@@ -86,7 +86,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 c.FrameId,
                 c.Title,
                 c.Objectives ?? "",
-                c.Destinators ?? "",
+                [.. c.Destinators?.Select(d => d.DehumanizeTo<DestinatorTypeEnum>()) ?? []],
                 c.TotalDuration, true,
                 c.Area ?? "",
                 f,
@@ -106,7 +106,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 c.FrameId,
                 c.Title,
                 c.Objectives ?? "",
-                c.Destinators ?? "",
+                [.. c.Destinators?.Select(d => d.DehumanizeTo<DestinatorTypeEnum>()) ?? []],
                 c.TotalDuration, true,
                 c.Area ?? "",
                 f,
