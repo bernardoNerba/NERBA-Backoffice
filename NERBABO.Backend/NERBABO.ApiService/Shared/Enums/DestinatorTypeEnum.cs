@@ -3,7 +3,7 @@
 namespace NERBABO.ApiService.Shared.Enums;
 
 /// <summary>
-/// This enumeration defines the different types of destinators that a course is for.
+/// This enumeration defines the different types of destinators that a course is ment for.
 /// Empregado por conta de outrem
 /// Empregado por conta própria
 /// Desempregado Primeiro Emprego
