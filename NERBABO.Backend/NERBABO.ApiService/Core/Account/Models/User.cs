@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using NERBABO.ApiService.Core.Account.Dtos;
+using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.People.Models;
 
 namespace NERBABO.ApiService.Core.Account.Models;
@@ -13,8 +14,11 @@ public class User : IdentityUser
 
 
     public long PersonId { get; set; }
+    
+    // Navigation properties
     public Person? Person { get; set; }
-
+    public List<CourseAction> Actions { get; set; } = [];
+    
     public User() { }
 
     public User(string userName, string email, long personId) // Create user from account controller

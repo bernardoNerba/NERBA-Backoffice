@@ -29,6 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Core\Actions\Controllers\" />
+    <Folder Include="Core\Actions\Services\" />
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
 

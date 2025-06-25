@@ -107,11 +107,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 });
 
 // Authorization Policies
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ActiveUser", policy =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("ActiveUser", policy =>
     policy.Requirements.Add(new ActiveUserRequirement()));
-});
 
 // Cors
 builder.Services.AddCors(options =>

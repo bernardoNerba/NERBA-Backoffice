@@ -1,4 +1,5 @@
 ﻿using Humanizer;
+using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -36,6 +37,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
         // Navigation Properties
         public Frame Frame { get; set; }
         public List<Module> Modules { get; set; } = [];
+        public List<CourseAction> Actions { get; set; } = [];
 
 
         // Constructors
