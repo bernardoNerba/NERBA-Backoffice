@@ -8,6 +8,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
     public class Module : Entity<long>
     {
         // Entity Properties
+
         public string Name { get; set; } = string.Empty;
         public float Hours { get; set; }
         public bool IsActive { get; set; }

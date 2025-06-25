@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
+using NERBABO.ApiService.Core.Actions.Services;
 using NERBABO.ApiService.Core.Authentication.Models;
 using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Companies.Services;
@@ -55,6 +56,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IModuleService, ModuleService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ICourseActionService, CourseActionService>();
 
 // Register Other services and middleware
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
