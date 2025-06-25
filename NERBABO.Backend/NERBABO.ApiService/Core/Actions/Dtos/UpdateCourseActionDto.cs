@@ -35,6 +35,7 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
 
         [Required(ErrorMessage = "Estado é um campo obrigatório.")]
         public string Regiment { get; set; } = string.Empty;
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string CoordenatorId { get; set; } = string.Empty;
     }
 }

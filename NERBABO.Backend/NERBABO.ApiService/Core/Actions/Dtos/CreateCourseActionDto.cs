@@ -2,6 +2,7 @@
 using NERBABO.ApiService.Helper.Validators;
 using NERBABO.ApiService.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace NERBABO.ApiService.Core.Actions.Dtos
 {
@@ -16,7 +17,7 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         public string Title { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Código Administrativo é um campo obrigatório.")]
-        [ValidateLengthIfNotEmpty(5, MinimumLength = 10, ErrorMessage = "NIF deve conter entre {1} a {2} números.")]
+        [ValidateLengthIfNotEmpty(10, MinimumLength = 5, ErrorMessage = "Código Administrativo deve conter entre {1} a {2} números.")]
         [AllNumbers(ErrorMessage = "Código Administrativo todos os caractéres devem ser números")]
         public string AdministrationCode { get; set; } = string.Empty;
         public string? Address { get; set; } = string.Empty;
@@ -37,5 +38,9 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         public string Regiment { get; set; } = string.Empty;
 
         public string Status { get; set; } = "NotStarted";
+
+        [JsonIgnore]
+        public string CoordenatorId { get; set; } = string.Empty;
+
     }
 }
