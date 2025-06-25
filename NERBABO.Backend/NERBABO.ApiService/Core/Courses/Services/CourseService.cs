@@ -50,7 +50,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Erro de Validação", "O módulo fornecido não está ativo.");
             }
 
-            if(!existingCourse.IsCourseActive())
+            if(!existingCourse.IsCourseActive)
             {
                 _logger.LogWarning("Course is not active for the given CourseId: {CourseId}", courseId);
                 return Result<RetrieveCourseDto>
@@ -195,7 +195,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             // perform in memory logic
             var activeCourses = existingCourses
                 .AsValueEnumerable()
-                .Where(c => c.IsCourseActive())
+                .Where(c => c.IsCourseActive)
                 .OrderByDescending(c => c.CreatedAt)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .ToList();
@@ -357,7 +357,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
 
-            if (!existingCourse.IsCourseActive())
+            if (!existingCourse.IsCourseActive)
             {
                 _logger.LogWarning("Module is not active for the given ModuleId: {ModuleId}", moduleId);
                 return Result<RetrieveCourseDto>

@@ -28,6 +28,11 @@ namespace NERBABO.ApiService.Core.Courses.Models
         public float RemainingDuration =>
             TotalDuration - CurrentDuration;
 
+        public bool IsCourseActive =>
+            Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
+
+
+
         // Navigation Properties
         public Frame Frame { get; set; }
         public List<Module> Modules { get; set; } = [];
@@ -128,12 +133,6 @@ namespace NERBABO.ApiService.Core.Courses.Models
         {
             // Check if the module is already assigned to the course
             return Modules.Any(m => m.Id == moduleId);
-        }
-
-        public bool IsCourseActive()
-        {
-            // Check if the course is active based on its status
-            return Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
         }
     }
 }
