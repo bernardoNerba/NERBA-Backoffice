@@ -16,26 +16,35 @@ foreach (var item in seq)
 }
 ```
 
-## Comments Documentation
+## API Documentation
 
-Services and Helper methods are the prioritary target to maintain documentated following this pattern:
-
+Follow this example as a pattern for documenting api endpoints:
 ```c#
-        /// <summary>
-        /// What does it do ?
-        /// </summary>
-        /// <param name="foo">
-        /// </param>
-        /// foo Info related like what is it describing
-        /// <param name="bar">
-        /// </param>
-        /// bar Info related like what is it describing
-        /// <param name="baz">
-        /// baza Info related like what is it describing
-        /// </param>
-        /// <returns>
-        /// Returns what ?
-        /// </returns>
+/// <summary>
+/// Creates a TodoItem.
+/// </summary>
+/// <param name="item"></param>
+/// <returns>A newly created TodoItem</returns>
+/// <remarks>
+/// Sample request:
+///
+///     POST /Todo
+///     {
+///        "id": 1,
+///        "name": "Item #1",
+///        "isComplete": true
+///     }
+///
+/// </remarks>
+/// <response code="201">Returns the newly created item</response>
+/// <response code="400">If the item is null</response>
+[HttpPost]
+[ProducesResponseType(StatusCodes.Status201Created)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async Task<IActionResult> CreateTodoItemAsync(TodoItem item)
+{
+    //..
+}
 ```
 
 ## Modifiying database

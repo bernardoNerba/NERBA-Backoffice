@@ -79,7 +79,7 @@ npm install
 Create: `src/environments/environment.development.ts`
 
 - `environment.development.ts` example:
-```json
+``` ts
 export const environment = {
   production: false,
   appUrl: 'http://localhost:8080',
