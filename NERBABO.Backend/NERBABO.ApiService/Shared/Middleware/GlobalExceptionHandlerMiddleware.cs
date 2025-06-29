@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Shared.Exceptions;
-using NERBABO.ApiService.Shared.Models;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace NERBABO.ApiService.Shared.Middleware
