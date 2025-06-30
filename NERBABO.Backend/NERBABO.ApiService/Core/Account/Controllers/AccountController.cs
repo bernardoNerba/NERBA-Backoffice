@@ -121,6 +121,11 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// <response code="401">The user is not authorized, invalid jwt,
         /// user is not admin or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
+        [ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [HttpPut("block-user/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> BlockAccountAsync(string userId)

@@ -13,16 +13,14 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
     [ApiController]
     public class ActionsController(
         ICourseActionService courseActionService,
-        IResponseHandler responseHandler,
-        UserManager<User> userManager
+        IResponseHandler responseHandler
         ) : ControllerBase
     {
         private readonly ICourseActionService _courseActionService = courseActionService;
         private readonly IResponseHandler _responseHandler = responseHandler;
-        private readonly UserManager<User> _userManager = userManager;
 
         [HttpPost]
-        [Authorize()]
+        [Authorize]
         public async Task<IActionResult> CreateActionAsync([FromBody] CreateCourseActionDto createCourseActionDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
