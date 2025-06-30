@@ -21,17 +21,6 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         /// Gets the teacher associated with a person, by the personid.
         /// </summary>
         /// <param name="personId">The person id to perform query.</param>
-        /// <remarks>
-        /// Sample request:
-        ///     GET api/teacher/person/1
-        ///     {
-        ///         "ivaRegimeId": 1,
-        ///         "irsRegimeId": 5,
-        ///         "personId":1,
-        ///         "ccp": "dausodo1idj1092983/12",
-        ///         "competences": "backend, frontend"
-        ///     }
-        /// </remarks>
         /// <response code="200">The person with the personId was found. returns a RetrieveTeacherDto type response.</response>
         /// <response code="404">The person with the personId not found.</response>
         /// <response code="404">There person with the personId is not a teacher.</response>
@@ -55,15 +44,6 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         /// </summary>
         /// <param name="createTeacherDto">The teacher object that will be created.</param>
         /// <remarks>
-        /// Sample request:
-        ///     POST api/teacher
-        ///     {
-        ///         "ivaRegimeId": 1,
-        ///         "irsRegimeId": 5,
-        ///         "personId":1,
-        ///         "ccp": "dausodo1idj1092983/12",
-        ///         "competences": "backend, frontend"
-        ///     }
         /// </remarks>
         /// <response code="201">The teacher was created successfully.</response>
         /// <response code="404">The IVA regiment was not found.</response>
@@ -95,17 +75,6 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         /// <param name="id">Id of the Teacher that will be perfomed the action.</param>
         /// <param name="updateTeacherDto">The UpdateTeacherDto object that will validated and perfomed action.</param>
         /// <remarks>
-        /// Sample request:
-        ///     PUT api/teacher/update/7
-        ///     {
-        ///         "id": 7,
-        ///         "ivaRegimeId": 1,
-        ///         "irsRegimeId": 5,
-        ///         "personId":1,
-        ///         "ccp": "dausodo1idj1092983/12",
-        ///         "competences": "backend, frontend",
-        ///         "isActive": true
-        ///     }
         /// </remarks>
         /// <response code="200">The teacher was updated successfully.</response>
         /// <response code="400">Id Missmatch</response>
@@ -141,10 +110,6 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         /// Delete a teacher by id.
         /// </summary>
         /// <param name="id">Id of the Teacher that will be perfomed the action.</param>
-        /// <remarks>
-        /// Sample request:
-        ///     DELETE api/teacher/update/7
-        /// </remarks>
         /// <response code="200">The teacher was deleted successfully.</response>
         /// <response code="404">The teacher to perfom deletion was not found.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user has not the 'Admin', 'CQ', 'FM' role or user is not active.</response>

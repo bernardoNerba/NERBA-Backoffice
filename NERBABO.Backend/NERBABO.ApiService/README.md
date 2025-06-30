@@ -26,14 +26,7 @@ Follow this example as a pattern for documenting api endpoints:
 /// <param name="item"></param>
 /// <returns>A newly created TodoItem</returns>
 /// <remarks>
-/// Sample request:
-///
-///     POST /Todo
-///     {
-///        "id": 1,
-///        "name": "Item #1",
-///        "isComplete": true
-///     }
+/// 
 ///
 /// </remarks>
 /// <response code="201">Returns the newly created item</response>
