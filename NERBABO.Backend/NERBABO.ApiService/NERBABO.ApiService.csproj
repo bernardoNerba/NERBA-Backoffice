@@ -21,12 +21,22 @@
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.37" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.1" />
     <PackageReference Include="ZLinq" Version="1.4.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NERBABO.ServiceDefaults\NERBABO.ServiceDefaults.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  <!-- Opcional: suprimir warnings de comentários em falta -->
+  <NoWarn>$(NoWarn);1591</NoWarn>
+</PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
