@@ -23,18 +23,9 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         /// <param name="companyDto">The CreateCompanyDto object that will be validated and
         /// used to create the company.</param>
         /// <response code="201">Created Successfully. Returns the RetrieveCompanyDto created object.</response>
-        /// <response code="400">Validation ERROR when validating company name duplication.</response>
-        /// <response code="400">Validation ERROR when validating company email duplication.</response>
-        /// <response code="400">Validation ERROR when validating company zip code duplication.</response>
-        /// <response code="400">Validation ERROR when validating company phone number duplication.</response>
-        /// <response code="400">Validation ERROR when validating ativity sector.</response>
-        /// <response code="400">Validation ERROR when validating company size.</response>
+        /// <response code="400">Validation ERROR when validating company name, email, zip code, phone number, activity sector or company size.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize(Policy = "ActiveUser")]
         [HttpPost]
         public async Task<IActionResult> CreateCompanyAsync([FromBody] CreateCompanyDto companyDto)
@@ -51,10 +42,6 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         /// <response code="404">The company with the given ID does not exist.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize(Policy = "ActiveUser")]
         [HttpGet("{id:long}")]
         public async Task<IActionResult> GetCompanyByIdAsync(long id)
@@ -70,21 +57,11 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         /// <param name="companyDto">The UpdateCompanyDto object that will be validated and
         /// used to update the company.</param>
         /// <response code="200">Updated Successfully. Returns the RetrieveCompanyDto updated object.</response>
-        /// <response code="400">Validation ERROR when validating company name duplication.</response>
-        /// <response code="400">Validation ERROR when validating company email duplication.</response>
-        /// <response code="400">Validation ERROR when validating company zip code duplication.</response>
-        /// <response code="400">Validation ERROR when validating company phone number duplication.</response>
-        /// <response code="400">Validation ERROR when validating ativity sector.</response>
-        /// <response code="400">Validation ERROR when validating company size.</response>
+        /// <response code="400">Validation ERROR when validating company name, email, zip code, phone number, activity sector, company size or ID Missmatch.</response>
         /// <response code="404">The company with the given ID does not exist.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user is
         /// not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize(Policy = "ActiveUser")]
         [HttpPut("{id:long}")]
         public async Task<IActionResult> UpdateCompanyAsync(long id, [FromBody] UpdateCompanyDto companyDto)
@@ -102,11 +79,6 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         /// <response code="401">The user is not authorized, invalid jwt, user is
         /// not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Result<RetrieveCompanyDto>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize(Policy = "ActiveUser")]
         [HttpGet]
         public async Task<IActionResult> GetAllCompaniesAsync()
@@ -123,10 +95,6 @@ namespace NERBABO.ApiService.Core.Companies.Controllers
         /// <response code="404">The company with the given ID does not exist.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize(Policy = "ActiveUser")]
         [HttpDelete("{id:long}")]
         public async Task<IActionResult> DelteCompanyAsync(long id)
