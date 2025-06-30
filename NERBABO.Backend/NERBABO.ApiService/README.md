@@ -31,9 +31,10 @@ Follow this example as a pattern for documenting api endpoints:
 /// </remarks>
 /// <response code="201">Returns the newly created item</response>
 /// <response code="400">If the item is null</response>
+/// <response code="404">Instance Not found</response>
+/// <response code="500">Unexpected error occurred.</response>
 [HttpPost]
-[ProducesResponseType(StatusCodes.Status201Created)]
-[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[Authorize]
 public async Task<IActionResult> CreateTodoItemAsync(TodoItem item)
 {
     //..

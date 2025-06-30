@@ -24,10 +24,6 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// <response code="404">There are no accounts registered in the system.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user is not admin or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result<IEnumerable<RetrieveUserDto>>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<IEnumerable<RetrieveUserDto>>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [HttpGet("users")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllAccountsAsync()
@@ -44,10 +40,6 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// <response code="404">The user with the give id does not exists.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user is not admin or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result<RetrieveUserDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<RetrieveUserDto>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [HttpGet("user/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetSingleAsync(string id)
@@ -67,11 +59,6 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// <response code="401">The user is not authorized, invalid jwt,
         /// user is not admin or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result<RetrieveUserDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<RetrieveUserDto>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Result<RetrieveUserDto>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [HttpPut("user/update/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateAsync(string id, [FromBody] UpdateUserDto model)
@@ -88,20 +75,11 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// </summary>
         /// <param name="model">The RegisterDto object that will be validated and used to create the account.</param>
         /// <response code="201">Created Successfully. Returns the RetrieveUserDto created object.</response>
-        /// <response code="400">Validation ERROR when validating email duplication.</response>
-        /// <response code="400">Validation ERROR when validating username duplication.</response>
-        /// <response code="400">Validation ERROR when validating person already has account, uniqueness.</response>
-        /// <response code="400">Validation ERROR when validating password format.</response>
-        /// <response code="400">Validation ERROR when assigning roles.</response>
+        /// <response code="400">Validation ERROR when validating email, username, password format, person already has account, assigning roles.</response>
         /// <response code="404">The person with the give personId does not exists.</response>
         /// <response code="401">The user is not authorized, invalid jwt,
         /// user is not admin or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result<RetrieveUserDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result<RetrieveUserDto>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Result<RetrieveUserDto>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [HttpPost("register")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAccountAsync(RegisterDto model)
@@ -115,17 +93,11 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// </summary>
         /// <param name="userId">The id of the user to be blocked.</param>
         /// <response code="200">Blocked Successfully.</response>
-        /// <response code="400">Validation ERROR is not possible to block a user with the role of Admin.</response>
-        /// <response code="400">Validation ERROR when updating the user instance. Returns a error list.</response>
+        /// <response code="400">Validation ERROR is not possible to block a user with the role of Admin or updating the user instance error.</response>
         /// <response code="404">The user with the given id does not exists.</response>
         /// <response code="401">The user is not authorized, invalid jwt,
         /// user is not admin or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [HttpPut("block-user/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> BlockAccountAsync(string userId)

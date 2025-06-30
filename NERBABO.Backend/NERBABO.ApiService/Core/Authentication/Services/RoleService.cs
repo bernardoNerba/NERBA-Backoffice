@@ -59,7 +59,7 @@ public class RoleService(
             {
                 _logger.LogError("Erro ao remover papeis: {Errors}", string.Join(", ", removeResult.Errors.Select(e => e.Description)));
                 return Result
-                    .Fail("Não encontrado.", "Erro ao atribuir papeis.");
+                    .Fail("Erro de Validação", "Erro ao atribuir papeis.");
 
             }
         }
@@ -71,7 +71,7 @@ public class RoleService(
             if (!addResult.Succeeded)
             {
                 _logger.LogError("Erro ao adicionar papeis: {Errors}", string.Join(", ", addResult.Errors.Select(e => e.Description)));
-                return Result.Fail("Não encontrado.", "Erro ao atribuir papeis.");
+                return Result.Fail("Erro de Validação", "Erro ao atribuir papeis.");
             }
         }
 

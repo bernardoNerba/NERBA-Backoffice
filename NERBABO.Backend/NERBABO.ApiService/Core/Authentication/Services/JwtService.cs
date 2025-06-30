@@ -5,6 +5,7 @@ using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using OpenTelemetry.Trace;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -22,17 +23,6 @@ public class JwtService : IJwtService
     private readonly AppDbContext _context;
     private readonly ILogger<JwtService> _logger;
     private readonly SignInManager<User> _signInManager;
-
-    /// <summary>
-    /// Initializes a new instance of the JwtService.
-    /// </summary>
-    /// Required configuration keys:
-    /// - JWT:Key : Secret key for signing tokens
-    /// - JWT:ExpiresInDays: Token expiration in days (default: 7)
-    /// - JWT: Issuer : Token issuer claim
-    /// <param name="config">Application configuration containg JWT settings
-    /// set on appsettings.json</param>
-    /// <exception cref="ArgumentNullException"></exception>
     public JwtService(
         IConfiguration config,
         UserManager<User> userManager,
@@ -107,7 +97,8 @@ public class JwtService : IJwtService
         var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
             return Result<LoggedInUserDto>
-                .Fail("Não autorizado.", "Token não é válido.");
+                .Fail("NÃ£o Autorizado.", "Token invÃ¡lido.",
+                StatusCodes.Status404NotFound);
 
         return Result<LoggedInUserDto>
             .Ok(await GetPersonAndBuildJwt(user));
@@ -122,23 +113,23 @@ public class JwtService : IJwtService
         {
             _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User not found.", model.UsernameOrEmail);
             return Result<LoggedInUserDto>
-                .Fail("Erro de Validação", "Email/Username ou password inválidos.");
+                .Fail("Erro de ValidaÃ§Ã£o", "Email/Username ou password invÃ¡lidos.");
         }
         
         if (!user.IsActive)
         {
             _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User is blocked.", model.UsernameOrEmail);
             return Result<LoggedInUserDto>
-                .Fail("Não Autorizado.", "Utilizador bloqueado.", 
+                .Fail("NÃ£o Autorizado.", "Utilizador bloqueado.", 
                 StatusCodes.Status401Unauthorized);
         }
 
         var validPassword = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
         if (!validPassword.Succeeded)
         {
-            _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. Inválid Password.", model.UsernameOrEmail);
+            _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. Invï¿½lid Password.", model.UsernameOrEmail);
             return Result<LoggedInUserDto>
-                .Fail("Erro de Validação", "Email/Username ou password inválidos.");
+                .Fail("Erro de Validao", "Email/Username ou password invï¿½lidos.");
         }
 
         var loggedInUser = await GetPersonAndBuildJwt(user);

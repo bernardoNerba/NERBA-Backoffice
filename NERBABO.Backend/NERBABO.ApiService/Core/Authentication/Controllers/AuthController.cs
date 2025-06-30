@@ -1,8 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Shared.Models;
@@ -13,13 +11,11 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController(
-        UserManager<User> userManager,
         IJwtService jwtService,
         IRoleService roleService,
         IResponseHandler responseHandler
         ) : ControllerBase
     {
-        private readonly UserManager<User> _userManager = userManager;
         private readonly IJwtService _jwtService = jwtService;
         private readonly IRoleService _roleService = roleService;
         private readonly IResponseHandler _responseHandler = responseHandler;
@@ -27,17 +23,9 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         /// <summary>
         /// Refreshes the authentication token for the currently logged-in user.
         /// </summary>
-        /// <remarks>
-        /// This endpoint requires authorization and will return a new user DTO containing
-        /// the current user's information which can be used to refresh client-side tokens.
-        /// If the user cannot be found (invalid token), returns a 400 Bad Request response.
-        /// </remarks>
-        /// <returns>
-        /// Returns 200 OK with the user DTO if successful.
-        /// Returns 400 Bad Request if the user token is invalid or user not found.
-        /// </returns>
         /// <response code="200">Returns the user DTO with refreshed token information</response>
-        /// <response code="400">If the token is invalid or user cannot be found</response>
+        /// <response code="404">If the token is invalid or user cannot be found</response>
+        /// <response code="500">Unexpected error occurred.</response>
         [Authorize(Policy = "ActiveUser")]
         [HttpGet("refresh-user-token")]
         public async Task<IActionResult> RefreshUserToken()
@@ -53,28 +41,11 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         /// <summary>
         /// Authenticates a user by username/email and password.
         /// </summary>
-        /// <param name="model">
-        /// The login request containing:
-        /// - <see cref="LoginDto.UsernameOrEmail"/> (can be either username or email)
-        /// - <see cref="LoginDto.Password"/> (user's password)
-        /// </param>
-        /// <returns>
-        /// Returns an <see cref="ActionResult"/> with the following possible outcomes:
-        /// - <see cref="BadRequestResult"/> (400) if username/email or password is invalid.
-        /// - <see cref="OkObjectResult"/> (200) with the authenticated user's details (<see cref="ApplicationUserDto"/>) if login succeeds.
-        /// </returns>
-        /// <remarks>
-        /// This endpoint performs the following steps:
-        /// 1. Attempts to find the user by username, then falls back to email if not found.
-        /// 2. Validates the provided password against the user's stored credentials.
-        /// 3. Returns the user's details (excluding sensitive data) upon successful authentication.
-        /// 
-        /// Security Note:
-        /// - Returns the same generic error message ("Email/Username ou password inválidos") for both invalid credentials and non-existent users to avoid enumeration attacks.
-        /// - Uses <see cref="SignInManager{TUser}.CheckPasswordSignInAsync"/> for secure password validation.
-        /// </remarks>
-        /// <response code="200">Returns the authenticated user's details.</response>
+        /// <param name="model">The LoginDto object containing username/email and password.</param>
+        /// <response code="200">Returns the authenticated user's details with the issued jwt.</response>
         /// <response code="400">Invalid username/email or password.</response>
+        /// <response code="401">User is blocked or not authorized.</response>
+        /// <response code="404">User not found.</response>
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto model)
         {
@@ -82,8 +53,18 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-
-        [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Sets a role to a user.
+        /// </summary>
+        /// <param name="userRole">The UserRoleDto object containing user ID and roles to be assigned.</param>
+        /// <response code="200">Role updated successfully.</response>
+        /// <response code="400">Validation ERROR while performing validation on not allowing to assing the Admin role to a blocked user,
+        /// removing or adding roles that do not exist, or updating the user instance.
+        /// </response>
+        /// <response code="404">User, one or more role not found.</response>
+        /// <response code="401">User is not authorized.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [Authorize(Roles = "Admin", Policy = "ActiveUser")]
         [HttpPost("set-role")]
         public async Task<IActionResult> SetRoleToUserAsync([FromBody] UserRoleDto userRole)
         {
