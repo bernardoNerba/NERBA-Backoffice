@@ -4,10 +4,8 @@ using NERBABO.ApiService.Core.Global.Dtos;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
-using NERBABO.ApiService.Shared.Dtos;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using NERBABO.ApiService.Shared.Services;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
