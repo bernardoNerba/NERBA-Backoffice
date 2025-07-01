@@ -330,7 +330,6 @@ namespace NERBABO.ApiService.Core.Actions.Services
             {
                 await transaction.CommitAsync();
             }
-                .Ok(CourseAction.ConvertEntityToRetrieveDto(action, existingCoordenator, existingCourse));
         }
     }
 }
