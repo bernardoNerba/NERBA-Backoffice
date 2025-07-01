@@ -111,7 +111,7 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 .AsValueEnumerable()
                 .OrderBy(c => c.Name)
                 .ThenByDescending(c => c.Size)
-                .Select(c => Company.ConvertEntityToRetrieveDto(c))
+                .Select(Company.ConvertEntityToRetrieveDto)
                 .ToList();
 
             return Result<IEnumerable<RetrieveCompanyDto>>

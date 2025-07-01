@@ -1,4 +1,5 @@
-﻿using NERBABO.ApiService.Core.Courses.Models;
+﻿using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Shared.Models;
 
@@ -7,12 +8,14 @@ namespace NERBABO.ApiService.Core.Modules.Models
     public class Module : Entity<long>
     {
         // Entity Properties
+
         public string Name { get; set; } = string.Empty;
         public float Hours { get; set; }
         public bool IsActive { get; set; }
 
         // Navigation Properties
         public List<Course> Courses { get; set; } = [];
+        public List<TeacherModuleAction> TeacherModuleActions { get; set; } = [];
 
 
         // Constructors

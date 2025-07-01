@@ -79,7 +79,7 @@ npm install
 Create: `src/environments/environment.development.ts`
 
 - `environment.development.ts` example:
-```json
+``` ts
 export const environment = {
   production: false,
   appUrl: 'http://localhost:8080',
@@ -106,6 +106,31 @@ This will:
 - **Backend (Web API)**: [http://localhost:8080](http://localhost:8080)
 - **Postgres** with **PgAdmin**
 - **Redis** with **RedisInsight**
+
+## Working with Swagger
+
+Swagger allows us to build a documentation page that can also be used to test endpoints.
+1. Swagger runs on /swagger url.
+2. If the ApiService runs succesffully it will automatically open swagger for you.
+3. Authenticate throw the login endpoint, body example:
+``` json
+{
+  "usernameOrEmail": "admin",
+  "password": "AsecurePassword123!"
+}
+```
+3. This should return a json object like this:
+``` json
+{
+  "firstName": "Admin",
+  "lastName": "Admin",
+  "jwt": "the issued jwt token"
+}
+```
+4. Copy the jwt token from the response
+5. Go to the top of the page and click on the "Authorize" button.
+6. You will be prompted to the jwt, use the Bearer format. "Bearer <token_goes_here>".
+
 
 ### Working on Angular Separately
 

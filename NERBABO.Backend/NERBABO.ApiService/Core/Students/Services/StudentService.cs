@@ -3,7 +3,6 @@ using NERBABO.ApiService.Core.Students.Dtos;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
-using System.Collections.Generic;
 
 namespace NERBABO.ApiService.Core.Students.Services
 {

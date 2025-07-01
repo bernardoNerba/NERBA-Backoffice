@@ -17,22 +17,15 @@ public class FrameService(
 
     public async Task<Result<RetrieveFrameDto>> CreateAsync(CreateFrameDto entityDto)
     {
-        if (entityDto is null)
-        {
-            _logger.LogError("CreateFrameAsync: frame is null");
-            return Result<RetrieveFrameDto>
-                .Fail("Não encontrado.", "Enquadramento não encontrado.", 
-                StatusCodes.Status404NotFound);
-        }
         if (await _context.Frames.AnyAsync(f => f.Program == entityDto.Program))
         {
             return Result<RetrieveFrameDto>
-                .Fail("Programa duplicado.", "O Programa deve ser único. Já existe no sistema.");
+                .Fail("Erro de Validação.", "O Programa deve ser único. Já existe no sistema.");
         }
         if (await _context.Frames.AnyAsync(f => f.Operation == entityDto.Operation))
         {
             return Result<RetrieveFrameDto>
-                .Fail("Operação duplicado.", "O Operação deve ser único. Já existe no sistema.");
+                .Fail("Erro de Validação.", "O Operação deve ser único. Já existe no sistema.");
         }
 
         var newFrame = Frame.ConvertCreateDtoToEntity(entityDto);

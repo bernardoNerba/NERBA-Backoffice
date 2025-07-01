@@ -17,6 +17,7 @@ public class TeacherService(
 
     public async Task<Result<RetrieveTeacherDto>> CreateAsync(CreateTeacherDto entityDto)
     {
+        // foreign key constrains check
         var iva = await _context.Taxes.FindAsync(entityDto.IvaRegimeId);
         if (iva is null)
             return Result<RetrieveTeacherDto>
@@ -35,6 +36,7 @@ public class TeacherService(
                 .Fail("Não encontrado.", "Pessoa não encontrado.",
                 StatusCodes.Status404NotFound);
 
+        // Fields validation
         if (iva.Type != TaxEnum.IVA)
         {
             _logger.LogError("Invalid tax types for Teacher creation.");
@@ -70,7 +72,9 @@ public class TeacherService(
 
         _logger.LogInformation("Teacher created successfully with ID: {Id}", teacher.Id);
         return Result<RetrieveTeacherDto>
-            .Ok(Teacher.ConvertEntityToRetrieveDto(teacher));
+            .Ok(Teacher.ConvertEntityToRetrieveDto(teacher),
+            "Formador criado.", "Formador criado com sucesso.",
+            StatusCodes.Status201Created);
     }
 
     public async Task<Result> DeleteAsync(long teacherId)
@@ -134,7 +138,7 @@ public class TeacherService(
 
         if (person is null)
             return Result<RetrieveTeacherDto>
-                .Fail("Não encontrado", "Formador não encontrado.", 
+                .Fail("Não encontrado", "Pessoa não encontrada.", 
                 StatusCodes.Status404NotFound);
 
         var teacher = await _context.Teachers
@@ -145,7 +149,8 @@ public class TeacherService(
 
         if (teacher is null)
             return Result<RetrieveTeacherDto>
-                .Fail("Não encontrado", "Formador não encontrado.", StatusCodes.Status404NotFound);
+                .Fail("Não encontrado", "Esta pessoa ainda não é um formador.",
+                StatusCodes.Status404NotFound);
 
         return Result<RetrieveTeacherDto>
             .Ok(Teacher.ConvertEntityToRetrieveDto(teacher));

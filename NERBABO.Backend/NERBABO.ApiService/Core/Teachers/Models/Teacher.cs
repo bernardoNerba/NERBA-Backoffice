@@ -1,3 +1,4 @@
+using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.Teachers.Dtos;
@@ -16,11 +17,16 @@ public class Teacher : Entity<long>
     public bool IsLecturingFM { get; set; }
     public bool IsLecturingCQ { get; set; }
 
-
+    // Navigation properties
     public required Tax IvaRegime { get; set; }
     public required Tax IrsRegime { get; set; }
     public required Person Person { get; set; }
-    public string CommaSeparatedCompetences => string.Join(", ", Competences);
+    public List<CourseAction> Action { get; set; } = [];
+    public List<TeacherModuleAction> TeacherModuleActions { get; set; } = [];
+
+    // Calculated properties
+    public string CommaSeparatedCompetences => 
+        string.Join(", ", Competences);
 
 
     public Teacher() { }

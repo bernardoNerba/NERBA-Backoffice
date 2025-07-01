@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace NERBABO.ApiService.Migrations
+namespace NERBABO.ApiService.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250616144452_ModuleActiveDefaultMigration")]
-    partial class ModuleActiveDefaultMigration
+    [Migration("20250625111855_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace NERBABO.ApiService.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("CourseModule", b =>
+                {
+                    b.Property<long>("CoursesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ModulesId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CoursesId", "ModulesId");
+
+                    b.HasIndex("ModulesId");
+
+                    b.ToTable("CourseModule");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -254,6 +269,120 @@ namespace NERBABO.ApiService.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("NERBABO.ApiService.Core.Actions.Models.CourseAction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("AdministrationCode")
+                        .IsRequired()
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("CoordenatorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Locality")
+                        .IsRequired()
+                        .HasColumnType("varchar(55)");
+
+                    b.Property<int>("Regiment")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("TeacherId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.PrimitiveCollection<int[]>("WeekDays")
+                        .HasColumnType("integer[]");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdministrationCode")
+                        .IsUnique();
+
+                    b.HasIndex("CoordenatorId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("Actions", (string)null);
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Actions.Models.TeacherModuleAction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ActionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<float>("AvaliationNerba")
+                        .HasColumnType("real");
+
+                    b.Property<float>("AvaliationStudents")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("ModuleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly?>("PaymentDate")
+                        .HasColumnType("date");
+
+                    b.Property<long>("TeacherId")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("TotalPayment")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("TeacherModuleActions", (string)null);
+                });
+
             modelBuilder.Entity("NERBABO.ApiService.Core.Companies.Models.Company", b =>
                 {
                     b.Property<long>("Id")
@@ -296,6 +425,55 @@ namespace NERBABO.ApiService.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Companies", (string)null);
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Courses.Models.Course", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.PrimitiveCollection<int[]>("Destinators")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.Property<long>("FrameId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("MinHabilitationLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Objectives")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<float>("TotalDuration")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FrameId");
+
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("NERBABO.ApiService.Core.Frames.Models.Frame", b =>
@@ -404,6 +582,9 @@ namespace NERBABO.ApiService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -416,6 +597,9 @@ namespace NERBABO.ApiService.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ValuePercent")
                         .HasColumnType("integer");
@@ -644,6 +828,21 @@ namespace NERBABO.ApiService.Migrations
                     b.ToTable("Teachers", (string)null);
                 });
 
+            modelBuilder.Entity("CourseModule", b =>
+                {
+                    b.HasOne("NERBABO.ApiService.Core.Courses.Models.Course", null)
+                        .WithMany()
+                        .HasForeignKey("CoursesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NERBABO.ApiService.Core.Modules.Models.Module", null)
+                        .WithMany()
+                        .HasForeignKey("ModulesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -705,6 +904,67 @@ namespace NERBABO.ApiService.Migrations
                     b.Navigation("Person");
                 });
 
+            modelBuilder.Entity("NERBABO.ApiService.Core.Actions.Models.CourseAction", b =>
+                {
+                    b.HasOne("NERBABO.ApiService.Core.Account.Models.User", "Coordenator")
+                        .WithMany("Actions")
+                        .HasForeignKey("CoordenatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NERBABO.ApiService.Core.Courses.Models.Course", "Course")
+                        .WithMany("Actions")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NERBABO.ApiService.Core.Teachers.Models.Teacher", null)
+                        .WithMany("Action")
+                        .HasForeignKey("TeacherId");
+
+                    b.Navigation("Coordenator");
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Actions.Models.TeacherModuleAction", b =>
+                {
+                    b.HasOne("NERBABO.ApiService.Core.Actions.Models.CourseAction", "Action")
+                        .WithMany("TeacherModuleActions")
+                        .HasForeignKey("ActionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NERBABO.ApiService.Core.Modules.Models.Module", "Module")
+                        .WithMany("TeacherModuleActions")
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NERBABO.ApiService.Core.Teachers.Models.Teacher", "Teacher")
+                        .WithMany("TeacherModuleActions")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Action");
+
+                    b.Navigation("Module");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Courses.Models.Course", b =>
+                {
+                    b.HasOne("NERBABO.ApiService.Core.Frames.Models.Frame", "Frame")
+                        .WithMany("Courses")
+                        .HasForeignKey("FrameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Frame");
+                });
+
             modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.GeneralInfo", b =>
                 {
                     b.HasOne("NERBABO.ApiService.Core.Global.Models.Tax", "IvaTax")
@@ -760,9 +1020,29 @@ namespace NERBABO.ApiService.Migrations
                     b.Navigation("Person");
                 });
 
+            modelBuilder.Entity("NERBABO.ApiService.Core.Account.Models.User", b =>
+                {
+                    b.Navigation("Actions");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Actions.Models.CourseAction", b =>
+                {
+                    b.Navigation("TeacherModuleActions");
+                });
+
             modelBuilder.Entity("NERBABO.ApiService.Core.Companies.Models.Company", b =>
                 {
                     b.Navigation("Students");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Courses.Models.Course", b =>
+                {
+                    b.Navigation("Actions");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Frames.Models.Frame", b =>
+                {
+                    b.Navigation("Courses");
                 });
 
             modelBuilder.Entity("NERBABO.ApiService.Core.Global.Models.Tax", b =>
@@ -774,6 +1054,11 @@ namespace NERBABO.ApiService.Migrations
                     b.Navigation("IvaTeachers");
                 });
 
+            modelBuilder.Entity("NERBABO.ApiService.Core.Modules.Models.Module", b =>
+                {
+                    b.Navigation("TeacherModuleActions");
+                });
+
             modelBuilder.Entity("NERBABO.ApiService.Core.People.Models.Person", b =>
                 {
                     b.Navigation("Student");
@@ -781,6 +1066,13 @@ namespace NERBABO.ApiService.Migrations
                     b.Navigation("Teacher");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NERBABO.ApiService.Core.Teachers.Models.Teacher", b =>
+                {
+                    b.Navigation("Action");
+
+                    b.Navigation("TeacherModuleActions");
                 });
 #pragma warning restore 612, 618
         }

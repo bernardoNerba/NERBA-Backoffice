@@ -69,7 +69,8 @@ public class GeneralInfoService(
         if (await _context.Taxes.FindAsync(updateGeneralInfo.IvaId) is null)
         {
             return Result
-                .Fail("Não encontrado.", "Taxa de Iva não encontrada.");
+                .Fail("Não encontrado.", "Taxa de Iva não encontrada.",
+                StatusCodes.Status404NotFound);
         }
 
         var config = GeneralInfo.ConvertUpdateDtoToEntity(updateGeneralInfo);

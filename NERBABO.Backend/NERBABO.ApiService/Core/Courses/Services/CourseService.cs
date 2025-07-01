@@ -50,7 +50,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Erro de Validação", "O módulo fornecido não está ativo.");
             }
 
-            if(!existingCourse.IsCourseActive())
+            if(!existingCourse.IsCourseActive)
             {
                 _logger.LogWarning("Course is not active for the given CourseId: {CourseId}", courseId);
                 return Result<RetrieveCourseDto>
@@ -94,7 +94,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             {
                 _logger.LogWarning("Duplicted Title detected.");
                 return Result<RetrieveCourseDto>
-                    .Fail("Título Duplicado.","Já existe um curso com o mesmo título.");
+                    .Fail("Erro de Validação.","Já existe um curso com o mesmo título.");
             }
 
             // check if the frame exists
@@ -113,7 +113,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             {
                 _logger.LogWarning("Invalid Habilitation Level provided.");
                 return Result<RetrieveCourseDto>
-                    .Fail("Nível inválido.", "O nível mínimo do curso fornecido não é válido.");
+                    .Fail("Erro de Validação.", "O nível mínimo do curso fornecido não é válido.");
             }
 
             // check if the status is valid
@@ -122,7 +122,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             {
                 _logger.LogWarning("Invalid Status provided.");
                 return Result<RetrieveCourseDto>
-                    .Fail("Status inválido.", $"O status '{entityDto.Status}' não é válido.");
+                    .Fail("Erro de Validação.", $"O status '{entityDto.Status}' não é válido.");
             }
 
             // check if Destinator is valid
@@ -132,7 +132,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Invalid Destinator Type provided: {Destinator}", destinator);
                     return Result<RetrieveCourseDto>
-                        .Fail("Destinatário inválido.", $"O destinatário do curso, '{destinator}', fornecido não é válido.");
+                        .Fail("Erro de Validação.", $"O destinatário do curso, '{destinator}', fornecido não é válido.");
                 }
             }
 
@@ -195,7 +195,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             // perform in memory logic
             var activeCourses = existingCourses
                 .AsValueEnumerable()
-                .Where(c => c.IsCourseActive())
+                .Where(c => c.IsCourseActive)
                 .OrderByDescending(c => c.CreatedAt)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .ToList();
@@ -357,7 +357,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
 
-            if (!existingCourse.IsCourseActive())
+            if (!existingCourse.IsCourseActive)
             {
                 _logger.LogWarning("Module is not active for the given ModuleId: {ModuleId}", moduleId);
                 return Result<RetrieveCourseDto>

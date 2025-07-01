@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Companies.Models;
 using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Frames.Models;
@@ -13,7 +14,7 @@ using NERBABO.ApiService.Data.Configurations;
 
 namespace NERBABO.ApiService.Data;
 
-public class AppDbContext : IdentityDbContext<User>
+public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User>(options)
 {
     public DbSet<Person> People { get; set; }
     public DbSet<Tax> Taxes { get; set; }
@@ -24,11 +25,8 @@ public class AppDbContext : IdentityDbContext<User>
     public DbSet<Student> Students { get; set; }
     public DbSet<Module> Modules { get; set; }
     public DbSet<Course> Courses { get; set; }
-
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
-    {
-    }
+    public DbSet<CourseAction> Actions { get; set; }
+    public DbSet<TeacherModuleAction> TeacherModuleActions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -52,6 +50,8 @@ public class AppDbContext : IdentityDbContext<User>
         builder.ApplyConfiguration(new CompanyConfiguration());
         builder.ApplyConfiguration(new StudentConfiguration());
         builder.ApplyConfiguration(new ModuleConfiguration());
-    }
+        builder.ApplyConfiguration(new CourseActionConfiguration());
+        builder.ApplyConfiguration(new TeacherModuleActionConfiguration());
 
+    }
 }

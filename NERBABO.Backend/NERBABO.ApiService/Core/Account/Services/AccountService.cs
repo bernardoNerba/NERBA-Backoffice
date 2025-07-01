@@ -13,39 +13,27 @@ public class AccountService(
     UserManager<User> userManager,
         AppDbContext context,
         ILogger<AccountService> logger,
-        ICacheService cacheService,
-        RoleManager<IdentityRole> roleManager
+        ICacheService cacheService
     ) : IAccountService
 {
     private readonly UserManager<User> _userManager = userManager;
     private readonly AppDbContext _context = context;
     private readonly ILogger<AccountService> _logger = logger;
     private readonly ICacheService _cacheService = cacheService;
-    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-
-    /// <summary>
-    /// Registers a new user within the system after performing validation checks.
-    /// </summary>
-    /// <param name="registerDto">
-    /// The registration data containing username, email, password, and associated person ID.
-    /// </param>
-    /// <returns>
-    /// async task
-    /// </returns>
     public async Task<Result<RetrieveUserDto>> CreateAsync(RegisterDto entityDto)
     {
         // Check email duplication
         if (await _userManager.FindByEmailAsync(entityDto.Email.ToLower()) is not null)
         {
             return Result<RetrieveUserDto>
-                .Fail("Email duplicado.", $"Email {entityDto.Email} já existe.");
+                .Fail("Erro de Validação.", $"Email {entityDto.Email} já existe.");
         }
 
         // check username duplication
         if (await _userManager.FindByNameAsync(entityDto.UserName.ToLower()) is not null)
         {
             return Result<RetrieveUserDto>
-                .Fail("Username duplicado.", $"Nome de Utilizador {entityDto.UserName} já existe.");
+                .Fail("Erro de Validação.", $"Nome de Utilizador {entityDto.UserName} já existe.");
         }
 
         // checks if the person exists
@@ -59,7 +47,7 @@ public class AccountService(
         var user = await _context.Users.FirstOrDefaultAsync(x => x.PersonId == person.Id);
         if (user is not null)
             return Result<RetrieveUserDto>
-                    .Fail("Pessoa já tem uma conta.", $"A pessoa que tentou associar já é um utilizador.");
+                    .Fail("Erro de Validação", $"A pessoa que tentou associar já é um utilizador.");
 
         // Begin database transaction
         var transaction = await _context.Database.BeginTransactionAsync();
@@ -73,7 +61,7 @@ public class AccountService(
             if (!result.Succeeded)
             {
                 return Result<RetrieveUserDto>
-                    .Fail("Falha ao registar utilizador.", "Formato da password Inálido",
+                    .Fail("Erro de Validação.", "Formato da password Inálido",
                     result.Errors.Select(e => e.Description).ToList());
             }
 
@@ -127,9 +115,9 @@ public class AccountService(
 
         if (!result.Succeeded)
         {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            var errors = result.Errors.Select(e => e.Description).ToList();
             return Result
-                .Fail("Falha ao atualizar.", errors);
+                .Fail("Erro de Validação.", "Erro ao atualizar o utilizador.", errors);
         }
 
         var retrievedUserDto = await User.ConvertEntityToRetrieveDto(user, _userManager);
@@ -144,7 +132,6 @@ public class AccountService(
 
     public async Task<Result<IEnumerable<RetrieveUserDto>>> GetAllAsync()
     {
-
         // Check if the users are cached
         var cacheKey = "users:list";
         var cachedUsers = await _cacheService.GetAsync<IEnumerable<RetrieveUserDto>>(cacheKey);

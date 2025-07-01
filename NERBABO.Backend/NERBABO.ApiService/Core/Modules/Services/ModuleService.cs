@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.Modules.Models;
-using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
@@ -91,7 +90,6 @@ namespace NERBABO.ApiService.Core.Modules.Services
                 .OrderByDescending(m => m.IsActive) // true (1) first
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .ToListAsync();
-
 
             // Check if there is data on db
             if (existingModules is null || existingModules.Count == 0)

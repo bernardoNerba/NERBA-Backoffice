@@ -1,4 +1,5 @@
 ﻿using Humanizer;
+using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -28,9 +29,16 @@ namespace NERBABO.ApiService.Core.Courses.Models
         public float RemainingDuration =>
             TotalDuration - CurrentDuration;
 
+        public bool IsCourseActive =>
+            Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
+
+        public List<string> FormattedModuleNames =>
+            [.. Modules.Select(m => $"{m.Name} ({m.Hours} horas)")];
+
         // Navigation Properties
         public Frame Frame { get; set; }
         public List<Module> Modules { get; set; } = [];
+        public List<CourseAction> Actions { get; set; } = [];
 
 
         // Constructors
@@ -129,11 +137,6 @@ namespace NERBABO.ApiService.Core.Courses.Models
             // Check if the module is already assigned to the course
             return Modules.Any(m => m.Id == moduleId);
         }
-
-        public bool IsCourseActive()
-        {
-            // Check if the course is active based on its status
-            return Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
-        }
+   
     }
 }
