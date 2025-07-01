@@ -21,10 +21,6 @@ public class StudentsController(
     /// Get student by student id
     /// </summary>
     /// <param name="id">The student id</param>
-    /// <remarks>
-    /// Sample request:
-    ///     GET api/students/3
-    /// </remarks>
     /// <response code="200">The student was found.</response>
     /// <response code="404">The student was not found.</response>
     /// <response code="500">Unexpected error occurred.</response>
@@ -43,14 +39,8 @@ public class StudentsController(
     /// Gets a list of students related to a company
     /// </summary>
     /// <param name="id">The company id</param>
-    /// <remarks>
-    /// Sample request:
-    ///     GET api/students/company/1
-    /// </remarks>
     /// <response code="200">There are students related to the company.</response>
-    /// <response code="400">Argument null exception.</response>
-    /// <response code="404">The company was not found.</response>
-    /// <response code="404">There are no students related to the company.</response>
+    /// <response code="404">The company was not found or There are no students related to the company.</response>
     /// <response code="500">Unexpected error occurred.</response>
     [HttpGet("company/{id:long}")]
     [Authorize(Policy = "ActiveUser")]
@@ -68,10 +58,6 @@ public class StudentsController(
     /// Get student by person id
     /// </summary>
     /// <param name="personId">The person id associated with the student</param>
-    /// <remarks>
-    /// Sample request:
-    ///     GET api/students/person/1
-    /// </remarks>
     /// <response code="200">The student was found.</response>
     /// <response code="401">The user is not authorized. jwt maybe inválid, 
     /// or user does not have one of the roles 'Admin', 'CQ' nor 'FM'.
@@ -93,15 +79,6 @@ public class StudentsController(
     /// Create a new student
     /// </summary>
     /// <param name="studentDto">The student data to create</param>
-    /// <remarks>
-    /// Sample request:
-    ///     POST api/students
-    ///     {
-    ///         "personId": 1,
-    ///         "companyId": 1,
-    ///         ...
-    ///     }
-    /// </remarks>
     /// <response code="201">The student was created successfully.</response>
     /// <response code="401">The user is not authorized. jwt maybe inválid, 
     /// or user does not have one of the roles 'Admin', 'CQ' nor 'FM'.
@@ -125,23 +102,12 @@ public class StudentsController(
     /// </summary>
     /// <param name="id">The student id</param>
     /// <param name="studentDto">The updated student data</param>
-    /// <remarks>
-    /// Sample request:
-    ///     PUT api/students/3
-    ///     {
-    ///         "id": 3,
-    ///         "personId": 1,
-    ///         "companyId": 1,
-    ///         ...
-    ///     }
-    /// </remarks>
     /// <response code="200">The student was updated successfully.</response>
     /// <response code="400">The provided student id does not match the DTO id.</response>
     /// <response code="401">The user is not authorized. jwt maybe inválid, 
     /// or user does not have one of the roles 'Admin', 'CQ' nor 'FM'.
     /// or the user is not active.</response>
     /// <response code="404">The student, associated person, or company was not found.</response>
-    /// <response code="404">A student is already associated with the provided person.</response>
     /// <response code="500">Unexpected error occurred.</response>
     [HttpPut("{id:long}")]
     [Authorize(Roles = "Admin, CQ, FM", Policy = "ActiveUser")]
@@ -162,10 +128,6 @@ public class StudentsController(
     /// Delete a student by id
     /// </summary>
     /// <param name="id">The student id</param>
-    /// <remarks>
-    /// Sample request:
-    ///     DELETE api/students/3
-    /// </remarks>
     /// <response code="200">The student was deleted successfully.</response>
     /// <response code="401">The user is not authorized. jwt maybe inválid, 
     /// or user does not have one of the roles 'Admin', 'CQ' nor 'FM'.

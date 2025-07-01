@@ -91,7 +91,6 @@ namespace NERBABO.ApiService.Core.Modules.Services
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .ToListAsync();
 
-
             // Check if there is data on db
             if (existingModules is null || existingModules.Count == 0)
             {
