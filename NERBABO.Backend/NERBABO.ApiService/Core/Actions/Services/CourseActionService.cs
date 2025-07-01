@@ -19,7 +19,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
         public async Task<Result<RetrieveCourseActionDto>> CreateAsync(CreateCourseActionDto entityDto)
         {
             var existingCourse = await _context.Courses
-                .FindAsync(entityDto.CourseId);
+            .FindAsync(entityDto.CourseId);
             if (existingCourse is null)
             {
                 _logger.LogWarning("Course not found for given CourseId: {id}", entityDto.CourseId);
@@ -58,7 +58,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
             }
 
             // validate enums
-            if (!string.IsNullOrEmpty(entityDto.Status) 
+            if (!string.IsNullOrEmpty(entityDto.Status)
                 && !EnumHelp.IsValidEnum<StatusEnum>(entityDto.Status))
             {
                 _logger.LogWarning("Invalid status value: {status}", entityDto.Status);
@@ -114,24 +114,116 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .Ok(CourseAction.ConvertEntityToRetrieveDto(action, existingCoordenator, existingCourse));
         }
 
-        public Task<Result> DeleteAsync(long id)
+        public async Task<Result> DeleteIfCoordenatorAsync(long id, string userId)
         {
-            throw new NotImplementedException();
+            var existingCourseAction = await _context.Actions
+                .Include(a => a.Coordenator)
+                .Include(a => a.Course)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            if (existingCourseAction is null)
+            {
+                _logger.LogWarning("Course action not found for given ID: {id}", id);
+                return Result.Fail("Não encontrado.", "Ação não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            if (existingCourseAction.CoordenatorId != userId)
+            {
+                _logger.LogWarning("User {userId} is not the coordinator of the action with ID {actionId}.", userId, id);
+                return Result.Fail("Não autorizado.", "Não é o coordenador desta ação formativa.",
+                    StatusCodes.Status403Forbidden);
+            }
+
+            await DeleteTransactionAsync(existingCourseAction);
+
+            return Result
+            .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
+
+
+        }
+        public async Task<Result> DeleteAsync(long id)
+        {
+            var existingCourseAction = await _context.Actions
+                .Include(a => a.Coordenator)
+                .Include(a => a.Course)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            if (existingCourseAction is null)
+            {
+                _logger.LogWarning("Course action not found for given ID: {id}", id);
+                return Result.Fail("Não encontrado.", "Ação não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            await DeleteTransactionAsync(existingCourseAction);
+
+            return Result
+            .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
         }
 
-        public Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllAsync()
+        public async Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            var existingCourseActions = await _context.Actions
+                .Include(a => a.Coordenator)
+                .Include(a => a.Course)
+                .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
+                .ToListAsync();
+            if (existingCourseActions is null || existingCourseActions.Count == 0)
+            {
+                _logger.LogWarning("No course actions found.");
+                return Result<IEnumerable<RetrieveCourseActionDto>>
+                    .Fail("Não encontrado.", "Nenhuma ação formativa encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            _logger.LogInformation("Retrieved {count} course actions.", existingCourseActions.Count);
+            return Result<IEnumerable<RetrieveCourseActionDto>>
+                .Ok(existingCourseActions);
+
         }
 
-        public Task<Result<RetrieveCourseActionDto>> GetByIdAsync(long id)
+        public async Task<Result<RetrieveCourseActionDto>> GetByIdAsync(long id)
         {
-            throw new NotImplementedException();
+            var existingAction = await _context.Actions
+                .Include(a => a.Coordenator)
+                .Include(a => a.Course)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            if (existingAction is null)
+            {
+                _logger.LogWarning("Course action not found for given ID: {id}", id);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Não encontrado.", "Nenhuma ação formativa encontrada",
+                    StatusCodes.Status404NotFound);
+            }
+
+            _logger.LogInformation("Course action retrieved successfully with ID: {id}", id);
+            return Result<RetrieveCourseActionDto>
+                .Ok(CourseAction.ConvertEntityToRetrieveDto(existingAction, existingAction.Coordenator, existingAction.Course));
         }
 
         public Task<Result<RetrieveCourseActionDto>> UpdateAsync(UpdateCourseActionDto entityDto)
         {
             throw new NotImplementedException();
+        }
+
+        private async Task DeleteTransactionAsync(CourseAction c)
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // TODO: Remove related entities like Sessions, Enrollments, Presences etc.
+                _context.Actions.Remove(c);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error deleting course action with ID {id}.", c.Id);
+                throw;
+            }
+            finally
+            {
+                await transaction.CommitAsync();
+            }
         }
     }
 }
