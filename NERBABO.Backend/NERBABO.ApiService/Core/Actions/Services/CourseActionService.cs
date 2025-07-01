@@ -112,7 +112,9 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             _logger.LogInformation("Course action created successfully with ID: {id}", action.Id);
             return Result<RetrieveCourseActionDto>
-                .Ok(CourseAction.ConvertEntityToRetrieveDto(action, existingCoordenator, existingCourse));
+                .Ok(CourseAction.ConvertEntityToRetrieveDto(action, existingCoordenator, existingCourse),
+                "Ação de Formação criada.", "Ação de Formação criada com sucesso.",
+                StatusCodes.Status201Created);
         }
 
         public async Task<Result> DeleteIfCoordenatorAsync(long id, string userId)
