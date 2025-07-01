@@ -17,8 +17,24 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         private readonly ICourseActionService _courseActionService = courseActionService;
         private readonly IResponseHandler _responseHandler = responseHandler;
 
+        [HttpGet]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> GetAllActionsAsync()
+        {
+            var result = await _courseActionService.GetAllAsync();
+            return _responseHandler.HandleResult(result);
+        }
+
+        [HttpGet("{id:long}")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> GetActionByIdAsync(long id)
+        {
+            var result = await _courseActionService.GetByIdAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> CreateActionAsync([FromBody] CreateCourseActionDto createCourseActionDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -34,7 +50,7 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         }
 
         [HttpDelete("{id:long}")]
-        [Authorize]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> DeleteActionIfCoordenatorAsync(long id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -47,24 +63,10 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetAllActionsAsync()
-        {
-            var result = await _courseActionService.GetAllAsync();
-            return _responseHandler.HandleResult(result);
-        }
-
-        [HttpGet("{id:long}")]
-        [Authorize]
-        public async Task<IActionResult> GetActionByIdAsync(long id)
-        {
-            var result = await _courseActionService.GetByIdAsync(id);
-            return _responseHandler.HandleResult(result);
-        }
+        
 
         [HttpPut("{id:long}")]
-        [Authorize]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> UpdateActionAsync(long id, UpdateCourseActionDto updateCourseActionDto)
         {
             if (updateCourseActionDto.Id != id)
