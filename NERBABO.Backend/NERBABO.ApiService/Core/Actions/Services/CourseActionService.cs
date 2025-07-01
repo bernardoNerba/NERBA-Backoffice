@@ -84,6 +84,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 }
             }
 
+            // Date formats and validation
             if (!DateOnly.TryParse(entityDto.StartDate, out var startDate))
             {
                 _logger.LogWarning("Invalid start date format: {startDate}", entityDto.StartDate);
@@ -141,6 +142,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
 
         }
+
         public async Task<Result> DeleteAsync(long id)
         {
             var existingCourseAction = await _context.Actions
@@ -200,9 +202,111 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .Ok(CourseAction.ConvertEntityToRetrieveDto(existingAction, existingAction.Coordenator, existingAction.Course));
         }
 
-        public Task<Result<RetrieveCourseActionDto>> UpdateAsync(UpdateCourseActionDto entityDto)
+        public async Task<Result<RetrieveCourseActionDto>> UpdateAsync(UpdateCourseActionDto entityDto)
         {
-            throw new NotImplementedException();
+            var existingCourseAction = await _context.Actions
+                .Include(a => a.Course)
+                .Include(a => a.Coordenator)
+                .FirstOrDefaultAsync(a => a.Id == entityDto.Id);
+            if (existingCourseAction is null)
+            {
+                _logger.LogWarning("");
+                return Result<RetrieveCourseActionDto>
+                .Fail("Não encontrado.", "Ação formativa não encontrada.",
+                StatusCodes.Status404NotFound);
+            }
+
+            var existingCourse = await _context.Courses
+                .FindAsync(entityDto.CourseId);
+            if (existingCourse is null)
+            {
+                _logger.LogWarning("");
+                return Result<RetrieveCourseActionDto>
+                .Fail("Não encontrado.", "Curso não encontrado.",
+                StatusCodes.Status404NotFound);
+            }
+
+            // validate unique constraint
+            if (!string.IsNullOrEmpty(entityDto.Title)
+                && !entityDto.Title.ToLower().Equals(existingCourseAction.Title.ToLower())
+                && await _context.Actions
+                .AnyAsync(a => a.Title.ToLower().Equals(entityDto.Title.ToLower())))
+            {
+                _logger.LogWarning("Action with title '{title}' already exists.", entityDto.Title);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Erro de Validação", "Já existe uma ação com o mesmo título.");
+            }
+
+            if (!string.IsNullOrEmpty(entityDto.AdministrationCode)
+                && !entityDto.AdministrationCode.Equals(existingCourseAction.AdministrationCode.ToLower())
+                && await _context.Actions
+                .AnyAsync(a => a.AdministrationCode == entityDto.AdministrationCode))
+            {
+                _logger.LogWarning("Action with administration code '{code}' already exists.", entityDto.AdministrationCode);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Erro de Validação", "Já existe uma ação com o mesmo código administrativo.");
+            }
+
+            // validate enums
+            if (!string.IsNullOrEmpty(entityDto.Status)
+                && !EnumHelp.IsValidEnum<StatusEnum>(entityDto.Status))
+            {
+                _logger.LogWarning("Invalid status value: {status}", entityDto.Status);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Erro de Validação", "Estado inválido.");
+            }
+
+            if (!string.IsNullOrEmpty(entityDto.Regiment)
+                && !EnumHelp.IsValidEnum<RegimentTypeEnum>(entityDto.Regiment))
+            {
+                _logger.LogWarning("Invalid regiment value: {regiment}", entityDto.Regiment);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Erro de Validação", "Regimento inválido.");
+            }
+
+            foreach (var weekDay in entityDto.WeekDays)
+            {
+                if (!EnumHelp.IsValidEnum<WeekDaysEnum>(weekDay))
+                {
+                    _logger.LogWarning("Invalid week day value: {weekDay}", weekDay);
+                    return Result<RetrieveCourseActionDto>
+                        .Fail("Erro de Validação", "Dia da semana inválido.");
+                }
+            }
+
+            // Date formats and validation
+            if (!DateOnly.TryParse(entityDto.StartDate, out var startDate))
+            {
+                _logger.LogWarning("Invalid start date format: {startDate}", entityDto.StartDate);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Erro de Validação", "Data de início inválida.");
+            }
+
+            if (!DateOnly.TryParse(entityDto.EndDate, out var endDate))
+            {
+                _logger.LogWarning("Invalid end date format: {endDate}", entityDto.EndDate);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Erro de Validação", "Data de fim inválida.");
+            }
+
+            if ((startDate != existingCourseAction.StartDate
+                || endDate != existingCourseAction.EndDate)
+                && startDate >= endDate)
+            {
+                _logger.LogWarning("Start date {startDate} must be before end date {endDate}.", startDate, endDate);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Erro de Validação", "A data de início deve ser anterior à data de fim.");
+            }
+
+            var actionEntity = CourseAction.ConvertUpdateDtoToEntity(entityDto, existingCourseAction.Coordenator, existingCourse);
+            _context.Entry(existingCourseAction).CurrentValues.SetValues(actionEntity);
+            await _context.SaveChangesAsync();
+
+            return Result<RetrieveCourseActionDto>
+            .Ok(CourseAction.ConvertEntityToRetrieveDto(
+                actionEntity, actionEntity.Coordenator, actionEntity.Course),
+                "Ação de Formação Atualizada.", "Ação de formação atualizada com sucesso.");
+
         }
 
         private async Task DeleteTransactionAsync(CourseAction c)

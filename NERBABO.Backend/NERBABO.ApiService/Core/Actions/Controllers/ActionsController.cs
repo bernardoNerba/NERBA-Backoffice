@@ -63,6 +63,18 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
             return _responseHandler.HandleResult(result);
         }
 
+        [HttpPut("{id:long}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateActionAsync(long id, UpdateCourseActionDto updateCourseActionDto)
+        {
+            if (updateCourseActionDto.Id != id)
+                return BadRequest("ID Missmatch");
+
+            var result = await _courseActionService.UpdateAsync(updateCourseActionDto);
+            return _responseHandler.HandleResult(result);
+            
+        }
+
 
 
     }

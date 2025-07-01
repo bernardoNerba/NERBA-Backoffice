@@ -16,7 +16,7 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         public string Title { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Código Administrativo é um campo obrigatório.")]
-        [ValidateLengthIfNotEmpty(5, MinimumLength = 10, ErrorMessage = "NIF deve conter entre {1} a {2} números.")]
+        [ValidateLengthIfNotEmpty(10, MinimumLength = 5, ErrorMessage = "NIF deve conter entre {1} a {2} números.")]
         [AllNumbers(ErrorMessage = "Código Administrativo todos os caractéres devem ser números")]
         public string AdministrationCode { get; set; } = string.Empty;
         public string? Address { get; set; } = string.Empty;
@@ -36,6 +36,5 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         [Required(ErrorMessage = "Estado é um campo obrigatório.")]
         public string Regiment { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
-        public string CoordenatorId { get; set; } = string.Empty;
     }
 }

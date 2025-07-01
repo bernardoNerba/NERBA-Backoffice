@@ -54,7 +54,7 @@ public class PeopleService(
             return Result<RetrievePersonDto>.Fail("Email duplicado.", "O Email da pessoa deve ser único. Já existe no sistema.");
         }
 
-        // enum checks
+        // Enum checks
         if (!string.IsNullOrEmpty(entityDto.Gender)
             && !EnumHelp.IsValidEnum<GenderEnum>(entityDto.Gender))
         {
