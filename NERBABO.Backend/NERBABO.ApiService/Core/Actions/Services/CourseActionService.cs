@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Data;
@@ -58,7 +58,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
             }
 
             // validate enums
-            if (!string.IsNullOrEmpty(entityDto.Status)
+            if (!string.IsNullOrEmpty(entityDto.Status) 
                 && !EnumHelp.IsValidEnum<StatusEnum>(entityDto.Status))
             {
                 _logger.LogWarning("Invalid status value: {status}", entityDto.Status);
@@ -330,6 +330,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
             {
                 await transaction.CommitAsync();
             }
+                .Ok(CourseAction.ConvertEntityToRetrieveDto(action, existingCoordenator, existingCourse));
         }
     }
 }
