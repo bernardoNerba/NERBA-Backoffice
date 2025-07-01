@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.Modules.Models;
-using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;

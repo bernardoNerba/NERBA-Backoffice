@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.Modules.Dtos;
-using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.Modules.Services;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
@@ -18,6 +17,15 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
         private readonly IModuleService _moduleService = moduleService;
         private readonly IResponseHandler _responseHandler = responseHandler;
 
+        /// <summary>
+        /// Retrieves all modules.
+        /// </summary>
+        /// <response code="200">There are modules in the system. Returns the list of
+        /// RetrieveModuleDto.</response>
+        /// <response code="404">There are no modules in the system.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is
+        /// not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
         [HttpGet]
         [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetAllModulesAsync()

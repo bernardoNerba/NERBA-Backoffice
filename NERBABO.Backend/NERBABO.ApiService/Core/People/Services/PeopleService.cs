@@ -87,7 +87,9 @@ public class PeopleService(
         await _cacheService.RemoveAsync("people:list");
 
         return Result<RetrievePersonDto>
-            .Ok(personToRetrieve,"Pessoa Criada.", $"Foi criada uma pessoa com o nome {personToRetrieve.FullName}.", 201);
+            .Ok(personToRetrieve,
+            "Pessoa Criada.", $"Foi criada uma pessoa com o nome {personToRetrieve.FullName}.",
+            StatusCodes.Status201Created);
     }
 
     public async Task<Result> DeleteAsync(long id)
@@ -97,7 +99,8 @@ public class PeopleService(
 
         if (existingPerson is null)
             return Result
-                .Fail("Não encontrado.", $"Pessoa não encontrada.", 404);
+                .Fail("Não encontrado.", $"Pessoa não encontrada.",
+                StatusCodes.Status404NotFound);
 
         // Check if person is associated with a user
         if (await _userManager.Users.Where(u => u.PersonId == id).AnyAsync())
@@ -184,7 +187,7 @@ public class PeopleService(
         var peopleWithoutUser = existingPeople
             .AsValueEnumerable()
             .Where(p => !userIdsWithPeople.Contains(p.Id))
-            .Select(p => Person.ConvertEntityToRetrieveDto(p))
+            .Select(Person.ConvertEntityToRetrieveDto)
             .ToList();
 
         // Check if data
