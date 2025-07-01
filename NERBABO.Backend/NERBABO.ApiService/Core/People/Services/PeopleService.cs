@@ -54,22 +54,22 @@ public class PeopleService(
             return Result<RetrievePersonDto>.Fail("Email duplicado.", "O Email da pessoa deve ser único. Já existe no sistema.");
         }
 
-        // enum checks
-        if (!string.IsNullOrEmpty(entityDto.Gender) 
+        // Enum checks
+        if (!string.IsNullOrEmpty(entityDto.Gender)
             && !EnumHelp.IsValidEnum<GenderEnum>(entityDto.Gender))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Género não encontrado", StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(entityDto.Habilitation) 
+        if (!string.IsNullOrEmpty(entityDto.Habilitation)
             && !EnumHelp.IsValidEnum<HabilitationEnum>(entityDto.Habilitation))
-        {   
+        {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Tipo de Habilitações não encontrado", StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(entityDto.IdentificationType) 
+        if (!string.IsNullOrEmpty(entityDto.IdentificationType)
             && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(entityDto.IdentificationType))
         {
             return Result<RetrievePersonDto>
@@ -143,7 +143,8 @@ public class PeopleService(
         await _cacheService.RemoveAsync($"person:{id}");
         await _cacheService.RemoveAsync("people:list");
         
-        return Result.Ok("Pessoa Eliminada.", "Pessoa eliminada com sucesso.");
+        return Result
+        .Ok("Pessoa Eliminada.", "Pessoa eliminada com sucesso.");
     }
 
     public async Task<Result<IEnumerable<RetrievePersonDto>>> GetAllAsync()
