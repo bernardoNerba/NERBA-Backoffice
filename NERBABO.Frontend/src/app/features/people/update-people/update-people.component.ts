@@ -113,7 +113,7 @@ export class UpdatePeopleComponent implements OnInit {
         this.currentPerson.nationality,
         [Validators.maxLength(100), Validators.minLength(3)],
       ],
-      genero: [this.currentPerson.genero],
+      gender: [this.currentPerson.gender],
       habilitation: [this.currentPerson.habilitation],
     });
   }
@@ -142,7 +142,7 @@ export class UpdatePeopleComponent implements OnInit {
         address: formValue.address,
         birthDate: formValue.birthDate,
         email: formValue.email,
-        genero: formValue.genero,
+        gender: formValue.gender,
         habilitation: formValue.habilitation,
         iban: formValue.iban,
         identificationNumber: formValue.identificationNumber,

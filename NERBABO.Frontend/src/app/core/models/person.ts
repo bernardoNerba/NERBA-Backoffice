@@ -8,7 +8,7 @@ export type Person = {
   address: string;
   birthDate: Date;
   email: string;
-  genero: string;
+  gender: string;
   habilitation: string;
   iban: string;
   identificationNumber: string;

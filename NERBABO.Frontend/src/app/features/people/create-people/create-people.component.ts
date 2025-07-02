@@ -84,7 +84,7 @@ export class CreatePeopleComponent implements OnInit {
       ],
       naturality: ['', [Validators.maxLength(100), Validators.minLength(3)]],
       nationality: ['', [Validators.maxLength(100), Validators.minLength(3)]],
-      genero: ['Não Especificado'],
+      gender: ['Não Especificado'],
       habilitation: [HabilitationEnum.WithoutProof],
     });
   }

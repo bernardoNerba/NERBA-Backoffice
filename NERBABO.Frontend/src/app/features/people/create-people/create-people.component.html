@@ -428,12 +428,12 @@
         <!-- Gender -->
         <div class="col-sm-6">
           <div class="mb-3">
-            <label for="genero">Gênero</label>
+            <label for="gender">Gênero</label>
             <select
-              formControlName="genero"
+              formControlName="gender"
               class="form-control"
               [class.is-invalid]="
-                submitted && registPersonForm.get('genero')?.errors
+                submitted && registPersonForm.get('gender')?.errors
               "
             >
               <option active value="Não Especificado">Não Especificado</option>
@@ -442,7 +442,7 @@
               <option value="Outro">Outro</option>
             </select>
             @if (submitted &&
-            registPersonForm.get('genero')?.hasError("required")) {
+            registPersonForm.get('gender')?.hasError("required")) {
             <span class="text-danger"> Gênero é um campo obrigatório. </span>
             }
           </div>
