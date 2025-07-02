@@ -6,6 +6,7 @@ import { SharedService } from './shared.service';
 import { environment } from '../../../environments/environment.development';
 import { OkResponse } from '../models/okResponse';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
+import { PersonRelationship } from '../models/personRelationships';
 
 @Injectable({
   providedIn: 'root',
@@ -53,6 +54,10 @@ export class PeopleService {
 
   getSinglePerson(id: number) {
     return this.http.get<Person>(`${environment.appUrl}/api/people/${id}`);
+  }
+
+  getPersonRelationships(id: number) {
+    return this.http.get<PersonRelationship>(`${environment.appUrl}/api/people/${id}/relationships`);
   }
 
   notifyPersonUpdate(personId: number) {

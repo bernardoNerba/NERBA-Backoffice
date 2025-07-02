@@ -54,15 +54,21 @@
       <li class="nav-item">
         <a class="nav-link active" aria-current="true" href="#">Pessoa</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Formando</a>
-      </li>
+      @if((relationships$ | async)?.isStudent){
+        <li class="nav-item">
+          <a class="nav-link" href="#">Formando</a>
+        </li>
+      }
+      @if((relationships$ | async)?.isTeacher){
       <li class="nav-item">
         <a class="nav-link" href="#">Formador</a>
       </li>
+    }
+    @if((relationships$ | async)?.isColaborator){
       <li class="nav-item">
         <a class="nav-link" href="#">Colaborador</a>
       </li>
+    }
     </ul>
   </div>
   <div class="card-body">
