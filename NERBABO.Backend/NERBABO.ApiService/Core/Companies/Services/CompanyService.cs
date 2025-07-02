@@ -25,14 +25,17 @@ namespace NERBABO.ApiService.Core.Companies.Services
         public async Task<Result<RetrieveCompanyDto>> CreateAsync(CreateCompanyDto entityDto)
         {
             
-            if (await _context.Companies.AnyAsync(c => c.Name == entityDto.Name))
+            if (await _context.Companies.AnyAsync(c =>
+             c.Name.ToLower()
+             .Equals(entityDto.Name.ToLower())))
             {
                 _logger.LogWarning("Duplicated Company Name");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Nome da Empresa está duplicado.");
             }
             if (!string.IsNullOrEmpty(entityDto.Email) 
-                && await _context.Companies.AnyAsync(c => c.Email == entityDto.Email))
+                && await _context.Companies.AnyAsync(c =>
+                (c.Email ?? "").ToLower().Equals(entityDto.Email.ToLower())))
             {
                 _logger.LogWarning("Duplicated Comapny Email");
                 return Result<RetrieveCompanyDto>
@@ -82,7 +85,6 @@ namespace NERBABO.ApiService.Core.Companies.Services
         public async Task<Result> DeleteAsync(long id)
         {
             var existingCompany = await _context.Companies.FindAsync(id);
-            
             if (existingCompany is null)
             {
                 _logger.LogWarning("Company with id {id} tryed to delete but not found", id);
@@ -137,32 +139,37 @@ namespace NERBABO.ApiService.Core.Companies.Services
                 return Result<RetrieveCompanyDto>
                     .Fail("Não encontrado.", "Empresa não encontrada", StatusCodes.Status404NotFound);
 
-            if (existingCompany.Name != entityDto.Name
-                && await _context.Companies.AnyAsync(c => c.Name == entityDto.Name))
+            if (await _context.Companies.AnyAsync(c =>
+                c.Name.ToLower().Equals(entityDto.Name)
+                && c.Id != entityDto.Id))
             {
                 _logger.LogWarning("Duplicated Company Name");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Nome da Empresa está duplicado.");
             }
-            if (existingCompany.Email != entityDto.Email
-                && !string.IsNullOrEmpty(entityDto.Email)
-                && await _context.Companies.AnyAsync(c => c.Email == entityDto.Email))
+            if (!string.IsNullOrEmpty(entityDto.Email)
+                && await _context.Companies.AnyAsync(c =>
+                (c.Email ?? "").ToLower().Equals(entityDto.Email)
+                && c.Id != entityDto.Id)
+                )
             {
                 _logger.LogWarning("Duplicated Comapny Email");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Email da Empresa está duplicado.");
             }
-            if (existingCompany.ZipCode != entityDto.ZipCode
-                && !string.IsNullOrEmpty(entityDto.ZipCode)
-                && await _context.Companies.AnyAsync(c => c.ZipCode == entityDto.ZipCode))
+            if (!string.IsNullOrEmpty(entityDto.ZipCode)
+                && await _context.Companies.AnyAsync(c =>
+                c.ZipCode == entityDto.ZipCode
+                && c.Id != entityDto.Id))
             {
                 _logger.LogWarning("Duplicated Comapny ZipCode");
                 return Result<RetrieveCompanyDto>
                     .Fail("Erro de Validação.", "Código Postal da Empresa está duplicado.");
             }
-            if (existingCompany.PhoneNumber != entityDto.PhoneNumber
-                && !string.IsNullOrEmpty(entityDto.PhoneNumber)
-                && await _context.Companies.AnyAsync(c => c.PhoneNumber == entityDto.PhoneNumber))
+            if (!string.IsNullOrEmpty(entityDto.PhoneNumber)
+                && await _context.Companies.AnyAsync(c =>
+                c.PhoneNumber == entityDto.PhoneNumber
+                && c.Id != entityDto.Id))
             {
                 _logger.LogWarning("Duplicated Comapny PhoneNumber");
                 return Result<RetrieveCompanyDto>

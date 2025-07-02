@@ -11,6 +11,10 @@ public class Teacher : Entity<long>
     public int IvaRegimeId { get; set; }
     public int IrsRegimeId { get; set; }
     public long PersonId { get; set; }
+
+    /// <summary>
+    /// Certificado de Competencias Pedagógicas
+    /// </summary>
     public string Ccp { get; set; } = string.Empty;
     public string Competences { get; set; } = string.Empty;
     public float AvarageRating { get; set; } = 0.0f;

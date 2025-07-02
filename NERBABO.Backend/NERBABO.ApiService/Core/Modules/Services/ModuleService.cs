@@ -20,11 +20,14 @@ namespace NERBABO.ApiService.Core.Modules.Services
         public async Task<Result<RetrieveModuleDto>> CreateAsync(CreateModuleDto entityDto)
         {
             // Unique constrains check
-            if (await _context.Modules.AnyAsync(m => m.Name == entityDto.Name))
+            if (await _context.Modules.AnyAsync(m =>
+                m.Name.ToLower()
+                .Equals(entityDto.Name.ToLower()))
+            )
             {
                 _logger.LogWarning("Duplicated Module Name detected");
                 return Result<RetrieveModuleDto>
-                    .Fail("Nome duplicado.", "O nome do módulo deve ser único. Já existe no sistema.");
+                    .Fail("Erro de Validação.", "O nome do módulo deve ser único. Já existe no sistema.");
             }
 
             var createdModule = _context.Modules.Add(Module.ConvertCreateDtoToEntity(entityDto));
@@ -32,15 +35,14 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             var moduleToRetrieve = Module.ConvertEntityToRetrieveDto(createdModule.Entity);
 
-            var cache_key = $"module:{moduleToRetrieve.Id}";
+            var cache_key = $"modules:{moduleToRetrieve.Id}";
             await _cacheService.SetAsync(cache_key, moduleToRetrieve, TimeSpan.FromMinutes(30));
-            await ClearCache();
+            await DeleteModuleCacheAsync();
 
             return Result<RetrieveModuleDto>
                 .Ok(moduleToRetrieve, "Módulo criado com sucesso.",
                 $"Foi criado um módulo com o nome {moduleToRetrieve.Name}.",
                 StatusCodes.Status201Created);
-
         }
 
         public async Task<Result<IEnumerable<RetrieveModuleDto>>> GetActiveModulesAsync()
@@ -96,7 +98,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
             {
                 _logger.LogInformation("No modules found in the database.");
                 return Result<IEnumerable<RetrieveModuleDto>>
-                    .Fail("Nenhum módulo encontrado.", "Não existem módulos ativos no sistema.",
+                    .Fail("Não encontrado.", "Não existem módulos ativos no sistema.",
                     StatusCodes.Status404NotFound);
             }
 
@@ -110,7 +112,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
         public async Task<Result<RetrieveModuleDto>> GetByIdAsync(long id)
         {
             // Check if entry exists in cache
-            var cacheKey = $"module:{id}";
+            var cacheKey = $"modules:{id}";
             var cachedModule = await _cacheService.GetAsync<RetrieveModuleDto>(cacheKey);
             if (cachedModule is not null)
                 return Result<RetrieveModuleDto>
@@ -131,7 +133,6 @@ namespace NERBABO.ApiService.Core.Modules.Services
             await _cacheService.SetAsync(cacheKey, existingModule, TimeSpan.FromMinutes(30));
             return Result<RetrieveModuleDto>
                 .Ok(existingModule);
-
         }
 
         public async Task<Result<RetrieveModuleDto>> UpdateAsync(UpdateModuleDto entityDto)
@@ -139,26 +140,27 @@ namespace NERBABO.ApiService.Core.Modules.Services
             var existingModule = await _context.Modules.FindAsync(entityDto.Id);
             if (existingModule is null)
                 return Result<RetrieveModuleDto>
-                    .Fail("Não encontrado", "Módulo não encontrado.",
+                    .Fail("Não encontrado.", "Módulo não encontrado.",
                     StatusCodes.Status404NotFound);
 
             // Unique constrains check
-            if (existingModule.Name != entityDto.Name
-                && await _context.Modules.AnyAsync(m => m.Name == entityDto.Name))
+            if (await _context.Modules.AnyAsync(m =>
+                m.Name.ToLower().Equals(entityDto.Name.ToLower())
+                && m.Id != entityDto.Id)
+                )
             {
                 _logger.LogWarning("Duplicated Module Name detected");
                 return Result<RetrieveModuleDto>
-                    .Fail("Nome duplicado.", "O nome do módulo deve ser único. Já existe no sistema.");
+                    .Fail("Erro de Validação.", "O nome do módulo deve ser único. Já existe no sistema.");
             }
-
 
             _context.Entry(existingModule).CurrentValues.SetValues(Module.ConvertUpdateDtoToEntity(entityDto));
             await _context.SaveChangesAsync();
 
             // Update cache
-            var cacheKey = $"module:{existingModule.Id}";
+            var cacheKey = $"modules:{existingModule.Id}";
             await _cacheService.SetAsync(cacheKey, Module.ConvertEntityToRetrieveDto(existingModule), TimeSpan.FromMinutes(30));
-            await ClearCache();
+            await DeleteModuleCacheAsync();
 
             return Result<RetrieveModuleDto>
                 .Ok(Module.ConvertEntityToRetrieveDto(existingModule),
@@ -180,20 +182,19 @@ namespace NERBABO.ApiService.Core.Modules.Services
             await _context.SaveChangesAsync();
 
             // Remove from cache
-            await _cacheService.RemoveAsync($"module:{id}");
-            await ClearCache();
+            await DeleteModuleCacheAsync(id);
 
             return Result
                 .Ok("Módulo Eliminado", "Módulo eliminado com sucesso.");
         }
 
-        #region Private Helper Methods
-        private async Task ClearCache()
+        private async Task DeleteModuleCacheAsync(long? id = null)
         {
-            // Clear cache entries related to modules
+            if (id is not null)
+                await _cacheService.RemoveAsync($"modules:{id}");
+
             await _cacheService.RemoveAsync("modules:list");
             await _cacheService.RemoveAsync("modules:list:active");
         }
-        #endregion
     }
 }

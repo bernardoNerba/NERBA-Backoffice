@@ -5,21 +5,24 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Actions.Services
 {
     public class CourseActionService(
         AppDbContext context,
-        ILogger<CourseActionService> logger
+        ILogger<CourseActionService> logger,
+        ICacheService cacheService
         ) : ICourseActionService
     {
         private readonly AppDbContext _context = context;
         private readonly ILogger<CourseActionService> _logger = logger;
+        private readonly ICacheService _cacheService = cacheService;
 
         public async Task<Result<RetrieveCourseActionDto>> CreateAsync(CreateCourseActionDto entityDto)
         {
             var existingCourse = await _context.Courses
-            .FindAsync(entityDto.CourseId);
+                .FindAsync(entityDto.CourseId);
             if (existingCourse is null)
             {
                 _logger.LogWarning("Course not found for given CourseId: {id}", entityDto.CourseId);
@@ -40,8 +43,9 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             // validate unique constraint
             if (!string.IsNullOrEmpty(entityDto.Title)
-                && await _context.Actions
-                .AnyAsync(a => a.Title.ToLower().Equals(entityDto.Title.ToLower())))
+                && await _context.Actions.AnyAsync(a =>
+                a.Title.ToLower()
+                .Equals(entityDto.Title.ToLower())))
             {
                 _logger.LogWarning("Action with title '{title}' already exists.", entityDto.Title);
                 return Result<RetrieveCourseActionDto>
@@ -49,8 +53,10 @@ namespace NERBABO.ApiService.Core.Actions.Services
             }
 
             if (!string.IsNullOrEmpty(entityDto.AdministrationCode)
-                && await _context.Actions
-                .AnyAsync(a => a.AdministrationCode == entityDto.AdministrationCode))
+                && await _context.Actions.AnyAsync(a =>
+                a.AdministrationCode.ToLower()
+                .Equals(entityDto.AdministrationCode.ToLower()))
+                )
             {
                 _logger.LogWarning("Action with administration code '{code}' already exists.", entityDto.AdministrationCode);
                 return Result<RetrieveCourseActionDto>
@@ -58,7 +64,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
             }
 
             // validate enums
-            if (!string.IsNullOrEmpty(entityDto.Status) 
+            if (!string.IsNullOrEmpty(entityDto.Status)
                 && !EnumHelp.IsValidEnum<StatusEnum>(entityDto.Status))
             {
                 _logger.LogWarning("Invalid status value: {status}", entityDto.Status);
@@ -107,12 +113,16 @@ namespace NERBABO.ApiService.Core.Actions.Services
             }
 
             var action = CourseAction.ConvertCreateDtoToEntity(entityDto, existingCoordenator, existingCourse);
-            _context.Actions.Add(action);
+            var result = _context.Actions.Add(action);
             _context.SaveChanges();
+
+            var retrieveCourseAction = CourseAction.ConvertEntityToRetrieveDto(result.Entity, existingCoordenator, existingCourse);
+
+            await _cacheService.SetAsync($"action:{result.Entity.Id}", retrieveCourseAction, TimeSpan.FromMinutes(30));
 
             _logger.LogInformation("Course action created successfully with ID: {id}", action.Id);
             return Result<RetrieveCourseActionDto>
-                .Ok(CourseAction.ConvertEntityToRetrieveDto(action, existingCoordenator, existingCourse),
+                .Ok(retrieveCourseAction,
                 "Ação de Formação criada.", "Ação de Formação criada com sucesso.",
                 StatusCodes.Status201Created);
         }
@@ -139,10 +149,11 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             await DeleteTransactionAsync(existingCourseAction);
 
+            // update cache
+            await DeleteActionCacheAsync(id);
+
             return Result
-            .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
-
-
+                .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
         }
 
         public async Task<Result> DeleteAsync(long id)
@@ -160,12 +171,21 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             await DeleteTransactionAsync(existingCourseAction);
 
+            // update cache
+            await DeleteActionCacheAsync(id);
+
             return Result
             .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
         }
 
         public async Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllAsync()
         {
+            var cacheKey = "action:list";
+            var cacheActions = await _cacheService.GetAsync<IEnumerable<RetrieveCourseActionDto>>(cacheKey);
+            if (cacheActions is not null)
+                return Result<IEnumerable<RetrieveCourseActionDto>>
+                    .Ok(cacheActions);
+
             var existingCourseActions = await _context.Actions
                 .Include(a => a.Coordenator)
                 .Include(a => a.Course)
@@ -179,6 +199,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
                     StatusCodes.Status404NotFound);
             }
 
+            await _cacheService.SetAsync(cacheKey, existingCourseActions, TimeSpan.FromMinutes(30));
+
             _logger.LogInformation("Retrieved {count} course actions.", existingCourseActions.Count);
             return Result<IEnumerable<RetrieveCourseActionDto>>
                 .Ok(existingCourseActions);
@@ -187,6 +209,12 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
         public async Task<Result<RetrieveCourseActionDto>> GetByIdAsync(long id)
         {
+            var cacheKey = $"action:{id}";
+            var cacheAction = await _cacheService.GetAsync<RetrieveCourseActionDto>(cacheKey);
+            if (cacheAction is not null)
+                return Result<RetrieveCourseActionDto>
+                    .Ok(cacheAction);
+            
             var existingAction = await _context.Actions
                 .Include(a => a.Coordenator)
                 .Include(a => a.Course)
@@ -199,6 +227,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
                     StatusCodes.Status404NotFound);
             }
 
+            await _cacheService.SetAsync(cacheKey, cacheAction, TimeSpan.FromMinutes(30));
+
             _logger.LogInformation("Course action retrieved successfully with ID: {id}", id);
             return Result<RetrieveCourseActionDto>
                 .Ok(CourseAction.ConvertEntityToRetrieveDto(existingAction, existingAction.Coordenator, existingAction.Course));
@@ -206,6 +236,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
         public async Task<Result<RetrieveCourseActionDto>> UpdateAsync(UpdateCourseActionDto entityDto)
         {
+
             var existingCourseAction = await _context.Actions
                 .Include(a => a.Course)
                 .Include(a => a.Coordenator)
@@ -304,9 +335,14 @@ namespace NERBABO.ApiService.Core.Actions.Services
             _context.Entry(existingCourseAction).CurrentValues.SetValues(actionEntity);
             await _context.SaveChangesAsync();
 
+            var retrieveAction = CourseAction.ConvertEntityToRetrieveDto(
+                actionEntity, actionEntity.Coordenator, actionEntity.Course);
+
+            // update cache
+            await DeleteActionCacheAsync(entityDto.Id);
+
             return Result<RetrieveCourseActionDto>
-            .Ok(CourseAction.ConvertEntityToRetrieveDto(
-                actionEntity, actionEntity.Coordenator, actionEntity.Course),
+            .Ok(retrieveAction,
                 "Ação de Formação Atualizada.", "Ação de formação atualizada com sucesso.");
 
         }
@@ -330,6 +366,14 @@ namespace NERBABO.ApiService.Core.Actions.Services
             {
                 await transaction.CommitAsync();
             }
+        }
+
+        private async Task DeleteActionCacheAsync(long? id = null)
+        {
+            if (id is not null)
+                await _cacheService.RemoveAsync($"action:{id}");
+
+            await _cacheService.RemoveAsync("action:list");
         }
     }
 }
