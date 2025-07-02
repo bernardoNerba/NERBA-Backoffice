@@ -247,6 +247,23 @@ public class PeopleService(
         return Result<RetrievePersonDto>.Ok(Person.ConvertEntityToRetrieveDto(existingPerson));
     }
 
+    public async Task<Result<RelationshipPersonDto>> GetPersonRelationshipsAsync(long personId)
+    {
+        var existingPerson = await _context.People
+            .Include(p => p.Teacher)
+            .Include(p => p.User)
+            .Include(p => p.Student)
+            .FirstOrDefaultAsync(p => p.Id == personId);
+        if (existingPerson is null)
+            return Result<RelationshipPersonDto>
+                .Fail("Não encontrado.", "Pessoa não encontrada.");
+
+        var relationship = new RelationshipPersonDto(existingPerson);
+
+        return Result<RelationshipPersonDto>
+            .Ok(relationship);
+    }
+
     public async Task<Result<RetrievePersonDto>> UpdateAsync(UpdatePersonDto entityDto)
     {
         var existingPerson = await _context.People.FindAsync(entityDto.Id);

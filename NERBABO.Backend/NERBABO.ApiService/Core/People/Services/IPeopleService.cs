@@ -8,4 +8,5 @@ public interface IPeopleService
     : IGenericService<RetrievePersonDto, CreatePersonDto, UpdatePersonDto, long>
 {
     Task<Result<IEnumerable<RetrievePersonDto>>> GetAllWithoutUserAsync();
+    Task<Result<RelationshipPersonDto>> GetPersonRelationshipsAsync(long personId);
 }
