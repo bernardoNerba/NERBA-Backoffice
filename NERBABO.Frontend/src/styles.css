@@ -226,3 +226,14 @@ a.nav-link:hover {
   background-color: var(--secondary-green-background);
   color: #fff;
 }
+
+.accordion-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Adjust spacing as needed */
+}
+
+.accordion-button i,
+.accordion-button h5 {
+  margin: 0; /* Remove default margins */
+}

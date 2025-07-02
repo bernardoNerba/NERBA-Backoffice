@@ -7,6 +7,16 @@ nav {
   height: 50px;
 }
 
+a {
+  text-decoration: none;
+  color: black;
+}
+
+a:hover {
+  color: var(--primary-green);
+  text-decoration: underline;
+}
+
 .toggle-btn {
   background: none;
   border: none;
