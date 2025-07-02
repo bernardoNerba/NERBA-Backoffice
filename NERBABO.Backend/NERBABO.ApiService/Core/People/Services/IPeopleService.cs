@@ -4,7 +4,8 @@ using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.People.Services;
 
-public interface IPeopleService: IGenericService<RetrievePersonDto, CreatePersonDto, UpdatePersonDto, long>
+public interface IPeopleService
+    : IGenericService<RetrievePersonDto, CreatePersonDto, UpdatePersonDto, long>
 {
     Task<Result<IEnumerable<RetrievePersonDto>>> GetAllWithoutUserAsync();
 }
