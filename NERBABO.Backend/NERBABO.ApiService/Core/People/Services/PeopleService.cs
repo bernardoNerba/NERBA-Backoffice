@@ -65,24 +65,24 @@ public class PeopleService(
         }
 
         // Enum validation
-        if (!string.IsNullOrEmpty(entityDto.Gender)
-            && !EnumHelp.IsValidEnum<GenderEnum>(entityDto.Gender))
+        if (string.IsNullOrEmpty(entityDto.Gender)
+            || !EnumHelp.IsValidEnum<GenderEnum>(entityDto.Gender))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Género não encontrado.",
                 StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(entityDto.Habilitation)
-            && !EnumHelp.IsValidEnum<HabilitationEnum>(entityDto.Habilitation))
+        if (string.IsNullOrEmpty(entityDto.Habilitation)
+            || !EnumHelp.IsValidEnum<HabilitationEnum>(entityDto.Habilitation))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Tipo de Habilitações não encontrado.",
                 StatusCodes.Status404NotFound);
         }
 
-        if (!string.IsNullOrEmpty(entityDto.IdentificationType)
-            && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(entityDto.IdentificationType))
+        if (string.IsNullOrEmpty(entityDto.IdentificationType)
+            || !EnumHelp.IsValidEnum<IdentificationTypeEnum>(entityDto.IdentificationType))
         {
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado", "Tipo de Identificação não encontrado.",

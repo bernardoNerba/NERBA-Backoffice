@@ -15,7 +15,6 @@ public class Person : Entity<long>
     public string NIF { get; set; } = string.Empty;
     public string? IdentificationNumber { get; set; } = string.Empty;
     public DateOnly? IdentificationValidationDate { get; set; }
-    public IdentificationTypeEnum IdentificationType { get; set; } = IdentificationTypeEnum.Unknown;
     public string? NISS { get; set; } = string.Empty;
     public string? IBAN { get; set; } = string.Empty;
     public DateOnly? BirthDate { get; set; }
@@ -27,6 +26,7 @@ public class Person : Entity<long>
     public string? Nationality { get; set; } = string.Empty;
     public GenderEnum Gender { get; set; } = GenderEnum.Unknown;
     public HabilitationEnum Habilitation { get; set; } = HabilitationEnum.WithoutProof;
+    public IdentificationTypeEnum IdentificationType { get; set; } = IdentificationTypeEnum.Unknown;
 
 
     public User? User { get; set; }
