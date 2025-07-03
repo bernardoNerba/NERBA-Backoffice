@@ -23,4 +23,7 @@ export const API_ENDPOINTS = {
   create_tax: `${environment.appUrl}/api/tax/create/`,
   update_tax: `${environment.appUrl}/api/tax/update/`,
   delete_tax: `${environment.appUrl}/api/tax/delete/`,
+
+  // companies 
+  get_companies: `${environment.appUrl}/api/companies/`,
 };

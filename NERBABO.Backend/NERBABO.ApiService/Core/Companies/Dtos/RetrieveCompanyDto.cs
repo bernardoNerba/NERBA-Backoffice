@@ -1,6 +1,4 @@
-﻿using NERBABO.ApiService.Shared.Enums;
-using System.Diagnostics.Eventing.Reader;
-
+﻿
 namespace NERBABO.ApiService.Core.Companies.Dtos
 {
     public class RetrieveCompanyDto
@@ -15,7 +13,7 @@ namespace NERBABO.ApiService.Core.Companies.Dtos
         public string AtivitySector { get; set; } = string.Empty;
         public string Size { get; set; } = string.Empty;
 
-        public RetrieveCompanyDto() {}
+        public RetrieveCompanyDto() { }
 
         public RetrieveCompanyDto(long id, string name, string? address, string? phoneNumber, string? locality, string? zipCode, string? email, string ativitySector, string size)
         {
