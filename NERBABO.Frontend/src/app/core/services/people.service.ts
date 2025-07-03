@@ -57,7 +57,9 @@ export class PeopleService {
   }
 
   getPersonRelationships(id: number) {
-    return this.http.get<PersonRelationship>(`${environment.appUrl}/api/people/${id}/relationships`);
+    return this.http.get<PersonRelationship>(
+      `${environment.appUrl}/api/people/${id}/relationships`
+    );
   }
 
   notifyPersonUpdate(personId: number) {

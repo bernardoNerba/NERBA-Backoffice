@@ -74,47 +74,47 @@
         <tbody>
           @for(company of filteredCompanies$ | async; track company.id){
           <tr>
-            <td>
+            <td style="width: 50px">
               <!-- ACTION DROPDOWN -->
-              <div class="row">
-                <div class="col-lg-6">
-                  <button
-                    class="btn btn-sm btn-outline-secondary"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item">
+                    <app-icon [icon]="ICONS.edit" class="me-3" />
+                    Editar</a
                   >
-                    <i class="bi bi-three-dots-vertical"></i>
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a class="dropdown-item">
-                        <app-icon [icon]="ICONS.edit" class="me-3" />
-                        Editar</a
-                      >
-                    </li>
+                </li>
 
-                    <li>
-                      <a class="dropdown-item">
-                        <app-icon [icon]="ICONS.delete" class="me-3" />
-                        Eliminar</a
-                      >
-                    </li>
+                <li>
+                  <a class="dropdown-item">
+                    <app-icon [icon]="ICONS.delete" class="me-3" />
+                    Eliminar</a
+                  >
+                </li>
 
-                    <li>
-                      <a class="dropdown-item">
-                        <app-icon [icon]="ICONS.detail" class="me-3" />
-                        Detalhes</a
-                      >
-                    </li>
-                  </ul>
+                <li>
+                  <a class="dropdown-item">
+                    <app-icon [icon]="ICONS.detail" class="me-3" />
+                    Detalhes</a
+                  >
+                </li>
+              </ul>
 
-                  <!-- END ACTION DROPDOWN -->
-                </div>
-                <div class="col-lg-6 text-center"></div>
-              </div>
+              <!-- END ACTION DROPDOWN -->
             </td>
-            <td>{{ (company.name.trim() | truncate : 21) || "N/A" }}</td>
+            <td>
+              <a class="btn btn-sm btn-light me-2">
+                <app-icon [icon]="ICONS.link" />
+                {{ (company.name | truncate : 21) || "N/A" }}</a
+              >
+            </td>
             <td>{{ company.phoneNumber || "N/A" }}</td>
             <td>
               @if (company.email){

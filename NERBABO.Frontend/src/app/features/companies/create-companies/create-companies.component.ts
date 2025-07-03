@@ -33,6 +33,7 @@ export class CreateCompaniesComponent implements OnInit {
     private companiesService: CompaniesService,
     private sharedService: SharedService
   ) {}
+
   ngOnInit(): void {
     this.initializeForm();
   }

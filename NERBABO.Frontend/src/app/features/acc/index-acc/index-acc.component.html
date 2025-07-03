@@ -63,7 +63,7 @@
       } @else {
       <!-- TABLE WITH USER INFO -->
       <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered">
+        <table class="table table-striped table-hover">
           <!-- COLUMNS ITERATED -->
           <thead>
             <tr>
@@ -76,7 +76,7 @@
           <tbody>
             @for (user of filteredUsers$ | async ; track user.id) {
             <tr>
-              <td>
+              <td style="width: 80px">
                 <div class="row">
                   <!-- ACTION DROPDOWN -->
                   <div class="col-lg-6 text-center">
@@ -93,7 +93,9 @@
                         <a
                           class="dropdown-item"
                           (click)="onUpdateUserModal(user.id)"
-                          ><i class="bi bi-pencil-fill me-3"></i>Editar</a
+                        >
+                          <app-icon [icon]="ICONS.edit" class="me-3" />
+                          Editar</a
                         >
                       </li>
 
@@ -101,8 +103,9 @@
                         <a
                           class="dropdown-item"
                           (click)="onBlockUserModal(user.id, user.isActive)"
-                          ><i class="bi bi-exclamation-triangle-fill me-3"></i
-                          >{{ user.isActive ? "Bloquear" : "Desbloquear" }}</a
+                          ><app-icon [icon]="ICONS.delete" class="me-3" />{{
+                            user.isActive ? "Bloquear" : "Desbloquear"
+                          }}</a
                         >
                       </li>
 
@@ -110,15 +113,19 @@
                         <a
                           class="dropdown-item"
                           [routerLink]="['/people', user.personId]"
-                          ><i class="bi bi-person-bounding-box me-3"></i>Ver
-                          Pessoa</a
+                          ><app-icon
+                            [icon]="ICONS.detail"
+                            class="me-3"
+                          />Detalhes</a
                         >
                       </li>
                       <li>
                         <a
                           class="dropdown-item"
                           (click)="onAssignRoleModal(user.id)"
-                          ><i class="bi bi-paperclip me-3"></i>Atribuir Papel</a
+                        >
+                          <app-icon [icon]="ICONS.clipboard" class="me-3" />
+                          Atribuir Papel</a
                         >
                       </li>
                     </ul>
@@ -147,7 +154,7 @@
                   [routerLink]="['/people', user.personId]"
                 >
                   <app-icon [icon]="ICONS.link" />
-                  {{ user.fullName }}
+                  {{ user.fullName ?? "" | truncate : 21 }}
                 </a>
               </td>
               <td>{{ user.userName }}</td>
@@ -157,7 +164,7 @@
                   href="mailto:{{ user.email }}"
                 >
                   <app-icon [icon]="ICONS.email" />
-                  {{ user.email }}</a
+                  {{ user.email.split("@")[0] }}</a
                 >
               </td>
               <!-- ROLES -->

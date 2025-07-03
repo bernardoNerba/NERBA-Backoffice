@@ -6,6 +6,8 @@ import {
   faPen,
   faExclamationTriangle,
   faCircleInfo,
+  faUser,
+  faClipboard,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -15,4 +17,6 @@ export const ICONS = {
   edit: faPen,
   delete: faExclamationTriangle,
   detail: faCircleInfo,
+  user: faUser,
+  clipboard: faClipboard,
 };

@@ -72,52 +72,41 @@
         <tbody>
           @for (person of filteredPeople$ | async ; track person.id;){
           <tr>
-            <td>
+            <td style="width: 50px">
               <!-- ACTION DROPDOWN -->
-              <div class="row">
-                <div class="col-lg-6 text-center">
-                  <button
-                    class="btn btn-sm btn-outline-secondary"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" (click)="onUpdatePersonModal(person)"
+                    ><app-icon [icon]="ICONS.edit" class="me-3" /> Editar</a
                   >
-                    <i class="bi bi-three-dots-vertical"></i>
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a
-                        class="dropdown-item"
-                        (click)="onUpdatePersonModal(person)"
-                        ><i class="bi bi-pencil-fill me-3"></i>Editar</a
-                      >
-                    </li>
+                </li>
 
-                    <li>
-                      <a
-                        class="dropdown-item"
-                        (click)="
-                          onDeletePersonModal(person.id, person.fullName)
-                        "
-                        ><i class="bi bi-exclamation-triangle-fill me-3"></i
-                        >Eliminar</a
-                      >
-                    </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    (click)="onDeletePersonModal(person.id, person.fullName)"
+                    ><app-icon [icon]="ICONS.delete" class="me-3" /> Eliminar</a
+                  >
+                </li>
 
-                    <li>
-                      <a
-                        class="dropdown-item"
-                        [routerLink]="['/people', person.id]"
-                        ><i class="bi bi-person-bounding-box me-3"></i>Ver
-                        Pessoa</a
-                      >
-                    </li>
-                  </ul>
-
-                  <!-- END ACTION DROPDOWN -->
-                </div>
-                <div class="col-lg-6 text-center"></div>
-              </div>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    [routerLink]="['/people', person.id]"
+                  >
+                    <app-icon [icon]="ICONS.detail" class="me-3" />Detalhes</a
+                  >
+                </li>
+              </ul>
+              <!-- END ACTION DROPDOWN -->
             </td>
             <td>
               <a
@@ -125,13 +114,15 @@
                 [routerLink]="['/people', person.id]"
               >
                 <app-icon [icon]="ICONS.link" />
-                {{ person.fullName }}</a
+                {{ person.fullName | truncate : 21 }}</a
               >
             </td>
             <td>{{ person.nif.trim() || "N/A" }}</td>
             <td>{{ person.age || "N/A" }}</td>
             <td>
-              {{ person.habilitation.trim() || "N/A" }}
+              <span class="badge bg-light me-1 text-dark">
+                {{ person.habilitation.trim() || "N/A" }}
+              </span>
             </td>
             <td>
               @if(person.email.trim()){
@@ -140,7 +131,7 @@
                 href="mailto:{{ person.email }}"
               >
                 <app-icon [icon]="ICONS.email" />
-                {{ person.email.trim() }}
+                {{ person.email.split("@")[0] }}
               </a>
               } @else { N/A }
             </td>

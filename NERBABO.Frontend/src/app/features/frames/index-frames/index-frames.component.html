@@ -66,41 +66,38 @@
             <tbody>
               @for (frame of filteredFrames$ | async; track frame.id;){
               <tr>
-                <td>
+                <td style="width: 50px">
                   <!-- ACTION DROPDOWN -->
-                  <div class="row">
-                    <div class="col-lg-6 text-center">
-                      <button
-                        class="btn btn-sm btn-outline-secondary"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
+                  <button
+                    class="btn btn-sm btn-outline-secondary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        (click)="onUpdateFrameModal(frame)"
+                        ><app-icon [icon]="ICONS.edit" class="me-3" />Editar</a
                       >
-                        <i class="bi bi-three-dots-vertical"></i>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li>
-                          <a
-                            class="dropdown-item"
-                            (click)="onUpdateFrameModal(frame)"
-                            ><i class="bi bi-pencil-fill me-3"></i>Editar</a
-                          >
-                        </li>
+                    </li>
 
-                        <li>
-                          <a
-                            class="dropdown-item"
-                            (click)="onDeleteFrameModal(frame)"
-                            ><i class="bi bi-exclamation-triangle-fill me-3"></i
-                            >Eliminar</a
-                          >
-                        </li>
-                      </ul>
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        (click)="onDeleteFrameModal(frame)"
+                        ><app-icon
+                          [icon]="ICONS.delete"
+                          class="me-3"
+                        />Eliminar</a
+                      >
+                    </li>
+                  </ul>
 
-                      <!-- END ACTION DROPDOWN -->
-                    </div>
-                    <div class="col-lg-6 text-center"></div>
-                  </div>
+                  <!-- END ACTION DROPDOWN -->
                 </td>
                 <td>{{ frame.program.trim() || "N/A" }}</td>
                 <td>{{ frame.intervention.trim() || "N/A" }}</td>

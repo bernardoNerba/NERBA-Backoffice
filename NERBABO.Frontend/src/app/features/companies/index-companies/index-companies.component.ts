@@ -51,6 +51,7 @@ export class IndexCompaniesComponent implements OnInit {
   }
   ngOnInit(): void {
     this.filteredCompanies$ = this.companies$;
+    this.updateBreadcrumbs();
   }
 
   onAddCompanyModal() {
@@ -76,5 +77,20 @@ export class IndexCompaniesComponent implements OnInit {
       name: name,
     };
     this.modalService.show(DeleteCompaniesComponent, { initialState });
+  }
+
+  private updateBreadcrumbs(): void {
+    this.sharedService.insertIntoBreadcrumb([
+      {
+        url: '/dashboard',
+        displayName: 'Dashboard',
+        className: '',
+      },
+      {
+        url: '/companies',
+        displayName: 'Empresas',
+        className: 'inactive',
+      },
+    ]);
   }
 }
