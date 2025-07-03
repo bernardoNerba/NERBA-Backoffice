@@ -12,12 +12,15 @@ public class TaxConfiguration : IEntityTypeConfiguration<Tax>
 
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.Id)
+               .ValueGeneratedOnAdd();
+
         builder.Property(x => x.Name)
             .HasColumnType("varchar(50)")
             .IsRequired(true);
 
         builder.Property(x => x.ValuePercent)
-            .HasColumnType("integer")
+            .HasColumnType("float")
             .IsRequired(true);
 
         builder.Property(x => x.IsActive)

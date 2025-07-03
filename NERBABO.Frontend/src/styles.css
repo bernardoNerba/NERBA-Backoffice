@@ -231,6 +231,7 @@ a.nav-link:hover {
   display: flex;
   align-items: center;
   gap: 0.75rem; /* Adjust spacing as needed */
+  color: var(--dark-green) !important;
 }
 
 .accordion-button i,

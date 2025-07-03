@@ -11,7 +11,7 @@ public class CreateTaxDto
 
     [Required(ErrorMessage = "Valor percentual é um campo obrigatório")]
     [Range(0, 100, ErrorMessage = "Valor percentual deve estar entre {1} e {2}")]
-    public int ValuePercent { get; set; }
+    public float ValuePercent { get; set; }
 
     [Required(ErrorMessage = "Tipo é um campo obrigatório")]
     public string Type { get; set; } = string.Empty;
