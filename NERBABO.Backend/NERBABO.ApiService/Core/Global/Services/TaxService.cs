@@ -21,15 +21,21 @@ public class TaxService(
     public async Task<Result<RetrieveTaxDto>> CreateAsync(CreateTaxDto entityDto)
     {
         if (!Tax.IsValidTaxType(entityDto.Type))
+        {
+            _logger.LogWarning("Invalid tax type when creating instance {type}", entityDto.Type);
             return Result<RetrieveTaxDto>
-                .Fail("Erro de Validação.", "Taxa inválida.");
+                .Fail("Erro de Validação.", "Tipo de Taxa inválida.");
+        }
 
-        if (await _context.Taxes.AnyAsync(t => t.Name == entityDto.Name))
+        if (await _context.Taxes.AnyAsync(t => t.Name.ToLower().Equals(entityDto.Name.ToLower())))
+        {
+            _logger.LogWarning("Duplicated Name when creating tax. {name}", entityDto.Name);
             return Result<RetrieveTaxDto>
-                .Fail("Erro de Validação", "Já existe uma taxa com este regime.",
-                StatusCodes.Status404NotFound);
+                .Fail("Erro de Validação", "Já existe uma taxa com este regime.");
+        }
 
-        var result = _context.Taxes.Add(Tax.ConvertCreateDtoToEntity(entityDto));
+        var taxToCreate = Tax.ConvertCreateDtoToEntity(entityDto);
+        var result = _context.Taxes.Add(taxToCreate);
         await _context.SaveChangesAsync();
 
         return Result<RetrieveTaxDto>
@@ -98,12 +104,12 @@ public class TaxService(
             return Result<RetrieveTaxDto>
                 .Fail("Erro de Validação", "Já existe uma taxa com estas caracteristicas");
         }
-       
+
         _context.Entry(existingTax).CurrentValues.SetValues(Tax.ConvertUpdateDtoToEntity(entityDto));
         await _context.SaveChangesAsync();
-        
+
         return Result<RetrieveTaxDto>
-            .Ok(Tax.ConvertEntityToRetrieveDto(existingTax), 
+            .Ok(Tax.ConvertEntityToRetrieveDto(existingTax),
             "Taxa Atualizada.", "Taxa atualizada com sucesso.");
     }
 
@@ -132,7 +138,7 @@ public class TaxService(
     public async Task<Result<RetrieveTaxDto>> GetByIdAsync(int id)
     {
         var existingTax = await _context.Taxes.FindAsync(id);
-        
+
         if (existingTax is null)
             return Result<RetrieveTaxDto>
                 .Fail("Não encontrado.", "Taxa não encontrada.",

@@ -24,6 +24,7 @@ import { AssignRoleAccComponent } from '../assign-role-acc/assign-role-acc.compo
 import { CreateAccComponent } from '../create-acc/create-acc.component';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-index-acc',
@@ -34,6 +35,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
     SpinnerComponent,
     RouterLink,
     IconComponent,
+    TruncatePipe,
   ],
   templateUrl: './index-acc.component.html',
   styleUrl: './index-acc.component.css',

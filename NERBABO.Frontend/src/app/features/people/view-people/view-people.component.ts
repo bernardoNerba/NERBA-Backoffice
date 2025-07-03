@@ -9,6 +9,7 @@ import { Person } from '../../../core/models/person';
 import { SharedService } from '../../../core/services/shared.service';
 import { UpdatePeopleComponent } from '../update-people/update-people.component';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
+import { PersonRelationship } from '../../../core/models/personRelationships';
 
 @Component({
   selector: 'app-detail-person',
@@ -19,6 +20,7 @@ import { DeletePeopleComponent } from '../delete-people/delete-people.component'
 })
 export class ViewPeopleComponent implements OnInit, OnDestroy {
   person$?: Observable<Person | null>;
+  relationships$?: Observable<PersonRelationship | null>;
   selectedId!: number;
   fullName!: string;
   id!: number;
@@ -104,6 +106,8 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
         }
       })
     );
+
+    this.relationships$ = this.peopleService.getPersonRelationships(this.id);
   }
 
   private updateSourceSubcription() {

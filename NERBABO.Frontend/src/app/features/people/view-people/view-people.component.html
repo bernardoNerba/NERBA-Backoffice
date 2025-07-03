@@ -54,15 +54,19 @@
       <li class="nav-item">
         <a class="nav-link active" aria-current="true" href="#">Pessoa</a>
       </li>
+      @if((relationships$ | async)?.isStudent){
       <li class="nav-item">
         <a class="nav-link" href="#">Formando</a>
       </li>
+      } @if((relationships$ | async)?.isTeacher){
       <li class="nav-item">
         <a class="nav-link" href="#">Formador</a>
       </li>
+      } @if((relationships$ | async)?.isColaborator){
       <li class="nav-item">
         <a class="nav-link" href="#">Colaborador</a>
       </li>
+      }
     </ul>
   </div>
   <div class="card-body">
@@ -81,7 +85,7 @@
               aria-expanded="false"
               aria-controls="general-info-content"
             >
-              <i class="bi bi-person-bounding-box me-3"></i>
+              <i class="bi bi-person-bounding-box fs-4 me-3"></i>
               <h5>Informações Gerais</h5>
             </button>
           </h2>
@@ -159,7 +163,7 @@
               aria-expanded="true"
               aria-controls="contact-info-content"
             >
-              <i class="bi bi-person-lines-fill me-3"></i>
+              <i class="bi bi-person-lines-fill fs-4 me-3"></i>
               <h5>Contactos da Pessoa</h5>
             </button>
           </h2>
@@ -189,7 +193,7 @@
                     <div class="property">
                       <strong>Código-Postal</strong>
                       <p class="text-break mb-0">
-                        {{ person.postalCode || "N/A" }}
+                        {{ person.zipCode || "N/A" }}
                       </p>
                     </div>
                   </div>
@@ -219,7 +223,7 @@
               aria-expanded="true"
               aria-controls="identification-info-content"
             >
-              <i class="bi bi-info-circle-fill me-3"></i>
+              <i class="bi bi-info-circle-fill fs-4 me-3"></i>
               <h5>Identificação da Pessoa</h5>
             </button>
           </h2>
@@ -297,7 +301,7 @@
               aria-expanded="true"
               aria-controls="documentation-content"
             >
-              <i class="bi bi-filetype-doc me-3"></i>
+              <i class="bi bi-filetype-doc fs-4 me-3"></i>
               <h5>Documentação Armazenada</h5>
             </button>
           </h2>
@@ -310,7 +314,7 @@
               <div class="container-fluid px-0">
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-secondary me-2">
+                    <button class="btn btn-sm btn-light me-2">
                       <i class="bi bi-cloud-download-fill"></i>
                     </button>
                     <span class="text-break"
@@ -318,7 +322,7 @@
                     >
                   </li>
                   <li class="list-group-item d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-secondary me-2">
+                    <button class="btn btn-sm btn-light me-2">
                       <i class="bi bi-cloud-download-fill"></i>
                     </button>
                     <span class="text-break"
@@ -326,7 +330,7 @@
                     >
                   </li>
                   <li class="list-group-item d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-secondary me-2">
+                    <button class="btn btn-sm btn-light me-2">
                       <i class="bi bi-cloud-download-fill"></i>
                     </button>
                     <span class="text-break"

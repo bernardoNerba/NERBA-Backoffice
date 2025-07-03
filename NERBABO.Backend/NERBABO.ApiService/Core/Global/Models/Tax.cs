@@ -9,8 +9,8 @@ namespace NERBABO.ApiService.Core.Global.Models;
 public class Tax : Entity<int>
 {
     public string Name { get; set; } = string.Empty;
-    public int ValuePercent { get; set; }
-    public float ValueDecimal => (float)ValuePercent / 100;
+    public float ValuePercent { get; set; }
+    public float ValueDecimal => ValuePercent / 100;
     public bool IsActive { get; set; }
     public TaxEnum Type { get; set; } = TaxEnum.IVA;
 
@@ -21,7 +21,7 @@ public class Tax : Entity<int>
 
     // constructors
     public Tax() { }
-    public Tax(int id, string name, int valuePercent, TaxEnum type)
+    public Tax(int id, string name, float valuePercent, TaxEnum type)
     {
         Id = id;
         Name = name;
@@ -29,7 +29,7 @@ public class Tax : Entity<int>
         Type = type;
     }
 
-    public Tax(string name, int valuePercent, bool active, TaxEnum type)
+    public Tax(string name, float valuePercent, bool active, TaxEnum type)
     {
         Name = name;
         ValuePercent = valuePercent;
@@ -37,7 +37,7 @@ public class Tax : Entity<int>
         Type = type;
     }
 
-    public Tax(int id, string name, int valuePercent, bool active, TaxEnum type)
+    public Tax(int id, string name, float valuePercent, bool active, TaxEnum type)
     {
         Id = id;
         Name = name;

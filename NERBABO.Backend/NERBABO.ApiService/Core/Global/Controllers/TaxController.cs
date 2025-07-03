@@ -37,7 +37,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         /// <param name="tax">The CreateTaxDto object that will be validated and used to create the tax.</param>
         /// <response code="201">Created Successfully. Returns the RetrieveTaxDto created object.</response>
         /// <response code="400">Validation ERROR when validating tax type, name.</response>
-/// <response code="401">The user is not authorized, invalid jwt, user is not Admin or is not active.</response>        /// <response code="500">Unexpected error occurred.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is not Admin or is not active.</response>        /// <response code="500">Unexpected error occurred.</response>
         [HttpPost("create")]
         [Authorize(Roles = "Admin", Policy = "ActiveUser")]
         public async Task<IActionResult> CreateTaxAsync([FromBody] CreateTaxDto tax)

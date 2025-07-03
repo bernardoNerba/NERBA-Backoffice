@@ -598,8 +598,8 @@ namespace NERBABO.ApiService.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ValuePercent")
-                        .HasColumnType("integer");
+                    b.Property<float>("ValuePercent")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 

@@ -71,7 +71,6 @@ export class CreateTaxesComponent implements OnInit {
 
     this.confService.createIvaTax(model).subscribe({
       next: (value: OkResponse) => {
-        console.log(value);
         this.confService.triggerFetchConfigs();
         this.sharedService.showSuccess(value.message);
         this.loading = false;
@@ -82,7 +81,6 @@ export class CreateTaxesComponent implements OnInit {
         this.loading = false;
       },
     });
-
     this.submitted = false;
   }
 }

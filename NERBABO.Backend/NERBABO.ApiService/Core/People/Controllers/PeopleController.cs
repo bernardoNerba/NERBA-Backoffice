@@ -28,7 +28,7 @@ namespace NERBABO.ApiService.Core.People.Controllers
         [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetAllPersonsAsync()
         {
-            Result<IEnumerable<RetrievePersonDto>> result = await _peopleService.GetAllAsync();            
+            Result<IEnumerable<RetrievePersonDto>> result = await _peopleService.GetAllAsync();
             return _responseHandler.HandleResult(result);
         }
 
@@ -117,6 +117,24 @@ namespace NERBABO.ApiService.Core.People.Controllers
         public async Task<IActionResult> DeletePersonAsync(long id)
         {
             Result result = await _peopleService.DeleteAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+
+
+        /// <summary>
+        /// Gets the person relationships.
+        /// </summary>
+        /// <param name="id">The ID of the person to be retrieved its relationships.</param>
+        /// <response code="200">Person found. Returns a RelationshipPersonDto. </response>
+        /// <response code="404">Person not found.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("{id:long}/relationships")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> GetPersonRelationshipsAsync(long id)
+        {
+            var result = await _peopleService.GetPersonRelationshipsAsync(id);
             return _responseHandler.HandleResult(result);
         }
     }

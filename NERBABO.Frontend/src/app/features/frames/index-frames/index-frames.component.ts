@@ -17,18 +17,21 @@ import { SharedService } from '../../../core/services/shared.service';
 import { CreateFramesComponent } from '../create-frames/create-frames.component';
 import { UpdateFramesComponent } from '../update-frames/update-frames.component';
 import { DeleteFramesComponent } from '../delete-frames/delete-frames.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ICONS } from '../../../core/objects/icons';
 
 @Component({
   selector: 'app-index-frame',
   templateUrl: './index-frames.component.html',
   styleUrl: './index-frames.component.css',
-  imports: [CommonModule, ReactiveFormsModule, SpinnerComponent],
+  imports: [CommonModule, ReactiveFormsModule, SpinnerComponent, IconComponent],
 })
 export class IndexFramesComponent implements OnInit {
   frames$!: Observable<Frame[]>;
   filteredFrames$!: Observable<Frame[]>;
   loading$: Observable<boolean>;
   searchControl = new FormControl('');
+  ICONS = ICONS;
   columns = [
     '#',
     'Programa',

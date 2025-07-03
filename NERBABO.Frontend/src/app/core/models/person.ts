@@ -17,6 +17,6 @@ export type Person = {
   nationality: string;
   naturality: string;
   phoneNumber: string;
-  postalCode: string;
+  zipCode: string;
   age: number;
 };

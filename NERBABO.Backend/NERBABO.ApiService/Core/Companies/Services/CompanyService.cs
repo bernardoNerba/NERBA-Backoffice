@@ -9,18 +9,14 @@ using ZLinq;
 
 namespace NERBABO.ApiService.Core.Companies.Services
 {
-    public class CompanyService : ICompanyService
+    public class CompanyService(
+        AppDbContext context,
+        ILogger<CompanyService> logger
+    ) : ICompanyService
     {
-        private readonly AppDbContext _context;
-        private readonly ILogger<CompanyService> _logger;
+        private readonly AppDbContext _context = context;
+        private readonly ILogger<CompanyService> _logger = logger;
 
-        public CompanyService(
-            AppDbContext context,
-            ILogger<CompanyService> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
 
         public async Task<Result<RetrieveCompanyDto>> CreateAsync(CreateCompanyDto entityDto)
         {
@@ -79,7 +75,9 @@ namespace NERBABO.ApiService.Core.Companies.Services
 
             _logger.LogInformation("Company created successfully.");
             return Result<RetrieveCompanyDto>
-                .Ok(Company.ConvertEntityToRetrieveDto(company));
+                .Ok(Company.ConvertEntityToRetrieveDto(company),
+                "Empresa criada.", "Empresa criada com sucesso.",
+                StatusCodes.Status201Created);
         }
 
         public async Task<Result> DeleteAsync(long id)

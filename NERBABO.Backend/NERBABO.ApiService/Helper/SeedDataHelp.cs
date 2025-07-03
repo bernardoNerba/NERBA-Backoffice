@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
@@ -148,13 +147,13 @@ public class SeedDataHelp
 
         var taxes = new List<Tax>
             {
-                new (1, "Regime de Isenção", 0, TaxEnum.IVA),
-                new (2, "Sujeto à taxa de 23%", 23, TaxEnum.IVA),
-                new (3, "Rentenção na Fonte de IRS à taxa de 25%", 25, TaxEnum.IRS),
-                new (4, "Rentenção na Fonte de IRS à taxa de 23%", 23, TaxEnum.IRS),
-                new (5, "Rentenção na Fonte de IRS à taxa de 11,5%", 12, TaxEnum.IRS),
-                new (6, "Rentenção na Fonte de IRS à taxa de 16,5%", 17, TaxEnum.IRS),
-                new (7, "Rentenção na Fonte de IRS à taxa de 20%", 20, TaxEnum.IRS)
+                new (1, "Regime de Isenção", 0, true, TaxEnum.IVA),
+                new (2, "Sujeto à taxa de 23%", 23, true, TaxEnum.IVA),
+                new (3, "Rentenção na Fonte de IRS à taxa de 25%", 25, true, TaxEnum.IRS),
+                new (4, "Rentenção na Fonte de IRS à taxa de 23%", 23, true, TaxEnum.IRS),
+                new (5, "Rentenção na Fonte de IRS à taxa de 11,5%", 12, true, TaxEnum.IRS),
+                new (6, "Rentenção na Fonte de IRS à taxa de 16,5%", 17, true, TaxEnum.IRS),
+                new (7, "Rentenção na Fonte de IRS à taxa de 20%", 20, true, TaxEnum.IRS)
             };
 
         _context.Taxes.AddRange(taxes);
