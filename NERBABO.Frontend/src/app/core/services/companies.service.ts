@@ -57,4 +57,8 @@ export class CompaniesService {
   deleteCompany(id: number) {
     return this.http.delete<OkResponse>(`${API_ENDPOINTS.companies}${id}`);
   }
+
+  getCompanyById(id: number) {
+    return this.http.get<Company>(`${API_ENDPOINTS.companies}${id}`);
+  }
 }

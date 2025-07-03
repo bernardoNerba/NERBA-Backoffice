@@ -179,7 +179,7 @@
               }
             </select>
             @if (submitted &&
-            createCompanyForm.get('address')?.hasError("required")) {
+            createCompanyForm.get('ativitySector')?.hasError("required")) {
             <span class="text-danger">
               Setor de Atividade é um campo obrigatório.
             </span>
@@ -208,7 +208,7 @@
               }
             </select>
             @if (submitted &&
-            createCompanyForm.get('address')?.hasError("required")) {
+            createCompanyForm.get('size')?.hasError("required")) {
             <span class="text-danger"> Tamanho é um campo obrigatório. </span>
             }
           </div>

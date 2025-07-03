@@ -63,9 +63,9 @@ export class IndexCompaniesComponent implements OnInit {
     });
   }
 
-  onUpdateCompanyModal(company: Company) {
+  onUpdateCompanyModal(companyId: number) {
     const initialState = {
-      id: company.id,
+      id: companyId,
     };
     this.modalService.show(UpdateCompaniesComponent, {
       initialState: initialState,
