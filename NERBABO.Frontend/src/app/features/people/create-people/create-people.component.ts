@@ -76,7 +76,7 @@ export class CreatePeopleComponent implements OnInit {
       iban: ['', [Validators.maxLength(25), Validators.minLength(25)]],
       birthDate: [''],
       address: [''],
-      postalCode: ['', [Validators.maxLength(8), Validators.minLength(8)]],
+      zipCode: ['', [Validators.maxLength(8), Validators.minLength(8)]],
       phoneNumber: ['', [Validators.maxLength(9), Validators.minLength(9)]],
       email: [
         '',
@@ -100,6 +100,8 @@ export class CreatePeopleComponent implements OnInit {
       );
       return;
     }
+
+    console.log(this.registPersonForm.value.zipCode);
 
     this.loading = true;
 

@@ -4,6 +4,7 @@ import { Company } from '../models/company';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
+import { OkResponse } from '../models/okResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +39,22 @@ export class CompaniesService {
   }
 
   private fetchCompanies(): Observable<Company[]> {
-    return this.http.get<Company[]>(`${API_ENDPOINTS.get_companies}`);
+    return this.http.get<Company[]>(`${API_ENDPOINTS.companies}`);
+  }
+
+  triggerFetch() {
+    this.loadCompanies();
+  }
+
+  createCompany(model: Omit<Company, 'id'>): Observable<OkResponse> {
+    return this.http.post<OkResponse>(`${API_ENDPOINTS.companies}`, model);
+  }
+
+  updateCompany(model: Company, id: number) {
+    return this.http.put<OkResponse>(`${API_ENDPOINTS.companies}/${id}`, model);
+  }
+
+  deleteCompany(id: number) {
+    return this.http.delete<OkResponse>(`${API_ENDPOINTS.companies}/${id}`);
   }
 }

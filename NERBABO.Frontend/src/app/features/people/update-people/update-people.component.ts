@@ -93,8 +93,8 @@ export class UpdatePeopleComponent implements OnInit {
       ],
       birthDate: [this.currentPerson.birthDate],
       address: [this.currentPerson.address],
-      postalCode: [
-        this.currentPerson.postalCode,
+      zipCode: [
+        this.currentPerson.zipCode,
         [Validators.maxLength(8), Validators.minLength(8)],
       ],
       phoneNumber: [
@@ -151,7 +151,7 @@ export class UpdatePeopleComponent implements OnInit {
         nationality: formValue.nationality,
         naturality: formValue.naturality,
         phoneNumber: formValue.phoneNumber,
-        postalCode: formValue.postalCode,
+        zipCode: formValue.zipCode,
       })
       .subscribe({
         next: (value) => {

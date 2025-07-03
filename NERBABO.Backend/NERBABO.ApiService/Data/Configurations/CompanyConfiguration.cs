@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NERBABO.ApiService.Core.Companies.Models;
-using NERBABO.ApiService.Core.Students.Models;
 
 namespace NERBABO.ApiService.Data.Configurations
 {

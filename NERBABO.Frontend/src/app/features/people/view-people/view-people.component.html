@@ -55,20 +55,18 @@
         <a class="nav-link active" aria-current="true" href="#">Pessoa</a>
       </li>
       @if((relationships$ | async)?.isStudent){
-        <li class="nav-item">
-          <a class="nav-link" href="#">Formando</a>
-        </li>
-      }
-      @if((relationships$ | async)?.isTeacher){
+      <li class="nav-item">
+        <a class="nav-link" href="#">Formando</a>
+      </li>
+      } @if((relationships$ | async)?.isTeacher){
       <li class="nav-item">
         <a class="nav-link" href="#">Formador</a>
       </li>
-    }
-    @if((relationships$ | async)?.isColaborator){
+      } @if((relationships$ | async)?.isColaborator){
       <li class="nav-item">
         <a class="nav-link" href="#">Colaborador</a>
       </li>
-    }
+      }
     </ul>
   </div>
   <div class="card-body">
@@ -165,7 +163,7 @@
               aria-expanded="true"
               aria-controls="contact-info-content"
             >
-              <i class="bi bi-person-lines-fill fs-4  me-3"></i>
+              <i class="bi bi-person-lines-fill fs-4 me-3"></i>
               <h5>Contactos da Pessoa</h5>
             </button>
           </h2>
@@ -195,7 +193,7 @@
                     <div class="property">
                       <strong>Código-Postal</strong>
                       <p class="text-break mb-0">
-                        {{ person.postalCode || "N/A" }}
+                        {{ person.zipCode || "N/A" }}
                       </p>
                     </div>
                   </div>

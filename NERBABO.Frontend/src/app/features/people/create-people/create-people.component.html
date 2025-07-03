@@ -260,23 +260,23 @@
         <!-- Postal Code -->
         <div class="col-sm-6">
           <div class="mb-3">
-            <label for="postalCode">Código Postal</label>
+            <label for="zipCode">Código Postal</label>
             <input
-              formControlName="postalCode"
+              formControlName="zipCode"
               type="text"
               class="form-control"
               [class.is-invalid]="
-                submitted && registPersonForm.get('postalCode')?.errors
+                submitted && registPersonForm.get('zipCode')?.errors
               "
             />
             @if (submitted &&
-            registPersonForm.get('postalCode')?.hasError("required")) {
+            registPersonForm.get('zipCode')?.hasError("required")) {
             <span class="text-danger">
               Código Postal é um campo obrigatório.
             </span>
             } @else if (submitted &&
-            registPersonForm.get('postalCode')?.hasError("minlength") ||
-            registPersonForm.get('postalCode')?.hasError("maxlength")) {
+            registPersonForm.get('zipCode')?.hasError("minlength") ||
+            registPersonForm.get('zipCode')?.hasError("maxlength")) {
             <span class="text-danger">
               Código Postal deve ter extamente 8 caracteres.
             </span>

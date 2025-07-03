@@ -100,7 +100,6 @@ export class IndexPeopleComponent implements OnInit {
   }
 
   onDeletePersonModal(id: number, fullName: string) {
-    console.log(id, fullName);
     const initialState = {
       id: id,
       fullName: fullName,

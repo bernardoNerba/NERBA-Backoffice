@@ -24,6 +24,6 @@ export const API_ENDPOINTS = {
   update_tax: `${environment.appUrl}/api/tax/update/`,
   delete_tax: `${environment.appUrl}/api/tax/delete/`,
 
-  // companies 
-  get_companies: `${environment.appUrl}/api/companies/`,
+  // companies
+  companies: `${environment.appUrl}/api/companies/`,
 };
