@@ -13,6 +13,7 @@ import { CreateCompaniesComponent } from '../create-companies/create-companies.c
 import { UpdateCompaniesComponent } from '../update-companies/update-companies.component';
 import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-index-companies',
@@ -22,6 +23,7 @@ import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
     SpinnerComponent,
     IconComponent,
     TruncatePipe,
+    RouterLink,
   ],
   templateUrl: './index-companies.component.html',
   styleUrl: './index-companies.component.css',

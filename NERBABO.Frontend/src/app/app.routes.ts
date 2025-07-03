@@ -67,9 +67,17 @@ export const routes: Routes = [
   {
     path: 'companies',
     loadComponent: () =>
-      import('./features/companies/index-companies/index-companies.component').then(
-        (m) => m.IndexCompaniesComponent
-      ),
+      import(
+        './features/companies/index-companies/index-companies.component'
+      ).then((m) => m.IndexCompaniesComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'companies/:id',
+    loadComponent: () =>
+      import(
+        './features/companies/view-companies/view-companies.component'
+      ).then((m) => m.ViewCompaniesComponent),
     canActivate: [authGuard],
   },
   {

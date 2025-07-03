@@ -1,1 +1,33 @@
-<p>delete-companies works!</p>
+<div class="modal-header">
+  <h5 class="modal-title">Eliminar Enquadramento</h5>
+  <button
+    type="button"
+    class="btn-close"
+    (click)="bsModalRef.hide()"
+    aria-label="Close"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <p>
+    Tem a certeza que deseja eliminar o enquadramento <strong>{{ name }}</strong
+    >?
+  </p>
+  <p class="text-danger">Esta ação não pode ser revertida.</p>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+    Cancelar
+  </button>
+  <button
+    type="button"
+    class="btn-danger-action"
+    (click)="confirmDelete()"
+    [disabled]="deleting"
+  >
+    @if (deleting){
+    <span class="spinner-border spinner-border-sm me-1"></span>
+    } Eliminar
+  </button>
+</div>

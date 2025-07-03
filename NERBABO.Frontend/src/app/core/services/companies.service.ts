@@ -51,10 +51,10 @@ export class CompaniesService {
   }
 
   updateCompany(model: Company, id: number) {
-    return this.http.put<OkResponse>(`${API_ENDPOINTS.companies}/${id}`, model);
+    return this.http.put<OkResponse>(`${API_ENDPOINTS.companies}${id}`, model);
   }
 
   deleteCompany(id: number) {
-    return this.http.delete<OkResponse>(`${API_ENDPOINTS.companies}/${id}`);
+    return this.http.delete<OkResponse>(`${API_ENDPOINTS.companies}${id}`);
   }
 }

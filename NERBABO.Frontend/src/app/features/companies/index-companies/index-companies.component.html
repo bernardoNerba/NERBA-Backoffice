@@ -86,21 +86,30 @@
               </button>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item">
+                  <a
+                    class="dropdown-item"
+                    (click)="onUpdateCompanyModal(company)"
+                  >
                     <app-icon [icon]="ICONS.edit" class="me-3" />
                     Editar</a
                   >
                 </li>
 
                 <li>
-                  <a class="dropdown-item">
+                  <a
+                    class="dropdown-item"
+                    (click)="onDeleteCompanyModal(company.id, company.name)"
+                  >
                     <app-icon [icon]="ICONS.delete" class="me-3" />
                     Eliminar</a
                   >
                 </li>
 
                 <li>
-                  <a class="dropdown-item">
+                  <a
+                    class="dropdown-item"
+                    [routerLink]="['/companies', company.id]"
+                  >
                     <app-icon [icon]="ICONS.detail" class="me-3" />
                     Detalhes</a
                   >
@@ -110,7 +119,10 @@
               <!-- END ACTION DROPDOWN -->
             </td>
             <td>
-              <a class="btn btn-sm btn-light me-2">
+              <a
+                class="btn btn-sm btn-light me-2"
+                [routerLink]="['/companies', company.id]"
+              >
                 <app-icon [icon]="ICONS.link" />
                 {{ (company.name | truncate : 21) || "N/A" }}</a
               >
