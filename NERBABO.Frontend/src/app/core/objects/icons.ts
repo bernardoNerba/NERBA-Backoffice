@@ -11,12 +11,14 @@ import {
   faAdd,
   faBriefcase,
   faSearch,
+  faX,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
   link: faLink,
   email: faMailBulk,
   success: faCheckCircle,
+  fail: faX,
   edit: faPen,
   delete: faExclamationTriangle,
   detail: faCircleInfo,

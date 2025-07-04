@@ -33,6 +33,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'modules',
+    loadComponent: () =>
+      import('./features/modules/index-modules/index-modules.component').then(
+        (m) => m.IndexModulesComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'logout',
     loadComponent: () =>
       import('./features/auth/logout/logout.component').then(

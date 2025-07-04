@@ -29,4 +29,7 @@ export const API_ENDPOINTS = {
 
   // students
   studentsByCompany: `${environment.appUrl}/api/students/company/`,
+
+  // modules
+  modules: `${environment.appUrl}/api/module/`,
 };
