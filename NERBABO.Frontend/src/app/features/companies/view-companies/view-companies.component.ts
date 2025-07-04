@@ -3,7 +3,7 @@ import { catchError, Observable, of, tap } from 'rxjs';
 import { Company } from '../../../core/models/company';
 import { CompaniesService } from '../../../core/services/companies.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -11,7 +11,7 @@ import { Student } from '../../../core/models/student';
 
 @Component({
   selector: 'app-view-companies',
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, RouterLink],
   templateUrl: './view-companies.component.html',
   styleUrl: './view-companies.component.css',
 })

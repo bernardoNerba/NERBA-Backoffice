@@ -9,6 +9,7 @@ import {
   faUser,
   faClipboard,
   faAdd,
+  faBriefcase,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -21,4 +22,5 @@ export const ICONS = {
   add: faAdd,
   user: faUser,
   clipboard: faClipboard,
+  briefcase: faBriefcase,
 };
