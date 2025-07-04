@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Companies.Models;
+using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.Students.Dtos;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Data;
@@ -57,7 +58,7 @@ namespace NERBABO.ApiService.Core.Students.Services
             _context.Students.Add(student);
             await _context.SaveChangesAsync();
 
-            var retrieveStudent = Student.ConvertEntityToRetrieveDto(student, company);
+            var retrieveStudent = Student.ConvertEntityToRetrieveDto(student, person, company);
 
             // update cache
             await _cacheService.SetAsync($"student:{retrieveStudent.Id}", retrieveStudent, TimeSpan.FromMinutes(30));
@@ -93,7 +94,8 @@ namespace NERBABO.ApiService.Core.Students.Services
         {
             var existingStudents = await _context.Students
                 .Include(s => s.Company)
-                .Select(s => Student.ConvertEntityToRetrieveDto(s, s.Company))
+                .Include(s => s.Person)
+                .Select(s => Student.ConvertEntityToRetrieveDto(s, s.Person, s.Company))
                 .ToListAsync();
 
             if (existingStudents is null || existingStudents.Count == 0)
@@ -128,7 +130,8 @@ namespace NERBABO.ApiService.Core.Students.Services
             var existingStudents = await _context.Students
                 .Where(s => s.CompanyId == companyId)
                 .Include(s => s.Company)
-                .Select(s => Student.ConvertEntityToRetrieveDto(s, s.Company))
+                .Include(s => s.Person)
+                .Select(s => Student.ConvertEntityToRetrieveDto(s,s.Person, s.Company))
                 .ToListAsync();
             if (existingStudents is null || existingStudents.Count == 0)
             {
@@ -162,7 +165,9 @@ namespace NERBABO.ApiService.Core.Students.Services
             }
 
             var company = await _context.Companies.FindAsync(existingStudent.CompanyId);
-            var retrieveStudent = Student.ConvertEntityToRetrieveDto(existingStudent, company);
+            var person = await _context.People.FindAsync(existingStudent.PersonId);
+
+            var retrieveStudent = Student.ConvertEntityToRetrieveDto(existingStudent, person!, company);
 
             await _cacheService.SetAsync(cacheKey, retrieveStudent, TimeSpan.FromMinutes(30));
 
@@ -178,6 +183,11 @@ namespace NERBABO.ApiService.Core.Students.Services
                 return Result<RetrieveStudentDto>
                     .Ok(cachedStudent);
 
+            var existingPerson = await _context.People.FindAsync(personId);
+            if (existingPerson is null)
+                return Result<RetrieveStudentDto>
+                    .Fail("Não encontraod.", "Pessoa associada não encontrada.");
+
             var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.PersonId == personId);
             if (existingStudent is null)
                 return Result<RetrieveStudentDto>
@@ -185,7 +195,8 @@ namespace NERBABO.ApiService.Core.Students.Services
                     StatusCodes.Status404NotFound);
 
             var company = await _context.Companies.FindAsync(existingStudent.CompanyId);
-            var retrieveStudent = Student.ConvertEntityToRetrieveDto(existingStudent, company);
+
+            var retrieveStudent = Student.ConvertEntityToRetrieveDto(existingStudent, existingPerson, company);
 
             await _cacheService.SetAsync(cacheKey, retrieveStudent);
 
@@ -241,14 +252,14 @@ namespace NERBABO.ApiService.Core.Students.Services
             _context.Entry(existingStudent).CurrentValues.SetValues(student);
             await _context.SaveChangesAsync();
 
-            var retrieveStudent = Student.ConvertEntityToRetrieveDto(student, company);
+            var retrieveStudent = Student.ConvertEntityToRetrieveDto(student, person, company);
 
             // Update cache
             await _cacheService.SetAsync($"student:{entityDto.Id}", retrieveStudent, TimeSpan.FromMinutes(30));
             await DeleteStudentCacheAsync();
 
             return Result<RetrieveStudentDto>
-                .Ok(Student.ConvertEntityToRetrieveDto(student, company),
+                .Ok(retrieveStudent,
                 "Formando Atualizado.", "Formando atualizado com sucesso.");
         }
 

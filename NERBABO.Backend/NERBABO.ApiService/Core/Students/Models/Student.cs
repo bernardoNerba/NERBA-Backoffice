@@ -43,7 +43,7 @@ namespace NERBABO.ApiService.Core.Students.Models
         public Company? Company { get; set; }
 
 
-        public static RetrieveStudentDto ConvertEntityToRetrieveDto(Student s, Company? c)
+        public static RetrieveStudentDto ConvertEntityToRetrieveDto(Student s, Person p, Company? c)
         {
             return new RetrieveStudentDto(
                 s.Id,
@@ -52,7 +52,8 @@ namespace NERBABO.ApiService.Core.Students.Models
                 c?.Name ?? "N/A",
                 s.CompanyRole ?? "N/A",
                 s.IsEmployeed,
-                s.IsRegisteredWithJobCenter
+                s.IsRegisteredWithJobCenter,
+                $"{p.FirstName} {p.LastName}"
                 );
         }
 

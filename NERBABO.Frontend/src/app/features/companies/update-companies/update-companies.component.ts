@@ -110,6 +110,7 @@ export class UpdateCompaniesComponent {
         this.bsModalRef.hide();
         this.companiesService.triggerFetch();
         this.sharedService.showSuccess(value.message);
+        this.companiesService.notifyUpdate(this.id);
       },
       error: (error) => {
         this.errorMessages = this.sharedService.handleErrorResponse(error);

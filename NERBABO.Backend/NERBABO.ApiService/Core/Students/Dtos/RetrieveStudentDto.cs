@@ -4,7 +4,8 @@ namespace NERBABO.ApiService.Core.Students.Dtos
 {
     public class RetrieveStudentDto
     {
-        public RetrieveStudentDto(long id, long personId, long? companyId, string companyName, string companyRole, bool isEmployeed, bool isRegisteredWithJobCenter)
+        public RetrieveStudentDto(long id, long personId, long? companyId, string companyName,
+        string companyRole, bool isEmployeed, bool isRegisteredWithJobCenter, string studentFullName)
         {
             Id = id;
             PersonId = personId;
@@ -13,6 +14,7 @@ namespace NERBABO.ApiService.Core.Students.Dtos
             CompanyRole = companyRole;
             IsEmployeed = isEmployeed;
             IsRegisteredWithJobCenter = isRegisteredWithJobCenter;
+            StudentFullName = studentFullName;
         }
 
         public long Id { get; set; }
@@ -20,6 +22,7 @@ namespace NERBABO.ApiService.Core.Students.Dtos
         public long? CompanyId { get; set; }
         public string? CompanyName { get; set; }
         public string? CompanyRole { get; set; }
+        public string StudentFullName { get; set; }
 
         [JsonIgnore]
         public bool IsEmployeed { get; set; }

@@ -48,7 +48,7 @@ export class IndexCompaniesComponent implements OnInit {
     private readonly sharedService: SharedService,
     private readonly modalService: BsModalService
   ) {
-    this.companies$ = this.companiesService.comapnies$;
+    this.companies$ = this.companiesService.companies$;
     this.loading$ = this.companiesService.loading$;
   }
   ngOnInit(): void {

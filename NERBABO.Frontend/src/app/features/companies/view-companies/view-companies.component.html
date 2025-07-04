@@ -1,1 +1,171 @@
-<p>view-companies works!</p>
+@if (company$ | async; as company){
+<!-- TITLE + DROPDOWN MENU -->
+<div class="row">
+  <div class="col-md-8 col-6 mb-2">
+    <h3 class="text-break">{{ company.name }}</h3>
+  </div>
+  <!-- ACTION MENU -->
+  <div
+    class="col-md-auto col-6 ms-md-auto d-flex gap-2 justify-content-end mb-3"
+  >
+    <button
+      class="btn-main"
+      type="button"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item" (click)="onUpdateCompanyModal()">
+          <app-icon [icon]="ICONS.edit" [marginEnd]="3" />
+          Editar Informações</a
+        >
+      </li>
+      <li>
+        <a class="dropdown-item" (click)="onDeleteCompanyModal()">
+          <app-icon [icon]="ICONS.delete" [marginEnd]="3" />Eliminar
+          Informações</a
+        >
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- END TITLE + DROPDOWN MENU -->
+
+<div class="container-fluid px-0 my-4">
+  <div class="accordion" id="general-info-accordion">
+    <!-- GENERAL INFO ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-general-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#general-info-content"
+          aria-expanded="false"
+          aria-controls="general-info-content"
+        >
+          <i class="bi bi-buildings fs-4 me-3"></i>
+          <h5>Informações Gerais</h5>
+        </button>
+      </h2>
+      <div
+        id="general-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-general-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+              <div class="col">
+                <div class="property">
+                  <strong>Designação</strong>
+                  <p class="text-break mb-0">
+                    {{ company.name || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Localidade</strong>
+                  <p class="text-break mb-0">
+                    {{ company.locality || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Código Postal</strong>
+                  <p class="text-break mb-0">
+                    {{ company.zipCode || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Email</strong>
+                  <p class="text-break mb-0">
+                    {{ company.email || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Tel.</strong>
+                  <p class="text-break mb-0">
+                    {{ company.phoneNumber || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Dimensão</strong>
+                  <p class="text-break mb-0">
+                    {{ company.size || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Setor de Atividade</strong>
+                  <p class="text-break mb-0">
+                    {{ company.ativitySector || "N/A" }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END GENERAL INFO ACCORDION -->
+
+    <!-- GENERAL INFO ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-general-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#company-students-accordion"
+          aria-expanded="false"
+          aria-controls="company-students-accordion"
+        >
+          <i class="bi bi-people fs-4 me-3"></i>
+          <h5>Formandos</h5>
+        </button>
+      </h2>
+      <div
+        id="company-students-accordion"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-general-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="list-group">
+              @if ((students$ | async)?.length !== 0) { @for (student of
+              (students$ | async); track student.id) {
+              <a
+                [routerLink]="['/people', student.personId]"
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                >{{ student.studentFullName }}
+                <span class="badge bg-light text-dark">
+                  <app-icon [icon]="ICONS.briefcase" [marginEnd]="1" />
+                  Cargo: {{ student.companyRole }}</span
+                >
+              </a>
+              } } @else {
+              <div class="text-muted text-center">
+                {{ company.name }} não tem formandos registados no sistema.
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

@@ -10,11 +10,13 @@ import { SharedService } from '../../../core/services/shared.service';
 import { UpdatePeopleComponent } from '../update-people/update-people.component';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { PersonRelationship } from '../../../core/models/personRelationships';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ICONS } from '../../../core/objects/icons';
 
 @Component({
   selector: 'app-detail-person',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './view-people.component.html',
   styleUrl: './view-people.component.css',
 })
@@ -24,6 +26,7 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
   selectedId!: number;
   fullName!: string;
   id!: number;
+  ICONS = ICONS;
 
   private subscriptions: Subscription = new Subscription();
 
