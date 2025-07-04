@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { catchError, Observable, of, tap } from 'rxjs';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { catchError, Observable, of, Subscription, tap } from 'rxjs';
 import { Company } from '../../../core/models/company';
 import { CompaniesService } from '../../../core/services/companies.service';
 import { SharedService } from '../../../core/services/shared.service';
@@ -8,6 +8,9 @@ import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Student } from '../../../core/models/student';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { UpdateCompaniesComponent } from '../update-companies/update-companies.component';
+import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
 
 @Component({
   selector: 'app-view-companies',
@@ -15,7 +18,7 @@ import { Student } from '../../../core/models/student';
   templateUrl: './view-companies.component.html',
   styleUrl: './view-companies.component.css',
 })
-export class ViewCompaniesComponent implements OnInit {
+export class ViewCompaniesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   selectedId!: number;
   company$?: Observable<Company | null>;
@@ -24,11 +27,14 @@ export class ViewCompaniesComponent implements OnInit {
   ICONS = ICONS;
   hasStudents: boolean = false;
 
+  private subscription: Subscription = new Subscription();
+
   constructor(
     private companiesService: CompaniesService,
     private sharedService: SharedService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private modalService: BsModalService
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +48,26 @@ export class ViewCompaniesComponent implements OnInit {
 
     this.initializeCompany();
     this.initializeStudentsFromCompany();
+    this.updateSourceSubscription();
+    this.deleteSourceSubscription();
+  }
+
+  onUpdateCompanyModal() {
+    const initialState = {
+      id: this.id,
+    };
+    this.modalService.show(UpdateCompaniesComponent, {
+      initialState: initialState,
+      class: 'modal-lg',
+    });
+  }
+
+  onDeleteCompanyModal() {
+    const initialState = {
+      id: this.id,
+      name: this.name,
+    };
+    this.modalService.show(DeleteCompaniesComponent, { initialState });
   }
 
   private initializeCompany() {
@@ -100,5 +126,30 @@ export class ViewCompaniesComponent implements OnInit {
         className: 'inactive',
       },
     ]);
+  }
+
+  private updateSourceSubscription() {
+    this.subscription.add(
+      this.companiesService.updatedSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this.initializeCompany();
+          this.initializeStudentsFromCompany();
+        }
+      })
+    );
+  }
+
+  private deleteSourceSubscription() {
+    this.subscription.add(
+      this.companiesService.deletedSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this, this.router.navigateByUrl('/companies');
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

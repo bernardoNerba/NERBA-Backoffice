@@ -29,6 +29,7 @@ export class DeleteCompaniesComponent {
         this.companiesService.triggerFetch();
         this.bsModalRef.hide();
         this.sharedService.showSuccess(value.message);
+        this.companiesService.notifyDelete(this.id);
       },
       error: (error) => {
         this.sharedService.handleErrorResponse(error);

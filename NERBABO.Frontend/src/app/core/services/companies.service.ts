@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Company } from '../models/company';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
@@ -13,6 +13,8 @@ import { Student } from '../models/student';
 export class CompaniesService {
   private companiesSubject = new BehaviorSubject<Company[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
+  private updatedSource = new Subject<number>();
+  private deletedSource = new Subject<number>();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
     this.loadCompanies();
@@ -20,6 +22,8 @@ export class CompaniesService {
 
   companies$ = this.companiesSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
+  updatedSource$ = this.updatedSource.asObservable();
+  deletedSource$ = this.deletedSource.asObservable();
 
   private loadCompanies(): void {
     this.loadingSubject.next(true);
@@ -65,5 +69,13 @@ export class CompaniesService {
 
   getStudentsByCompanyId(id: number) {
     return this.http.get<Student[]>(`${API_ENDPOINTS.studentsByCompany}${id}`);
+  }
+
+  notifyUpdate(id: number) {
+    this.updatedSource.next(id);
+  }
+
+  notifyDelete(id: number) {
+    this.deletedSource.next(id);
   }
 }
