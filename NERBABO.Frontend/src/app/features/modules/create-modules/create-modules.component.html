@@ -1,1 +1,100 @@
-<p>create-modules works!</p>
+<div class="modal-header">
+  <h4 class="modal-title">Registar Pessoa</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="container">
+      <div class="row">
+        <!-- Module Name -->
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label for="name"
+              >UFCD
+              <span class="text-danger">*</span>
+            </label>
+            <input
+              formControlName="name"
+              type="name"
+              class="form-control"
+              [class.is-invalid]="submitted && form.get('name')?.errors"
+            />
+            @if (submitted && form.get('name')?.hasError("required")) {
+            <span class="text-danger"> UFCD é um campo obrigatório. </span>
+            } @else if (submitted && form.get('name')?.hasError("minlength") ||
+            form.get('name')?.hasError("maxlength")) {
+            <span class="text-danger">
+              UFCD deve ter entre 3 e 255 caracteres.
+            </span>
+            }
+          </div>
+        </div>
+        <!-- Module Total Hours -->
+        <div class="col-sm-6">
+          <div class="mb-3">
+            <label for="hours">
+              Total Horas
+              <span class="text-danger">*</span>
+            </label>
+            <input
+              formControlName="hours"
+              id="hours"
+              type="number"
+              class="form-control"
+              [class.is-invalid]="submitted && form.get('hours')?.errors"
+              required
+              isInRange
+            />
+
+            <div
+              *ngIf="submitted && form.get('hours')?.errors"
+              class="text-danger mt-1"
+              style="font-size: 0.875em"
+            >
+              <span *ngIf="form.get('hours')?.hasError('required')">
+                O total de horas é um campo obrigatório.
+              </span>
+              <span *ngIf="form.get('hours')?.hasError('rangeValueToSmall')">
+                O número é muito baixo (mínimo: 0).
+              </span>
+              <span *ngIf="form.get('hours')?.hasError('rangeValueToBig')">
+                O número é muito alto (máximo: 1000).
+              </span>
+            </div>
+          </div>
+        </div>
+        <!-- Module is active -->
+        <!-- <div class="col-sm-6">
+          <label class="form-check-label" for="isActive">Módulo Ativo</label>
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              id="isActive"
+              formControlName="isActive"
+            />
+          </div>
+        </div> -->
+      </div>
+    </div>
+
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+    <!-- submit button -->
+    <div class="text-end">
+      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+        Cancel
+      </button>
+      <button type="submit" class="btn-main" [disabled]="loading">
+        @if (loading){
+        <span class="spinner-border spinner-border-sm me-1"></span>
+        } Save
+      </button>
+    </div>
+  </form>
+</div>

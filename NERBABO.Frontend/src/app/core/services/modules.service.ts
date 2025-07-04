@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Module } from '../models/module';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
+import { OkResponse } from '../models/okResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,22 @@ export class ModulesService {
 
   modules$ = this.modulesSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
+
+  createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
+    return this.http.post<OkResponse>(`${API_ENDPOINTS.modules}`, model);
+  }
+
+  updateModule(id: number, model: Module): Observable<OkResponse> {
+    return this.http.put<OkResponse>(`${API_ENDPOINTS.modules}${id}`, model);
+  }
+
+  getSingleModule(id: number): Observable<Module> {
+    return this.http.get<Module>(`${API_ENDPOINTS.modules}${id}`);
+  }
+
+  deleteModule(id: number): Observable<OkResponse> {
+    return this.http.delete<OkResponse>(`${API_ENDPOINTS.modules}${id}`);
+  }
 
   private fetchModules(): void {
     this.loadingSubject.next(true);
@@ -35,5 +52,9 @@ export class ModulesService {
       },
     });
     this.loadingSubject.next(false);
+  }
+
+  triggerFetch() {
+    this.fetchModules();
   }
 }

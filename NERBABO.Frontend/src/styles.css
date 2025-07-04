@@ -58,6 +58,30 @@ td {
   background: #3dff2379;
 }
 
+/*
+ * Custom Green Bootstrap Switch
+ *
+ * This CSS overrides the default blue color of the Bootstrap
+ * form-switch to use the custom green variables from the app's theme.
+ */
+
+/* Style for the switch when it is checked (active) */
+.form-check-input:checked {
+  background-color: var(--primary-green) !important;
+  border-color: var(--primary-green) !important;
+}
+
+.form-check-input:focus {
+  border-color: var(--dark-green) !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.25rem rgba(4, 246, 113, 0.25) !important;
+}
+
+.form-check-input {
+  background-color: var(--gray-1) !important;
+  border-color: var(--gray-2) !important;
+}
+
 .btn-main {
   background: var(--primary-green);
   color: white;
