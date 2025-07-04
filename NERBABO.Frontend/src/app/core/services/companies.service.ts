@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
+import { Student } from '../models/student';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,7 @@ export class CompaniesService {
     this.loadCompanies();
   }
 
-  comapnies$ = this.companiesSubject.asObservable();
+  companies$ = this.companiesSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
 
   private loadCompanies(): void {
@@ -60,5 +61,9 @@ export class CompaniesService {
 
   getCompanyById(id: number) {
     return this.http.get<Company>(`${API_ENDPOINTS.companies}${id}`);
+  }
+
+  getStudentsByCompanyId(id: number) {
+    return this.http.get<Student[]>(`${API_ENDPOINTS.studentsByCompany}${id}`);
   }
 }

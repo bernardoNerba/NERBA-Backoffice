@@ -8,6 +8,7 @@ import {
   faCircleInfo,
   faUser,
   faClipboard,
+  faAdd,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -17,6 +18,7 @@ export const ICONS = {
   edit: faPen,
   delete: faExclamationTriangle,
   detail: faCircleInfo,
+  add: faAdd,
   user: faUser,
   clipboard: faClipboard,
 };

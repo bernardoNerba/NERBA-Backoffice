@@ -18,30 +18,33 @@
     <ul class="dropdown-menu">
       <li>
         <a class="dropdown-item"
-          ><i class="bi bi-person-fill-add me-3"></i>Criar Como Colaborador</a
+          ><app-icon [icon]="ICONS.add" [marginEnd]="3" />Criar Como
+          Colaborador</a
         >
       </li>
 
       <li>
         <a class="dropdown-item"
-          ><i class="bi bi-person-fill-add me-3"></i>Criar Como Formando</a
+          ><app-icon [icon]="ICONS.add" [marginEnd]="3" />Criar Como Formando</a
         >
       </li>
 
       <li>
         <a class="dropdown-item"
-          ><i class="bi bi-person-fill-add me-3"></i>Criar Como Formador</a
+          ><app-icon [icon]="ICONS.add" [marginEnd]="3" /> Criar Como
+          Formador</a
         >
       </li>
       <li>
-        <a class="dropdown-item" (click)="updatePersonModal()"
-          ><i class="bi bi-pencil-fill me-3"></i>Editar Pessoa</a
+        <a class="dropdown-item" (click)="updatePersonModal()">
+          <app-icon [icon]="ICONS.edit" [marginEnd]="3" />
+          Editar Informações</a
         >
       </li>
       <li>
-        <a class="dropdown-item" (click)="deletePersonModal()"
-          ><i class="bi bi-exclamation-triangle-fill me-3"></i>Eliminar
-          Pessoa</a
+        <a class="dropdown-item" (click)="deletePersonModal()">
+          <app-icon [icon]="ICONS.delete" [marginEnd]="3" />Eliminar
+          Informações</a
         >
       </li>
     </ul>
@@ -71,8 +74,6 @@
   </div>
   <div class="card-body">
     <div class="container-fluid px-0 my-4">
-      <!-- LIST OF PAGES -->
-      <!-- END LIST OF PAGES -->
       <div class="accordion" id="general-info-accordion">
         <!-- GENERAL INFO ACCORDION-->
         <div class="accordion-item">

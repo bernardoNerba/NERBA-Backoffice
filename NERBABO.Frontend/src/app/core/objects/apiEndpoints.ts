@@ -26,4 +26,7 @@ export const API_ENDPOINTS = {
 
   // companies
   companies: `${environment.appUrl}/api/companies/`,
+
+  // students
+  studentsByCompany: `${environment.appUrl}/api/students/company/`,
 };
