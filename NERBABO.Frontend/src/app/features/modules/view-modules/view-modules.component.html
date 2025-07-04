@@ -1,1 +1,36 @@
-<p>view-modules works!</p>
+@if (module$ | async; as module){
+<!-- TITLE + DROPDOWN MENU -->
+<div class="row">
+  <div class="col-md-8 col-6 mb-2">
+    <h3 class="text-break">{{ module.name }}</h3>
+  </div>
+  <!-- ACTION MENU -->
+  <div
+    class="col-md-auto col-6 ms-md-auto d-flex gap-2 justify-content-end mb-3"
+  >
+    <button
+      class="btn-main"
+      type="button"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item">
+          <app-icon [icon]="ICONS.edit" [marginEnd]="3" />
+          Editar Informações</a
+        >
+      </li>
+      <li>
+        <a class="dropdown-item">
+          <app-icon [icon]="ICONS.delete" [marginEnd]="3" />Eliminar
+          Informações</a
+        >
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- END TITLE + DROPDOWN MENU -->
+}

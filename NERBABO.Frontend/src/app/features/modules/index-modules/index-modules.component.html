@@ -109,7 +109,15 @@
               </ul>
               <!-- END ACTION DROPDOWN -->
             </td>
-            <td style="min-width: 250px">{{ module.name }}</td>
+            <td style="min-width: 250px">
+              <a
+                class="btn btn-sm btn-light me-2"
+                [routerLink]="['/modules', module.id]"
+              >
+                <app-icon [icon]="ICONS.link" />
+                {{ module.name || "N/A" }}</a
+              >
+            </td>
             <td>{{ module.hours }} h</td>
             <td>
               <span class="badge bg-light text-dark">
