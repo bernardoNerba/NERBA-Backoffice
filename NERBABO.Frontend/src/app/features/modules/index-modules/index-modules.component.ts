@@ -13,7 +13,6 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { RouterLink } from '@angular/router';
-import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-index-modules',
@@ -23,7 +22,6 @@ import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
     CommonModule,
     SpinnerComponent,
     RouterLink,
-    TruncatePipe,
   ],
   templateUrl: './index-modules.component.html',
   styleUrl: './index-modules.component.css',

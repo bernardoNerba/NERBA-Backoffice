@@ -33,4 +33,66 @@
   </div>
 </div>
 <!-- END TITLE + DROPDOWN MENU -->
+
+<div class="container-fluid px-0 my-4">
+  <div class="accordion" id="general-info-accordion">
+    <!-- GENERAL INFO ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-general-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#general-info-content"
+          aria-expanded="false"
+          aria-controls="general-info-content"
+        >
+          <i class="bi bi-buildings fs-4 me-3"></i>
+          <h5>Informações Gerais</h5>
+        </button>
+      </h2>
+      <div
+        id="general-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-general-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+              <div class="col">
+                <div class="property">
+                  <strong>UFCD</strong>
+                  <p class="text-break mb-0">
+                    {{ module.name }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Total Horas</strong>
+                  <p class="text-break mb-0">{{ module.hours }} h</p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Status</strong>
+                  <p class="text-break mb-0">
+                    <span class="badge bg-light text-dark">
+                      <app-icon
+                        [icon]="module.isActive ? ICONS.success : ICONS.fail"
+                        [marginEnd]="1"
+                      />
+                      {{ module.isActive ? "Ativo" : "Inativo" }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END GENERAL INFO ACCORDION -->
+  </div>
+</div>
 }
