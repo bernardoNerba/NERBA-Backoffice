@@ -335,7 +335,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
         public async Task<Result<IEnumerable<RetrieveCourseDto>>> GetCoursesByModuleIdAsync(long moduleId)
         {
             // try return from cache
-            var cacheKey = $"";
+            var cacheKey = $"courses:list:module:{moduleId}";
             var cachedCourses = await _cache.GetAsync<List<RetrieveCourseDto>>(cacheKey);
             if (cachedCourses is not null && cachedCourses.Count != 0)
                 return Result<IEnumerable<RetrieveCourseDto>>
@@ -501,10 +501,11 @@ namespace NERBABO.ApiService.Core.Courses.Services
         {
             if (id is not null)
                 await _cache.RemoveAsync($"course:{id}");
-            
+
             await _cache.RemoveAsync("course:list");
             await _cache.RemoveAsync("course:list:active");
             await _cache.RemovePatternAsync("course:list:frame:*");
+            await _cache.RemovePatternAsync("courses:list:module:*");
         }
     }
 }

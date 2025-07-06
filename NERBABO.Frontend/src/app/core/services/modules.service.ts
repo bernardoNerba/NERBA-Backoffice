@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
+import { Course } from '../models/course';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,10 @@ export class ModulesService {
 
   deleteModule(id: number): Observable<OkResponse> {
     return this.http.delete<OkResponse>(`${API_ENDPOINTS.modules}${id}`);
+  }
+
+  getCoursesByModule(id: number): Observable<Course[]> {
+    return this.http.get<Course[]>(`${API_ENDPOINTS.courses}module/${id}`);
   }
 
   private fetchModules(): void {

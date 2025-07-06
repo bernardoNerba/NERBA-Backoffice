@@ -153,12 +153,13 @@
                 >{{ student.studentFullName }}
                 <span class="badge bg-light text-dark">
                   <app-icon [icon]="ICONS.briefcase" [marginEnd]="1" />
-                  Cargo: {{ student.companyRole }}</span
+                  Cargo: <strong>{{ student.companyRole }}</strong></span
                 >
               </a>
               } } @else {
               <div class="text-muted text-center">
-                {{ company.name }} não tem formandos registados no sistema.
+                {{ company.name }} <strong>não tem formandos</strong> registados
+                no sistema.
               </div>
               }
             </div>

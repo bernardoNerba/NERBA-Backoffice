@@ -4,19 +4,21 @@ import { Module } from '../../../core/models/module';
 import { ICONS } from '../../../core/objects/icons';
 import { ModulesService } from '../../../core/services/modules.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { Course } from '../../../core/models/course';
 
 @Component({
   selector: 'app-view-modules',
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, RouterLink],
   templateUrl: './view-modules.component.html',
   styleUrl: './view-modules.component.css',
 })
 export class ViewModulesComponent implements OnInit {
   @Input({ required: true }) id!: number;
   module$?: Observable<Module | null>;
+  courses$?: Observable<Course[] | null>;
   name?: string;
   ICONS = ICONS;
   hasActions: boolean = false;
@@ -59,6 +61,7 @@ export class ViewModulesComponent implements OnInit {
         }
       })
     );
+    this.courses$ = this.modulesService.getCoursesByModule(this.id);
   }
 
   private updateBreadcrumbs(id: number, name: string): void {

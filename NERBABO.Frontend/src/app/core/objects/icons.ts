@@ -11,7 +11,9 @@ import {
   faAdd,
   faBriefcase,
   faSearch,
+  faSignal,
   faX,
+  faGraduationCap,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -27,4 +29,6 @@ export const ICONS = {
   clipboard: faClipboard,
   briefcase: faBriefcase,
   search: faSearch,
+  habilitation: faGraduationCap,
+  signal: faSignal,
 };
