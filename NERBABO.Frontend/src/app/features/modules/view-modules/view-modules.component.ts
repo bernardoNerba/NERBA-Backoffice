@@ -9,10 +9,19 @@ import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
+import { Action } from '../../../core/models/action';
+import { ActionsService } from '../../../core/services/actions.service';
+import { FormatDateRangePipe } from '../../../shared/pipes/format-date-range.pipe';
 
 @Component({
   selector: 'app-view-modules',
-  imports: [CommonModule, IconComponent, RouterLink, TruncatePipe],
+  imports: [
+    CommonModule,
+    IconComponent,
+    RouterLink,
+    TruncatePipe,
+    FormatDateRangePipe,
+  ],
   templateUrl: './view-modules.component.html',
   styleUrl: './view-modules.component.css',
 })
@@ -20,6 +29,7 @@ export class ViewModulesComponent implements OnInit {
   @Input({ required: true }) id!: number;
   module$?: Observable<Module | null>;
   courses$?: Observable<Course[] | null>;
+  actions$?: Observable<Action[] | null>;
   name?: string;
   ICONS = ICONS;
   hasActions: boolean = false;
@@ -27,6 +37,7 @@ export class ViewModulesComponent implements OnInit {
   constructor(
     private modulesService: ModulesService,
     private sharedService: SharedService,
+    private actionsService: ActionsService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -63,6 +74,7 @@ export class ViewModulesComponent implements OnInit {
       })
     );
     this.courses$ = this.modulesService.getCoursesByModule(this.id);
+    this.actions$ = this.actionsService.getActionsByModuleId(this.id);
   }
 
   private updateBreadcrumbs(id: number, name: string): void {

@@ -35,4 +35,8 @@ export const API_ENDPOINTS = {
 
   // courses
   courses: `${environment.appUrl}/api/courses/`,
+
+  // actions
+  actions: `${environment.appUrl}/api/actions/`,
+  actionsByModule: `${environment.appUrl}/api/actions/module/`,
 };

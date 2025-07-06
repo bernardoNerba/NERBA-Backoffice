@@ -14,6 +14,8 @@ import {
   faSignal,
   faX,
   faGraduationCap,
+  faGlobe,
+  faCalendar,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -31,4 +33,6 @@ export const ICONS = {
   search: faSearch,
   habilitation: faGraduationCap,
   signal: faSignal,
+  globe: faGlobe,
+  calendar: faCalendar,
 };

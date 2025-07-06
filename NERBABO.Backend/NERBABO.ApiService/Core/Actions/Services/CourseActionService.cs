@@ -119,6 +119,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             var retrieveCourseAction = CourseAction.ConvertEntityToRetrieveDto(result.Entity, existingCoordenator, existingCourse);
 
+            // Update Cache
+            await DeleteActionCacheAsync();
             await _cacheService.SetAsync($"action:{result.Entity.Id}", retrieveCourseAction, TimeSpan.FromMinutes(30));
 
             _logger.LogInformation("Course action created successfully with ID: {id}", action.Id);
