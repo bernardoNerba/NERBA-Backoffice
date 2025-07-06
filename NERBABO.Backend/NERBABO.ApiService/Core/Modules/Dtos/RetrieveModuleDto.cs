@@ -6,5 +6,6 @@
         public string Name { get; set; } = string.Empty;
         public float Hours { get; set; }
         public bool IsActive { get; set; }
+        public int CoursesQnt { get; set; }
     }
 }

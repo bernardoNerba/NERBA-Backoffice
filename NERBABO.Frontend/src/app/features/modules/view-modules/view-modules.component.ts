@@ -8,10 +8,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
+import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-view-modules',
-  imports: [CommonModule, IconComponent, RouterLink],
+  imports: [CommonModule, IconComponent, RouterLink, TruncatePipe],
   templateUrl: './view-modules.component.html',
   styleUrl: './view-modules.component.css',
 })

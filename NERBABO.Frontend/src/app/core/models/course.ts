@@ -14,4 +14,6 @@ export interface Course {
   createdAt: string;
   modules: Module[];
   remainingDuration: number;
+  actionsQnt: number;
+  modulesQnt: number;
 }

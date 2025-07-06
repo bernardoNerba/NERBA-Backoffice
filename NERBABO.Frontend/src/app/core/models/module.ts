@@ -3,4 +3,5 @@ export interface Module {
   name: string;
   hours: number;
   isActive: boolean;
+  coursesQnt: number;
 }
