@@ -2,9 +2,7 @@
   <!-- NERBA LOGO -->
   <div class="logo-container">
     <img src="images/logo.jpeg" alt="Logo" class="logo" />
-    @if(!isCollapsed){
     <h1 class="app-title">Backoffice</h1>
-    }
   </div>
   <!-- END NERBA LOGO -->
 
@@ -18,20 +16,16 @@
         [title]="isCollapsed ? item.name : ''"
       >
         <span class="material-icons">{{ item.icon }}</span>
-        @if(!isCollapsed){
         <span class="menu-text">{{ item.name }}</span>
-        }
       </li>
       }
     </ul>
   </div>
 
   @if(isAdmin){
-  <!-- ADMIN MENU OPTIONS -  -->
+  <!-- ADMIN MENU OPTIONS -->
   <div class="menu-section">
-    @if(!isCollapsed){
-    <h2 class="section-title">Painel de admin</h2>
-    }
+    <h2 class="section-title">Painel de Admin</h2>
     <ul class="menu-list">
       @for (item of adminMenuItems; track item.name;) {
       <li
@@ -40,9 +34,7 @@
         [title]="isCollapsed ? item.name : ''"
       >
         <span class="material-icons">{{ item.icon }}</span>
-        @if(!isCollapsed){
         <span class="menu-text">{{ item.name }}</span>
-        }
       </li>
       }
     </ul>
@@ -60,9 +52,7 @@
         [title]="isCollapsed ? item.name : ''"
       >
         <span class="material-icons">{{ item.icon }}</span>
-        @if(!isCollapsed){
         <span class="menu-text">{{ item.name }}</span>
-        }
       </li>
       }
     </ul>
