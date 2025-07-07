@@ -27,7 +27,6 @@ export class CreatePeopleComponent implements OnInit {
   allCountries = [...COUNTRIES];
   allHabilitations = [...HABILITATIONS];
   allIdentificationTypes = [...IDENTIFICATION_TYPES];
-  today = Date.now;
   submitted = false;
   loading = false;
   errorMessages: string[] = [];
@@ -100,8 +99,6 @@ export class CreatePeopleComponent implements OnInit {
       );
       return;
     }
-
-    console.log(this.registPersonForm.value.zipCode);
 
     this.loading = true;
 

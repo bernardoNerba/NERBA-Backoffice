@@ -6,6 +6,7 @@ using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
+using ZLinq;
 
 namespace NERBABO.ApiService.Core.Actions.Services
 {
@@ -118,6 +119,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             var retrieveCourseAction = CourseAction.ConvertEntityToRetrieveDto(result.Entity, existingCoordenator, existingCourse);
 
+            // Update Cache
+            await DeleteActionCacheAsync();
             await _cacheService.SetAsync($"action:{result.Entity.Id}", retrieveCourseAction, TimeSpan.FromMinutes(30));
 
             _logger.LogInformation("Course action created successfully with ID: {id}", action.Id);
@@ -207,6 +210,52 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
         }
 
+        public async Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllByModuleIdAsync(long moduleId)
+        {
+            var cacheKey = $"action:module:list:{moduleId}";
+            var cachedActions = await _cacheService.GetAsync<List<RetrieveCourseActionDto>>(cacheKey);
+            if (cachedActions is not null && cachedActions.Count != 0)
+                return Result<IEnumerable<RetrieveCourseActionDto>>
+                    .Ok(cachedActions);
+
+            var existingModule = await _context.Modules.FindAsync(moduleId);
+            if (existingModule is null)
+            {
+                _logger.LogWarning("Module with given id {id} not found.", moduleId);
+                return Result<IEnumerable<RetrieveCourseActionDto>>
+                    .Fail("Não encontrado.", "Módulo não encontrado.",
+                        StatusCodes.Status404NotFound);
+            }
+
+            var existingCourseActions = await _context.Actions
+                .Include(a => a.Coordenator)
+                .Include(a => a.Course)
+                    .ThenInclude(c => c.Modules)
+                .Where(a => a.Course.Modules.Any(m => m.Id == moduleId))
+                .ToListAsync();
+
+            if (existingCourseActions is null || existingCourseActions.Count == 0)
+            {
+                _logger.LogWarning("There are no actions that incorporate the module with given id {id}", moduleId);
+                return Result<IEnumerable<RetrieveCourseActionDto>>
+                    .Fail("Não encontrado", "Não foram encontradas Ações de Formação que lecionem este módulo.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            var retrieveActions = existingCourseActions
+                .AsValueEnumerable()
+                .OrderByDescending(a => a.Status)
+                .ThenByDescending(a => a.CreatedAt)
+                .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
+                .ToList();
+
+            // update cache
+            await _cacheService.SetAsync(cacheKey, retrieveActions, TimeSpan.FromMinutes(30));
+
+            return Result<IEnumerable<RetrieveCourseActionDto>>
+                .Ok(retrieveActions);
+        }
+
         public async Task<Result<RetrieveCourseActionDto>> GetByIdAsync(long id)
         {
             var cacheKey = $"action:{id}";
@@ -214,7 +263,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
             if (cacheAction is not null)
                 return Result<RetrieveCourseActionDto>
                     .Ok(cacheAction);
-            
+
             var existingAction = await _context.Actions
                 .Include(a => a.Coordenator)
                 .Include(a => a.Course)
@@ -374,6 +423,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 await _cacheService.RemoveAsync($"action:{id}");
 
             await _cacheService.RemoveAsync("action:list");
+            await _cacheService.RemovePatternAsync("action:module:list:*");
         }
+
     }
 }

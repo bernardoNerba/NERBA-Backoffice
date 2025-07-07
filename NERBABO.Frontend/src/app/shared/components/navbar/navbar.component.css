@@ -35,3 +35,13 @@ a:hover {
   background-color: #fff;
   color: black;
 }
+
+.breadcrumbs {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 575px) {
+  .breadcrumbs {
+    display: none;
+  }
+}

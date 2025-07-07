@@ -20,7 +20,6 @@ import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.c
 })
 export class ViewCompaniesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
-  selectedId!: number;
   company$?: Observable<Company | null>;
   students$!: Observable<Student[] | []>;
   name?: string;

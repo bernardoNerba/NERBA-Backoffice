@@ -177,6 +177,19 @@ namespace NERBABO.ApiService.Core.Modules.Services
                     .Fail("Não encontrado", "Módulo não encontrado.",
                     StatusCodes.Status404NotFound);
 
+            // check if there are any active courses associated with this module
+            // if true dont allow delete.
+            var existingCoursesWithModule = await _context.Courses
+                .Include(c => c.Modules)
+                .Where(c => c.Modules.Any(m => m.Id == id))
+                .ToListAsync();
+
+            if (existingCoursesWithModule.Any(c => c.IsCourseActive))
+            {
+                _logger.LogWarning("Tryed to delete a module that has active on going courses, when is not possible.");
+                return Result
+                    .Fail("Erro de Validação", "Não pode efetuar esta ação sendo que existem cursos ativos associados com este módulo");
+            }
 
             _context.Modules.Remove(existingModule);
             await _context.SaveChangesAsync();

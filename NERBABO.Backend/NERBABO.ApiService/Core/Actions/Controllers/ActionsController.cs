@@ -33,6 +33,21 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         }
 
         /// <summary>
+        /// Gets all the actions associated with a given module ordered by status and creation date descencing.
+        /// </summary>
+        /// <response code="200">There are actions on the system associated with the given module. Returns a List of RetrieveCourseActionDto.</response>
+        /// <response code="404">Module with given module Id not found or there are no actions on the system associated with the given module.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("module/{moduleId:long}")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> GetAllActionsByModuleId(long moduleId)
+        {
+            var result = await _courseActionService.GetAllByModuleIdAsync(moduleId);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
         /// Get action with the given id.
         /// </summary>
         /// <param name="id">The ID of the action to be retrieved.</param>

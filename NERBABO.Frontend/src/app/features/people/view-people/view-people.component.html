@@ -1,53 +1,50 @@
 @if (person$ | async; as person){
-<div class="row">
-  <div class="col-md-8 col-6 mb-2">
-    <h3 class="text-break">{{ person.fullName }}</h3>
+<div class="row align-items-center">
+  <div class="col-10">
+    <h3 class="text-truncate">
+      {{ person.fullName }}
+    </h3>
   </div>
-  <!-- ACTION MENU -->
-  <div
-    class="col-md-auto col-6 ms-md-auto d-flex gap-2 justify-content-end mb-3"
-  >
-    <button
-      class="btn-main"
-      type="button"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      <i class="bi bi-three-dots-vertical"></i>
-    </button>
-    <ul class="dropdown-menu">
-      <li>
-        <a class="dropdown-item"
-          ><app-icon [icon]="ICONS.add" [marginEnd]="3" />Criar Como
-          Colaborador</a
-        >
-      </li>
-
-      <li>
-        <a class="dropdown-item"
-          ><app-icon [icon]="ICONS.add" [marginEnd]="3" />Criar Como Formando</a
-        >
-      </li>
-
-      <li>
-        <a class="dropdown-item"
-          ><app-icon [icon]="ICONS.add" [marginEnd]="3" /> Criar Como
-          Formador</a
-        >
-      </li>
-      <li>
-        <a class="dropdown-item" (click)="updatePersonModal()">
-          <app-icon [icon]="ICONS.edit" [marginEnd]="3" />
-          Editar Informações</a
-        >
-      </li>
-      <li>
-        <a class="dropdown-item" (click)="deletePersonModal()">
-          <app-icon [icon]="ICONS.delete" [marginEnd]="3" />Eliminar
-          Informações</a
-        >
-      </li>
-    </ul>
+  <div class="col-2 d-flex justify-content-end">
+    <div class="dropdown">
+      <button
+        class="btn-main"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-three-dots-vertical"></i>
+      </button>
+      <ul class="dropdown-menu">
+        <li>
+          <a class="dropdown-item">
+            <app-icon [icon]="ICONS.add" [marginEnd]="3" />Criar Como
+            Colaborador
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item">
+            <app-icon [icon]="ICONS.add" [marginEnd]="3" />Criar Como Formando
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item">
+            <app-icon [icon]="ICONS.add" [marginEnd]="3" />Criar Como Formador
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" (click)="updatePersonModal()">
+            <app-icon [icon]="ICONS.edit" [marginEnd]="3" />Editar Informações
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" (click)="deletePersonModal()">
+            <app-icon [icon]="ICONS.delete" [marginEnd]="3" />Eliminar
+            Informações
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 

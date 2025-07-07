@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
-using NERBABO.ApiService.Shared.Enums;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NERBABO.ApiService.Core.Actions.Dtos
 {

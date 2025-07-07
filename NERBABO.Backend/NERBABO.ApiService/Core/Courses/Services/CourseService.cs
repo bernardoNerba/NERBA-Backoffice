@@ -165,6 +165,25 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     StatusCodes.Status404NotFound);
             }
 
+            // check if there are any active actions associated with this course
+            // if true dont allow delete
+            if (await _context.Actions
+                .Where(a => a.CourseId == id)
+                .AnyAsync())
+            {
+                _logger.LogWarning("Tryed to delete a course that has active on going acttions, when its not possible.");
+                return Result
+                    .Fail("Erro de Validação", "Não pode efetuar esta ação sendo que existem ações em andamento associados a este curso.");        
+            }
+
+            // dont allow to delete Completed courses
+            if (existingCourse.Status == StatusEnum.Completed)
+            {
+                _logger.LogWarning("Tryed to delete a course that is already completed, when its not possible.");
+                return Result
+                    .Fail("Erro de Validação", "Não pode efetuar esta ação sendo que o curso já foi concluído.");
+            }
+
             _context.Courses.Remove(existingCourse);
             await _context.SaveChangesAsync();
 
@@ -332,6 +351,51 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
         }
 
+        public async Task<Result<IEnumerable<RetrieveCourseDto>>> GetCoursesByModuleIdAsync(long moduleId)
+        {
+            // try return from cache
+            var cacheKey = $"courses:list:module:{moduleId}";
+            var cachedCourses = await _cache.GetAsync<List<RetrieveCourseDto>>(cacheKey);
+            if (cachedCourses is not null && cachedCourses.Count != 0)
+                return Result<IEnumerable<RetrieveCourseDto>>
+                    .Ok(cachedCourses);
+
+
+            var existingModule = await _context.Modules.FindAsync(moduleId);
+            if (existingModule is null)
+            {
+                _logger.LogWarning("Module with given id not found {id}", moduleId);
+                return Result<IEnumerable<RetrieveCourseDto>>
+                    .Fail("Não encontrado.", "Módulo não encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            var existingCoursesWithModule = await _context.Courses
+                .Include(c => c.Modules)
+                .Where(c => c.Modules.Any(m => m.Id == moduleId))
+                .ToListAsync();
+
+            if (existingCoursesWithModule is null || existingCoursesWithModule.Count == 0)
+            {
+                return Result<IEnumerable<RetrieveCourseDto>>
+                .Fail("Não encontrado.", "Não foram encontrados módulos neste curso.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            var courseDtos = existingCoursesWithModule
+                .AsValueEnumerable()
+                .OrderByDescending(c => c.IsCourseActive)
+                .ThenByDescending(c => c.CreatedAt)
+                .Select(Course.ConvertEntityToRetrieveDto)
+                .ToList();
+
+            // Update cache
+            await _cache.SetAsync(cacheKey, courseDtos, TimeSpan.FromMinutes(30));
+
+            return Result<IEnumerable<RetrieveCourseDto>>
+                .Ok(courseDtos);
+        }
+
         public async Task<Result<RetrieveCourseDto>> UnassignModuleAsync(long moduleId, long courseId)
         {
             var existingModule = await _context.Modules.FindAsync(moduleId);
@@ -456,10 +520,11 @@ namespace NERBABO.ApiService.Core.Courses.Services
         {
             if (id is not null)
                 await _cache.RemoveAsync($"course:{id}");
-            
+
             await _cache.RemoveAsync("course:list");
             await _cache.RemoveAsync("course:list:active");
             await _cache.RemovePatternAsync("course:list:frame:*");
+            await _cache.RemovePatternAsync("courses:list:module:*");
         }
     }
 }

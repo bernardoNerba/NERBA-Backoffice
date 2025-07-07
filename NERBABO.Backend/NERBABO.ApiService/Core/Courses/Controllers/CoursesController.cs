@@ -67,6 +67,22 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         /// <summary>
+        /// Get all courses by module ID
+        /// </summary>
+        /// <param name="moduleId">The ID of the module to filter courses by.</param>
+        /// <response code="200">There are courses associated with the given module ID. Returns a list of courses.</response>
+        /// <response code="404">There are no courses associated with the given module ID or there is no module with the given moduleId</response>
+        /// <response code="401">The user is not authorized, invalid jwt or user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("module/{moduleId:long}")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> GetCoursesByModuleAsync(long moduleId)
+        {
+            var result = await _courseService.GetCoursesByModuleIdAsync(moduleId);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
         /// Get a course by its ID
         /// </summary>
         /// <param name="id">The ID of the course to retrieve.</param>
@@ -127,10 +143,10 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         /// <param name="id">The ID of the course to be deleted.</param>
         /// <response code="200">The course was deleted successfully.</response>
         /// <response code="404">The course with the given ID does not exist.</response>
-        /// <response code="401">The user is not authorized, invalid jwt, user is not Admin or FM or user is not active.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is not Admin.</response>
         /// <response code="500">Unexpected error occurred.</response>
         [HttpDelete("{id:long}")]
-        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        [Authorize(Roles = "Admin", Policy = "ActiveUser")]
         public async Task<IActionResult> DeleteCourseAsync(long id)
         {
             var result = await _courseService.DeleteAsync(id);

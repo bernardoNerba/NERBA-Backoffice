@@ -13,6 +13,9 @@ namespace NERBABO.ApiService.Core.Modules.Models
         public float Hours { get; set; }
         public bool IsActive { get; set; }
 
+        // Calculated Properties
+        public int CoursesQnt => Courses.Count;
+
         // Navigation Properties
         public List<Course> Courses { get; set; } = [];
         public List<TeacherModuleAction> TeacherModuleActions { get; set; } = [];
@@ -44,7 +47,8 @@ namespace NERBABO.ApiService.Core.Modules.Models
                 Id = module.Id,
                 Name = module.Name,
                 Hours = module.Hours,
-                IsActive = module.IsActive
+                IsActive = module.IsActive,
+                CoursesQnt = module.CoursesQnt
             };
         }
 

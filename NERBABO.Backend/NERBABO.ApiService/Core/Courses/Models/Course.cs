@@ -35,6 +35,9 @@ namespace NERBABO.ApiService.Core.Courses.Models
         public List<string> FormattedModuleNames =>
             [.. Modules.Select(m => $"{m.Name} ({m.Hours} horas)")];
 
+        public int ActionsQnt => Actions.Count;
+        public int ModulesQnt => Modules.Count;
+
         // Navigation Properties
         public Frame Frame { get; set; }
         public List<Module> Modules { get; set; } = [];
@@ -79,8 +82,10 @@ namespace NERBABO.ApiService.Core.Courses.Models
                 Area = c.Area,
                 MinHabilitationLevel = c.MinHabilitationLevel.Humanize().Transform(To.TitleCase),
                 CreatedAt = c.CreatedAt.Humanize(culture: new CultureInfo("pt-PT")),
-                Modules = [.. c.Modules.Select(x => Module.ConvertEntityToRetrieveDto(x))],
-                RemainingDuration = c.RemainingDuration
+                Modules = [.. c.Modules.Select(Module.ConvertEntityToRetrieveDto)],
+                RemainingDuration = c.RemainingDuration,
+                ModulesQnt = c.ModulesQnt,
+                ActionsQnt = c.ActionsQnt
             };
         }
 

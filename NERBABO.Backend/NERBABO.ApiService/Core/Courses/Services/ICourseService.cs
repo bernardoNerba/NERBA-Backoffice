@@ -1,5 +1,4 @@
 ﻿using NERBABO.ApiService.Core.Courses.Dtos;
-using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 
@@ -12,5 +11,6 @@ namespace NERBABO.ApiService.Core.Courses.Services
         Task<Result<IEnumerable<RetrieveCourseDto>>> GetAllByFrameIdAsync(long frameId);
         Task<Result<RetrieveCourseDto>> AssignModuleAsync(long moduleId, long courseId);
         Task<Result<RetrieveCourseDto>> UnassignModuleAsync(long moduleId, long courseId);
+        Task<Result<IEnumerable<RetrieveCourseDto>>> GetCoursesByModuleIdAsync(long moduleId);
     }
 }

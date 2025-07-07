@@ -5,7 +5,7 @@
   color: var(--gray-3);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   transition: width 0.3s ease;
   position: relative;
@@ -21,12 +21,16 @@
   padding: 20px 15px;
   border-bottom: 1px solid var(--gray-3);
   position: relative;
+  flex-shrink: 0;
+  height: 72px; /* Fixed height to prevent layout shifts */
+  box-sizing: border-box;
 }
 
 .logo {
   width: 32px;
   height: 32px;
   margin-right: 10px;
+  flex-shrink: 0;
 }
 
 .app-title {
@@ -35,13 +39,22 @@
   margin: 0;
   color: var(--primary-green);
   white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  max-width: 150px;
+  transition: opacity 0.2s ease, max-width 0.3s ease;
 }
 
+.sidebar.collapsed .app-title {
+  opacity: 0;
+  max-width: 0;
+}
 
 .menu-section {
   padding: 15px 0;
   border-bottom: 1px solid var(--gray-3);
-  box-sizing: border-box
+  box-sizing: border-box;
+  overflow: hidden; /* Prevent content from causing layout shifts */
 }
 
 .menu-section:last-child {
@@ -57,6 +70,16 @@
   margin-bottom: 10px;
   text-transform: uppercase;
   white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  max-width: 150px;
+  height: 20px; /* Fixed height to prevent layout shifts */
+  transition: opacity 0.2s ease, max-width 0.3s ease;
+}
+
+.sidebar.collapsed .section-title {
+  opacity: 0;
+  max-width: 0;
 }
 
 .menu-list {
@@ -71,13 +94,13 @@
   padding: 12px 15px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  white-space: nowrap;
+  overflow: hidden;
   box-sizing: border-box;
+  min-height: 44px; /* Fixed minimum height */
 }
 
 .sidebar.collapsed .menu-list li {
-  justify-content: center;
-  padding: 12px 0;
+  padding: 12px 20px; /* Keep consistent vertical padding */
 }
 
 .menu-list li:hover {
@@ -92,6 +115,8 @@
 li .material-icons {
   margin-right: 10px;
   font-size: 20px;
+  flex-shrink: 0;
+  transition: margin 0.3s ease;
 }
 
 .sidebar.collapsed .material-icons {
@@ -101,6 +126,15 @@ li .material-icons {
 .menu-text {
   font-size: 14px;
   white-space: nowrap;
+  max-width: 150px;
+  opacity: 1;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-width 0.3s ease;
+}
+
+.sidebar.collapsed .menu-text {
+  max-width: 0;
+  opacity: 0;
 }
 
 .bottom-menu {

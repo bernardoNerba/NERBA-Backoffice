@@ -11,12 +11,18 @@ import {
   faAdd,
   faBriefcase,
   faSearch,
+  faSignal,
+  faX,
+  faGraduationCap,
+  faGlobe,
+  faCalendar,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
   link: faLink,
   email: faMailBulk,
   success: faCheckCircle,
+  fail: faX,
   edit: faPen,
   delete: faExclamationTriangle,
   detail: faCircleInfo,
@@ -25,4 +31,8 @@ export const ICONS = {
   clipboard: faClipboard,
   briefcase: faBriefcase,
   search: faSearch,
+  habilitation: faGraduationCap,
+  signal: faSignal,
+  globe: faGlobe,
+  calendar: faCalendar,
 };
