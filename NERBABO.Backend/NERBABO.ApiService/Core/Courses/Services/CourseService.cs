@@ -165,6 +165,25 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     StatusCodes.Status404NotFound);
             }
 
+            // check if there are any active actions associated with this course
+            // if true dont allow delete
+            if (await _context.Actions
+                .Where(a => a.CourseId == id)
+                .AnyAsync())
+            {
+                _logger.LogWarning("Tryed to delete a course that has active on going acttions, when its not possible.");
+                return Result
+                    .Fail("Erro de Validação", "Não pode efetuar esta ação sendo que existem ações em andamento associados a este curso.");        
+            }
+
+            // dont allow to delete Completed courses
+            if (existingCourse.Status == StatusEnum.Completed)
+            {
+                _logger.LogWarning("Tryed to delete a course that is already completed, when its not possible.");
+                return Result
+                    .Fail("Erro de Validação", "Não pode efetuar esta ação sendo que o curso já foi concluído.");
+            }
+
             _context.Courses.Remove(existingCourse);
             await _context.SaveChangesAsync();
 

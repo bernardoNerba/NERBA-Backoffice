@@ -143,10 +143,10 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         /// <param name="id">The ID of the course to be deleted.</param>
         /// <response code="200">The course was deleted successfully.</response>
         /// <response code="404">The course with the given ID does not exist.</response>
-        /// <response code="401">The user is not authorized, invalid jwt, user is not Admin or FM or user is not active.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is not Admin.</response>
         /// <response code="500">Unexpected error occurred.</response>
         [HttpDelete("{id:long}")]
-        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        [Authorize(Roles = "Admin", Policy = "ActiveUser")]
         public async Task<IActionResult> DeleteCourseAsync(long id)
         {
             var result = await _courseService.DeleteAsync(id);
