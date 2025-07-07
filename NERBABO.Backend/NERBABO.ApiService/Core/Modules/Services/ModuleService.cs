@@ -179,10 +179,12 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // check if there are any active courses associated with this module
             // if true dont allow delete.
-            if (await _context.Courses
+            var existingCoursesWithModule = await _context.Courses
                 .Include(c => c.Modules)
-                .Where(c => c.IsCourseActive && c.Modules.Any(m => m.Id == id))
-                .AnyAsync())
+                .Where(c => c.Modules.Any(m => m.Id == id))
+                .ToListAsync();
+
+            if (existingCoursesWithModule.Any(c => c.IsCourseActive))
             {
                 _logger.LogWarning("Tryed to delete a module that has active on going courses, when is not possible.");
                 return Result
