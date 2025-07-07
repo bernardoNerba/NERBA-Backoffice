@@ -13,7 +13,7 @@
       <!-- END TOGGLE SIDEBAR -->
 
       <!-- BREADCRUMB -->
-      <div class="flex-grow-1">
+      <div class="flex-grow-1 breadcrumbs">
         <nav
           style="--bs-breadcrumb-divider: '>'"
           aria-label="breadcrumb"
@@ -22,11 +22,9 @@
           <ol class="breadcrumb mb-0">
             @for(item of breadcrumbs; track item.url) {
             <li class="breadcrumb-item">
-              <a
-                class="{{ item.className }}"
-                [routerLink]="item.url"
-                >{{ item.displayName }}</a
-              >
+              <a class="{{ item.className }}" [routerLink]="item.url">{{
+                item.displayName
+              }}</a>
             </li>
             }
           </ol>
