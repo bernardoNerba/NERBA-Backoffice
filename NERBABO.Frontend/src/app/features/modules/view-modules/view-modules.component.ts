@@ -93,7 +93,7 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
         if (error.status === 401 || error.status === 403) {
           this.sharedService.redirectUser();
         } else {
-          this.router.navigate(['/companies']);
+          this.router.navigate(['/modules']);
           this.sharedService.showWarning('Informação não foi encontrada.');
         }
         return of(null);
