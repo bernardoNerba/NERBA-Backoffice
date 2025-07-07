@@ -16,13 +16,16 @@
     </button>
     <ul class="dropdown-menu">
       <li>
-        <a class="dropdown-item">
+        <a class="dropdown-item" (click)="onUpdateModal(module)">
           <app-icon [icon]="ICONS.edit" [marginEnd]="3" />
           Editar Informações</a
         >
       </li>
       <li>
-        <a class="dropdown-item">
+        <a
+          class="dropdown-item"
+          (click)="onDeleteModal(module.id, module.name)"
+        >
           <app-icon [icon]="ICONS.delete" [marginEnd]="3" />Eliminar
           Informações</a
         >
@@ -56,8 +59,8 @@
       >
         <div class="accordion-body">
           <div class="container-fluid px-0">
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-              <div class="col">
+            <div class="row">
+              <div class="col-md-8">
                 <div class="property">
                   <strong>UFCD</strong>
                   <p class="text-break mb-0">
@@ -65,23 +68,17 @@
                   </p>
                 </div>
               </div>
-              <div class="col">
+              <div class="col-md-2">
                 <div class="property">
                   <strong>Total Horas</strong>
                   <p class="text-break mb-0">{{ module.hours }} h</p>
                 </div>
               </div>
-              <div class="col">
+              <div class="col-md-2">
                 <div class="property">
                   <strong>Status</strong>
                   <p class="text-break mb-0">
-                    <span class="badge bg-light text-dark">
-                      <app-icon
-                        [icon]="module.isActive ? ICONS.success : ICONS.fail"
-                        [marginEnd]="1"
-                      />
-                      {{ module.isActive ? "Ativo" : "Inativo" }}
-                    </span>
+                    <app-active-badge [isActive]="module.isActive" />
                   </p>
                 </div>
               </div>
@@ -130,7 +127,13 @@
               <div class="badges text-end">
                 <span class="badge bg-light text-dark me-2">
                   <app-icon [icon]="ICONS.signal" [marginEnd]="1" />
-                  Status: <strong>{{ course.status }}</strong></span
+                  Status:
+                  <strong
+                    class="{{
+                      course.status === STATUS.Completed ? 'text-success' : ''
+                    }}"
+                    >{{ course.status }}</strong
+                  ></span
                 >
                 <span class="badge bg-light text-dark">
                   <app-icon [icon]="ICONS.habilitation" [marginEnd]="1" />
@@ -160,7 +163,7 @@
           aria-expanded="false"
           aria-controls="actions-content"
         >
-          <i class="bi bi-book fs-4 me-3"></i>
+          <app-icon [icon]="ICONS.habilitation" [marginEnd]="3" />
           <span class="badge bg-success"
             >{{ (actions$ | async)?.length }}x</span
           >
@@ -189,7 +192,13 @@
               <div class="badges text-end">
                 <span class="badge bg-light text-dark me-2">
                   <app-icon [icon]="ICONS.signal" [marginEnd]="1" />
-                  Status: <strong>{{ action.status }}</strong></span
+                  Status:
+                  <strong
+                    class="{{
+                      action.status === STATUS.Completed ? 'text-success' : ''
+                    }}"
+                    >{{ action.status }}</strong
+                  ></span
                 >
                 <span class="badge bg-light text-dark me-2">
                   <app-icon [icon]="ICONS.globe" [marginEnd]="1" />

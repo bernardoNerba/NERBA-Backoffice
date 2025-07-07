@@ -32,7 +32,7 @@ export class UpdateModulesComponent implements OnInit {
   constructor(
     public bsModalRef: BsModalRef,
     private formBuilder: FormBuilder,
-    private modulesServices: ModulesService,
+    private modulesService: ModulesService,
     private sharedService: SharedService
   ) {}
 
@@ -40,7 +40,7 @@ export class UpdateModulesComponent implements OnInit {
     this.initializeForm();
 
     this.loading = true;
-    this.modulesServices.getSingleModule(this.id).subscribe({
+    this.modulesService.getSingleModule(this.id).subscribe({
       next: (module: Module) => {
         this.currentModule = module;
 
@@ -91,11 +91,12 @@ export class UpdateModulesComponent implements OnInit {
     const formValue = this.form.value;
 
     this.loading = true;
-    this.modulesServices.updateModule(this.id, formValue).subscribe({
+    this.modulesService.updateModule(this.id, formValue).subscribe({
       next: (value: OkResponse) => {
         this.bsModalRef.hide();
-        this.modulesServices.triggerFetch();
+        this.modulesService.triggerFetch();
         this.sharedService.showSuccess(value.message);
+        this.modulesService.notifyModuleUpdate(this.id);
       },
       error: (error) => {
         this.errorMessages = this.sharedService.handleErrorResponse(error);

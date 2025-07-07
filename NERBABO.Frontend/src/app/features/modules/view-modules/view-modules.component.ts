@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { catchError, Observable, of, tap } from 'rxjs';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { catchError, Observable, of, Subscription, tap } from 'rxjs';
 import { Module } from '../../../core/models/module';
 import { ICONS } from '../../../core/objects/icons';
 import { ModulesService } from '../../../core/services/modules.service';
@@ -12,6 +12,11 @@ import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { Action } from '../../../core/models/action';
 import { ActionsService } from '../../../core/services/actions.service';
 import { FormatDateRangePipe } from '../../../shared/pipes/format-date-range.pipe';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { UpdateModulesComponent } from '../update-modules/update-modules.component';
+import { DeleteModulesComponent } from '../delete-modules/delete-modules.component';
+import { ActiveBadgeComponent } from '../../../shared/components/badges/active-badge/active-badge.component';
+import { STATUS, StatusEnum } from '../../../core/objects/status';
 
 @Component({
   selector: 'app-view-modules',
@@ -21,25 +26,30 @@ import { FormatDateRangePipe } from '../../../shared/pipes/format-date-range.pip
     RouterLink,
     TruncatePipe,
     FormatDateRangePipe,
+    ActiveBadgeComponent,
   ],
   templateUrl: './view-modules.component.html',
   styleUrl: './view-modules.component.css',
 })
-export class ViewModulesComponent implements OnInit {
+export class ViewModulesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   module$?: Observable<Module | null>;
   courses$?: Observable<Course[] | null>;
   actions$?: Observable<Action[] | null>;
   name?: string;
   ICONS = ICONS;
+  STATUS = StatusEnum;
   hasActions: boolean = false;
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     private modulesService: ModulesService,
     private sharedService: SharedService,
     private actionsService: ActionsService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private modalService: BsModalService
   ) {}
 
   ngOnInit(): void {
@@ -52,6 +62,29 @@ export class ViewModulesComponent implements OnInit {
     }
 
     this.initializeModule();
+    this.updateSourceSubscription();
+    this.deleteSourceSubscription();
+  }
+
+  onUpdateModal(m: Module) {
+    const initialState = {
+      id: m.id,
+    };
+    this.modalService.show(UpdateModulesComponent, {
+      initialState: initialState,
+      class: 'modal-md',
+    });
+  }
+
+  onDeleteModal(id: number, name: string) {
+    const initialState = {
+      id: id,
+      name: name,
+    };
+    this.modalService.show(DeleteModulesComponent, {
+      initialState: initialState,
+      class: 'modal-md',
+    });
   }
 
   private initializeModule() {
@@ -77,6 +110,24 @@ export class ViewModulesComponent implements OnInit {
     this.actions$ = this.actionsService.getActionsByModuleId(this.id);
   }
 
+  private updateSourceSubscription() {
+    this.subscriptions.add(
+      this.modulesService.updatedSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this.initializeModule();
+        }
+      })
+    );
+  }
+
+  private deleteSourceSubscription() {
+    this.subscriptions.add(
+      this.modulesService.deletedSource$.subscribe((id: number) => {
+        if (this.id === id) this.router.navigateByUrl('/modules');
+      })
+    );
+  }
+
   private updateBreadcrumbs(id: number, name: string): void {
     this.sharedService.insertIntoBreadcrumb([
       {
@@ -95,5 +146,9 @@ export class ViewModulesComponent implements OnInit {
         className: 'inactive',
       },
     ]);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ModulesService } from '../../../core/services/modules.service';
-import { Observable } from 'rxjs';
+import {
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  Observable,
+  startWith,
+} from 'rxjs';
 import { Module } from '../../../core/models/module';
 import { ICONS } from '../../../core/objects/icons';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -13,6 +20,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { RouterLink } from '@angular/router';
+import { ActiveBadgeComponent } from '../../../shared/components/badges/active-badge/active-badge.component';
 
 @Component({
   selector: 'app-index-modules',
@@ -22,6 +30,7 @@ import { RouterLink } from '@angular/router';
     CommonModule,
     SpinnerComponent,
     RouterLink,
+    ActiveBadgeComponent,
   ],
   templateUrl: './index-modules.component.html',
   styleUrl: './index-modules.component.css',
@@ -31,7 +40,7 @@ export class IndexModulesComponent implements OnInit {
   loading$!: Observable<boolean>;
   columns = ['#', 'UFCD', 'Total Horas', 'Status'];
   ICONS = ICONS;
-  filteredModules$!: Observable<Module[]>;
+  filteredModules$!: Observable<Module[] | null>;
   searchControl = new FormControl('');
 
   constructor(
@@ -44,7 +53,34 @@ export class IndexModulesComponent implements OnInit {
     this.updateBreadcrumbs();
   }
   ngOnInit(): void {
-    this.filteredModules$ = this.modules$;
+    this.filteredModules$ = combineLatest([
+      this.modules$,
+      this.searchControl.valueChanges.pipe(
+        startWith(''), // Emit an initial value to trigger the stream
+        debounceTime(300), // Wait for a pause in typing before emitting
+        distinctUntilChanged() // Only emit if the value has changed
+      ),
+    ]).pipe(
+      map(([modules, searchTerm]) => {
+        // If the modules array is null or undefined, return null
+        if (!modules) {
+          return null;
+        }
+
+        // Normalize the search term
+        const term = (searchTerm || '').toLowerCase().trim();
+
+        // If the search term is empty, return the original full list
+        if (!term) {
+          return modules;
+        }
+
+        // Filter the modules based on the search term
+        return modules.filter((module) =>
+          module.name.toLowerCase().includes(term)
+        );
+      })
+    );
   }
 
   onAddModal() {

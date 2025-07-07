@@ -63,8 +63,10 @@ export class SidebarComponent implements OnInit {
       }
     });
   }
+
   ngOnInit(): void {
     this.isAdmin = this.authService.isUserAdmin;
+    this.loadUserPreference();
   }
 
   setActivePage(route: string, pageName: string): void {
@@ -74,18 +76,39 @@ export class SidebarComponent implements OnInit {
 
   toggleSidebar(): void {
     this.sharedService.isCollapsed = !this.sharedService.isCollapsed;
+
+    // Store user preference in localStorage
+    localStorage.setItem(
+      'sidebarCollapsed',
+      this.sharedService.isCollapsed.toString()
+    );
   }
 
   get isCollapsed(): boolean {
     return this.sharedService.isCollapsed;
   }
 
+  // Load user preference on component init
+  private loadUserPreference(): void {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState !== null) {
+      this.sharedService.isCollapsed = savedState === 'true';
+    }
+  }
+
   @HostListener('window:resize', [])
   onResize() {
+    // Only auto-collapse on very small screens if user hasn't manually set preference
     this.checkScreenSize();
   }
 
   private checkScreenSize() {
-    this.sharedService.isCollapsed = window.innerWidth < 768; // adjust as needed
+    // Only auto-collapse on very small screens (mobile phones)
+    // Never auto-expand - only auto-collapse when screen is very small
+    const isVerySmallScreen = window.innerWidth < 576;
+
+    if (isVerySmallScreen) {
+      this.sharedService.isCollapsed = true;
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Module } from '../models/module';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
@@ -13,13 +13,17 @@ import { Course } from '../models/course';
 export class ModulesService {
   private modulesSubject = new BehaviorSubject<Module[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(true);
+  private updatedSource = new Subject<number>();
+  private deleteSource = new Subject<number>();
+
+  modules$ = this.modulesSubject.asObservable();
+  loading$ = this.loadingSubject.asObservable();
+  updatedSource$ = this.updatedSource.asObservable();
+  deletedSource$ = this.deleteSource.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
     this.fetchModules();
   }
-
-  modules$ = this.modulesSubject.asObservable();
-  loading$ = this.loadingSubject.asObservable();
 
   createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
     return this.http.post<OkResponse>(`${API_ENDPOINTS.modules}`, model);
@@ -39,6 +43,14 @@ export class ModulesService {
 
   getCoursesByModule(id: number): Observable<Course[]> {
     return this.http.get<Course[]>(`${API_ENDPOINTS.courses}module/${id}`);
+  }
+
+  notifyModuleUpdate(id: number) {
+    this.updatedSource.next(id);
+  }
+
+  notifyModuleDelete(id: number) {
+    this.deleteSource.next(id);
   }
 
   private fetchModules(): void {

@@ -16,17 +16,18 @@ export class DeleteModulesComponent {
 
   constructor(
     public bsModalRef: BsModalRef,
-    private moduleService: ModulesService,
+    private modulesService: ModulesService,
     private sharedService: SharedService
   ) {}
 
   confirmDelete(): void {
     this.deleting = true;
-    this.moduleService.deleteModule(this.id).subscribe({
+    this.modulesService.deleteModule(this.id).subscribe({
       next: (value) => {
-        this.moduleService.triggerFetch();
+        this.modulesService.triggerFetch();
         this.bsModalRef.hide();
         this.sharedService.showSuccess(value.message);
+        this.modulesService.notifyModuleUpdate(this.id);
       },
       error: (error) => {
         this.sharedService.handleErrorResponse(error);

@@ -120,13 +120,7 @@
             </td>
             <td>{{ module.hours }} h</td>
             <td>
-              <span class="badge bg-light text-dark">
-                <app-icon
-                  [icon]="module.isActive ? ICONS.success : ICONS.fail"
-                  [marginEnd]="1"
-                />
-                {{ module.isActive ? "Ativo" : "Inativo" }}
-              </span>
+              <app-active-badge [isActive]="module.isActive" />
             </td>
           </tr>
           }
