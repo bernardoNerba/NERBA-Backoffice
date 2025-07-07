@@ -1,18 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { Alert } from '../../../core/models/alert';
 import { SharedService } from '../../../core/services/shared.service';
-import { AlertModule } from 'ngx-bootstrap/alert';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-alerts',
-  imports: [AlertModule],
+  imports: [ToastModule],
   templateUrl: './alerts.component.html',
   styleUrl: './alerts.component.css',
+  providers: [MessageService],
 })
 export class AlertsComponent implements OnInit {
-  alerts: Alert[] = [];
-
-  constructor(private sharedService: SharedService) {}
+  constructor(
+    private sharedService: SharedService,
+    private messageService: MessageService
+  ) {}
 
   ngOnInit(): void {
     this.sharedService.alerts$.subscribe((alert) => {
@@ -21,16 +24,46 @@ export class AlertsComponent implements OnInit {
   }
 
   addAlert(alert: Alert) {
-    this.alerts.unshift(alert);
+    const severity = this.mapAlertTypeToSeverity(alert.type);
 
-    if (alert.timeout) {
-      setTimeout(() => {
-        this.removeAlert(this.alerts.indexOf(alert));
-      }, alert.timeout);
-    }
+    this.messageService.add({
+      severity: severity,
+      summary: alert.title || this.getDefaultTitle(severity),
+      detail: alert.message,
+      life: alert.timeout || 1000, // Default 5 seconds if no timeout specified
+      closable: alert.dismissible !== false, // Default to true if not specified
+    });
   }
 
-  removeAlert(index: number) {
-    this.alerts.splice(index, 1);
+  private mapAlertTypeToSeverity(type: string): string {
+    const typeMap: { [key: string]: string } = {
+      success: 'success',
+      info: 'info',
+      warning: 'warn',
+      danger: 'error',
+      error: 'error',
+      primary: 'info',
+      secondary: 'info',
+      light: 'info',
+      dark: 'info',
+    };
+
+    return typeMap[type] || 'info';
+  }
+
+  private getDefaultTitle(severity: string): string {
+    const titleMap: { [key: string]: string } = {
+      success: 'Success',
+      info: 'Info',
+      warn: 'Warning',
+      error: 'Error',
+    };
+
+    return titleMap[severity] || 'Notification';
+  }
+
+  // Optional: Method to manually clear all toasts
+  clearAllToasts() {
+    this.messageService.clear();
   }
 }

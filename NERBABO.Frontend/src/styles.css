@@ -1,5 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
-/* You can add global styles to this file, and also import other style files */
 :root {
   --gray-1: #f3f3f3;
   --gray-2: #9e9e9e;
@@ -16,6 +15,33 @@
   --danger-background: #dc3545;
 
   --danger-background-hover: #d1646f;
+
+  /* PrimeNG theme color overrides for light green theme */
+  --p-primary-50: #e8f5e8;
+  --p-primary-100: #c3e6c3;
+  --p-primary-200: #9ed69e;
+  --p-primary-300: #78c578;
+  --p-primary-400: #53b553;
+  --p-primary-500: var(--primary-green); /* #009241 */
+  --p-primary-600: #007838;
+  --p-primary-700: #005d2e;
+  --p-primary-800: #004325;
+  --p-primary-900: #002a17;
+  --p-primary-950: var(--dark-green); /* #015f2b */
+
+  /* Surface colors for light theme */
+  --p-surface-0: #ffffff;
+  --p-surface-50: #f8fafc;
+  --p-surface-100: #f1f5f9;
+  --p-surface-200: #e2e8f0;
+  --p-surface-300: #cbd5e1;
+  --p-surface-400: #94a3b8;
+  --p-surface-500: #64748b;
+  --p-surface-600: #475569;
+  --p-surface-700: #334155;
+  --p-surface-800: #1e293b;
+  --p-surface-900: #0f172a;
+  --p-surface-950: #020617;
 }
 
 i {
@@ -58,14 +84,6 @@ td {
   background: #3dff2379;
 }
 
-/*
- * Custom Green Bootstrap Switch
- *
- * This CSS overrides the default blue color of the Bootstrap
- * form-switch to use the custom green variables from the app's theme.
- */
-
-/* Style for the switch when it is checked (active) */
 .form-check-input:checked {
   background-color: var(--primary-green) !important;
   border-color: var(--primary-green) !important;
@@ -79,6 +97,17 @@ td {
 
 .form-check-input {
   background-color: var(--gray-1) !important;
+  border-color: var(--gray-2) !important;
+}
+
+.form-control:focus,
+.form-control:active {
+  border-color: var(--primary-green) !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0rem rgba(4, 246, 113, 0.25) !important;
+}
+
+.form-control:hover {
   border-color: var(--gray-2) !important;
 }
 

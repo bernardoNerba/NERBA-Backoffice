@@ -15,7 +15,9 @@ export class FrameService {
 
   frames$ = this.framesSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
-  constructor(private http: HttpClient, private sharedService: SharedService) {}
+  constructor(private http: HttpClient, private sharedService: SharedService) {
+    this.loadFrames();
+  }
 
   loadFrames(): void {
     this.loadingSubject.next(true);
