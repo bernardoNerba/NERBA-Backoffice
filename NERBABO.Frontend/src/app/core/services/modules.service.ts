@@ -37,6 +37,10 @@ export class ModulesService {
     return this.http.get<Module>(`${API_ENDPOINTS.modules}${id}`);
   }
 
+  getActiveModules(): Observable<Module[]> {
+    return this.http.get<Module[]>(API_ENDPOINTS.modules_active);
+  }
+
   deleteModule(id: number): Observable<OkResponse> {
     return this.http.delete<OkResponse>(`${API_ENDPOINTS.modules}${id}`);
   }

@@ -151,6 +151,13 @@ namespace NERBABO.ApiService.Core.Courses.Services
                         StatusCodes.Status404NotFound);
                 }
 
+                if (!m.IsActive)
+                {
+                    _logger.LogWarning("Module with id {1} is not active. It cannot be assigned to a Course.", moduleId);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação", "Um ou mais módulos não estão ativos.");
+                }
+
                 // check if there is time to add the module to the course
                 if (!Course.CanAddModule(currentDuration, m.Hours, entityDto.TotalDuration))
                 {
@@ -243,7 +250,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 .AsValueEnumerable()
                 .Where(c => c.IsCourseActive)
                 .OrderByDescending(c => c.CreatedAt)
-                .Select(c => Course.ConvertEntityToRetrieveDto(c))
+                .Select(Course.ConvertEntityToRetrieveDto)
                 .ToList();
 
             if (activeCourses is null || activeCourses.Count == 0)
@@ -532,6 +539,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             // check and convert modules
             List<Module> modules = [];
+            var currentDuration = 0f;
             foreach (var moduleId in entityDto.Modules)
             {
                 var m = await _context.Modules.FindAsync(moduleId);
@@ -543,12 +551,19 @@ namespace NERBABO.ApiService.Core.Courses.Services
                         StatusCodes.Status404NotFound);
                 }
 
-                // check if there is time to add the module to the course
-                if (!existingCourse.CanAddModule(m.Hours))
+                if (!m.IsActive)
                 {
-                    _logger.LogWarning("Total duration exceeded for course ID: {CourseId}", existingCourse.Id);
-                return Result<RetrieveCourseDto>
-                    .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours}h quando {existingCourse.CurrentDuration}h/{existingCourse.TotalDuration}h");
+                    _logger.LogWarning("Module with id {1} is not active. It cannot be assigned to a Course.", moduleId);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação", "Um ou mais módulos não estão ativos.");
+                }
+
+                // check if there is time to add the module to the course
+                if (!Course.CanAddModule(currentDuration, m.Hours, entityDto.TotalDuration))
+                {
+                    _logger.LogWarning("Total duration exceeded for course total duration");
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours}h quando {currentDuration}h/{entityDto.TotalDuration}h");
                 }
 
                 modules.Add(m);

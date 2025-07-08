@@ -14,7 +14,7 @@ import { STATUS } from '../../../core/objects/status';
 import { HABILITATIONS } from '../../../core/objects/habilitations';
 import { DESTINATORS } from '../../../core/objects/destinators';
 import { FrameService } from '../../../core/services/frame.service';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Frame } from '../../../core/models/frame';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
@@ -57,7 +57,16 @@ export class CreateCoursesComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForm();
     this.frames$ = this.frameService.frames$;
-    this.modules$ = this.modulesService.modules$;
+    this.modules$ = this.modulesService.modules$.pipe(
+      map((modules) =>
+        modules.map((module) => ({
+          ...module,
+          displayName: `${module.name} - ${
+            module.isActive ? 'Ativo' : 'Inativo'
+          }`,
+        }))
+      )
+    );
   }
 
   private initializeForm() {

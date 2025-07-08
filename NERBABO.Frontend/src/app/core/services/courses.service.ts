@@ -43,8 +43,19 @@ export class CoursesService {
   }
 
   create(
-    model: Omit<Course, 'id' | 'actionsQnt' | 'modulesQnt' | 'modules'>
+    model: Omit<Course, 'id' | 'actionsQnt' | 'modulesQnt'>
   ): Observable<OkResponse> {
     return this.http.post<OkResponse>(API_ENDPOINTS.courses, model);
+  }
+
+  update(
+    model: Omit<Course, 'actionsQnt' | 'modulesQnt'>,
+    id: number
+  ): Observable<OkResponse> {
+    return this.http.put<OkResponse>(API_ENDPOINTS.courses + id, model);
+  }
+
+  getSingleCourse(id: number) {
+    return this.http.get<Course>(API_ENDPOINTS.courses + id);
   }
 }

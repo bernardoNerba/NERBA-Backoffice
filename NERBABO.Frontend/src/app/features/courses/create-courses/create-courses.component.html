@@ -27,7 +27,11 @@
               optionValue="id"
               placeholder="Selecione Enquadramento"
               styleClass="w-100"
-              [checkmark]="true"
+              class="{{
+                submitted && form.get('frameId')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted && form.get('frameId')?.hasError("required")) {
             <span class="text-danger">
@@ -108,7 +112,7 @@
             <p-multiselect
               [options]="(modules$ | async) ?? []"
               formControlName="modules"
-              optionLabel="name"
+              optionLabel="displayName"
               optionValue="id"
               placeholder="Selecione um ou mais módulos..."
               [maxSelectedLabels]="3"
@@ -119,7 +123,7 @@
         </div>
 
         <!-- Area -->
-        <div class="col-sm-12">
+        <div class="col-md-9">
           <div class="mb-3">
             <label for="area">Área do curso</label>
             <input
@@ -139,10 +143,10 @@
         </div>
 
         <!-- Total Duration -->
-        <div class="col-sm-12">
+        <div class="col-md-3">
           <div class="mb-3">
             <label for="totalDuration">
-              Duração Total
+              Duração
               <span class="text-danger">*</span>
             </label>
             <input
@@ -172,7 +176,7 @@
         </div>
 
         <!-- Status -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="status">Estado</label>
             <p-select
@@ -186,7 +190,7 @@
         </div>
 
         <!-- Min Habilitation Level -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="minHabilitationLevel">Nível Mín. Habilitações</label>
             <p-select
