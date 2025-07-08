@@ -23,7 +23,7 @@ public enum DestinatorTypeEnum
     [Description("Empregado por conta própria")]
     SelfEmployeed,
 
-    [Description("Empregado por conta própria")]
+    [Description("Desempregado Primeiro Emprego")]
     FirstJobUnemployeed,
 
     [Description("DLD")]

@@ -22,10 +22,12 @@
 
             <p-select
               formControlName="frameId"
-              [options]="frames"
+              [options]="(frames$ | async)!"
               optionLabel="program"
+              optionValue="id"
               placeholder="Selecione Enquadramento"
               styleClass="w-100"
+              [checkmark]="true"
             />
             @if (submitted && form.get('frameId')?.hasError("required")) {
             <span class="text-danger">
@@ -90,7 +92,7 @@
               [options]="DESTINATORS"
               formControlName="destinators"
               optionLabel="value"
-              optionValue="key"
+              optionValue="value"
               placeholder="Selecione destinatários"
               [maxSelectedLabels]="3"
               class="w-100"

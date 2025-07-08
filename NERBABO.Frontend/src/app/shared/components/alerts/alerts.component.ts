@@ -30,7 +30,7 @@ export class AlertsComponent implements OnInit {
       severity: severity,
       summary: alert.title || this.getDefaultTitle(severity),
       detail: alert.message,
-      life: alert.timeout || 1000, // Default 5 seconds if no timeout specified
+      life: alert.timeout || 1000, // Default 1 seconds if no timeout specified
       closable: alert.dismissible !== false, // Default to true if not specified
     });
   }

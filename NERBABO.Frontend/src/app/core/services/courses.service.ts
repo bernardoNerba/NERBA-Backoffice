@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Course } from '../models/course';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { SharedService } from './shared.service';
+import { OkResponse } from '../models/okResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,10 @@ export class CoursesService {
   loading$ = this.loadingSubject.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
+    this.fetchCourses();
+  }
+
+  triggerFetchCourses() {
     this.fetchCourses();
   }
 
@@ -35,5 +40,11 @@ export class CoursesService {
       },
     });
     this.loadingSubject.next(false);
+  }
+
+  create(
+    model: Omit<Course, 'id' | 'actionsQnt' | 'modulesQnt' | 'modules'>
+  ): Observable<OkResponse> {
+    return this.http.post<OkResponse>(API_ENDPOINTS.courses, model);
   }
 }

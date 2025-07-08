@@ -1,6 +1,5 @@
 ﻿using NerbaApp.Api.Validators;
 using NERBABO.ApiService.Helper.Validators;
-using NERBABO.ApiService.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Courses.Dtos

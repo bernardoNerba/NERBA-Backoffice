@@ -26,19 +26,19 @@ export class SharedService {
     this.alertSubject.next(alert);
   }
 
-  showSuccess(message: string, dismissible = true, timeout = 12000) {
+  showSuccess(message: string, dismissible = true, timeout = 5000) {
     this.show({ type: 'success', message, dismissible, timeout });
   }
 
-  showError(message: string, dismissible = true, timeout = 12000) {
+  showError(message: string, dismissible = true, timeout = 5000) {
     this.show({ type: 'danger', message, dismissible, timeout });
   }
 
-  showWarning(message: string, dismissible = true, timeout = 12000) {
+  showWarning(message: string, dismissible = true, timeout = 5000) {
     this.show({ type: 'warning', message, dismissible, timeout });
   }
 
-  showInfo(message: string, dismissible = true, timeout = 12000) {
+  showInfo(message: string, dismissible = true, timeout = 5000) {
     this.show({ type: 'info', message, dismissible, timeout });
   }
 
@@ -56,7 +56,7 @@ export class SharedService {
       errorMessages = error.error.errors;
     } else if (error.error !== null) {
       // only one error
-      errorMessages.push(error.error);
+      errorMessages.push(error.error.detail);
     } else if (error.status === 403 || error.status === 401) {
       // no error but status code 40...
       this.showError('Não podes realizar esta ação.');

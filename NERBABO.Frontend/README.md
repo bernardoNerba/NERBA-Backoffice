@@ -9,3 +9,4 @@ It helps you build dynamic, single-page web apps (SPAs) using HTML + TypeScript.
 - bootstrap
 - ngx-validators
 - [font awesome for icons](https://www.npmjs.com/package/@fortawesome/angular-fontawesome)
+- [primeNG](https://primeng.org/)
