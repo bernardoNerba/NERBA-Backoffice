@@ -93,7 +93,24 @@
               formControlName="destinators"
               optionLabel="value"
               optionValue="value"
-              placeholder="Selecione destinatários"
+              placeholder="Selecione um ou mais destinatários..."
+              [maxSelectedLabels]="3"
+              class="w-100"
+              [showClear]="true"
+            />
+          </div>
+        </div>
+
+        <!-- Modules -->
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label for="Modules">Módulos</label>
+            <p-multiselect
+              [options]="(modules$ | async) ?? []"
+              formControlName="modules"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Selecione um ou mais módulos..."
               [maxSelectedLabels]="3"
               class="w-100"
               [showClear]="true"
@@ -140,7 +157,6 @@
             <div
               *ngIf="submitted && form.get('totalDuration')?.errors"
               class="text-danger mt-1"
-              style="font-size: 0.875em"
             >
               <span *ngIf="form.get('totalDuration')?.hasError('required')">
                 A duração total é um campo obrigatório.

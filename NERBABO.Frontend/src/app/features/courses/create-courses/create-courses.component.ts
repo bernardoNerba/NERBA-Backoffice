@@ -18,6 +18,8 @@ import { Observable } from 'rxjs';
 import { Frame } from '../../../core/models/frame';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
+import { ModulesService } from '../../../core/services/modules.service';
+import { Module } from '../../../core/models/module';
 
 @Component({
   selector: 'app-create-courses',
@@ -37,6 +39,7 @@ export class CreateCoursesComponent implements OnInit {
   submitted: boolean = false;
   loading: boolean = false;
   frames$!: Observable<Frame[]>;
+  modules$!: Observable<Module[]>;
 
   STATUS = STATUS;
   HABILITATIONS = HABILITATIONS;
@@ -47,12 +50,14 @@ export class CreateCoursesComponent implements OnInit {
     private formBuilder: FormBuilder,
     private coursesService: CoursesService,
     private sharedService: SharedService,
-    private frameService: FrameService
+    private frameService: FrameService,
+    private modulesService: ModulesService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
     this.frames$ = this.frameService.frames$;
+    this.modules$ = this.modulesService.modules$;
   }
 
   private initializeForm() {
@@ -68,6 +73,7 @@ export class CreateCoursesComponent implements OnInit {
       ],
       objectives: ['', [Validators.minLength(3), Validators.maxLength(510)]],
       destinators: [[]],
+      modules: [[]],
       area: ['', [Validators.minLength(3), Validators.maxLength(55)]],
       totalDuration: [
         '',
