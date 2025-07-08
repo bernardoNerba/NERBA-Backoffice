@@ -12,7 +12,7 @@ In line with its commitment to innovation, NERBA has made this software **open a
 
 ## Getting Started
 
-This project uses .NET Aspire as a Orchestrator, so in order to run it you will need in your machine the following tools:
+This project uses .NET Aspire as an orchestrator, so in order to run it you will need in your machine the following tools:
 
 - [.NET SDK 9.0](https://dotnet.microsoft.com/pt-br/download)
 - .NET Aspire Workload
@@ -38,7 +38,17 @@ git clone https://github.com/bernardoNerba/NERBA-Backoffice.git
 cd NERBA-Backoffice
 ```
 
-2. Create `appsettings.Development.json` on the root of `NERBABO.ApiService`
+2. Navigate to the Backend API Service
+
+```bash
+cd NERBABO.Backend
+```
+
+3. Create `appsettings.Development.json` on the root of `NERBABO.ApiService`
+
+```bash
+nano appsettings.Development.json
+```
 
 ```json
 {
@@ -78,7 +88,13 @@ npm install
 6. Create environment files
 Create: `src/environments/environment.development.ts`
 
+```bash
+mkdir src/environments
+nano src/environments/environment.development.ts
+```
+
 - `environment.development.ts` example:
+
 ``` ts
 export const environment = {
   production: false,
@@ -88,7 +104,7 @@ export const environment = {
 };
 ```
 
-7. Start the Application Use the .NET Aspire orchestrator to run all services:
+7. Start the Application, use the .NET Aspire orchestrator to run all services:
 
 ```bash
 dotnet run --project NERBABO.Backend/NERBABO.AppHost
@@ -100,7 +116,7 @@ This will:
 - Launch the Angular frontend
 - Start PostgreSQL, pgAdmin, and Redis containers
 
-8. Access the Applications Once running, you can access:
+8. Access the Applications, once running, you can access:
 
 - **Frontend(Angular)**: [http://localhost:4200](http://localhost:4200)
 - **Backend (Web API)**: [http://localhost:8080](http://localhost:8080)
@@ -111,15 +127,18 @@ This will:
 
 Swagger allows us to build a documentation page that can also be used to test endpoints.
 1. Swagger runs on /swagger url.
-2. If the ApiService runs succesffully it will automatically open swagger for you.
-3. Authenticate throw the login endpoint, body example:
+2. If the ApiService runs succesfully it will automatically open swagger for you.
+3. Authenticate through the login endpoint, body example:
+
 ``` json
 {
   "usernameOrEmail": "admin",
   "password": "AsecurePassword123!"
 }
 ```
+
 3. This should return a json object like this:
+
 ``` json
 {
   "firstName": "Admin",
@@ -127,6 +146,7 @@ Swagger allows us to build a documentation page that can also be used to test en
   "jwt": "the issued jwt token"
 }
 ```
+
 4. Copy the jwt token from the response
 5. Go to the top of the page and click on the "Authorize" button.
 6. You will be prompted to the jwt, use the Bearer format. "Bearer <token_goes_here>".
