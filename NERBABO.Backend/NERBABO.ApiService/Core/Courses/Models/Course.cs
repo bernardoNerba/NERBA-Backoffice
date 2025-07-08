@@ -89,7 +89,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
             };
         }
 
-        public static Course ConvertCreateDtoToEntity(CreateCourseDto c, Frame f)
+        public static Course ConvertCreateDtoToEntity(CreateCourseDto c, Frame f, List<Module> ms)
         {
             return new Course
             (
@@ -105,12 +105,13 @@ namespace NERBABO.ApiService.Core.Courses.Models
                     ?? HabilitationEnum.WithoutProof
             )
             {
+                Modules = ms,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
         }
 
-        public static Course ConvertUpdateDtoToEntity(UpdateCourseDto c, Frame f)
+        public static Course ConvertUpdateDtoToEntity(UpdateCourseDto c, Frame f, List<Module> ms)
         {
             return new Course
             (
@@ -127,7 +128,8 @@ namespace NERBABO.ApiService.Core.Courses.Models
             )
             {
                 Id = c.Id,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Modules = ms,
             };
         }
 
@@ -135,6 +137,11 @@ namespace NERBABO.ApiService.Core.Courses.Models
         {
             // Check if adding the module would exceed the total duration
             return CurrentDuration + moduleHours <= TotalDuration;
+        }
+
+        public static bool CanAddModule(float currentDuration, float moduleHours, float totalDuration)
+        {
+            return currentDuration + moduleHours <= totalDuration;
         }
 
         public bool IsModuleAlreadyAssigned(long moduleId)
