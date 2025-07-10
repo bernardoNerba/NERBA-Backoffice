@@ -69,10 +69,8 @@
           aria-expanded="false"
           aria-controls="frame-info-content"
         >
-          <h5>
-            <app-icon [icon]="ICONS.frame" [marginEnd]="3" />
-            Enquadramento
-          </h5>
+          <app-icon [icon]="ICONS.frame" [marginEnd]="3" />
+          <h5>Enquadramento</h5>
         </button>
       </h2>
       <div
@@ -146,10 +144,8 @@
           aria-expanded="false"
           aria-controls="general-info-content"
         >
-          <h5>
-            <app-icon [icon]="ICONS.info" [marginEnd]="3" />
-            Informações do Curso
-          </h5>
+          <app-icon [icon]="ICONS.info" [marginEnd]="3" />
+          <h5>Informações do Curso</h5>
         </button>
       </h2>
       <div
@@ -238,10 +234,9 @@
           aria-expanded="false"
           aria-controls="module-info-content"
         >
-          <h5>
-            <app-icon [icon]="ICONS.modules" [marginEnd]="3" />
-            Módulos
-          </h5>
+          <app-icon [icon]="ICONS.modules" [marginEnd]="3" />
+          <h5>Módulos</h5>
+          <span class="badge bg-success"> {{ course.modulesQnt }}x </span>
         </button>
       </h2>
       <div

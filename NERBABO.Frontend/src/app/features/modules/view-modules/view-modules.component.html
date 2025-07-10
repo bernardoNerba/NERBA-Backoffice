@@ -55,7 +55,7 @@
           aria-expanded="false"
           aria-controls="general-info-content"
         >
-          <i class="bi bi-buildings fs-4 me-3"></i>
+          <app-icon [icon]="ICONS.company" [marginEnd]="3" />
           <h5>Informações Gerais</h5>
         </button>
       </h2>
@@ -108,11 +108,11 @@
           aria-expanded="false"
           aria-controls="courses-content"
         >
-          <i class="bi bi-book fs-4 me-3"></i>
+          <app-icon [icon]="ICONS.book" [marginEnd]="3" />
+          <h5>Cursos</h5>
           <span class="badge bg-success"
             >{{ (courses$ | async)?.length }}x</span
           >
-          <h5>Cursos</h5>
         </button>
       </h2>
       <div
@@ -171,10 +171,10 @@
           aria-controls="actions-content"
         >
           <app-icon [icon]="ICONS.habilitation" [marginEnd]="3" />
+          <h5>Ações Formação</h5>
           <span class="badge bg-success"
             >{{ (actions$ | async)?.length }}x</span
           >
-          <h5>Ações Formação</h5>
         </button>
       </h2>
       <div

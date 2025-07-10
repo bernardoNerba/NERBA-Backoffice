@@ -286,11 +286,20 @@ a.nav-link:hover {
 .accordion-button {
   display: flex;
   align-items: center;
-  gap: 0.75rem; /* Adjust spacing as needed */
+  gap: 0.75rem;
   color: var(--dark-green) !important;
 }
 
-.accordion-button i,
+.accordion-button .icon {
+  width: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
 .accordion-button h5 {
-  margin: 0; /* Remove default margins */
+  margin: 0;
+  line-height: 1;
 }

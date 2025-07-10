@@ -21,6 +21,8 @@ import {
   faRotate,
   faGripHorizontal,
   faClock,
+  faBook,
+  faBuilding,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -45,4 +47,6 @@ export const ICONS = {
   change: faRotate,
   modules: faGripHorizontal,
   time: faClock,
+  book: faBook,
+  company: faBuilding,
 };
