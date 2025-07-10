@@ -19,6 +19,8 @@ import {
   faCropSimple,
   faInfoCircle,
   faRotate,
+  faGripHorizontal,
+  faClock,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -41,4 +43,6 @@ export const ICONS = {
   frame: faCropSimple,
   info: faInfoCircle,
   change: faRotate,
+  modules: faGripHorizontal,
+  time: faClock,
 };

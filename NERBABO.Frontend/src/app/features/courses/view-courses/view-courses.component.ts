@@ -5,15 +5,22 @@ import { ICONS } from '../../../core/objects/icons';
 import { Frame } from '../../../core/models/frame';
 import { CoursesService } from '../../../core/services/courses.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FrameService } from '../../../core/services/frame.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
+import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-view-courses',
-  imports: [IconComponent, CommonModule, MessageModule],
+  imports: [
+    IconComponent,
+    CommonModule,
+    MessageModule,
+    TruncatePipe,
+    RouterLink,
+  ],
   templateUrl: './view-courses.component.html',
   styleUrl: './view-courses.component.css',
 })

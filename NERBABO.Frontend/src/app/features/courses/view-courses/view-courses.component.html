@@ -211,6 +211,55 @@
       </div>
     </div>
     <!-- END GENERAL INFO ACCORDION -->
+
+    <!-- COURSES LIST ACCORDION-->
+    @if (course.modulesQnt !== 0) {
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-module-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#module-info-content"
+          aria-expanded="false"
+          aria-controls="module-info-content"
+        >
+          <h5>
+            <app-icon [icon]="ICONS.modules" [marginEnd]="3" />
+            Módulos
+          </h5>
+        </button>
+      </h2>
+      <div
+        id="module-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-module-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="list-group">
+              @for (module of course.modules; track module.id){
+              <a
+                [routerLink]="'/modules/' + module.id"
+                class="list-group-item list-group-item-action d-flex justify-content-between"
+              >
+                <span class="text-truncate">
+                  {{ module.name | truncate : 65 }}
+                </span>
+                <span class="badge bg-light text-dark">
+                  <app-icon [icon]="ICONS.time" [marginEnd]="1" />
+                  Horas:
+                  <strong>{{ module.hours }} h</strong></span
+                >
+              </a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    <!-- END COURSES LIST ACCORDION -->
   </div>
 </div>
 }
