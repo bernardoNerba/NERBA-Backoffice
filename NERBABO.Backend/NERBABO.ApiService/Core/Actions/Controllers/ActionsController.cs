@@ -35,6 +35,7 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         /// <summary>
         /// Gets all the actions associated with a given module ordered by status and creation date descencing.
         /// </summary>
+        /// <param name="moduleId">The ID of the module to perform the query on.</param>
         /// <response code="200">There are actions on the system associated with the given module. Returns a List of RetrieveCourseActionDto.</response>
         /// <response code="404">Module with given module Id not found or there are no actions on the system associated with the given module.</response>
         /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
@@ -44,6 +45,22 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         public async Task<IActionResult> GetAllActionsByModuleId(long moduleId)
         {
             var result = await _courseActionService.GetAllByModuleIdAsync(moduleId);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Gets all the actions associated with a given module ordered by status and creation date descencing.
+        /// </summary>
+        /// <param name="courseId">The ID of the course to perform the query on.</param>
+        /// <response code="200">There are actions on the system associated with the given course. Returns a List of RetrieveCourseActionDto.</response>
+        /// <response code="404">Course with given course Id not found or there are no actions on the system associated with the given course.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("course/{courseId:long}")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> GetAllActionsByCourseId(long courseId)
+        {
+            var result = await _courseActionService.GetAllByCourseIdAsync(courseId);
             return _responseHandler.HandleResult(result);
         }
 
@@ -113,7 +130,7 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        
+
         /// <summary>
         /// Updates a existing action by a given Id.
         /// </summary>
@@ -135,7 +152,7 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
 
             var result = await _courseActionService.UpdateAsync(updateCourseActionDto);
             return _responseHandler.HandleResult(result);
-            
+
         }
     }
 }
