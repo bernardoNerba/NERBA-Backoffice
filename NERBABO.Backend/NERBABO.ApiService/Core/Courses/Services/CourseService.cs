@@ -678,8 +678,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 modules.Add(m);
             }
 
-            var newValues = Course.ConvertUpdateDtoToEntity(entityDto, existingFrame, modules);
+            var newValues = Course.ConvertUpdateDtoToEntity(entityDto, existingFrame);
             _context.Entry(existingCourse).CurrentValues.SetValues(newValues);
+            existingCourse.Modules = modules;
             await _context.SaveChangesAsync();
 
             var updatedCourse = Course.ConvertEntityToRetrieveDto(existingCourse);

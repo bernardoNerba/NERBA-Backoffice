@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Course } from '../../../core/models/course';
-import { catchError, Observable, of, tap } from 'rxjs';
+import { catchError, Observable, of, Subscription, tap } from 'rxjs';
 import { ICONS } from '../../../core/objects/icons';
 import { Frame } from '../../../core/models/frame';
 import { CoursesService } from '../../../core/services/courses.service';
@@ -11,6 +11,11 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { UpdateCoursesComponent } from '../update-courses/update-courses.component';
+import { DeleteCoursesComponent } from '../delete-courses/delete-courses.component';
+import { ChangeStatusCoursesComponent } from '../change-status-courses/change-status-courses.component';
+import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-module-courses.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -24,7 +29,7 @@ import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
   templateUrl: './view-courses.component.html',
   styleUrl: './view-courses.component.css',
 })
-export class ViewCoursesComponent implements OnInit {
+export class ViewCoursesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   course$?: Observable<Course | null>;
   frame!: Frame;
@@ -32,12 +37,15 @@ export class ViewCoursesComponent implements OnInit {
   frameId!: number;
   ICONS = ICONS;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     private coursesService: CoursesService,
     private frameService: FrameService,
     private sharedService: SharedService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private modalService: BsModalService
   ) {}
 
   ngOnInit(): void {
@@ -49,6 +57,47 @@ export class ViewCoursesComponent implements OnInit {
     }
 
     this.initializeCourse();
+    this.updateSourceSubscription();
+    this.deleteSourceSubscription();
+    this.assignModuleSourceSubscription();
+    this.changeStatusSourceSubscription();
+  }
+
+  onUpdateCourseModal(course: Course) {
+    this.modalService.show(UpdateCoursesComponent, {
+      class: 'modal-lg',
+      initialState: {
+        id: course.id,
+        course: course,
+      },
+    });
+  }
+  onDeleteCourseModal(id: number, title: string) {
+    this.modalService.show(DeleteCoursesComponent, {
+      class: 'modal-lg',
+      initialState: {
+        id: id,
+        title: title,
+      },
+    });
+  }
+
+  onChangeStatusModal(course: Course) {
+    this.modalService.show(ChangeStatusCoursesComponent, {
+      class: 'modal-md',
+      initialState: {
+        course: course,
+      },
+    });
+  }
+
+  onAssignModuleModal(course: Course) {
+    this.modalService.show(AssignModuleCoursesComponent, {
+      class: 'modal-md',
+      initialState: {
+        course: course,
+      },
+    });
   }
 
   private initializeCourse() {
@@ -104,5 +153,49 @@ export class ViewCoursesComponent implements OnInit {
         className: 'inactive',
       },
     ]);
+  }
+
+  private updateSourceSubscription() {
+    this.subscriptions.add(
+      this.coursesService.updatedSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this.initializeCourse();
+        }
+      })
+    );
+  }
+
+  private deleteSourceSubscription() {
+    this.subscriptions.add(
+      this.coursesService.deletedSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this.router.navigateByUrl('/courses');
+        }
+      })
+    );
+  }
+
+  private assignModuleSourceSubscription() {
+    this.subscriptions.add(
+      this.coursesService.assignModuleSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this.initializeCourse();
+        }
+      })
+    );
+  }
+
+  private changeStatusSourceSubscription() {
+    this.subscriptions.add(
+      this.coursesService.changeStatusSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this.initializeCourse();
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Course } from '../models/course';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
@@ -12,9 +12,17 @@ import { OkResponse } from '../models/okResponse';
 export class CoursesService {
   coursesSubject = new BehaviorSubject<Course[]>([]);
   loadingSubject = new BehaviorSubject<boolean>(true);
+  private updatedSource = new Subject<number>();
+  private deletedSource = new Subject<number>();
+  private changeStatusSource = new Subject<number>();
+  private assignModuleSource = new Subject<number>();
 
   courses$ = this.coursesSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
+  updatedSource$ = this.updatedSource.asObservable();
+  deletedSource$ = this.deletedSource.asObservable();
+  changeStatusSource$ = this.changeStatusSource.asObservable();
+  assignModuleSource$ = this.assignModuleSource.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
     this.fetchCourses();
@@ -55,6 +63,10 @@ export class CoursesService {
     return this.http.put<OkResponse>(API_ENDPOINTS.courses + id, model);
   }
 
+  delete(id: number): Observable<OkResponse> {
+    return this.http.delete<OkResponse>(API_ENDPOINTS.courses + id);
+  }
+
   changeStatus(id: number, status: string): Observable<OkResponse> {
     return this.http.put<OkResponse>(
       `${API_ENDPOINTS.courses}${id}/status?status=${status}`,
@@ -71,5 +83,21 @@ export class CoursesService {
       `${API_ENDPOINTS.courses}${courseId}/modules`,
       moduleIds
     );
+  }
+
+  notifyCourseUpdate(id: number) {
+    this.updatedSource.next(id);
+  }
+
+  notifyCourseDelete(id: number) {
+    this.deletedSource.next(id);
+  }
+
+  notifyCourseChangeStatus(id: number) {
+    this.changeStatusSource.next(id);
+  }
+
+  notifyCourseAssignModule(id: number) {
+    this.assignModuleSource.next(id);
   }
 }

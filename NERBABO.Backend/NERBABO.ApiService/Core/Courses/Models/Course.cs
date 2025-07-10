@@ -111,7 +111,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
             };
         }
 
-        public static Course ConvertUpdateDtoToEntity(UpdateCourseDto c, Frame f, List<Module> ms)
+        public static Course ConvertUpdateDtoToEntity(UpdateCourseDto c, Frame f)
         {
             return new Course
             (
@@ -128,8 +128,7 @@ namespace NERBABO.ApiService.Core.Courses.Models
             )
             {
                 Id = c.Id,
-                UpdatedAt = DateTime.UtcNow,
-                Modules = ms,
+                UpdatedAt = DateTime.UtcNow
             };
         }
 
