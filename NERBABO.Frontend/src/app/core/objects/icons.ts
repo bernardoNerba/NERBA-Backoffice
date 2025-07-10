@@ -18,6 +18,7 @@ import {
   faCalendar,
   faCropSimple,
   faInfoCircle,
+  faRotate,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -39,4 +40,5 @@ export const ICONS = {
   calendar: faCalendar,
   frame: faCropSimple,
   info: faInfoCircle,
+  change: faRotate,
 };

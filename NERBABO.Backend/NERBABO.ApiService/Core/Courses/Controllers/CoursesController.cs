@@ -138,6 +138,24 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         /// <summary>
+        /// Update a course status by its ID
+        /// </summary>
+        /// <param name="id">The ID of the course to be updated.</param>
+        /// <param name="status">The string containing the status new values.</param>
+        /// <response code="200">The course was updated successfully.</response>
+        /// <response code="400">Validation ERROR when validating Status.</response>
+        /// <response code="404">The course with given id does not exist or status doesnt exist.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is not Admin or FM or user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPut("{id:long}/status")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> ChangeCourseStatusAsync(long id, [FromQuery] string status)
+        {
+            var result = await _courseService.ChangeCourseStatusAsync(id, status);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
         /// Delete a course by its ID
         /// </summary>
         /// <param name="id">The ID of the course to be deleted.</param>

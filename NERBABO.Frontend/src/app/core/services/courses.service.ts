@@ -55,6 +55,13 @@ export class CoursesService {
     return this.http.put<OkResponse>(API_ENDPOINTS.courses + id, model);
   }
 
+  changeStatus(id: number, status: string): Observable<OkResponse> {
+    return this.http.put<OkResponse>(
+      `${API_ENDPOINTS.courses}${id}/status?status=${status}`,
+      {}
+    );
+  }
+
   getSingleCourse(id: number) {
     return this.http.get<Course>(API_ENDPOINTS.courses + id);
   }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -87,6 +88,49 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 "Módulo Atribuído", "Módulo atribuído com sucesso ao curso.");
         }
 
+        public async Task<Result> ChangeCourseStatusAsync(long id, string status)
+        {
+            var existingCourse = await _context.Courses.FindAsync(id);
+            if (existingCourse is null)
+            {
+                _logger.LogWarning("Course with given id {id} not found.", id);
+                return Result
+                    .Fail("Não encontrado.", "Curso não encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+            
+            if (!string.IsNullOrEmpty(status)
+            && !EnumHelp.IsValidEnum<StatusEnum>(status))
+            {
+                _logger.LogWarning("Invalid Status type provided.");
+                return Result
+                    .Fail("Não encontrado", $"O estado {status} não é válido",
+                    StatusCodes.Status404NotFound);
+            }
+
+            // Compare status verifying if there is a change to perform
+            StatusEnum s = Enum.GetValues<StatusEnum>()
+                .First(e => string.Equals(e.Humanize().Transform(To.TitleCase), status,
+                StringComparison.OrdinalIgnoreCase));
+
+            if (existingCourse.Status == s)
+            {
+                _logger.LogWarning("Tryed to perfom a update but nothing changed.");
+                return Result
+                    .Fail("Erro de Validação.", "Não alterou nenhum dado. Modifique os dados e tente novamente.");
+            }
+
+            existingCourse.Status = s;
+            await _context.SaveChangesAsync();
+
+
+            // Update cache
+            await _cache.SetAsync($"course:{existingCourse.Id}", existingCourse, TimeSpan.FromMinutes(30));
+            await DeleteCacheAsync();
+
+            return Result
+                .Ok("Curso Atualizado", "Estado do Curso atualizado com sucesso.");
+        }
         public async Task<Result<RetrieveCourseDto>> CreateAsync(CreateCourseDto entityDto)
         {
             // Check title uniqueness

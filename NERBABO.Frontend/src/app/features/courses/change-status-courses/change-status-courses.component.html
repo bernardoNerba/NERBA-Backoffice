@@ -1,0 +1,51 @@
+<div class="modal-header">
+  <h4 class="modal-title">Atualizar Estado do Curso</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="property">
+            <strong>Título</strong>
+            <p class="text-break text-muted mb-0">
+              {{ course.title }}
+            </p>
+          </div>
+        </div>
+        <!-- Status -->
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label for="status">Estado</label>
+            <p-select
+              formControlName="status"
+              [options]="STATUS"
+              optionLabel="value"
+              optionValue="value"
+              styleClass="w-100"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+
+    <div class="text-end">
+      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+        Cancel
+      </button>
+      <button type="submit" class="btn-main" [disabled]="loading">
+        @if (loading){
+        <span class="spinner-border spinner-border-sm me-1"></span>
+        } Save
+      </button>
+    </div>
+  </form>
+</div>

@@ -22,6 +22,7 @@ import { StatusEnum } from '../../../core/objects/status';
 import { UpdateCoursesComponent } from '../update-courses/update-courses.component';
 import { DeleteCoursesComponent } from '../delete-courses/delete-courses.component';
 import { CreateCoursesComponent } from '../create-courses/create-courses.component';
+import { ChangeStatusCoursesComponent } from '../change-status-courses/change-status-courses.component';
 
 @Component({
   selector: 'app-index-courses',
@@ -94,6 +95,15 @@ export class IndexCoursesComponent implements OnInit {
       initialState: {
         id: id,
         title: title,
+      },
+    });
+  }
+
+  onChangeStatusModal(course: Course) {
+    this.modalService.show(ChangeStatusCoursesComponent, {
+      class: 'modal-md',
+      initialState: {
+        course: course,
       },
     });
   }
