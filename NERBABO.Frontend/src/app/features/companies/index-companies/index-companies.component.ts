@@ -41,6 +41,7 @@ export class IndexCompaniesComponent implements OnInit {
     'Email',
     'Setor de Atividade',
     'Tamanho',
+    'Formandos',
   ];
 
   constructor(

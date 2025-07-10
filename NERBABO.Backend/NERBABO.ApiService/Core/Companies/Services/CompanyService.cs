@@ -22,8 +22,8 @@ namespace NERBABO.ApiService.Core.Companies.Services
         {
             
             if (await _context.Companies.AnyAsync(c =>
-             c.Name.ToLower()
-             .Equals(entityDto.Name.ToLower())))
+                c.Name.ToLower()
+                .Equals(entityDto.Name.ToLower())))
             {
                 _logger.LogWarning("Duplicated Company Name");
                 return Result<RetrieveCompanyDto>
@@ -100,7 +100,9 @@ namespace NERBABO.ApiService.Core.Companies.Services
 
         public async Task<Result<IEnumerable<RetrieveCompanyDto>>> GetAllAsync()
         {
-            var existingCompanies = await _context.Companies.ToListAsync();
+            var existingCompanies = await _context.Companies
+                .Include(c => c.Students)
+                .ToListAsync();
 
             if (existingCompanies is null || existingCompanies.Count == 0)
                 return Result<IEnumerable<RetrieveCompanyDto>>
@@ -120,7 +122,9 @@ namespace NERBABO.ApiService.Core.Companies.Services
 
         public async Task<Result<RetrieveCompanyDto>> GetByIdAsync(long id)
         {
-            var existingCompany = await _context.Companies.FindAsync(id);
+            var existingCompany = await _context.Companies
+                .Include(c => c.Students)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (existingCompany is null)
                 return Result<RetrieveCompanyDto>
                     .Fail("Não encontrado.", "Empresa não encontrada.",
@@ -132,7 +136,8 @@ namespace NERBABO.ApiService.Core.Companies.Services
 
         public async Task<Result<RetrieveCompanyDto>> UpdateAsync(UpdateCompanyDto entityDto)
         {
-            var existingCompany = await _context.Companies.FindAsync(entityDto.Id);
+            var existingCompany = await _context.Companies
+                .FindAsync(entityDto.Id);
             if (existingCompany is null)
                 return Result<RetrieveCompanyDto>
                     .Fail("Não encontrado.", "Empresa não encontrada", StatusCodes.Status404NotFound);

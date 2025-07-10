@@ -18,6 +18,10 @@ namespace NERBABO.ApiService.Core.Companies.Models
         public CompanySizeEnum Size { get; set; } = CompanySizeEnum.Micro;
 
 
+        // Calculated properties
+        public int StudentsCount => Students.Count;
+
+        // Navigation Properties
         public List<Student> Students { get; set; } = [];
 
         public static RetrieveCompanyDto ConvertEntityToRetrieveDto(Company c)
@@ -32,7 +36,8 @@ namespace NERBABO.ApiService.Core.Companies.Models
                 ZipCode = c.ZipCode,
                 Email = c.Email,
                 AtivitySector = c.AtivitySector.Humanize().Transform(To.TitleCase),
-                Size = c.Size.Humanize().Transform(To.TitleCase)
+                Size = c.Size.Humanize().Transform(To.TitleCase),
+                StudentsCount = c.StudentsCount
             };
         }
 

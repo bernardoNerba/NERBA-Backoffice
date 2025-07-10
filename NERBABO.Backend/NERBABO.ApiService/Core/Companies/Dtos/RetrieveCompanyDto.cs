@@ -12,10 +12,13 @@ namespace NERBABO.ApiService.Core.Companies.Dtos
         public string? Email { get; set; }
         public string AtivitySector { get; set; } = string.Empty;
         public string Size { get; set; } = string.Empty;
+        public int StudentsCount { get; set; }
 
         public RetrieveCompanyDto() { }
 
-        public RetrieveCompanyDto(long id, string name, string? address, string? phoneNumber, string? locality, string? zipCode, string? email, string ativitySector, string size)
+        public RetrieveCompanyDto(long id, string name, string? address, string?
+        phoneNumber, string? locality, string? zipCode, string? email, string ativitySector,
+        string size, int studentsCount)
         {
             Id = id;
             Name = name;
@@ -26,6 +29,7 @@ namespace NERBABO.ApiService.Core.Companies.Dtos
             Email = email;
             AtivitySector = ativitySector;
             Size = size;
+            StudentsCount = studentsCount;
         }
     }
 }
