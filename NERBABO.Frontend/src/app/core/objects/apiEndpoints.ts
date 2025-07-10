@@ -40,4 +40,7 @@ export const API_ENDPOINTS = {
   // actions
   actions: `${environment.appUrl}/api/actions/`,
   actionsByModule: `${environment.appUrl}/api/actions/module/`,
+
+  // frames
+  frames: `${environment.appUrl}/api/frame/`,
 };
