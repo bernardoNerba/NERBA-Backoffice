@@ -9,10 +9,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FrameService } from '../../../core/services/frame.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-view-courses',
-  imports: [IconComponent, CommonModule],
+  imports: [IconComponent, CommonModule, MessageModule],
   templateUrl: './view-courses.component.html',
   styleUrl: './view-courses.component.css',
 })

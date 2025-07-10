@@ -1,4 +1,16 @@
 @if (course$ | async; as course){
+<!-- MESSAGE FOR COURSE NOT COMPLETED-->
+@if (course.remainingDuration !== 0) {
+<div class="mb-3">
+  <p-message severity="error">
+    <app-icon [icon]="ICONS.info" [marginEnd]="3" />
+    O curso ainda tem {{ course.remainingDuration }} horas de
+    {{ course.totalDuration }} horas sem serem ocupadas.</p-message
+  >
+</div>
+}
+<!-- END MESSAGE FOR COURSE NOT COMPLETED-->
+
 <!-- TITLE + DROPDOWN MENU -->
 <div class="row align-items-center">
   <div class="col-10">
@@ -158,7 +170,11 @@
               <div class="col-md-4 col-sm-6">
                 <div class="property">
                   <strong>Duração Total</strong>
-                  <p class="text-break mb-0">{{ course.totalDuration }} h</p>
+                  <p class="text-break mb-0">
+                    {{ course.totalDuration - course.remainingDuration }} /
+                    {{ course.totalDuration }}
+                    h
+                  </p>
                 </div>
               </div>
               <!-- Course status -->
