@@ -8,5 +8,6 @@ namespace NERBABO.ApiService.Core.Modules.Services
         : IGenericService<RetrieveModuleDto, CreateModuleDto, UpdateModuleDto, long>
     {
         Task<Result<IEnumerable<RetrieveModuleDto>>> GetActiveModulesAsync();
+        Task<Result> ToggleModuleIsActiveAsync(long id);
     }
 }

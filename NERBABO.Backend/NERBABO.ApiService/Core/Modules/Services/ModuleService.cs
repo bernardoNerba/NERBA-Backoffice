@@ -201,6 +201,27 @@ namespace NERBABO.ApiService.Core.Modules.Services
                 .Ok("Módulo Eliminado", "Módulo eliminado com sucesso.");
         }
 
+        public async Task<Result> ToggleModuleIsActiveAsync(long id)
+        {
+            var existingModule = await _context.Modules.FindAsync(id);
+            if (existingModule is null)
+                return Result
+                    .Fail("Não encontrado.", "Módulo não encontrado.",
+                    StatusCodes.Status404NotFound);
+
+            existingModule.IsActive = !existingModule.IsActive;
+            await _context.SaveChangesAsync();
+
+            // Update cache
+            await DeleteModuleCacheAsync(id);
+            await _cacheService.SetAsync($"modules:{id}", Module.ConvertEntityToRetrieveDto(existingModule), TimeSpan.FromMinutes(30));
+
+            var status = existingModule.IsActive ? "Ativado" : "Desativado";
+
+            return Result
+                .Ok("Módulo atualizado.", $"Módulo {status} com sucesso.");
+        }
+
         private async Task DeleteModuleCacheAsync(long? id = null)
         {
             if (id is not null)

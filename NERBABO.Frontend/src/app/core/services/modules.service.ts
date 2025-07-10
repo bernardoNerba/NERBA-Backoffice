@@ -15,11 +15,13 @@ export class ModulesService {
   private loadingSubject = new BehaviorSubject<boolean>(true);
   private updatedSource = new Subject<number>();
   private deleteSource = new Subject<number>();
+  private toggleSource = new Subject<number>();
 
   modules$ = this.modulesSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
   updatedSource$ = this.updatedSource.asObservable();
   deletedSource$ = this.deleteSource.asObservable();
+  toggleSource$ = this.toggleSource.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
     this.fetchModules();
@@ -27,6 +29,22 @@ export class ModulesService {
 
   createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
     return this.http.post<OkResponse>(`${API_ENDPOINTS.modules}`, model);
+  }
+
+  toggleModuleIsActive(id: number): void {
+    this.http
+      .put<OkResponse>(`${API_ENDPOINTS.modules}${id}/toggle`, {})
+      .subscribe({
+        next: (value) => {
+          this.triggerFetch();
+          this.sharedService.showSuccess(value.message);
+          this.notifyModuleToggle(id);
+        },
+        error: (error) => {
+          console.log(error);
+          this.sharedService.handleErrorResponse(error);
+        },
+      });
   }
 
   updateModule(id: number, model: Module): Observable<OkResponse> {
@@ -55,6 +73,10 @@ export class ModulesService {
 
   notifyModuleDelete(id: number) {
     this.deleteSource.next(id);
+  }
+
+  notifyModuleToggle(id: number) {
+    this.toggleSource.next(id);
   }
 
   private fetchModules(): void {

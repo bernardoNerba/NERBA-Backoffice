@@ -64,6 +64,7 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     this.initializeModule();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
+    this.toggleSourceSubscription();
   }
 
   onUpdateModal(m: Module) {
@@ -85,6 +86,10 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
       initialState: initialState,
       class: 'modal-md',
     });
+  }
+
+  onToggleModule(id: number): void {
+    this.modulesService.toggleModuleIsActive(id);
   }
 
   private initializeModule() {
@@ -124,6 +129,16 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.modulesService.deletedSource$.subscribe((id: number) => {
         if (this.id === id) this.router.navigateByUrl('/modules');
+      })
+    );
+  }
+
+  private toggleSourceSubscription() {
+    this.subscriptions.add(
+      this.modulesService.toggleSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this.initializeModule();
+        }
       })
     );
   }

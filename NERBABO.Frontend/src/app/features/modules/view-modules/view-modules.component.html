@@ -30,6 +30,13 @@
           Informações</a
         >
       </li>
+      <li>
+        <a class="dropdown-item" (click)="onToggleModule(module.id)">
+          <app-icon [icon]="ICONS.change" class="me-3" />{{
+            module.isActive ? "Desativar" : "Ativar"
+          }}</a
+        >
+      </li>
     </ul>
   </div>
 </div>
