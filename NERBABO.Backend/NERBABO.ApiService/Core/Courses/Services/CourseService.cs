@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
+using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
@@ -20,6 +22,71 @@ namespace NERBABO.ApiService.Core.Courses.Services
         private readonly ILogger<CourseService> _logger = logger;
         private readonly ICacheService _cache = cache;
 
+        public async Task<Result<RetrieveCourseDto>> UpdateCourseModulesAsync(List<long> moduleIds, long courseId)
+        {
+            // course validation
+            var existingCourse = await _context.Courses
+                .Include(c => c.Modules)
+                .Include(c => c.Frame)
+                .FirstOrDefaultAsync(c => c.Id == courseId);
+            if (existingCourse is null)
+            {
+                _logger.LogWarning("Course not found for the given CourseId: {CourseId}", courseId);
+                return Result<RetrieveCourseDto>
+                    .Fail("Não encontrado.", "Curso não encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            if (!existingCourse.IsCourseActive)
+            {
+                _logger.LogWarning("Course is not active for the given CourseId: {CourseId}", courseId);
+                return Result<RetrieveCourseDto>
+                    .Fail("Erro de Validação", "Não é possível atribuir um módulo a um curso concluído ou cancelado.");
+            }
+
+            // modules validation
+            List<Module> modules = [];
+            float currentDuration = 0f;
+            foreach (var id in moduleIds)
+            {
+                var m = await _context.Modules.FindAsync(id);
+                if (m is null)
+                {
+                    _logger.LogWarning("Module not found for the given ModuleId: {id}", id);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Não encontrado.", "Módulo não encontrado.",
+                        StatusCodes.Status404NotFound);
+                }
+                if (!m.IsActive)
+                {
+                    _logger.LogWarning("Module is not active for the given ModuleId: {id}", id);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação", "O módulo fornecido não está ativo.");
+                }
+                // Verify if the course can accommodate the module's hours
+                if (!Course.CanAddModule(currentDuration, m.Hours, existingCourse.TotalDuration))
+                {
+                    _logger.LogWarning("Total duration exceeded for course ID: {CourseId}", courseId);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours} quando {existingCourse.CurrentDuration}/{existingCourse.TotalDuration}");
+                }
+                if (!modules.Contains(m))
+                    modules.Add(m);
+            }
+
+            existingCourse.Modules = modules;
+            await _context.SaveChangesAsync();
+
+            var retrieveCourse = Course.ConvertEntityToRetrieveDto(existingCourse);
+
+            // update cache
+            await DeleteCacheAsync(existingCourse.Id);
+            await _cache.SetAsync($"course:{existingCourse.Id}", retrieveCourse, TimeSpan.FromMinutes(30));
+
+            return Result<RetrieveCourseDto>
+                .Ok(retrieveCourse, "Curso Atualizado.", "Módulos do Curso atualizados com sucesso.");
+        }
+
         public async Task<Result<RetrieveCourseDto>> AssignModuleAsync(long moduleId, long courseId)
         {
             var existingModule = await _context.Modules.FindAsync(moduleId);
@@ -30,7 +97,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Não encontrado.", "Módulo não encontrado.",
                     StatusCodes.Status404NotFound);
             }
-            
+
             var existingCourse = await _context.Courses
                 .Where(c => c.Id == courseId)
                 .Include(c => c.Modules)
@@ -50,7 +117,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Erro de Validação", "O módulo fornecido não está ativo.");
             }
 
-            if(!existingCourse.IsCourseActive)
+            if (!existingCourse.IsCourseActive)
             {
                 _logger.LogWarning("Course is not active for the given CourseId: {CourseId}", courseId);
                 return Result<RetrieveCourseDto>
@@ -86,15 +153,58 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 "Módulo Atribuído", "Módulo atribuído com sucesso ao curso.");
         }
 
+        public async Task<Result> ChangeCourseStatusAsync(long id, string status)
+        {
+            var existingCourse = await _context.Courses.FindAsync(id);
+            if (existingCourse is null)
+            {
+                _logger.LogWarning("Course with given id {id} not found.", id);
+                return Result
+                    .Fail("Não encontrado.", "Curso não encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+            
+            if (!string.IsNullOrEmpty(status)
+            && !EnumHelp.IsValidEnum<StatusEnum>(status))
+            {
+                _logger.LogWarning("Invalid Status type provided.");
+                return Result
+                    .Fail("Não encontrado", $"O estado {status} não é válido",
+                    StatusCodes.Status404NotFound);
+            }
+
+            // Compare status verifying if there is a change to perform
+            StatusEnum s = Enum.GetValues<StatusEnum>()
+                .First(e => string.Equals(e.Humanize().Transform(To.TitleCase), status,
+                StringComparison.OrdinalIgnoreCase));
+
+            if (existingCourse.Status == s)
+            {
+                _logger.LogWarning("Tryed to perfom a update but nothing changed.");
+                return Result
+                    .Fail("Erro de Validação.", "Não alterou nenhum dado. Modifique os dados e tente novamente.");
+            }
+
+            existingCourse.Status = s;
+            await _context.SaveChangesAsync();
+
+
+            // Update cache
+            await _cache.SetAsync($"course:{existingCourse.Id}", existingCourse, TimeSpan.FromMinutes(30));
+            await DeleteCacheAsync();
+
+            return Result
+                .Ok("Curso Atualizado", "Estado do Curso atualizado com sucesso.");
+        }
         public async Task<Result<RetrieveCourseDto>> CreateAsync(CreateCourseDto entityDto)
         {
             // Check title uniqueness
-            if (await _context.Courses.AnyAsync(c => 
+            if (await _context.Courses.AnyAsync(c =>
                 EF.Functions.Like(c.Title, entityDto.Title)))
             {
                 _logger.LogWarning("Duplicted Title detected.");
                 return Result<RetrieveCourseDto>
-                    .Fail("Erro de Validação.","Já existe um curso com o mesmo título.");
+                    .Fail("Erro de Validação.", "Já existe um curso com o mesmo título.");
             }
 
             // check if the frame exists
@@ -136,8 +246,41 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 }
             }
 
+            // check and convert modules
+            List<Module> modules = [];
+            var currentDuration = 0f;
+            foreach (var moduleId in entityDto.Modules)
+            {
+                var m = await _context.Modules.FindAsync(moduleId);
+                if (m is null)
+                {
+                    _logger.LogWarning("Module with id {id} not found when creating course.", moduleId);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Não encontrado", "Um ou mais módulos não encontrado/os.",
+                        StatusCodes.Status404NotFound);
+                }
+
+                if (!m.IsActive)
+                {
+                    _logger.LogWarning("Module with id {1} is not active. It cannot be assigned to a Course.", moduleId);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação", "Um ou mais módulos não estão ativos.");
+                }
+
+                // check if there is time to add the module to the course
+                if (!Course.CanAddModule(currentDuration, m.Hours, entityDto.TotalDuration))
+                {
+                    _logger.LogWarning("Total duration exceeded for course total duration");
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours}h quando {currentDuration}h/{entityDto.TotalDuration}h");
+                }
+
+                modules.Add(m);
+                currentDuration += m.Hours;
+            }
+
             // Create course in database
-            var createdCourse = await _context.Courses.AddAsync(Course.ConvertCreateDtoToEntity(entityDto, existingFrame));
+            var createdCourse = await _context.Courses.AddAsync(Course.ConvertCreateDtoToEntity(entityDto, existingFrame, modules));
             await _context.SaveChangesAsync();
 
             var course = Course.ConvertEntityToRetrieveDto(createdCourse.Entity);
@@ -173,7 +316,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             {
                 _logger.LogWarning("Tryed to delete a course that has active on going acttions, when its not possible.");
                 return Result
-                    .Fail("Erro de Validação", "Não pode efetuar esta ação sendo que existem ações em andamento associados a este curso.");        
+                    .Fail("Erro de Validação", "Não pode efetuar esta ação sendo que existem ações em andamento associados a este curso.");
             }
 
             // dont allow to delete Completed courses
@@ -216,7 +359,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 .AsValueEnumerable()
                 .Where(c => c.IsCourseActive)
                 .OrderByDescending(c => c.CreatedAt)
-                .Select(c => Course.ConvertEntityToRetrieveDto(c))
+                .Select(Course.ConvertEntityToRetrieveDto)
                 .ToList();
 
             if (activeCourses is null || activeCourses.Count == 0)
@@ -411,7 +554,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 .Where(c => c.Id == courseId)
                 .Include(c => c.Modules)
                 .FirstOrDefaultAsync();
-            
+
             if (existingCourse is null)
             {
                 _logger.LogWarning("Course not found for the given CourseId: {CourseId}", courseId);
@@ -444,6 +587,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             // Get the existing course from the database
             var existingCourse = await _context.Courses
                 .Include(c => c.Frame)
+                .Include(c => c.Modules)
                 .FirstOrDefaultAsync(c => c.Id == entityDto.Id);
             if (existingCourse is null)
             {
@@ -483,7 +627,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
             // check if the status is valid
-            if(!string.IsNullOrEmpty(entityDto.Status)
+            if (!string.IsNullOrEmpty(entityDto.Status)
                 && !EnumHelp.IsValidEnum<StatusEnum>(entityDto.Status))
             {
                 _logger.LogWarning("Invalid Status provided.");
@@ -502,11 +646,45 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 }
             }
 
-            _context.Entry(existingCourse).CurrentValues.SetValues(Course.ConvertUpdateDtoToEntity(entityDto, existingFrame));
+            // check and convert modules
+            List<Module> modules = [];
+            var currentDuration = 0f;
+            foreach (var moduleId in entityDto.Modules)
+            {
+                var m = await _context.Modules.FindAsync(moduleId);
+                if (m is null)
+                {
+                    _logger.LogWarning("Module with id {id} not found when updating course.", moduleId);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Não encontrado", "Um ou mais módulos não encontrado/os.",
+                        StatusCodes.Status404NotFound);
+                }
+
+                if (!m.IsActive)
+                {
+                    _logger.LogWarning("Module with id {1} is not active. It cannot be assigned to a Course.", moduleId);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação", "Um ou mais módulos não estão ativos.");
+                }
+
+                // check if there is time to add the module to the course
+                if (!Course.CanAddModule(currentDuration, m.Hours, entityDto.TotalDuration))
+                {
+                    _logger.LogWarning("Total duration exceeded for course total duration");
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours}h quando {currentDuration}h/{entityDto.TotalDuration}h");
+                }
+
+                modules.Add(m);
+            }
+
+            var newValues = Course.ConvertUpdateDtoToEntity(entityDto, existingFrame);
+            _context.Entry(existingCourse).CurrentValues.SetValues(newValues);
+            existingCourse.Modules = modules;
             await _context.SaveChangesAsync();
 
             var updatedCourse = Course.ConvertEntityToRetrieveDto(existingCourse);
-            
+
             // update cache
             await _cache.SetAsync($"course:{existingCourse.Id}", updatedCourse, TimeSpan.FromMinutes(30));
             await DeleteCacheAsync();

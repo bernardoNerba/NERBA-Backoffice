@@ -106,6 +106,14 @@
                     <app-icon [icon]="ICONS.detail" class="me-3" />Detalhes</a
                   >
                 </li>
+
+                <li>
+                  <a class="dropdown-item" (click)="onToggleModule(module.id)">
+                    <app-icon [icon]="ICONS.change" class="me-3" />{{
+                      module.isActive ? "Desativar" : "Ativar"
+                    }}</a
+                  >
+                </li>
               </ul>
               <!-- END ACTION DROPDOWN -->
             </td>

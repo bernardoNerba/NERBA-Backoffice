@@ -20,7 +20,7 @@ export class DeletePeopleComponent {
     private sharedService: SharedService
   ) {}
 
-  eliminarPessoa(): void {
+  confirmDelete(): void {
     this.deleting = true;
 
     this.peopleService.deletePerson(this.id).subscribe({

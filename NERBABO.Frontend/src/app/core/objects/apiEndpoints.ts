@@ -32,6 +32,7 @@ export const API_ENDPOINTS = {
 
   // modules
   modules: `${environment.appUrl}/api/module/`,
+  modules_active: `${environment.appUrl}/api/module/active/`,
 
   // courses
   courses: `${environment.appUrl}/api/courses/`,
@@ -39,4 +40,7 @@ export const API_ENDPOINTS = {
   // actions
   actions: `${environment.appUrl}/api/actions/`,
   actionsByModule: `${environment.appUrl}/api/actions/module/`,
+
+  // frames
+  frames: `${environment.appUrl}/api/frame/`,
 };

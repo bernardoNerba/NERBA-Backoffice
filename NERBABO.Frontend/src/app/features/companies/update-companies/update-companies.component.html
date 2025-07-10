@@ -9,212 +9,208 @@
 </div>
 <div class="modal-body">
   <form [formGroup]="updateCompanyForm" (ngSubmit)="onSubmit()">
-    <div class="container">
-      <div class="row p-4">
-        <!-- NAME FORM FIELD -->
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label for="name"
-              >Designação
-              <span class="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              class="form-control"
-              id="name"
-              formControlName="name"
-              [class.is-invalid]="
-                submitted && updateCompanyForm.get('name')?.errors
-              "
-            />
-            @if (submitted &&
-            updateCompanyForm.get('name')?.hasError("required")) {
-            <span class="text-danger">
-              Designação é um campo obrigatório.
-            </span>
-            } @else if ( updateCompanyForm.get('name')?.hasError("minlength") ||
-            updateCompanyForm.get('name')?.hasError("maxlength")) {
-            <span class="text-danger">
-              Designação deve ter entre 3 e 155 caracteres.
-            </span>
-            }
-          </div>
+    <div class="row p-4">
+      <!-- NAME FORM FIELD -->
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label for="name"
+            >Designação
+            <span class="text-danger">*</span>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            formControlName="name"
+            [class.is-invalid]="
+              submitted && updateCompanyForm.get('name')?.errors
+            "
+          />
+          @if (submitted && updateCompanyForm.get('name')?.hasError("required"))
+          {
+          <span class="text-danger"> Designação é um campo obrigatório. </span>
+          } @else if ( updateCompanyForm.get('name')?.hasError("minlength") ||
+          updateCompanyForm.get('name')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Designação deve ter entre 3 e 155 caracteres.
+          </span>
+          }
         </div>
-        <!-- END NAME FORM FIELD -->
-
-        <!-- phoneNumber FORM FIELD -->
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label for="phoneNumber">Contacto Telefónico </label>
-            <input
-              type="text"
-              class="form-control"
-              id="phoneNumber"
-              formControlName="phoneNumber"
-              [class.is-invalid]="
-                submitted && updateCompanyForm.get('phoneNumber')?.errors
-              "
-            />
-            @if ( updateCompanyForm.get('phoneNumber')?.hasError("minlength") ||
-            updateCompanyForm.get('phoneNumber')?.hasError("maxlength")) {
-            <span class="text-danger">
-              Contacto Telefónico deve ter exatamente 9 números.
-            </span>
-            }
-          </div>
-        </div>
-        <!-- END phoneNumber FORM FIELD -->
-
-        <!-- ADDRESS FORM FIELD -->
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label for="address">Morada </label>
-            <textarea
-              type="text"
-              class="form-control"
-              id="address"
-              formControlName="address"
-              [class.is-invalid]="
-                submitted && updateCompanyForm.get('address')?.errors
-              "
-            ></textarea>
-            @if (submitted &&
-            updateCompanyForm.get('address')?.hasError("required")) {
-            <span class="text-danger"> Morada é um campo obrigatório. </span>
-            } @else if ( updateCompanyForm.get('address')?.hasError("minlength")
-            || updateCompanyForm.get('address')?.hasError("maxlength")) {
-            <span class="text-danger">
-              Morada deve ter entre 3 e 155 caracteres.
-            </span>
-            }
-          </div>
-        </div>
-        <!-- END ADDRESS FORM FIELD -->
-
-        <!-- locality FORM FIELD -->
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="locality">Localidade </label>
-            <input
-              type="text"
-              class="form-control"
-              id="locality"
-              formControlName="locality"
-              [class.is-invalid]="
-                submitted && updateCompanyForm.get('locality')?.errors
-              "
-            />
-            @if ( updateCompanyForm.get('locality')?.hasError("minlength") ||
-            updateCompanyForm.get('locality')?.hasError("maxlength")) {
-            <span class="text-danger">
-              Localidade deve ter entre 3 e 55 caracteres.
-            </span>
-            }
-          </div>
-        </div>
-        <!-- END locality FORM FIELD -->
-
-        <!-- zipCode FORM FIELD -->
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="zipCode">Código Postal </label>
-            <input
-              type="text"
-              class="form-control"
-              id="zipCode"
-              formControlName="zipCode"
-              [class.is-invalid]="
-                submitted && updateCompanyForm.get('zipCode')?.errors
-              "
-            />
-            @if ( updateCompanyForm.get('zipCode')?.hasError("minlength") ||
-            updateCompanyForm.get('zipCode')?.hasError("maxlength")) {
-            <span class="text-danger">
-              Código Postal deve ter exatamente 8 caractéres, 4 números + '-' +
-              3 números.
-            </span>
-            }
-          </div>
-        </div>
-        <!-- END zipCode FORM FIELD -->
-
-        <!-- email FORM FIELD -->
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label for="email">Email</label>
-            <input
-              type="text"
-              class="form-control"
-              id="email"
-              formControlName="email"
-              [class.is-invalid]="
-                submitted && updateCompanyForm.get('email')?.errors
-              "
-            />
-            @if ( updateCompanyForm.get('email')?.hasError("minlength") ||
-            updateCompanyForm.get('email')?.hasError("maxlength")) {
-            <span class="text-danger"> Formato do Email Inválido.</span>
-            }
-          </div>
-        </div>
-        <!-- END email FORM FIELD -->
-
-        <!-- ativitySector FORM FIELD -->
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="ativitySector">Setor de Atividade</label>
-            <select
-              type="text"
-              class="form-select"
-              id="ativitySector"
-              formControlName="ativitySector"
-              [class.is-invalid]="
-                submitted && updateCompanyForm.get('ativitySector')?.errors
-              "
-            >
-              @for(activity of activitySectors; track activity){
-              <option value="{{ activity }}">
-                {{ activity }}
-              </option>
-              }
-            </select>
-            @if (submitted &&
-            updateCompanyForm.get('ativitySector')?.hasError("required")) {
-            <span class="text-danger">
-              Setor de Atividade é um campo obrigatório.
-            </span>
-            }
-          </div>
-        </div>
-        <!-- END ativitySector FORM FIELD -->
-
-        <!-- size FORM FIELD -->
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="size">Tamanho</label>
-            <select
-              type="text"
-              class="form-select"
-              id="size"
-              formControlName="size"
-              [class.is-invalid]="
-                submitted && updateCompanyForm.get('size')?.errors
-              "
-            >
-              @for(size of companySizes; track size){
-              <option value="{{ size }}">
-                {{ size }}
-              </option>
-              }
-            </select>
-            @if (submitted &&
-            updateCompanyForm.get('size')?.hasError("required")) {
-            <span class="text-danger"> Tamanho é um campo obrigatório. </span>
-            }
-          </div>
-        </div>
-        <!-- END size FORM FIELD -->
       </div>
+      <!-- END NAME FORM FIELD -->
+
+      <!-- phoneNumber FORM FIELD -->
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label for="phoneNumber">Contacto Telefónico </label>
+          <input
+            type="text"
+            class="form-control"
+            id="phoneNumber"
+            formControlName="phoneNumber"
+            [class.is-invalid]="
+              submitted && updateCompanyForm.get('phoneNumber')?.errors
+            "
+          />
+          @if ( updateCompanyForm.get('phoneNumber')?.hasError("minlength") ||
+          updateCompanyForm.get('phoneNumber')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Contacto Telefónico deve ter exatamente 9 números.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END phoneNumber FORM FIELD -->
+
+      <!-- ADDRESS FORM FIELD -->
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label for="address">Morada </label>
+          <textarea
+            type="text"
+            class="form-control"
+            id="address"
+            formControlName="address"
+            [class.is-invalid]="
+              submitted && updateCompanyForm.get('address')?.errors
+            "
+          ></textarea>
+          @if (submitted &&
+          updateCompanyForm.get('address')?.hasError("required")) {
+          <span class="text-danger"> Morada é um campo obrigatório. </span>
+          } @else if ( updateCompanyForm.get('address')?.hasError("minlength")
+          || updateCompanyForm.get('address')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Morada deve ter entre 3 e 155 caracteres.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END ADDRESS FORM FIELD -->
+
+      <!-- locality FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="locality">Localidade </label>
+          <input
+            type="text"
+            class="form-control"
+            id="locality"
+            formControlName="locality"
+            [class.is-invalid]="
+              submitted && updateCompanyForm.get('locality')?.errors
+            "
+          />
+          @if ( updateCompanyForm.get('locality')?.hasError("minlength") ||
+          updateCompanyForm.get('locality')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Localidade deve ter entre 3 e 55 caracteres.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END locality FORM FIELD -->
+
+      <!-- zipCode FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="zipCode">Código Postal </label>
+          <input
+            type="text"
+            class="form-control"
+            id="zipCode"
+            formControlName="zipCode"
+            [class.is-invalid]="
+              submitted && updateCompanyForm.get('zipCode')?.errors
+            "
+          />
+          @if ( updateCompanyForm.get('zipCode')?.hasError("minlength") ||
+          updateCompanyForm.get('zipCode')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Código Postal deve ter exatamente 8 caractéres, 4 números + '-' + 3
+            números.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END zipCode FORM FIELD -->
+
+      <!-- email FORM FIELD -->
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label for="email">Email</label>
+          <input
+            type="text"
+            class="form-control"
+            id="email"
+            formControlName="email"
+            [class.is-invalid]="
+              submitted && updateCompanyForm.get('email')?.errors
+            "
+          />
+          @if ( updateCompanyForm.get('email')?.hasError("minlength") ||
+          updateCompanyForm.get('email')?.hasError("maxlength")) {
+          <span class="text-danger"> Formato do Email Inválido.</span>
+          }
+        </div>
+      </div>
+      <!-- END email FORM FIELD -->
+
+      <!-- ativitySector FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="ativitySector">Setor de Atividade</label>
+          <select
+            type="text"
+            class="form-select"
+            id="ativitySector"
+            formControlName="ativitySector"
+            [class.is-invalid]="
+              submitted && updateCompanyForm.get('ativitySector')?.errors
+            "
+          >
+            @for(activity of activitySectors; track activity){
+            <option value="{{ activity }}">
+              {{ activity }}
+            </option>
+            }
+          </select>
+          @if (submitted &&
+          updateCompanyForm.get('ativitySector')?.hasError("required")) {
+          <span class="text-danger">
+            Setor de Atividade é um campo obrigatório.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END ativitySector FORM FIELD -->
+
+      <!-- size FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="size">Tamanho</label>
+          <select
+            type="text"
+            class="form-select"
+            id="size"
+            formControlName="size"
+            [class.is-invalid]="
+              submitted && updateCompanyForm.get('size')?.errors
+            "
+          >
+            @for(size of companySizes; track size){
+            <option value="{{ size }}">
+              {{ size }}
+            </option>
+            }
+          </select>
+          @if (submitted && updateCompanyForm.get('size')?.hasError("required"))
+          {
+          <span class="text-danger"> Tamanho é um campo obrigatório. </span>
+          }
+        </div>
+      </div>
+      <!-- END size FORM FIELD -->
     </div>
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
 

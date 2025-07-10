@@ -33,7 +33,7 @@ public class FrameService(
         _context.Frames.Add(newFrame);
         await _context.SaveChangesAsync();
         return Result<RetrieveFrameDto>
-               .Ok(Frame.ConvertEntityToRetrieveDto(newFrame), "Enquadramento Criado.",
+            .Ok(Frame.ConvertEntityToRetrieveDto(newFrame), "Enquadramento Criado.",
                 $"Foi criado um enquadramento com o programa {newFrame.Operation}.",
                 StatusCodes.Status201Created);
     }

@@ -64,6 +64,7 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     this.initializeModule();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
+    this.toggleSourceSubscription();
   }
 
   onUpdateModal(m: Module) {
@@ -87,13 +88,17 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     });
   }
 
+  onToggleModule(id: number): void {
+    this.modulesService.toggleModuleIsActive(id);
+  }
+
   private initializeModule() {
     this.module$ = this.modulesService.getSingleModule(this.id).pipe(
       catchError((error) => {
         if (error.status === 401 || error.status === 403) {
           this.sharedService.redirectUser();
         } else {
-          this.router.navigate(['/companies']);
+          this.router.navigate(['/modules']);
           this.sharedService.showWarning('Informação não foi encontrada.');
         }
         return of(null);
@@ -124,6 +129,16 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.modulesService.deletedSource$.subscribe((id: number) => {
         if (this.id === id) this.router.navigateByUrl('/modules');
+      })
+    );
+  }
+
+  private toggleSourceSubscription() {
+    this.subscriptions.add(
+      this.modulesService.toggleSource$.subscribe((id: number) => {
+        if (this.id === id) {
+          this.initializeModule();
+        }
       })
     );
   }

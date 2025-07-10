@@ -16,6 +16,13 @@ import {
   faGraduationCap,
   faGlobe,
   faCalendar,
+  faCropSimple,
+  faInfoCircle,
+  faRotate,
+  faGripHorizontal,
+  faClock,
+  faBook,
+  faBuilding,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -35,4 +42,11 @@ export const ICONS = {
   signal: faSignal,
   globe: faGlobe,
   calendar: faCalendar,
+  frame: faCropSimple,
+  info: faInfoCircle,
+  change: faRotate,
+  modules: faGripHorizontal,
+  time: faClock,
+  book: faBook,
+  company: faBuilding,
 };

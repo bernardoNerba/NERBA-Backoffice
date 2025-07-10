@@ -94,6 +94,8 @@ export class CreateFramesComponent implements OnInit {
 
     this.loading = true;
 
+    console.log(this.form.value);
+
     this.frameService.create(this.form.value).subscribe({
       next: (value: OkResponse) => {
         this.bsModalRef.hide();

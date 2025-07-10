@@ -49,6 +49,22 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'courses',
+    loadComponent: () =>
+      import('./features/courses/index-courses/index-courses.component').then(
+        (m) => m.IndexCoursesComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'courses/:id',
+    loadComponent: () =>
+      import('./features/courses/view-courses/view-courses.component').then(
+        (m) => m.ViewCoursesComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'logout',
     loadComponent: () =>
       import('./features/auth/logout/logout.component').then(

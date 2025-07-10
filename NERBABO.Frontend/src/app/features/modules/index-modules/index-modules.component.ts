@@ -83,14 +83,14 @@ export class IndexModulesComponent implements OnInit {
     );
   }
 
-  onAddModal() {
+  onAddModal(): void {
     this.modalService.show(CreateModulesComponent, {
       initialState: {},
       class: 'modal-md',
     });
   }
 
-  onUpdateModal(m: Module) {
+  onUpdateModal(m: Module): void {
     const initialState = {
       id: m.id,
     };
@@ -100,7 +100,7 @@ export class IndexModulesComponent implements OnInit {
     });
   }
 
-  onDeleteModal(id: number, name: string) {
+  onDeleteModal(id: number, name: string): void {
     const initialState = {
       id: id,
       name: name,
@@ -109,6 +109,10 @@ export class IndexModulesComponent implements OnInit {
       initialState: initialState,
       class: 'modal-md',
     });
+  }
+
+  onToggleModule(id: number): void {
+    this.moduleService.toggleModuleIsActive(id);
   }
 
   private updateBreadcrumbs(): void {

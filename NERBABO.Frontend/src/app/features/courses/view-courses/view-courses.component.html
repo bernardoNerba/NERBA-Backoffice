@@ -1,0 +1,274 @@
+@if (course$ | async; as course){
+<!-- MESSAGE FOR COURSE NOT COMPLETED-->
+@if (course.remainingDuration !== 0) {
+<div class="mb-3">
+  <p-message severity="error">
+    <app-icon [icon]="ICONS.info" [marginEnd]="3" />
+    O curso ainda tem {{ course.remainingDuration }} horas de
+    {{ course.totalDuration }} horas sem serem ocupadas.</p-message
+  >
+</div>
+}
+<!-- END MESSAGE FOR COURSE NOT COMPLETED-->
+
+<!-- TITLE + DROPDOWN MENU -->
+<div class="row align-items-center">
+  <div class="col-10">
+    <h3 class="text-truncate">{{ course.title }}</h3>
+  </div>
+  <!-- ACTION MENU -->
+  <div class="col-2 d-flex justify-content-end">
+    <button
+      class="btn-main"
+      type="button"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <a class="dropdown-item" (click)="onUpdateCourseModal(course)"
+          ><app-icon [icon]="ICONS.edit" class="me-3" /> Editar</a
+        >
+      </li>
+
+      <li>
+        <a
+          class="dropdown-item"
+          (click)="onDeleteCourseModal(course.id, course.title)"
+          ><app-icon [icon]="ICONS.delete" class="me-3" /> Eliminar</a
+        >
+      </li>
+
+      <li>
+        <a class="dropdown-item" (click)="onChangeStatusModal(course)">
+          <app-icon [icon]="ICONS.change" class="me-3" />Atualizar Estado</a
+        >
+      </li>
+      <li>
+        <a class="dropdown-item" (click)="onAssignModuleModal(course)">
+          <app-icon [icon]="ICONS.modules" class="me-3" />Atribuir Módulo</a
+        >
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- END TITLE + DROPDOWN MENU -->
+
+<div class="container-fluid px-0 my-4">
+  <div class="accordion" id="general-info-accordion">
+    <!-- FRAME INFO ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-frame-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#frame-info-content"
+          aria-expanded="false"
+          aria-controls="frame-info-content"
+        >
+          <app-icon [icon]="ICONS.frame" [marginEnd]="3" />
+          <h5>Enquadramento</h5>
+        </button>
+      </h2>
+      <div
+        id="frame-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-frame-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="row g-3">
+              <!-- Frame Program -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Programa</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.program }}
+                  </p>
+                </div>
+              </div>
+              <!-- Frame Intervention -->
+              <div class="col-md-4">
+                <div class="property">
+                  <strong>Intervention</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.intervention }}
+                  </p>
+                </div>
+              </div>
+              <!-- Frame Intervention Type -->
+              <div class="col-md-8">
+                <div class="property">
+                  <strong>Tipo de Intervenção</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.interventionType }}
+                  </p>
+                </div>
+              </div>
+              <!-- Frame Operation -->
+              <div class="col-md-4">
+                <div class="property">
+                  <strong>Operação</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.operation }}
+                  </p>
+                </div>
+              </div>
+              <!-- Frame Intervention Type -->
+              <div class="col-md-8">
+                <div class="property">
+                  <strong>Tipo de Operação</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.operationType }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END FRAME INFO ACCORDION -->
+
+    <!-- GENERAL INFO ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-general-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#general-info-content"
+          aria-expanded="false"
+          aria-controls="general-info-content"
+        >
+          <app-icon [icon]="ICONS.info" [marginEnd]="3" />
+          <h5>Informações do Curso</h5>
+        </button>
+      </h2>
+      <div
+        id="general-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-general-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="row g-3">
+              <!-- Course Title -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Título</strong>
+                  <p class="text-break mb-0">
+                    {{ course.title }}
+                  </p>
+                </div>
+              </div>
+              <!-- Course MinLvl -->
+              <div class="col-md-4 col-sm-6">
+                <div class="property">
+                  <strong>Nível Min. Habilitações</strong>
+                  <p class="text-break mb-0">
+                    {{ course.minHabilitationLevel }}
+                  </p>
+                </div>
+              </div>
+              <!-- Course total duration -->
+              <div class="col-md-4 col-sm-6">
+                <div class="property">
+                  <strong>Duração Total</strong>
+                  <p class="text-break mb-0">
+                    {{ course.totalDuration - course.remainingDuration }} /
+                    {{ course.totalDuration }}
+                    h
+                  </p>
+                </div>
+              </div>
+              <!-- Course status -->
+              <div class="col-md-4 col-sm-6">
+                <div class="property">
+                  <strong>Estado</strong>
+                  <p class="text-break mb-0">{{ course.status }}</p>
+                </div>
+              </div>
+              <!-- Course Area -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Área</strong>
+                  <p class="text-break mb-0">{{ course.area }}</p>
+                </div>
+              </div>
+              <!-- Course Objectives -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Objetivos</strong>
+                  <p class="text-break mb-0">{{ course.objectives }}</p>
+                </div>
+              </div>
+              <!-- Course Destinators -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Destinatários</strong>
+                  @for(dest of course.destinators; track dest) {
+                  <p class="text-break mb-0">{{ dest }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END GENERAL INFO ACCORDION -->
+
+    <!-- COURSES LIST ACCORDION-->
+    @if (course.modulesQnt !== 0) {
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-module-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#module-info-content"
+          aria-expanded="false"
+          aria-controls="module-info-content"
+        >
+          <app-icon [icon]="ICONS.modules" [marginEnd]="3" />
+          <h5>Módulos</h5>
+          <span class="badge bg-success"> {{ course.modulesQnt }}x </span>
+        </button>
+      </h2>
+      <div
+        id="module-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-module-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="list-group">
+              @for (module of course.modules; track module.id){
+              <a
+                [routerLink]="'/modules/' + module.id"
+                class="list-group-item list-group-item-action d-flex justify-content-between"
+              >
+                <span class="text-truncate">
+                  {{ module.name | truncate : 65 }}
+                </span>
+                <span class="badge bg-light text-dark">
+                  <app-icon [icon]="ICONS.time" [marginEnd]="1" />
+                  Horas:
+                  <strong>{{ module.hours }} h</strong></span
+                >
+              </a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    <!-- END COURSES LIST ACCORDION -->
+  </div>
+</div>
+}

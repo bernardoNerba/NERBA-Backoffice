@@ -27,7 +27,7 @@ export class DeleteModulesComponent {
         this.modulesService.triggerFetch();
         this.bsModalRef.hide();
         this.sharedService.showSuccess(value.message);
-        this.modulesService.notifyModuleUpdate(this.id);
+        this.modulesService.notifyModuleDelete(this.id);
       },
       error: (error) => {
         this.sharedService.handleErrorResponse(error);

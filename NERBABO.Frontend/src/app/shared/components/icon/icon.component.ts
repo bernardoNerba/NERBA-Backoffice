@@ -5,7 +5,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   selector: 'app-icon',
   imports: [FontAwesomeModule],
   template: `
-    <fa-icon class="me-{{ marginEnd ? marginEnd : 1 }}" [icon]="icon"></fa-icon>
+    <fa-icon
+      class="icon me-{{ marginEnd ? marginEnd : 1 }}"
+      [icon]="icon"
+    ></fa-icon>
   `,
 })
 export class IconComponent {

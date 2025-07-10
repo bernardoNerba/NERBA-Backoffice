@@ -1,13 +1,8 @@
-@if(alerts.length > 0) {
-<div class="alert-container">
-  @for(alert of alerts; track alert){
-  <alert
-    [type]="alert.type"
-    [dismissible]="alert.dismissible"
-    (dismiss)="removeAlert(alerts.indexOf(alert))"
-  >
-    {{ alert.message }}
-  </alert>
-  }
-</div>
-}
+<p-toast
+  position="top-center"
+  [showTransitionOptions]="'250ms'"
+  [showTransformOptions]="'translateX(100%)'"
+  [hideTransitionOptions]="'150ms'"
+  [hideTransformOptions]="'translateX(100%)'"
+  [breakpoints]="{ '960px': { width: '100%' } }"
+></p-toast>

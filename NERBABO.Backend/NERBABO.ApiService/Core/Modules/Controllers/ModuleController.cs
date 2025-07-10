@@ -69,6 +69,22 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
         }
 
         /// <summary>
+        /// Toggle module IsActive property.
+        /// </summary>
+        /// <response code="200">The module IsActive property was toggled</response>
+        /// <response code="404">There are no module with given id in the system.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is
+        /// not active or doesnt have one of the roles: Admin, FM</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPut("{id:long}/toggle")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> ToggleModuleIsActiveAsync(long id)
+        {
+            Result result = await _moduleService.ToggleModuleIsActiveAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
         /// Creates a new module.
         /// </summary>
         /// <param name="moduleDto">The module data to create.</param>

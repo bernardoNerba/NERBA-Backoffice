@@ -1,6 +1,5 @@
 ﻿using NerbaApp.Api.Validators;
 using NERBABO.ApiService.Helper.Validators;
-using NERBABO.ApiService.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Courses.Dtos
@@ -27,8 +26,10 @@ namespace NERBABO.ApiService.Core.Courses.Dtos
 
         [ValidateHours(0, 1000, true)]
         public float TotalDuration { get; set; }
-        
+
         public string? Status { get; set; } = string.Empty;
         public string? MinHabilitationLevel { get; set; } = string.Empty;
+
+        public List<long> Modules { get; set; } = [];
     }
 }

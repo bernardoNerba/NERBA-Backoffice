@@ -58,7 +58,7 @@ export class IndexFramesComponent implements OnInit {
       this.frames$,
       this.searchControl.valueChanges.pipe(
         startWith(''),
-        debounceTime(300),
+        debounceTime(100),
         distinctUntilChanged()
       ),
     ]).pipe(
