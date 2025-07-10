@@ -1,0 +1,54 @@
+<div class="modal-header">
+  <h4 class="modal-title">Atribuir Módulo ao Curso</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="container">
+      <div class="row">
+        <!-- Course title -->
+        <div class="col-sm-12">
+          <div class="property">
+            <strong>Título</strong>
+            <p class="text-break text-muted mb-0">
+              {{ course.title }}
+            </p>
+          </div>
+        </div>
+        <!-- Modules -->
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label for="Modules">Módulos</label>
+            <p-multiselect
+              [options]="(modules$ | async) ?? []"
+              formControlName="modules"
+              optionLabel="displayName"
+              optionValue="id"
+              placeholder="Selecione um ou mais módulos..."
+              [maxSelectedLabels]="3"
+              class="w-100"
+              [showClear]="true"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+    <!-- submit button -->
+    <div class="text-end">
+      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+        Cancel
+      </button>
+      <button type="submit" class="btn-main" [disabled]="loading">
+        @if (loading){
+        <span class="spinner-border spinner-border-sm me-1"></span>
+        } Save
+      </button>
+    </div>
+  </form>
+</div>

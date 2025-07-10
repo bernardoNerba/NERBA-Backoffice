@@ -62,7 +62,14 @@ export class CoursesService {
     );
   }
 
-  getSingleCourse(id: number) {
+  getSingleCourse(id: number): Observable<Course> {
     return this.http.get<Course>(API_ENDPOINTS.courses + id);
+  }
+
+  assignModules(moduleIds: number[], courseId: number): Observable<OkResponse> {
+    return this.http.put<OkResponse>(
+      `${API_ENDPOINTS.courses}${courseId}/modules`,
+      moduleIds
+    );
   }
 }

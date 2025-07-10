@@ -195,6 +195,28 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
         }
 
         /// <summary>
+        /// Update modules of a given course.
+        /// </summary>
+        /// <param name="courseId">The ID of the course to which the module will
+        /// be assigned.</param>
+        /// <param name="moduleIds">A list of IDs of modules to be assigned to the
+        /// course.</param>
+        /// <response code="200">The modules were assigned to the course successfully. Returns the updated course details.</response>
+        /// <response code="400">Validation ERROR the modules must be active in order to be assigned,
+        /// the course must be active in order to assign a module to it or
+        /// the course total duration will exceed if the module is added.</response>
+        /// <response code="404">The course or modules with the given ID does not exist.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is not Admin or FM or user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPut("{courseId:long}/modules")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> AssignModuleToCourseAsync(long courseId, [FromBody] List<long> moduleIds)
+        {
+            Result<RetrieveCourseDto> result = await _courseService.UpdateCourseModulesAsync(moduleIds, courseId);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
         /// Unassign a module from a course
         /// </summary>
         /// <param name="courseId">The ID of the course from which the module will

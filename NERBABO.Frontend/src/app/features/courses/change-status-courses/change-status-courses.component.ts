@@ -77,7 +77,7 @@ export class ChangeStatusCoursesComponent implements OnInit {
       });
   }
 
-  private initializeForm() {
+  private initializeForm(): void {
     this.form = this.formBuilder.group({
       status: ['', Validators.required],
     });

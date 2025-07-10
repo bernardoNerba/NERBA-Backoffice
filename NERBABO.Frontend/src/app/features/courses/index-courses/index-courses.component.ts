@@ -23,6 +23,7 @@ import { UpdateCoursesComponent } from '../update-courses/update-courses.compone
 import { DeleteCoursesComponent } from '../delete-courses/delete-courses.component';
 import { CreateCoursesComponent } from '../create-courses/create-courses.component';
 import { ChangeStatusCoursesComponent } from '../change-status-courses/change-status-courses.component';
+import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-module-courses.component';
 
 @Component({
   selector: 'app-index-courses',
@@ -101,6 +102,15 @@ export class IndexCoursesComponent implements OnInit {
 
   onChangeStatusModal(course: Course) {
     this.modalService.show(ChangeStatusCoursesComponent, {
+      class: 'modal-md',
+      initialState: {
+        course: course,
+      },
+    });
+  }
+
+  onAssignModuleModal(course: Course) {
+    this.modalService.show(AssignModuleCoursesComponent, {
       class: 'modal-md',
       initialState: {
         course: course,
