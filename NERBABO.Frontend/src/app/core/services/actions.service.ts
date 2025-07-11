@@ -3,6 +3,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Action } from '../models/action';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
+import { OkResponse } from '../models/okResponse';
+import { ActionForm } from '../models/actionForm';
 
 @Injectable({
   providedIn: 'root',
@@ -18,5 +20,13 @@ export class ActionsService {
 
   getActionsByModuleId(id: number): Observable<Action[]> {
     return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByModule}${id}`);
+  }
+
+  getActionsByCourseId(id: number): Observable<Action[]> {
+    return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByCourse}${id}`);
+  }
+
+  create(model: Omit<ActionForm, 'id'>): Observable<OkResponse> {
+    return this.http.post<OkResponse>(API_ENDPOINTS.actions, model);
   }
 }
