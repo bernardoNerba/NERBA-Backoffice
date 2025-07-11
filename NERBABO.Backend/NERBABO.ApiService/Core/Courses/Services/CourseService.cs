@@ -474,6 +474,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourse = await _context.Courses
                 .Include(c => c.Frame)
                 .Include(c => c.Modules)
+                .Include(c => c.Actions)
                 .Where(c => c.Id == id)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .FirstOrDefaultAsync();

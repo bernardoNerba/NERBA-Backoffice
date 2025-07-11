@@ -71,7 +71,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
             {
                 CourseId = c.Id,
                 CoordenatorId = u.Id,
-                Title = c.Title,
+                Title = ca.Title,
                 AdministrationCode = ca.AdministrationCode,
                 Address = ca.Address,
                 Locality = ca.Locality,
