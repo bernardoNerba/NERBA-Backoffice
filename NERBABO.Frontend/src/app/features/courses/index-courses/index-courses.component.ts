@@ -24,6 +24,7 @@ import { DeleteCoursesComponent } from '../delete-courses/delete-courses.compone
 import { CreateCoursesComponent } from '../create-courses/create-courses.component';
 import { ChangeStatusCoursesComponent } from '../change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-module-courses.component';
+import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 
 @Component({
   selector: 'app-index-courses',
@@ -31,9 +32,7 @@ import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-mo
     ReactiveFormsModule,
     IconComponent,
     CommonModule,
-    SpinnerComponent,
-    RouterLink,
-    TruncatePipe,
+    CoursesTableComponent,
   ],
   templateUrl: './index-courses.component.html',
   styleUrl: './index-courses.component.css',
@@ -41,11 +40,7 @@ import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-mo
 export class IndexCoursesComponent implements OnInit {
   courses$!: Observable<Course[]>;
   loading$!: Observable<boolean>;
-  filteredCourses$!: Observable<Course[]>;
-  columns = ['#', 'Título', 'Nível Min. Hab.', 'Total Horas', 'Status'];
   ICONS = ICONS;
-  STATUS = StatusEnum;
-  searchControl = new FormControl('');
 
   constructor(
     private coursesService: CoursesService,
@@ -56,22 +51,6 @@ export class IndexCoursesComponent implements OnInit {
     this.loading$ = this.coursesService.loading$;
   }
   ngOnInit(): void {
-    this.filteredCourses$ = combineLatest([
-      this.courses$,
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(100),
-        distinctUntilChanged()
-      ),
-    ]).pipe(
-      map(([courses, searchTerm]) => {
-        if (!searchTerm) return courses;
-        const term = searchTerm.toLowerCase();
-        return courses.filter((course) =>
-          course.title.toLowerCase().includes(term)
-        );
-      })
-    );
     this.updateBreadcumbs();
   }
 
@@ -79,42 +58,6 @@ export class IndexCoursesComponent implements OnInit {
     this.modalService.show(CreateCoursesComponent, {
       class: 'modal-lg',
       initialState: {},
-    });
-  }
-  onUpdateCourseModal(course: Course) {
-    this.modalService.show(UpdateCoursesComponent, {
-      class: 'modal-lg',
-      initialState: {
-        id: course.id,
-        course: course,
-      },
-    });
-  }
-  onDeleteCourseModal(id: number, title: string) {
-    this.modalService.show(DeleteCoursesComponent, {
-      class: 'modal-lg',
-      initialState: {
-        id: id,
-        title: title,
-      },
-    });
-  }
-
-  onChangeStatusModal(course: Course) {
-    this.modalService.show(ChangeStatusCoursesComponent, {
-      class: 'modal-md',
-      initialState: {
-        course: course,
-      },
-    });
-  }
-
-  onAssignModuleModal(course: Course) {
-    this.modalService.show(AssignModuleCoursesComponent, {
-      class: 'modal-md',
-      initialState: {
-        course: course,
-      },
     });
   }
 
