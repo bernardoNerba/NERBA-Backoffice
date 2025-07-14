@@ -16,6 +16,11 @@ import { UpdateCoursesComponent } from '../update-courses/update-courses.compone
 import { DeleteCoursesComponent } from '../delete-courses/delete-courses.component';
 import { ChangeStatusCoursesComponent } from '../change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-module-courses.component';
+import { ActionsService } from '../../../core/services/actions.service';
+import { Action } from '../../../core/models/action';
+import { FormatDateRangePipe } from '../../../shared/pipes/format-date-range.pipe';
+import { STATUS, StatusEnum } from '../../../core/objects/status';
+import { CreateActionsComponent } from '../../actions/create-actions/create-actions.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -25,6 +30,7 @@ import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-mo
     MessageModule,
     TruncatePipe,
     RouterLink,
+    FormatDateRangePipe,
   ],
   templateUrl: './view-courses.component.html',
   styleUrl: './view-courses.component.css',
@@ -32,10 +38,12 @@ import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-mo
 export class ViewCoursesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   course$?: Observable<Course | null>;
+  actions$?: Observable<Action[]>;
   frame!: Frame;
   title?: string;
   frameId!: number;
   ICONS = ICONS;
+  STATUS = StatusEnum;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -45,7 +53,8 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
     private sharedService: SharedService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private actionsService: ActionsService
   ) {}
 
   ngOnInit(): void {
@@ -57,6 +66,7 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
     }
 
     this.initializeCourse();
+    this.initializeActions();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
     this.assignModuleSourceSubscription();
@@ -100,6 +110,16 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
     });
   }
 
+  onCreateActionModal(id: number, title: string) {
+    this.modalService.show(CreateActionsComponent, {
+      class: 'modal-lg',
+      initialState: {
+        courseId: id,
+        courseTitle: title,
+      },
+    });
+  }
+
   private initializeCourse() {
     this.course$ = this.coursesService.getSingleCourse(this.id).pipe(
       catchError((error) => {
@@ -130,6 +150,10 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  private initializeActions() {
+    this.actions$ = this.actionsService.getActionsByCourseId(this.id);
   }
 
   private updateBreadcrumbs(id: number, title: string): void {

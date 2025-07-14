@@ -426,5 +426,31 @@ namespace NERBABO.ApiService.Core.Actions.Services
             await _cacheService.RemovePatternAsync("action:module:list:*");
         }
 
+        public async Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllByCourseIdAsync(long courseId)
+        {
+            var existingActionsWithCourse = await _context.Actions
+                .Include(a => a.Course)
+                .Include(a => a.Coordenator)
+                .Where(a => a.Course.Id == courseId)
+                .ToListAsync();
+            if (existingActionsWithCourse is null
+                || existingActionsWithCourse.Count == 0)
+            {
+                _logger.LogWarning("There are no actions that incorporate the course with given id {id}", courseId);
+                return Result<IEnumerable<RetrieveCourseActionDto>>
+                    .Fail("Não encontrado", "Não foram encontradas Ações de Formação neste Curso.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            var orderedActions = existingActionsWithCourse
+                .AsValueEnumerable()
+                .OrderByDescending(a => a.Status)
+                    .ThenByDescending(a => a.CreatedAt)
+                .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
+                .ToList();
+
+            return Result<IEnumerable<RetrieveCourseActionDto>>
+                .Ok(orderedActions);
+        }
     }
 }

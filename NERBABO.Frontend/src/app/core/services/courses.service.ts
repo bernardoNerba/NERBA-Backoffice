@@ -50,6 +50,10 @@ export class CoursesService {
     this.loadingSubject.next(false);
   }
 
+  getActive(): Observable<Course[]> {
+    return this.http.get<Course[]>(API_ENDPOINTS.courses_active);
+  }
+
   create(
     model: Omit<Course, 'id' | 'actionsQnt' | 'modulesQnt'>
   ): Observable<OkResponse> {

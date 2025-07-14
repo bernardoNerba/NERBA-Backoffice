@@ -27,6 +27,7 @@
               optionValue="id"
               placeholder="Selecione Enquadramento"
               styleClass="w-100"
+              [class.is-invalid]="submitted && form.get('frameId')?.errors"
               class="{{
                 submitted && form.get('frameId')?.errors
                   ? 'ng-invalid ng-dirty'
