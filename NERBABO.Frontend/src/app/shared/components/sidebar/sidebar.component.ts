@@ -74,16 +74,6 @@ export class SidebarComponent implements OnInit {
     this.router.navigate([route]);
   }
 
-  toggleSidebar(): void {
-    this.sharedService.isCollapsed = !this.sharedService.isCollapsed;
-
-    // Store user preference in localStorage
-    localStorage.setItem(
-      'sidebarCollapsed',
-      this.sharedService.isCollapsed.toString()
-    );
-  }
-
   get isCollapsed(): boolean {
     return this.sharedService.isCollapsed;
   }
