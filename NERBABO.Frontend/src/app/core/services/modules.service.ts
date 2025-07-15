@@ -24,7 +24,7 @@ export class ModulesService {
   toggleSource$ = this.toggleSource.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
-    this.fetchModules();
+    this.fetchModules(); // Fetch all modules for index-modules view
   }
 
   createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
@@ -36,9 +36,8 @@ export class ModulesService {
       .put<OkResponse>(`${API_ENDPOINTS.modules}${id}/toggle`, {})
       .subscribe({
         next: (value) => {
-          this.triggerFetch();
+          this.notifyModuleToggle(id); // Notify toggle instead of full fetch
           this.sharedService.showSuccess(value.message);
-          this.notifyModuleToggle(id);
         },
         error: (error) => {
           console.log(error);
@@ -81,20 +80,20 @@ export class ModulesService {
 
   private fetchModules(): void {
     this.loadingSubject.next(true);
-
     this.http.get<Module[]>(API_ENDPOINTS.modules).subscribe({
       next: (data: Module[]) => {
         this.modulesSubject.next(data);
+        this.loadingSubject.next(false);
       },
       error: (err) => {
         console.error('Failed to fetch modules', err);
         this.modulesSubject.next([]);
+        this.loadingSubject.next(false);
         if (err.status === 403 || err.status === 401) {
           this.sharedService.redirectUser();
         }
       },
     });
-    this.loadingSubject.next(false);
   }
 
   triggerFetch() {

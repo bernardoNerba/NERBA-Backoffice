@@ -10,7 +10,6 @@ import { FrameService } from '../../../core/services/frame.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
-import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpdateCoursesComponent } from '../update-courses/update-courses.component';
 import { DeleteCoursesComponent } from '../delete-courses/delete-courses.component';
@@ -21,6 +20,9 @@ import { Action } from '../../../core/models/action';
 import { FormatDateRangePipe } from '../../../shared/pipes/format-date-range.pipe';
 import { STATUS, StatusEnum } from '../../../core/objects/status';
 import { CreateActionsComponent } from '../../actions/create-actions/create-actions.component';
+import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
+import { Module } from '../../../core/models/module';
+import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -28,9 +30,9 @@ import { CreateActionsComponent } from '../../actions/create-actions/create-acti
     IconComponent,
     CommonModule,
     MessageModule,
-    TruncatePipe,
     RouterLink,
     FormatDateRangePipe,
+    ModulesTableComponent,
   ],
   templateUrl: './view-courses.component.html',
   styleUrl: './view-courses.component.css',
@@ -40,6 +42,7 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
   course$?: Observable<Course | null>;
   actions$?: Observable<Action[]>;
   frame!: Frame;
+  modules!: Module[];
   title?: string;
   frameId!: number;
   ICONS = ICONS;
@@ -144,7 +147,7 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
               this.frame = frame;
             },
             error: (error: any) => {
-              this.sharedService.showError('Sem enquadramento associado.');
+              this.sharedService.showError(error.detail);
             },
           });
         }

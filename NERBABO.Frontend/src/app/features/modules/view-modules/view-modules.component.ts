@@ -8,7 +8,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
-import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { Action } from '../../../core/models/action';
 import { ActionsService } from '../../../core/services/actions.service';
 import { FormatDateRangePipe } from '../../../shared/pipes/format-date-range.pipe';
@@ -17,6 +16,7 @@ import { UpdateModulesComponent } from '../update-modules/update-modules.compone
 import { DeleteModulesComponent } from '../delete-modules/delete-modules.component';
 import { ActiveBadgeComponent } from '../../../shared/components/badges/active-badge/active-badge.component';
 import { STATUS, StatusEnum } from '../../../core/objects/status';
+import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 
 @Component({
   selector: 'app-view-modules',
@@ -24,9 +24,9 @@ import { STATUS, StatusEnum } from '../../../core/objects/status';
     CommonModule,
     IconComponent,
     RouterLink,
-    TruncatePipe,
     FormatDateRangePipe,
     ActiveBadgeComponent,
+    CoursesTableComponent,
   ],
   templateUrl: './view-modules.component.html',
   styleUrl: './view-modules.component.css',

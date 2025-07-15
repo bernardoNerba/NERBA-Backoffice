@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Course } from '../../../../core/models/course';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -20,6 +20,8 @@ import { DeleteCoursesComponent } from '../../../../features/courses/delete-cour
 import { ChangeStatusCoursesComponent } from '../../../../features/courses/change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../../../../features/courses/assign-module-courses/assign-module-courses.component';
 import { Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { CoursesService } from '../../../../core/services/courses.service';
 
 @Component({
   selector: 'app-courses-table',
@@ -39,15 +41,22 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './courses-table.component.html',
   styleUrl: './courses-table.component.css',
 })
-export class CoursesTableComponent implements OnInit {
+export class CoursesTableComponent implements OnInit, OnDestroy {
   @Input({ required: true }) courses!: Course[];
   @Input({ required: true }) loading!: boolean;
   @ViewChild('dt') dt!: Table;
   menuItems: MenuItem[] | undefined;
   searchValue: string = '';
   selectedCourse: Course | undefined;
+  first = 0;
+  rows = 10;
+  private subscriptions: Subscription = new Subscription();
 
-  constructor(private modalService: BsModalService, private router: Router) {}
+  constructor(
+    private modalService: BsModalService,
+    private router: Router,
+    private coursesService: CoursesService
+  ) {}
 
   ngOnInit(): void {
     this.menuItems = [
@@ -87,6 +96,69 @@ export class CoursesTableComponent implements OnInit {
         ],
       },
     ];
+
+    // Subscribe to course change notifications
+    this.subscriptions.add(
+      this.coursesService.updatedSource$.subscribe((courseId) => {
+        this.refreshCourse(courseId);
+      })
+    );
+    this.subscriptions.add(
+      this.coursesService.deletedSource$.subscribe((courseId) => {
+        this.removeCourse(courseId);
+      })
+    );
+    this.subscriptions.add(
+      this.coursesService.changeStatusSource$.subscribe((courseId) => {
+        this.refreshCourse(courseId);
+      })
+    );
+    this.subscriptions.add(
+      this.coursesService.assignModuleSource$.subscribe((courseId) => {
+        this.refreshCourse(courseId);
+      })
+    );
+    this.subscriptions.add(
+      this.coursesService.courses$.subscribe((courses) => {
+        this.courses = courses; // Update the courses input
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe(); // Clean up subscriptions
+  }
+
+  // Refresh a single course by fetching its updated data
+  private refreshCourse(courseId: number): void {
+    if (courseId === 0) {
+      // Handle course creation (refetch all courses)
+      this.coursesService.triggerFetchCourses();
+      return;
+    }
+    this.coursesService.getSingleCourse(courseId).subscribe({
+      next: (updatedCourse) => {
+        const index = this.courses.findIndex(
+          (course) => course.id === courseId
+        );
+        if (index !== -1) {
+          this.courses[index] = updatedCourse; // Update the specific course
+          this.courses = [...this.courses]; // Trigger change detection
+        }
+      },
+      error: (error) => {
+        console.error('Failed to refresh course:', error);
+        // Optionally refetch all courses if single fetch fails
+        this.coursesService.triggerFetchCourses();
+      },
+    });
+  }
+
+  // Remove a course from the local array
+  private removeCourse(courseId: number): void {
+    this.courses = this.courses.filter((course) => course.id !== courseId);
+    // Trigger change detection
+    this.courses = [...this.courses];
   }
 
   clearFilters() {
@@ -139,13 +211,6 @@ export class CoursesTableComponent implements OnInit {
     });
   }
 
-  columns = [
-    { field: 'title', header: 'Título' },
-    { field: 'minHabilitationLevel', header: 'Nível Min. Hab.' },
-    { field: 'totalDuration', header: 'Duração' },
-    { field: 'status', header: 'Estado' },
-  ];
-
   getStatusSeverity(status: string) {
     switch (status) {
       case StatusEnum.Cancelled:
@@ -172,5 +237,30 @@ export class CoursesTableComponent implements OnInit {
         return 'pi pi-info-circle';
     }
     return null;
+  }
+
+  next() {
+    this.first = this.first + this.rows;
+  }
+
+  prev() {
+    this.first = this.first - this.rows;
+  }
+
+  reset() {
+    this.first = 0;
+  }
+
+  pageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+  }
+
+  isLastPage(): boolean {
+    return this.courses ? this.first + this.rows >= this.courses.length : true;
+  }
+
+  isFirstPage(): boolean {
+    return this.courses ? this.first === 0 : true;
   }
 }

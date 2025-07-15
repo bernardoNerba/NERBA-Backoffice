@@ -21,6 +21,7 @@ import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { RouterLink } from '@angular/router';
 import { ActiveBadgeComponent } from '../../../shared/components/badges/active-badge/active-badge.component';
+import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 
 @Component({
   selector: 'app-index-modules',
@@ -31,6 +32,7 @@ import { ActiveBadgeComponent } from '../../../shared/components/badges/active-b
     SpinnerComponent,
     RouterLink,
     ActiveBadgeComponent,
+    ModulesTableComponent,
   ],
   templateUrl: './index-modules.component.html',
   styleUrl: './index-modules.component.css',

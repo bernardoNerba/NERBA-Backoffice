@@ -230,7 +230,7 @@
     </div>
     <!-- END GENERAL INFO ACCORDION -->
 
-    <!-- COURSES LIST ACCORDION-->
+    <!-- MODULES TABLE ACCORDION-->
     @if (course.modulesQnt !== 0) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-module-info">
@@ -253,30 +253,15 @@
         aria-labelledby="heading-module-info"
       >
         <div class="accordion-body">
-          <div class="container-fluid px-0">
-            <div class="list-group">
-              @for (module of course.modules; track module.id){
-              <a
-                [routerLink]="'/modules/' + module.id"
-                class="list-group-item list-group-item-action d-flex justify-content-between"
-              >
-                <span class="text-truncate">
-                  {{ module.name | truncate : 65 }}
-                </span>
-                <span class="badge bg-light text-dark">
-                  <app-icon [icon]="ICONS.time" [marginEnd]="1" />
-                  Horas:
-                  <strong>{{ module.hours }} h</strong></span
-                >
-              </a>
-              }
-            </div>
-          </div>
+          <app-modules-table
+            [modules]="(course$ | async)?.modules ?? []"
+            [loading]="false"
+          />
         </div>
       </div>
     </div>
     }
-    <!-- END COURSES LIST ACCORDION -->
+    <!-- END MODULES TABLE ACCORDION -->
 
     <!-- ACTIONS LIST ACCORDION-->
     @if (course.actionsQnt !== 0) {
