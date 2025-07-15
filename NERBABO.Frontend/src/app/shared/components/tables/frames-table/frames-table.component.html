@@ -1,1 +1,114 @@
-<p>frames-table works!</p>
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading enquadramentos...</p>
+</div>
+} @else {
+<p-table
+  #dt
+  stripedRows
+  [value]="frames"
+  size="small"
+  [tableStyle]="{ 'min-width': '60rem' }"
+  [globalFilterFields]="['program', 'intervention']"
+  [paginator]="true"
+  [rows]="10"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  (onPage)="pageChange($event)"
+  [rowsPerPageOptions]="[10, 25, 50]"
+>
+  <ng-template #caption>
+    <div class="d-flex justify-content-end gap-2">
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          [(ngModel)]="searchValue"
+          (ngModelChange)="dt.filterGlobal($event, 'contains')"
+          pInputText
+          type="text"
+          placeholder="Procurar..."
+        />
+      </p-iconfield>
+      <p-button
+        icon="pi pi-filter-slash"
+        [outlined]="true"
+        (click)="clearFilters()"
+      />
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th [width]="20">#</th>
+      <th pSortableColumn="program">
+        <div class="flex items-center gap-2">
+          Programa
+          <p-sortIcon field="program" />
+        </div>
+      </th>
+      <th pSortableColumn="intervention">
+        <div class="flex items-center gap-2">
+          Intervenção
+          <p-sortIcon field="intervention" />
+        </div>
+      </th>
+      <th pSortableColumn="interventionType">
+        <div class="flex items-center gap-2">
+          Tipo de Intervenção
+          <p-sortIcon field="interventionType" />
+        </div>
+      </th>
+      <th pSortableColumn="operation">
+        <div class="flex items-center gap-2">
+          Operação
+          <p-sortIcon field="operation" />
+        </div>
+      </th>
+      <th pSortableColumn="operationType">
+        <div class="flex items-center gap-2">
+          Tipo de Operação
+          <p-sortIcon field="operationType" />
+        </div>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-frame>
+    <tr>
+      <td>
+        <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
+        <p-button
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          severity="secondary"
+          [outlined]="true"
+          (click)="menu.toggle($event); selectedFrame = frame"
+        />
+      </td>
+      <td>
+        <p-button
+          class="text-truncate"
+          icon="bi bi-link"
+          variant="text"
+          [routerLink]="'/frames/' + frame.id"
+          label="{{ frame.program | truncate : 20 }}"
+          severity="secondary"
+        />
+      </td>
+      <td class="text-truncate">{{ frame.intervention | truncate : 20 }}</td>
+      <td class="text-truncate">
+        {{ frame.interventionType | truncate : 20 }}
+      </td>
+      <td class="text-truncate">{{ frame.operation | truncate : 20 }}</td>
+      <td class="text-truncate">{{ frame.operationType | truncate : 20 }}</td>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="6">
+        Não foram encontrados enquadramentos com essas diretrizes.
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+}

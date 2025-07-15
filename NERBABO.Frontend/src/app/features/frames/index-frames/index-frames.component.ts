@@ -19,12 +19,18 @@ import { UpdateFramesComponent } from '../update-frames/update-frames.component'
 import { DeleteFramesComponent } from '../delete-frames/delete-frames.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
+import { FramesTableComponent } from '../../../shared/components/tables/frames-table/frames-table.component';
 
 @Component({
   selector: 'app-index-frame',
   templateUrl: './index-frames.component.html',
   styleUrl: './index-frames.component.css',
-  imports: [CommonModule, ReactiveFormsModule, SpinnerComponent, IconComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    IconComponent,
+    FramesTableComponent,
+  ],
 })
 export class IndexFramesComponent implements OnInit {
   frames$!: Observable<Frame[]>;

@@ -82,6 +82,7 @@ export class UpdateFramesComponent implements OnInit {
       .subscribe({
         next: (value: OkResponse) => {
           this.bsModalRef.hide();
+          this.frameService.notifyFrameUpdate(this.id);
           this.frameService.triggerFetchFrames();
           this.sharedService.showSuccess(value.message);
         },

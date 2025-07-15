@@ -28,6 +28,7 @@ export class DeleteFramesComponent {
         this.frameService.triggerFetchFrames();
         this.bsModalRef.hide();
         this.sharedService.showSuccess(value.message);
+        this.frameService.notifyFrameDelete(this.id);
       },
       error: (error) => {
         this.sharedService.handleErrorResponse(error);
