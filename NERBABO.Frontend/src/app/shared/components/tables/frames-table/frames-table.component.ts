@@ -17,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { TruncatePipe } from '../../../pipes/truncate.pipe';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { InputTextModule } from 'primeng/inputtext';
+import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 
 @Component({
   selector: 'app-frames-table',
@@ -28,10 +29,10 @@ import { InputTextModule } from 'primeng/inputtext';
     Menu,
     CommonModule,
     FormsModule,
-    RouterLink,
     TruncatePipe,
     SpinnerComponent,
     InputTextModule,
+    IconAnchorComponent,
   ],
   templateUrl: './frames-table.component.html',
   styleUrl: './frames-table.component.css',

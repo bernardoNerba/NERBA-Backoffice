@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, finalize, Observable, Subject } from 'rxjs';
 import { Action } from '../models/action';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
 import { ActionForm } from '../models/actionForm';
+import { SharedService } from './shared.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +13,15 @@ import { ActionForm } from '../models/actionForm';
 export class ActionsService {
   private actionsSubject = new BehaviorSubject<Action[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(true);
+  private updatedSource = new Subject<number>();
+  private deletedSource = new Subject<number>();
 
   actions$ = this.actionsSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
+  updatedSource$ = this.updatedSource.asObservable();
+  deletedSource$ = this.deletedSource.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private sharedService: SharedService) {}
 
   getActionsByModuleId(id: number): Observable<Action[]> {
     return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByModule}${id}`);
@@ -28,5 +33,60 @@ export class ActionsService {
 
   create(model: Omit<ActionForm, 'id'>): Observable<OkResponse> {
     return this.http.post<OkResponse>(API_ENDPOINTS.actions, model);
+  }
+  fetchActions(courseId: number): void {
+    this.loadingSubject.next(true);
+    this.http
+      .get<Action[]>(`${API_ENDPOINTS.actions}/course/${courseId}`)
+      .pipe(finalize(() => this.loadingSubject.next(false)))
+      .subscribe({
+        next: (data) => {
+          this.actionsSubject.next(data);
+        },
+        error: (err) => {
+          console.error('Failed to fetch actions:', err);
+          this.actionsSubject.next([]);
+          if (err.status === 403 || err.status === 401) {
+            this.sharedService.redirectUser();
+          }
+        },
+      });
+  }
+
+  getActionById(id: number): Observable<Action> {
+    return this.http.get<Action>(`${API_ENDPOINTS.actions}/${id}`);
+  }
+
+  createAction(
+    courseId: number,
+    model: Omit<Action, 'id'>
+  ): Observable<OkResponse> {
+    return this.http
+      .post<OkResponse>(`${API_ENDPOINTS.actions}/course/${courseId}`, model)
+      .pipe(finalize(() => this.notifyUpdate(0)));
+  }
+
+  updateAction(id: number, model: Partial<Action>): Observable<OkResponse> {
+    return this.http
+      .put<OkResponse>(`${API_ENDPOINTS.actions}/${id}`, model)
+      .pipe(finalize(() => this.notifyUpdate(id)));
+  }
+
+  deleteAction(id: number): Observable<OkResponse> {
+    return this.http
+      .delete<OkResponse>(`${API_ENDPOINTS.actions}/${id}`)
+      .pipe(finalize(() => this.notifyDelete(id)));
+  }
+
+  notifyUpdate(actionId: number) {
+    this.updatedSource.next(actionId);
+  }
+
+  notifyDelete(actionId: number) {
+    this.deletedSource.next(actionId);
+  }
+
+  triggerFetchActions(courseId: number) {
+    this.fetchActions(courseId);
   }
 }

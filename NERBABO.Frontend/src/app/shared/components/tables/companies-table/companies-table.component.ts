@@ -17,8 +17,8 @@ import { FormsModule } from '@angular/forms';
 import { TruncatePipe } from '../../../pipes/truncate.pipe';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { InputTextModule } from 'primeng/inputtext';
-import { IconComponent } from '../../icon/icon.component';
 import { TooltipModule } from 'primeng/tooltip';
+import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 
 @Component({
   selector: 'app-companies-table',
@@ -30,11 +30,11 @@ import { TooltipModule } from 'primeng/tooltip';
     Menu,
     CommonModule,
     FormsModule,
-    RouterLink,
     TruncatePipe,
     SpinnerComponent,
     InputTextModule,
     TooltipModule,
+    IconAnchorComponent,
   ],
   templateUrl: './companies-table.component.html',
   styleUrls: ['./companies-table.component.css'],

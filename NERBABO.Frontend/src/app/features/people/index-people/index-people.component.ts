@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
-import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Person } from '../../../core/models/person';
 import {
@@ -15,34 +13,28 @@ import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
 import { CreatePeopleComponent } from '../create-people/create-people.component';
-import { UpdatePeopleComponent } from '../update-people/update-people.component';
-import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { CommonModule } from '@angular/common';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
-import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
+import { PeopleTableComponent } from '../../../shared/components/tables/people-table/people-table.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-index-people',
   imports: [
     CommonModule,
-    SpinnerComponent,
-    RouterLink,
     ReactiveFormsModule,
+    PeopleTableComponent,
     IconComponent,
-    TruncatePipe,
   ],
   templateUrl: './index-people.component.html',
-  styleUrl: './index-people.component.css',
+  styleUrls: ['./index-people.component.css'],
 })
 export class IndexPeopleComponent implements OnInit {
   people$!: Observable<Person[]>;
   loading$!: Observable<boolean>;
-  columns = ['#', 'Nome', 'NIF', 'Idade', 'Habilitações', 'Email', 'Tel.'];
   filteredPeople$!: Observable<Person[]>;
-  ICONS = ICONS;
-
   searchControl = new FormControl('');
+  ICONS = ICONS;
 
   constructor(
     private peopleService: PeopleService,
@@ -51,8 +43,6 @@ export class IndexPeopleComponent implements OnInit {
   ) {
     this.people$ = this.peopleService.people$;
     this.loading$ = this.peopleService.loading$;
-
-    this.updateBreadcrumbs();
   }
 
   ngOnInit(): void {
@@ -60,28 +50,25 @@ export class IndexPeopleComponent implements OnInit {
       this.people$,
       this.searchControl.valueChanges.pipe(
         startWith(''),
-        debounceTime(100),
+        debounceTime(300),
         distinctUntilChanged()
       ),
-      // add other streams to query
     ]).pipe(
       map(([people, searchTerm]) => {
         if (!people) return [];
-
         const term = (searchTerm || '').toLowerCase();
-        // make them a term
-
-        return people.filter((person) => {
-          const matchesSearch =
+        return people.filter(
+          (person) =>
             person.fullName?.toLowerCase().includes(term) ||
-            person.nif?.includes(term);
-
-          // check if matches
-          return matchesSearch;
-        });
+            person.nif?.toLowerCase().includes(term) ||
+            person.email?.toLowerCase().includes(term) ||
+            person.phoneNumber?.toLowerCase().includes(term) ||
+            person.habilitation?.toLowerCase().includes(term)
+        );
       }),
       startWith([])
     );
+    this.updateBreadcrumbs();
   }
 
   onAddPersonModal() {
@@ -89,24 +76,6 @@ export class IndexPeopleComponent implements OnInit {
       initialState: {},
       class: 'modal-lg',
     });
-  }
-
-  onUpdatePersonModal(person: Person) {
-    const initialState = {
-      id: person.id,
-    };
-    this.modalService.show(UpdatePeopleComponent, {
-      initialState: initialState,
-      class: 'modal-lg',
-    });
-  }
-
-  onDeletePersonModal(id: number, fullName: string) {
-    const initialState = {
-      id: id,
-      fullName: fullName,
-    };
-    this.modalService.show(DeletePeopleComponent, { initialState });
   }
 
   private updateBreadcrumbs(): void {

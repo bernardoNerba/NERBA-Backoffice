@@ -9,7 +9,7 @@
   stripedRows
   [value]="companies"
   size="small"
-  [tableStyle]="{ 'min-width': '60rem' }"
+  [tableStyle]="{ 'min-width': '70rem' }"
   [globalFilterFields]="['name', 'phoneNumber', 'email', 'ativitySector']"
   [paginator]="true"
   [rows]="10"
@@ -47,6 +47,12 @@
           <p-sortIcon field="name" />
         </div>
       </th>
+      <th pSortableColumn="studentsCount" style="width: 12%">
+        <div class="flex items-center gap-2">
+          Formandos
+          <p-sortIcon field="studentsCount" />
+        </div>
+      </th>
       <th pSortableColumn="phoneNumber" style="width: 10%">
         <div class="flex items-center gap-2">
           Tel.
@@ -57,12 +63,6 @@
         <div class="flex items-center gap-2">
           Email
           <p-sortIcon field="email" />
-        </div>
-      </th>
-      <th pSortableColumn="studentsCount" style="width: 12%">
-        <div class="flex items-center gap-2">
-          Formandos
-          <p-sortIcon field="studentsCount" />
         </div>
       </th>
     </tr>
@@ -80,40 +80,24 @@
         />
       </td>
       <td>
-        <p-button
-          class="text-truncate"
-          icon="bi bi-link"
-          variant="text"
-          [routerLink]="['/companies', company.id]"
-          label="{{ company.name | truncate : 27 }}"
-          severity="secondary"
+        <app-icon-anchor
+          [field]="company.name"
+          [display]="company.name | truncate : 30"
+          [link]="'/companies/' + company.id"
+          [icon]="'pi pi-link'"
         />
+      </td>
+      <td>
+        {{ company.studentsCount }}
       </td>
       <td>{{ company.phoneNumber || "N/A" }}</td>
       <td>
-        @if (company.email) {
-        <a
-          style="text-decoration: none"
-          class="p-button p-button-text p-button-secondary text-truncate"
-          [href]="'mailto:' + company.email"
-          tooltipPosition="right"
-          [pTooltip]="tooltipContent"
-          [autoHide]="false"
-        >
-          <i class="pi pi-envelope"></i>
-          {{ company.email.split("@")[0] | truncate : 15 }}
-        </a>
-        <ng-template #tooltipContent>
-          <small
-            ><b>{{ company.email }}</b></small
-          >
-        </ng-template>
-        } @else { N/A }
-      </td>
-      <td>
-        <span>
-          {{ company.studentsCount }}
-        </span>
+        <app-icon-anchor
+          [field]="company.email"
+          [display]="company.email.split('@')[0]"
+          [link]="'mailto:' + company.email"
+          [icon]="'pi pi-envelope'"
+        />
       </td>
     </tr>
   </ng-template>

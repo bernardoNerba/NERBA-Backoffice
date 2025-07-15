@@ -9,7 +9,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Module } from '../../../../core/models/module';
 import { MenuItem } from 'primeng/api';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -17,6 +17,7 @@ import { UpdateModulesComponent } from '../../../../features/modules/update-modu
 import { DeleteModulesComponent } from '../../../../features/modules/delete-modules/delete-modules.component';
 import { ModulesService } from '../../../../core/services/modules.service';
 import { Subscription } from 'rxjs';
+import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 
 @Component({
   selector: 'app-modules-table',
@@ -31,7 +32,7 @@ import { Subscription } from 'rxjs';
     InputIcon,
     InputTextModule,
     FormsModule,
-    RouterLink,
+    IconAnchorComponent,
   ],
   templateUrl: './modules-table.component.html',
   styleUrls: ['./modules-table.component.css'],

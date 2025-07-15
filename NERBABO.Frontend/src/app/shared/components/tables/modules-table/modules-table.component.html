@@ -35,10 +35,10 @@
   <ng-template #header>
     <tr>
       <th [width]="20">#</th>
-      <th pSortableColumn="ufcd">
+      <th pSortableColumn="name">
         <div class="flex items-center gap-2">
           UFCD
-          <p-sortIcon field="ufcd" />
+          <p-sortIcon field="name" />
         </div>
       </th>
       <th pSortableColumn="hours" style="width: 15%">
@@ -47,10 +47,10 @@
           <p-sortIcon field="hours" />
         </div>
       </th>
-      <th pSortableColumn="status" style="width: 15%">
+      <th pSortableColumn="isActive" style="width: 15%">
         <div class="flex items-center gap-2">
           Estado
-          <p-sortIcon field="status" />
+          <p-sortIcon field="isActive" />
         </div>
       </th>
     </tr>
@@ -68,13 +68,11 @@
         />
       </td>
       <td>
-        <p-button
-          class="text-truncate"
-          icon="bi bi-link"
-          variant="text"
-          [routerLink]="'/modules/' + module.id"
-          label="{{ module.name | truncate : 40 }}"
-          severity="secondary"
+        <app-icon-anchor
+          [field]="module.name"
+          [display]="module.name | truncate : 50"
+          [link]="'/modules/' + module.id"
+          [icon]="'pi pi-link'"
         />
       </td>
       <td>{{ module.hours }} h</td>

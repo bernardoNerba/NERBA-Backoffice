@@ -23,6 +23,7 @@ import { CreateActionsComponent } from '../../actions/create-actions/create-acti
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 import { Module } from '../../../core/models/module';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
+import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -33,6 +34,7 @@ import { ModulesTableComponent } from '../../../shared/components/tables/modules
     RouterLink,
     FormatDateRangePipe,
     ModulesTableComponent,
+    ActionsTableComponent,
   ],
   templateUrl: './view-courses.component.html',
   styleUrl: './view-courses.component.css',

@@ -1,107 +1,127 @@
 <div class="container-fluid px-0">
-  <!-- IVA Section -->
-  <div class="mb-4">
-    <h5 class="mb-3">Taxas IVA</h5>
-    <ul class="list-group list-group-flush">
-      @for (tax of (ivaTaxes$ | async); track tax.id;) {
-      <li class="list-group-item">
-        <button
-          class="btn btn-sm btn-outline-secondary me-2"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          <i class="bi bi-three-dots-vertical"></i>
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" (click)="onUpdateIvaModal(tax)"
-              ><i class="bi bi-pencil-fill me-3"></i>Editar</a
-            >
-          </li>
-
-          <li>
-            <a class="dropdown-item" (click)="onDeleteModal(tax.id, tax.name)"
-              ><i class="bi bi-exclamation-triangle-fill me-3"></i>Eliminar</a
-            >
-          </li>
-
-          <li>
-            <a class="dropdown-item" (click)="onToggleTaxStatus(tax)"
-              ><i class="bi bi-exclamation-triangle-fill me-3"></i
-              >{{ tax.isActive ? "Desativar" : "Ativar" }}</a
-            >
-          </li>
-        </ul>
-
-        <!-- END ACTION DROPDOWN -->
-        <span
-          class="me-2 badge rounded-pill bg-{{
-            tax.isActive ? 'success' : 'danger'
-          }}"
-          style="width: 10px; height: 10px; display: inline-block; padding: 0"
-        ></span>
-        <strong>{{ tax.name }}</strong> - {{ tax.valuePercent }} %
-      </li>
-      } @empty {
-      <li class="list-group-item text-muted">Nenhuma taxa IVA encontrada</li>
-      }
-    </ul>
+  @if (loading$ | async) {
+  <div class="text-center py-5">
+    <app-spinner />
+    <p class="mt-2">Loading taxas...</p>
   </div>
-
-  <!-- IRS Section -->
-  <div class="mb-4">
-    <h5 class="mb-3">Taxas IRS</h5>
-    <ul class="list-group list-group-flush">
-      @for (tax of (irsTaxes$ | async); track tax.id;) {
-      <li class="list-group-item">
-        <button
-          class="btn btn-sm btn-outline-secondary me-2"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          <i class="bi bi-three-dots-vertical"></i>
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" (click)="onUpdateIrsModal(tax)"
-              ><i class="bi bi-pencil-fill me-3"></i>Editar</a
-            >
-          </li>
-
-          <li>
-            <a class="dropdown-item" (click)="onDeleteModal(tax.id, tax.name)"
-              ><i class="bi bi-exclamation-triangle-fill me-3"></i>Eliminar</a
-            >
-          </li>
-
-          <li>
-            <a class="dropdown-item" (click)="onToggleTaxStatus(tax)"
-              ><i class="bi bi-exclamation-triangle-fill me-3"></i
-              >{{ tax.isActive ? "Desativar" : "Ativar" }}</a
-            >
-          </li>
-        </ul>
-
-        <!-- END ACTION DROPDOWN -->
-        <span
-          class="me-2 badge rounded-pill bg-{{
-            tax.isActive ? 'success' : 'danger'
-          }}"
-          style="width: 10px; height: 10px; display: inline-block; padding: 0"
-        ></span>
-        <strong>{{ tax.name }}</strong> - {{ tax.valuePercent }} %
-      </li>
-      } @empty {
-      <li class="list-group-item text-muted">Nenhuma taxa IRS encontrada</li>
-      }
-    </ul>
-  </div>
-
-  <div class="text-end mb-3 mt-3">
-    <button type="button" class="btn-main" (click)="onAddTaxModal()">
-      Adicionar Taxa
-    </button>
-  </div>
+  } @else {
+  <p-table
+    #dt
+    stripedRows
+    [value]="filteredTaxes"
+    size="small"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    [paginator]="true"
+    [rows]="10"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    (onPage)="pageChange($event)"
+    [rowsPerPageOptions]="[10, 25, 50]"
+  >
+    <ng-template #caption>
+      <div class="d-flex justify-content-between gap-2 align-items-center">
+        <div class="d-flex gap-2 align-items-center">
+          <p-dropdown
+            [(ngModel)]="taxTypeFilter"
+            (ngModelChange)="applyFilters()"
+            [options]="taxTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Filtrar por tipo"
+            [style]="{ 'min-width': '150px' }"
+            title="Filtrar taxas por tipo (IVA, IRS ou Todas)"
+          />
+          <p-button
+            icon="pi pi-filter-slash"
+            [outlined]="true"
+            (click)="clearFilters()"
+          />
+        </div>
+        <div class="d-flex gap-2">
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              [(ngModel)]="searchValue"
+              (ngModelChange)="applyFilters()"
+              pInputText
+              type="text"
+              placeholder="Procurar..."
+            />
+          </p-iconfield>
+          <p-button
+            label="Adicionar Taxa"
+            icon="pi pi-plus"
+            (click)="onAddTaxModal()"
+          />
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th [width]="20">#</th>
+        <th pSortableColumn="name">
+          <div class="flex items-center gap-2">
+            Nome
+            <p-sortIcon field="name" />
+          </div>
+        </th>
+        <th pSortableColumn="valuePercent" style="width: 15%">
+          <div class="flex items-center gap-2">
+            Valor (%)
+            <p-sortIcon field="valuePercent" />
+          </div>
+        </th>
+        <th pSortableColumn="type" style="width: 15%">
+          <div class="flex items-center gap-2">
+            Tipo
+            <p-sortIcon field="type" />
+          </div>
+        </th>
+        <th pSortableColumn="isActive" style="width: 15%">
+          <div class="flex items-center gap-2">
+            Estado
+            <p-sortIcon field="isActive" />
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-tax>
+      <tr>
+        <td>
+          <p-menu
+            #menu
+            [model]="menuItems"
+            [popup]="true"
+            [appendTo]="'body'"
+          />
+          <p-button
+            icon="pi pi-ellipsis-v"
+            [rounded]="true"
+            severity="secondary"
+            [outlined]="true"
+            (click)="menu.toggle($event); selectedTax = tax"
+          />
+        </td>
+        <td>{{ tax.name }}</td>
+        <td>{{ tax.valuePercent }} %</td>
+        <td>
+          <p-tag [value]="tax.type" [severity]="getTypeColor(tax.type)" />
+        </td>
+        <td>
+          <p-tag
+            [value]="tax.isActive ? 'Ativo' : 'Inativo'"
+            [severity]="getStatusSeverity(tax.isActive)"
+            [icon]="getStatusIcon(tax.isActive)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5">Não foram encontradas taxas com essas diretrizes.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  }
 </div>

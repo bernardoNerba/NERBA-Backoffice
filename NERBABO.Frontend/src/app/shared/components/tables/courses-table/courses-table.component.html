@@ -74,17 +74,26 @@
         />
       </td>
       <td>
-        <p-button
-          class="text-truncate"
-          icon="bi bi-link"
-          variant="text"
-          [routerLink]="'/courses/' + course.id"
-          label="{{ course.title | truncate : 40 }}"
-          severity="secondary"
+        <app-icon-anchor
+          [field]="course.title"
+          [display]="course.title | truncate : 40"
+          [link]="'/courses/' + course.id"
+          [icon]="'pi pi-link'"
         />
       </td>
-      <td>{{ course.minHabilitationLevel }}</td>
-      <td>{{ course.totalDuration }} h</td>
+      <td>
+        <p-tag [value]="course.minHabilitationLevel" severity="secondary" />
+      </td>
+
+      <td>
+        <div class="progress-container">
+          <p-progressBar
+            [value]="getProgressPercentage(course)"
+            [showValue]="true"
+            [color]="getProgressBarClass(course)"
+          />
+        </div>
+      </td>
       <td>
         <p-tag
           icon="{{ getStatusIcon(course.status) }}"

@@ -9,7 +9,7 @@
   stripedRows
   [value]="frames"
   size="small"
-  [tableStyle]="{ 'min-width': '60rem' }"
+  [tableStyle]="{ 'min-width': '85rem' }"
   [globalFilterFields]="['program', 'intervention']"
   [paginator]="true"
   [rows]="10"
@@ -53,19 +53,19 @@
           <p-sortIcon field="intervention" />
         </div>
       </th>
-      <th pSortableColumn="interventionType">
+      <th pSortableColumn="interventionType" style="min-width: 20%">
         <div class="flex items-center gap-2">
           Tipo de Intervenção
           <p-sortIcon field="interventionType" />
         </div>
       </th>
-      <th pSortableColumn="operation">
+      <th pSortableColumn="operation" style="min-width: 20%">
         <div class="flex items-center gap-2">
           Operação
           <p-sortIcon field="operation" />
         </div>
       </th>
-      <th pSortableColumn="operationType">
+      <th pSortableColumn="operationType" style="min-width: 20%">
         <div class="flex items-center gap-2">
           Tipo de Operação
           <p-sortIcon field="operationType" />
@@ -86,13 +86,11 @@
         />
       </td>
       <td>
-        <p-button
-          class="text-truncate"
-          icon="bi bi-link"
-          variant="text"
-          [routerLink]="'/frames/' + frame.id"
-          label="{{ frame.program | truncate : 20 }}"
-          severity="secondary"
+        <app-icon-anchor
+          [field]="frame.program"
+          [display]="frame.program | truncate : 40"
+          [link]="'/frames/' + frame.id"
+          [icon]="'pi pi-link'"
         />
       </td>
       <td class="text-truncate">{{ frame.intervention | truncate : 20 }}</td>

@@ -22,6 +22,8 @@ import { AssignModuleCoursesComponent } from '../../../../features/courses/assig
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CoursesService } from '../../../../core/services/courses.service';
+import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 @Component({
   selector: 'app-courses-table',
@@ -36,7 +38,8 @@ import { CoursesService } from '../../../../core/services/courses.service';
     InputIcon,
     InputTextModule,
     FormsModule,
-    RouterLink,
+    IconAnchorComponent,
+    ProgressBarModule,
   ],
   templateUrl: './courses-table.component.html',
   styleUrl: './courses-table.component.css',
@@ -123,6 +126,21 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
         this.courses = courses; // Update the courses input
       })
     );
+  }
+
+  // Calculate progress percentage for a course
+  getProgressPercentage(course: Course): number {
+    if (course.totalDuration === 0) return 0;
+    return Math.round(
+      ((course.totalDuration - course.remainingDuration) /
+        course.totalDuration) *
+        100
+    );
+  }
+
+  // Determine progress bar class based on percentage
+  getProgressBarClass(course: Course): string {
+    return this.getProgressPercentage(course) >= 100 ? '' : 'black';
   }
 
   ngOnDestroy(): void {

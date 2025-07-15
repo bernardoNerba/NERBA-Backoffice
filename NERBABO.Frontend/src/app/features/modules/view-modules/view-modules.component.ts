@@ -17,6 +17,7 @@ import { DeleteModulesComponent } from '../delete-modules/delete-modules.compone
 import { ActiveBadgeComponent } from '../../../shared/components/badges/active-badge/active-badge.component';
 import { STATUS, StatusEnum } from '../../../core/objects/status';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
+import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
 
 @Component({
   selector: 'app-view-modules',
@@ -27,6 +28,7 @@ import { CoursesTableComponent } from '../../../shared/components/tables/courses
     FormatDateRangePipe,
     ActiveBadgeComponent,
     CoursesTableComponent,
+    ActionsTableComponent,
   ],
   templateUrl: './view-modules.component.html',
   styleUrl: './view-modules.component.css',
