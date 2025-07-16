@@ -20,7 +20,6 @@ import { ModulesTableComponent } from '../../../shared/components/tables/modules
     ModulesTableComponent,
   ],
   templateUrl: './index-modules.component.html',
-  styleUrl: './index-modules.component.css',
 })
 export class IndexModulesComponent implements OnInit {
   modules$!: Observable<Module[]>;

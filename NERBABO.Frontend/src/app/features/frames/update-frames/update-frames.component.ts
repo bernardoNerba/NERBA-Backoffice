@@ -16,7 +16,6 @@ import { OkResponse } from '../../../core/models/okResponse';
 @Component({
   selector: 'app-update-frames',
   templateUrl: './update-frames.component.html',
-  styleUrl: './update-frames.component.css',
   imports: [CommonModule, ReactiveFormsModule, ErrorCardComponent],
 })
 export class UpdateFramesComponent implements OnInit {
@@ -82,7 +81,6 @@ export class UpdateFramesComponent implements OnInit {
       .subscribe({
         next: (value: OkResponse) => {
           this.bsModalRef.hide();
-          this.frameService.notifyFrameUpdate(this.id);
           this.frameService.triggerFetchFrames();
           this.sharedService.showSuccess(value.message);
         },

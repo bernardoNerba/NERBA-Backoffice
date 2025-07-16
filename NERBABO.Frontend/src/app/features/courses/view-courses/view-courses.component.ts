@@ -31,13 +31,10 @@ import { ActionsTableComponent } from '../../../shared/components/tables/actions
     IconComponent,
     CommonModule,
     MessageModule,
-    RouterLink,
-    FormatDateRangePipe,
     ModulesTableComponent,
     ActionsTableComponent,
   ],
   templateUrl: './view-courses.component.html',
-  styleUrl: './view-courses.component.css',
 })
 export class ViewCoursesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) id!: number;

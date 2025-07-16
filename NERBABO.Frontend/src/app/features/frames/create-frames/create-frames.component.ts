@@ -15,7 +15,6 @@ import { OkResponse } from '../../../core/models/okResponse';
 @Component({
   selector: 'app-create-frames',
   templateUrl: './create-frames.component.html',
-  styleUrl: './create-frames.component.css',
   imports: [CommonModule, ReactiveFormsModule, ErrorCardComponent],
 })
 export class CreateFramesComponent implements OnInit {

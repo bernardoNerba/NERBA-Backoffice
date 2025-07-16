@@ -10,12 +10,11 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
 import { Action } from '../../../core/models/action';
 import { ActionsService } from '../../../core/services/actions.service';
-import { FormatDateRangePipe } from '../../../shared/pipes/format-date-range.pipe';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpdateModulesComponent } from '../update-modules/update-modules.component';
 import { DeleteModulesComponent } from '../delete-modules/delete-modules.component';
 import { ActiveBadgeComponent } from '../../../shared/components/badges/active-badge/active-badge.component';
-import { STATUS, StatusEnum } from '../../../core/objects/status';
+import { StatusEnum } from '../../../core/objects/status';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
 
@@ -24,14 +23,11 @@ import { ActionsTableComponent } from '../../../shared/components/tables/actions
   imports: [
     CommonModule,
     IconComponent,
-    RouterLink,
-    FormatDateRangePipe,
     ActiveBadgeComponent,
     CoursesTableComponent,
     ActionsTableComponent,
   ],
   templateUrl: './view-modules.component.html',
-  styleUrl: './view-modules.component.css',
 })
 export class ViewModulesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) id!: number;

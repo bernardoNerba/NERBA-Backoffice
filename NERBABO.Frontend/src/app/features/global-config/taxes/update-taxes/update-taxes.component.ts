@@ -18,7 +18,6 @@ import { OkResponse } from '../../../../core/models/okResponse';
   selector: 'app-update-taxes',
   imports: [ErrorCardComponent, CommonModule, ReactiveFormsModule],
   templateUrl: './update-taxes.component.html',
-  styleUrl: './update-taxes.component.css',
 })
 export class UpdateTaxesComponent implements OnInit {
   currentTax!: Tax;

@@ -29,7 +29,6 @@ import { OkResponse } from '../../../core/models/okResponse';
     ErrorCardComponent,
   ],
   templateUrl: './create-acc.component.html',
-  styleUrl: './create-acc.component.css',
 })
 export class CreateAccComponent implements OnInit {
   modalRef?: BsModalRef;

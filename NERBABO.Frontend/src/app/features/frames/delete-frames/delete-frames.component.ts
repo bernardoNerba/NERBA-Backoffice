@@ -7,7 +7,6 @@ import { SharedService } from '../../../core/services/shared.service';
 @Component({
   selector: 'app-delete-frames',
   templateUrl: './delete-frames.component.html',
-  styleUrl: './delete-frames.component.css',
   imports: [CommonModule, ReactiveFormsModule],
 })
 export class DeleteFramesComponent {

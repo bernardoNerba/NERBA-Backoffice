@@ -18,7 +18,6 @@ import { CommonModule } from '@angular/common';
   selector: 'app-update-modules',
   imports: [ErrorCardComponent, CommonModule, ReactiveFormsModule],
   templateUrl: './update-modules.component.html',
-  styleUrl: './update-modules.component.css',
 })
 export class UpdateModulesComponent implements OnInit {
   errorMessages: string[] = [];
@@ -96,7 +95,6 @@ export class UpdateModulesComponent implements OnInit {
         this.bsModalRef.hide();
         this.modulesService.triggerFetch();
         this.sharedService.showSuccess(value.message);
-        this.modulesService.notifyModuleUpdate(this.id);
       },
       error: (error) => {
         this.errorMessages = this.sharedService.handleErrorResponse(error);

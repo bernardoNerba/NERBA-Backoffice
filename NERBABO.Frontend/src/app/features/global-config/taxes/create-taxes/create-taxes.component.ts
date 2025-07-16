@@ -17,7 +17,6 @@ import { TAX_TYPES } from '../../../../core/objects/taxType';
   selector: 'app-create-taxes',
   imports: [ReactiveFormsModule, ErrorCardComponent],
   templateUrl: './create-taxes.component.html',
-  styleUrl: './create-taxes.component.css',
 })
 export class CreateTaxesComponent implements OnInit {
   allTaxes = [...TAX_TYPES];

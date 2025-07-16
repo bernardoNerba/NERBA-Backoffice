@@ -19,7 +19,6 @@ import { ErrorCardComponent } from '../../../shared/components/error-card/error-
   selector: 'app-update-companies',
   imports: [ReactiveFormsModule, CommonModule, ErrorCardComponent],
   templateUrl: './update-companies.component.html',
-  styleUrl: './update-companies.component.css',
 })
 export class UpdateCompaniesComponent {
   @Input({ required: true }) id!: number;

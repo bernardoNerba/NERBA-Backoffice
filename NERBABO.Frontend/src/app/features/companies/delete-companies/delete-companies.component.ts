@@ -9,7 +9,6 @@ import { SharedService } from '../../../core/services/shared.service';
   selector: 'app-delete-companies',
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './delete-companies.component.html',
-  styleUrl: './delete-companies.component.css',
 })
 export class DeleteCompaniesComponent {
   id!: number;

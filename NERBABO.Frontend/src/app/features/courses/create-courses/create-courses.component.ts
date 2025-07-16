@@ -31,7 +31,6 @@ import { Module } from '../../../core/models/module';
     SelectModule,
   ],
   templateUrl: './create-courses.component.html',
-  styleUrl: './create-courses.component.css',
 })
 export class CreateCoursesComponent implements OnInit {
   errorMessages: string[] = [];

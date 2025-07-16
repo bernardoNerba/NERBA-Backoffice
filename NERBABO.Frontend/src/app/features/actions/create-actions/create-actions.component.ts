@@ -36,7 +36,6 @@ import { CommonModule } from '@angular/common';
     CommonModule,
   ],
   templateUrl: './create-actions.component.html',
-  styleUrl: './create-actions.component.css',
 })
 export class CreateActionsComponent implements OnInit {
   @Input() courseId?: number | null;
@@ -46,9 +45,6 @@ export class CreateActionsComponent implements OnInit {
   loading: boolean = false;
   form: FormGroup = new FormGroup({});
   courses$!: Observable<Course[]>;
-
-  // ❌ REMOVE the separate rangeDates property
-  // rangeDates: Date[] = [];
 
   WEEKDAYS = WEEKDAYS;
   STATUS = STATUS;
@@ -78,7 +74,6 @@ export class CreateActionsComponent implements OnInit {
     this.submitted = true;
     this.errorMessages = [];
 
-    // ✅ Get the date range from the form
     const rangeDates = this.form.get('rangeDates')?.value;
 
     console.log(rangeDates);
@@ -110,11 +105,9 @@ export class CreateActionsComponent implements OnInit {
     // Remove rangeDates from the final object if your backend doesn't expect it
     delete formData.rangeDates;
 
-    console.log('Form data:', formData);
-
     this.loading = true;
 
-    this.actionsService.create(formData).subscribe({
+    this.actionsService.createAction(formData).subscribe({
       next: (value) => {
         this.bsModalRef.hide();
         this.sharedService.showSuccess(value.message);

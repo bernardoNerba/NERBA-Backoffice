@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
-import { finalize } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +29,7 @@ export class FrameService {
     this.loadingSubject.next(true);
     this.fetchFrames()
       .pipe(
-        finalize(() => this.loadingSubject.next(false)) // Set loading to false after request completes
+        tap(() => this.loadingSubject.next(false)) // Set loading to false after request completes
       )
       .subscribe({
         next: (data: Frame[]) => {
@@ -61,7 +61,7 @@ export class FrameService {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.frames}update/${id}`, frame)
       .pipe(
-        finalize(() => this.notifyFrameUpdate(id)) // Notify update after success
+        tap(() => this.notifyFrameUpdate(id)) // Notify update after success
       );
   }
 
@@ -69,7 +69,7 @@ export class FrameService {
     return this.http
       .delete<OkResponse>(`${API_ENDPOINTS.frames}delete/${id}`)
       .pipe(
-        finalize(() => this.notifyFrameDelete(id)) // Notify delete after success
+        tap(() => this.notifyFrameDelete(id)) // Notify delete after success
       );
   }
 

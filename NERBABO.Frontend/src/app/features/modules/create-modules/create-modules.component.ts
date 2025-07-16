@@ -16,7 +16,6 @@ import { CommonModule } from '@angular/common';
   selector: 'app-create-modules',
   imports: [ReactiveFormsModule, ErrorCardComponent, CommonModule],
   templateUrl: './create-modules.component.html',
-  styleUrl: './create-modules.component.css',
 })
 export class CreateModulesComponent implements OnInit {
   errorMessages: string[] = [];

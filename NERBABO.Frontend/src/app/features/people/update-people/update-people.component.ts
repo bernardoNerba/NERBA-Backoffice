@@ -25,7 +25,6 @@ import { Person } from '../../../core/models/person';
     TypeaheadModule,
   ],
   templateUrl: './update-people.component.html',
-  styleUrl: './update-people.component.css',
 })
 export class UpdatePeopleComponent implements OnInit {
   allCountries = [...COUNTRIES];
@@ -158,7 +157,6 @@ export class UpdatePeopleComponent implements OnInit {
           this.bsModalRef.hide();
           this.peopleService.triggerFetchPeople();
           this.sharedService.showSuccess(value.message);
-          this.peopleService.notifyPersonUpdate(this.id);
         },
         error: (error) => {
           this.errorMessages = this.sharedService.handleErrorResponse(error);

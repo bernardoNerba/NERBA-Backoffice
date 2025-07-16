@@ -24,7 +24,6 @@ import { AuthService } from '../../../core/services/auth.service';
     FormsModule,
   ],
   templateUrl: './assign-role-acc.component.html',
-  styleUrl: './assign-role-acc.component.css',
 })
 export class AssignRoleAccComponent implements OnInit {
   @Input() user!: UserInfo;

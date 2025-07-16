@@ -7,7 +7,7 @@ import { UserInfo } from '../models/userInfo';
 import { SharedService } from './shared.service';
 import { UserUpdate } from '../models/userUpdate';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
-import { finalize } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -30,19 +30,19 @@ export class AccService {
   register(model: Register): Observable<OkResponse> {
     return this.http
       .post<OkResponse>(API_ENDPOINTS.create_acc, model)
-      .pipe(finalize(() => this.notifyUpdate('0'))); // Notify full refresh after create
+      .pipe(tap(() => this.notifyUpdate('0'))); // Notify full refresh after create
   }
 
   blockUser(userId: string): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.block_acc}${userId}`, {})
-      .pipe(finalize(() => this.notifyDelete(userId))); // Treat block/unblock as delete for refresh
+      .pipe(tap(() => this.notifyDelete(userId))); // Treat block/unblock as delete for refresh
   }
 
   updateUser(model: UserUpdate): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.update_acc}${model.id}`, model)
-      .pipe(finalize(() => this.notifyUpdate(model.id))); // Notify update after success
+      .pipe(tap(() => this.notifyUpdate(model.id))); // Notify update after success
   }
 
   getUserById(id: string): Observable<UserInfo> {

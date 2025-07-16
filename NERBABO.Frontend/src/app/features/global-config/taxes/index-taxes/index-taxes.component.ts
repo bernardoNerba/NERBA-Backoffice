@@ -43,8 +43,6 @@ interface TaxTypeFilter {
     TagModule,
   ],
   templateUrl: './index-taxes.component.html',
-  styleUrls: ['./index-taxes.component.css'],
-  standalone: true,
 })
 export class IndexTaxesComponent implements OnInit {
   @ViewChild('dt') dt!: Table;

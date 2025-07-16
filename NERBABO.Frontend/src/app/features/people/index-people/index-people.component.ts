@@ -24,8 +24,6 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 export class IndexPeopleComponent implements OnInit {
   people$!: Observable<Person[]>;
   loading$!: Observable<boolean>;
-  filteredPeople$!: Observable<Person[]>;
-  searchControl = new FormControl('');
   ICONS = ICONS;
 
   constructor(

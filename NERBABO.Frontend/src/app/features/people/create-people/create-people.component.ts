@@ -21,7 +21,6 @@ import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
   selector: 'app-create-people',
   imports: [ReactiveFormsModule, ErrorCardComponent, TypeaheadModule],
   templateUrl: './create-people.component.html',
-  styleUrl: './create-people.component.css',
 })
 export class CreatePeopleComponent implements OnInit {
   allCountries = [...COUNTRIES];

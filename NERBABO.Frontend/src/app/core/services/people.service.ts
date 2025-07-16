@@ -6,7 +6,7 @@ import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
 import { PersonRelationship } from '../models/personRelationships';
-import { finalize } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +32,7 @@ export class PeopleService {
   createPerson(model: Omit<Person, 'id' | 'fullName'>): Observable<OkResponse> {
     return this.http
       .post<OkResponse>(`${API_ENDPOINTS.all_people}create`, model)
-      .pipe(finalize(() => this.notifyPersonUpdate(0))); // Notify full refresh after create
+      .pipe(tap(() => this.notifyPersonUpdate(0))); // Notify full refresh after create
   }
 
   updatePerson(
@@ -41,13 +41,13 @@ export class PeopleService {
   ): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.all_people}update/${id}`, model)
-      .pipe(finalize(() => this.notifyPersonUpdate(id))); // Notify update after success
+      .pipe(tap(() => this.notifyPersonUpdate(id))); // Notify update after success
   }
 
   deletePerson(id: number): Observable<OkResponse> {
     return this.http
       .delete<OkResponse>(`${API_ENDPOINTS.all_people}delete/${id}`)
-      .pipe(finalize(() => this.notifyPersonDelete(id))); // Notify delete after success
+      .pipe(tap(() => this.notifyPersonDelete(id))); // Notify delete after success
   }
 
   getSinglePerson(id: number): Observable<Person> {

@@ -16,7 +16,6 @@ import { PasswordValidators } from 'ngx-validators';
   selector: 'app-update-acc',
   imports: [ReactiveFormsModule],
   templateUrl: './update-acc.component.html',
-  styleUrl: './update-acc.component.css',
 })
 export class UpdateAccComponent implements OnInit {
   @Input() id!: string;

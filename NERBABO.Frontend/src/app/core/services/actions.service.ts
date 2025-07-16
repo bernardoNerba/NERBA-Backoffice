@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, finalize, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, finalize, Observable, Subject, tap } from 'rxjs';
 import { Action } from '../models/action';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
@@ -31,9 +31,6 @@ export class ActionsService {
     return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByCourse}${id}`);
   }
 
-  create(model: Omit<ActionForm, 'id'>): Observable<OkResponse> {
-    return this.http.post<OkResponse>(API_ENDPOINTS.actions, model);
-  }
   fetchActions(courseId: number): void {
     this.loadingSubject.next(true);
     this.http
@@ -57,25 +54,22 @@ export class ActionsService {
     return this.http.get<Action>(`${API_ENDPOINTS.actions}/${id}`);
   }
 
-  createAction(
-    courseId: number,
-    model: Omit<Action, 'id'>
-  ): Observable<OkResponse> {
+  createAction(model: Omit<ActionForm, 'id'>): Observable<OkResponse> {
     return this.http
-      .post<OkResponse>(`${API_ENDPOINTS.actions}/course/${courseId}`, model)
-      .pipe(finalize(() => this.notifyUpdate(0)));
+      .post<OkResponse>(`${API_ENDPOINTS.actions}`, model)
+      .pipe(tap(() => this.notifyUpdate(0)));
   }
 
-  updateAction(id: number, model: Partial<Action>): Observable<OkResponse> {
+  updateAction(id: number, model: Partial<ActionForm>): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.actions}/${id}`, model)
-      .pipe(finalize(() => this.notifyUpdate(id)));
+      .pipe(tap(() => this.notifyUpdate(id)));
   }
 
   deleteAction(id: number): Observable<OkResponse> {
     return this.http
       .delete<OkResponse>(`${API_ENDPOINTS.actions}/${id}`)
-      .pipe(finalize(() => this.notifyDelete(id)));
+      .pipe(tap(() => this.notifyDelete(id)));
   }
 
   notifyUpdate(actionId: number) {

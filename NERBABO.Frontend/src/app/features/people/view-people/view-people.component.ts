@@ -18,7 +18,6 @@ import { ICONS } from '../../../core/objects/icons';
   standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './view-people.component.html',
-  styleUrl: './view-people.component.css',
 })
 export class ViewPeopleComponent implements OnInit, OnDestroy {
   person$?: Observable<Person | null>;

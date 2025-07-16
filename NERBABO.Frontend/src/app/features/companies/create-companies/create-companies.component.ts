@@ -17,7 +17,6 @@ import { OkResponse } from '../../../core/models/okResponse';
   selector: 'app-create-companies',
   imports: [ReactiveFormsModule, ErrorCardComponent],
   templateUrl: './create-companies.component.html',
-  styleUrl: './create-companies.component.css',
 })
 export class CreateCompaniesComponent implements OnInit {
   submitted = false;

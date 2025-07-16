@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Student } from '../../../core/models/student';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpdateCompaniesComponent } from '../update-companies/update-companies.component';
 import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
 
@@ -16,7 +16,6 @@ import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.c
   selector: 'app-view-companies',
   imports: [CommonModule, IconComponent, RouterLink],
   templateUrl: './view-companies.component.html',
-  styleUrl: './view-companies.component.css',
 })
 export class ViewCompaniesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) id!: number;

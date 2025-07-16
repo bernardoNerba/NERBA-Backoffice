@@ -21,7 +21,7 @@
 
   <div class="card-body">
     <app-people-table
-      [people]="(filteredPeople$ | async) ?? []"
+      [people]="(people$ | async) ?? []"
       [loading]="(loading$ | async) ?? false"
     />
   </div>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { Company } from '../models/company';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
@@ -52,15 +52,21 @@ export class CompaniesService {
   }
 
   createCompany(model: Omit<Company, 'id'>): Observable<OkResponse> {
-    return this.http.post<OkResponse>(`${API_ENDPOINTS.companies}`, model);
+    return this.http
+      .post<OkResponse>(`${API_ENDPOINTS.companies}`, model)
+      .pipe(tap(() => this.notifyUpdate(0)));
   }
 
   updateCompany(model: Company, id: number) {
-    return this.http.put<OkResponse>(`${API_ENDPOINTS.companies}${id}`, model);
+    return this.http
+      .put<OkResponse>(`${API_ENDPOINTS.companies}${id}`, model)
+      .pipe(tap(() => this.notifyUpdate(id)));
   }
 
   deleteCompany(id: number) {
-    return this.http.delete<OkResponse>(`${API_ENDPOINTS.companies}${id}`);
+    return this.http
+      .delete<OkResponse>(`${API_ENDPOINTS.companies}${id}`)
+      .pipe(tap(() => this.notifyDelete(id)));
   }
 
   getCompanyById(id: number) {

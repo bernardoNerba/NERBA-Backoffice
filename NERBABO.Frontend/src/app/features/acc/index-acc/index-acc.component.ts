@@ -1,14 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import {
-  BehaviorSubject,
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  Observable,
-  startWith,
-} from 'rxjs';
+import { ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 import { UserInfo } from '../../../core/models/userInfo';
 import { AccService } from '../../../core/services/acc.service';
 import { SharedService } from '../../../core/services/shared.service';

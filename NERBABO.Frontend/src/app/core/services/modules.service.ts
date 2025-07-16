@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, finalize, Observable, Subject } from 'rxjs';
 import { Module } from '../models/module';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
@@ -47,7 +47,9 @@ export class ModulesService {
   }
 
   updateModule(id: number, model: Module): Observable<OkResponse> {
-    return this.http.put<OkResponse>(`${API_ENDPOINTS.modules}${id}`, model);
+    return this.http
+      .put<OkResponse>(`${API_ENDPOINTS.modules}${id}`, model)
+      .pipe(finalize(() => this.notifyModuleUpdate(id))); // Notify update after success
   }
 
   getSingleModule(id: number): Observable<Module> {
@@ -59,7 +61,9 @@ export class ModulesService {
   }
 
   deleteModule(id: number): Observable<OkResponse> {
-    return this.http.delete<OkResponse>(`${API_ENDPOINTS.modules}${id}`);
+    return this.http
+      .delete<OkResponse>(`${API_ENDPOINTS.modules}${id}`)
+      .pipe(finalize(() => this.notifyModuleDelete(id))); // Notify delete after success
   }
 
   getCoursesByModule(id: number): Observable<Course[]> {
