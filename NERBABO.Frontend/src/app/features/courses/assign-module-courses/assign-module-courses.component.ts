@@ -20,7 +20,6 @@ import { ModulesService } from '../../../core/services/modules.service';
     MultiSelectModule,
   ],
   templateUrl: './assign-module-courses.component.html',
-  styleUrl: './assign-module-courses.component.css',
 })
 export class AssignModuleCoursesComponent implements OnInit {
   course!: Course;

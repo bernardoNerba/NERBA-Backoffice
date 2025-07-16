@@ -8,7 +8,7 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form">
     <div class="container">
       <div class="row">
         <div class="col-sm-12">
@@ -36,16 +36,22 @@
     </div>
 
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
-        Cancel
-      </button>
-      <button type="submit" class="btn-main" [disabled]="loading">
-        @if (loading){
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Save
-      </button>
-    </div>
   </form>
+</div>
+<div class="modal-footer">
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
 </div>

@@ -23,7 +23,6 @@ import {
 } from 'primeng/autocomplete';
 import { GENDERS } from '../../../core/objects/gender';
 import { DatePickerModule } from 'primeng/datepicker';
-import { matchDateOnly } from '../../../shared/utils';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 

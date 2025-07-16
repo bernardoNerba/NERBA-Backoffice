@@ -21,6 +21,9 @@ import { ErrorCardComponent } from '../../../shared/components/error-card/error-
 import { CommonModule } from '@angular/common';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-update-courses',
@@ -30,6 +33,10 @@ import { SelectModule } from 'primeng/select';
     ReactiveFormsModule,
     MultiSelectModule,
     SelectModule,
+    SelectModule,
+    InputTextModule,
+    TextareaModule,
+    InputNumberModule,
   ],
   templateUrl: './update-courses.component.html',
 })

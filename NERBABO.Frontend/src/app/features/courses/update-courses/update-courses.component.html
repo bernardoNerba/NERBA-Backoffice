@@ -8,11 +8,10 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form">
     <div class="container">
       <div class="row">
         <!-- Frame ID -->
-
         <div class="col-sm-12">
           <div class="mb-3">
             <label for="frameId">
@@ -27,6 +26,7 @@
               optionValue="id"
               placeholder="Selecione Enquadramento"
               styleClass="w-100"
+              [class.is-invalid]="submitted && form.get('frameId')?.errors"
               class="{{
                 submitted && form.get('frameId')?.errors
                   ? 'ng-invalid ng-dirty'
@@ -49,10 +49,15 @@
               <span class="text-danger">*</span>
             </label>
             <input
-              formControlName="title"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="title"
               [class.is-invalid]="submitted && form.get('title')?.errors"
+              class="w-100 {{
+                submitted && form.get('title')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted && form.get('title')?.hasError("required")) {
             <span class="text-danger"
@@ -74,9 +79,14 @@
             <label for="objectives">Objetivos do curso</label>
             <textarea
               formControlName="objectives"
-              class="form-control"
+              pTextarea
               rows="3"
               [class.is-invalid]="submitted && form.get('objectives')?.errors"
+              class="w-100 {{
+                submitted && form.get('objectives')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             ></textarea>
             @if (submitted && form.get('objectives')?.hasError("minlength") ||
             form.get('objectives')?.hasError("maxlength")) {
@@ -123,14 +133,19 @@
         </div>
 
         <!-- Area -->
-        <div class="col-sm-9">
+        <div class="col-md-7">
           <div class="mb-3">
             <label for="area">Área do curso</label>
             <input
-              formControlName="area"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="area"
               [class.is-invalid]="submitted && form.get('area')?.errors"
+              class="w-100 {{
+                submitted && form.get('area')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted && form.get('area')?.hasError("minlength") ||
             form.get('area')?.hasError("maxlength")) {
@@ -143,21 +158,28 @@
         </div>
 
         <!-- Total Duration -->
-        <div class="col-sm-3">
+        <div class="col-md-5">
           <div class="mb-3">
             <label for="totalDuration">
               Duração
               <span class="text-danger">*</span>
             </label>
-            <input
+            <p-inputnumber
               formControlName="totalDuration"
-              type="number"
-              step="0.1"
-              class="form-control"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              class="w-100 {{
+                submitted && form.get('title')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
               [class.is-invalid]="
                 submitted && form.get('totalDuration')?.errors
               "
+              mode="decimal"
+              [minFractionDigits]="1"
             />
+
             <div
               *ngIf="submitted && form.get('totalDuration')?.errors"
               class="text-danger mt-1"
@@ -176,7 +198,7 @@
         </div>
 
         <!-- Status -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="status">Estado</label>
             <p-select
@@ -190,7 +212,7 @@
         </div>
 
         <!-- Min Habilitation Level -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="minHabilitationLevel">Nível Mín. Habilitações</label>
             <p-select
@@ -206,16 +228,23 @@
     </div>
 
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-    <!-- submit button -->
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
-        Cancel
-      </button>
-      <button type="submit" class="btn-main" [disabled]="loading">
-        @if (loading){
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Save
-      </button>
-    </div>
   </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
 </div>

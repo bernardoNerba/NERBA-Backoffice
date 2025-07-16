@@ -2,8 +2,12 @@
 <!-- MESSAGE FOR COURSE NOT COMPLETED-->
 @if (course.remainingDuration !== 0) {
 <div class="mb-3">
-  <p-message severity="error">
-    <app-icon [icon]="ICONS.info" [marginEnd]="3" />
+  <p-message
+    severity="error"
+    closable
+    icon="pi pi-exclamation-triangle"
+    size="large"
+  >
     O curso ainda tem {{ course.remainingDuration }} horas de
     {{ course.totalDuration }} horas sem serem ocupadas.</p-message
   >

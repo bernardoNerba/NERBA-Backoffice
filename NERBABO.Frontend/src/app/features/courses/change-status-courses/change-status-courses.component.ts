@@ -12,7 +12,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { SharedService } from '../../../core/services/shared.service';
-import { Subject } from 'rxjs';
 import { CoursesService } from '../../../core/services/courses.service';
 
 @Component({
@@ -24,7 +23,6 @@ import { CoursesService } from '../../../core/services/courses.service';
     ErrorCardComponent,
   ],
   templateUrl: './change-status-courses.component.html',
-  styleUrl: './change-status-courses.component.css',
 })
 export class ChangeStatusCoursesComponent implements OnInit {
   course!: Course;

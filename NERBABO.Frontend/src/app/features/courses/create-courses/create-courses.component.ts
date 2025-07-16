@@ -20,6 +20,9 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { ModulesService } from '../../../core/services/modules.service';
 import { Module } from '../../../core/models/module';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-create-courses',
@@ -29,6 +32,9 @@ import { Module } from '../../../core/models/module';
     ReactiveFormsModule,
     MultiSelectModule,
     SelectModule,
+    InputTextModule,
+    TextareaModule,
+    InputNumberModule,
   ],
   templateUrl: './create-courses.component.html',
 })

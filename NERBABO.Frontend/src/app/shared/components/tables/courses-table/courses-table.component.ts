@@ -25,6 +25,7 @@ import { CoursesService } from '../../../../core/services/courses.service';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { SpinnerComponent } from '../../spinner/spinner.component';
+import { CreateActionsComponent } from '../../../../features/actions/create-actions/create-actions.component';
 
 @Component({
   selector: 'app-courses-table',
@@ -96,6 +97,15 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
             label: 'Atribuir Módulo',
             icon: 'pi pi-plus-circle',
             command: () => this.onAssignModuleModal(this.selectedCourse!),
+          },
+          {
+            label: 'Criar Ação Formação',
+            icon: 'pi pi-plus-circle',
+            command: () =>
+              this.onCreateActionModal(
+                this.selectedCourse!.id,
+                this.selectedCourse!.title
+              ),
           },
         ],
       },
@@ -198,6 +208,16 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
       initialState: {
         id: course.id,
         course: course,
+      },
+    });
+  }
+
+  onCreateActionModal(id: number, title: string) {
+    this.modalService.show(CreateActionsComponent, {
+      class: 'modal-lg',
+      initialState: {
+        courseId: id,
+        courseTitle: title,
       },
     });
   }
