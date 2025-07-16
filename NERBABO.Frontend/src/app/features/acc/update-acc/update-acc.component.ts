@@ -11,11 +11,32 @@ import { SharedService } from '../../../core/services/shared.service';
 import { AccService } from '../../../core/services/acc.service';
 import { OkResponse } from '../../../core/models/okResponse';
 import { PasswordValidators } from 'ngx-validators';
+import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
+import { Divider, DividerModule } from 'primeng/divider';
+import { PasswordModule } from 'primeng/password';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-update-acc',
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    ErrorCardComponent,
+    DividerModule,
+    PasswordModule,
+    AutoCompleteModule,
+    InputTextModule,
+  ],
   templateUrl: './update-acc.component.html',
+  styles: `
+  :host ::ng-deep .p-password {
+  width: 100% !important;
+  max-width: 100% !important;
+  }
+  :host ::ng-deep .p-password input {
+    width: 100% !important;
+  }
+  `,
 })
 export class UpdateAccComponent implements OnInit {
   @Input() id!: string;

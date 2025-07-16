@@ -15,7 +15,6 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { PeopleService } from '../../../core/services/people.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
-import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { Select } from 'primeng/select';
 import {
   AutoCompleteCompleteEvent,
@@ -31,7 +30,6 @@ import { TextareaModule } from 'primeng/textarea';
   imports: [
     ReactiveFormsModule,
     ErrorCardComponent,
-    TypeaheadModule,
     Select,
     AutoCompleteModule,
     DatePickerModule,

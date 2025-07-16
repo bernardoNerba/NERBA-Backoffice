@@ -17,6 +17,13 @@ import { AccService } from '../../../core/services/acc.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { PasswordValidators } from 'ngx-validators';
 import { OkResponse } from '../../../core/models/okResponse';
+import {
+  AutoCompleteCompleteEvent,
+  AutoCompleteModule,
+} from 'primeng/autocomplete';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-create-acc',
@@ -27,19 +34,28 @@ import { OkResponse } from '../../../core/models/okResponse';
     ReactiveFormsModule,
     CommonModule,
     ErrorCardComponent,
+    AutoCompleteModule,
+    InputTextModule,
+    PasswordModule,
+    DividerModule,
   ],
   templateUrl: './create-acc.component.html',
+  styles: `
+  :host ::ng-deep .p-password {
+  width: 100% !important;
+  max-width: 100% !important;
+  }
+  :host ::ng-deep .p-password input {
+    width: 100% !important;
+  }
+  `,
 })
 export class CreateAccComponent implements OnInit {
-  modalRef?: BsModalRef;
-
   registrationForm: FormGroup = new FormGroup({});
   people!: Person[];
+  displayPeople!: Person[];
   submitted: boolean = false;
   errorMessages: string[] = [];
-  filteredPeople: Person[] = [];
-  selectedPersonDisplay: string = '';
-  peopleForTypeahead: any[] = [];
   loading = false;
 
   constructor(
@@ -95,6 +111,20 @@ export class CreateAccComponent implements OnInit {
     );
   }
 
+  filterPeople(event: AutoCompleteCompleteEvent) {
+    let filtered: any[] = [];
+    let query = event.query;
+
+    for (let i = 0; i < (this.displayPeople as any[]).length; i++) {
+      let person = (this.displayPeople as any[])[i];
+      if (person.displayName.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(person);
+      }
+    }
+
+    this.displayPeople = filtered;
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.errorMessages = [];
@@ -106,6 +136,9 @@ export class CreateAccComponent implements OnInit {
       );
       return;
     }
+
+    this.registrationForm.value.personId =
+      this.registrationForm.value.personId.id;
 
     this.loading = true;
 
@@ -132,7 +165,7 @@ export class CreateAccComponent implements OnInit {
         if (data) {
           this.people = data;
           // Prepare data specifically for typeahead
-          this.peopleForTypeahead = data.map((person) => ({
+          this.displayPeople = data.map((person) => ({
             ...person,
             displayName: `${person.fullName} - ${person.nif}`,
             id: person.id,
@@ -141,12 +174,5 @@ export class CreateAccComponent implements OnInit {
       },
       error: (err) => console.log(err),
     });
-  }
-
-  onPersonSelected(event: any): void {
-    // event.item contains the selected person object
-    const selectedPerson = event.item;
-    this.registrationForm.get('personId')?.setValue(selectedPerson.id);
-    this.selectedPersonDisplay = selectedPerson.displayName;
   }
 }

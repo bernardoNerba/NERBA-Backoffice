@@ -10,30 +10,34 @@
 </div>
 <div class="modal-body">
   <!-- resgistration form -->
-  <form (submit)="onSubmit()" [formGroup]="registrationForm">
+  <form [formGroup]="registrationForm">
     <!-- person -->
     <div class="mb-3">
       <label for="email"
         >Pessoa
         <span class="text-danger">*</span>
       </label>
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Comece a escrever o nome..."
-        [(ngModel)]="selectedPersonDisplay"
-        [typeahead]="peopleForTypeahead"
-        [typeaheadMinLength]="0"
-        typeaheadOptionField="displayName"
-        (typeaheadOnSelect)="onPersonSelected($event)"
-        [typeaheadScrollable]="true"
-        [typeaheadOptionsLimit]="8"
+      <p-autocomplete
+        formControlName="personId"
+        [suggestions]="displayPeople"
+        (completeMethod)="filterPeople($event)"
+        optionLabel="displayName"
+        placeholder="Escolha uma pessoa..."
+        [dropdown]="true"
         [class.is-invalid]="
           submitted && registrationForm.get('personId')?.errors
         "
-        [ngModelOptions]="{ standalone: true }"
+        styleClass="w-100"
+        class="{{
+          submitted && registrationForm.get('personId')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
-      <input type="hidden" formControlName="personId" />
+      @if (submitted && registrationForm.get('personId')?.hasError("required"))
+      {
+      <span class="text-danger"> Pessoa é um campo obrigatório. </span>
+      }
     </div>
     <!-- end person -->
 
@@ -44,11 +48,17 @@
         <span class="text-danger">*</span>
       </label>
       <input
+        type="text"
+        pInputText
         formControlName="email"
-        type="email"
-        class="form-control"
         [class.is-invalid]="submitted && registrationForm.get('email')?.errors"
+        class="w-100 {{
+          submitted && registrationForm.get('email')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
+
       @if (submitted && registrationForm.get('email')?.hasError("required")) {
       <span class="text-danger"> Email é um campo obrigatório. </span>
       } @else if (submitted &&
@@ -66,12 +76,17 @@
     <div class="mb-3">
       <label for="username">Username <span class="text-danger">*</span></label>
       <input
-        formControlName="userName"
         type="text"
-        class="form-control"
+        pInputText
+        formControlName="username"
         [class.is-invalid]="
-          submitted && registrationForm.get('userName')?.errors
+          submitted && registrationForm.get('username')?.errors
         "
+        class="w-100 {{
+          submitted && registrationForm.get('username')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
       @if (submitted && registrationForm.get('userName')?.hasError("required"))
       {
@@ -89,14 +104,35 @@
     <!-- password -->
     <div class="mb-3">
       <label for="password">Password <span class="text-danger">*</span></label>
-      <input
+      <p-password
         formControlName="password"
-        type="password"
-        class="form-control"
+        [toggleMask]="true"
         [class.is-invalid]="
           submitted && registrationForm.get('password')?.errors
         "
-      />
+        class="{{
+          submitted && registrationForm.get('password')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
+        styleClass="w-100"
+      >
+        <ng-template #header>
+          <div class="font-semibold text-xm mb-4">
+            Uma password fácil de relembrar
+          </div>
+        </ng-template>
+        <ng-template #footer>
+          <p-divider />
+          <ul class="pl-2 my-0 leading-normal">
+            <li>Mínimo de 8 caracteres;</li>
+            <li>Pelo menos 1 carácter especial (ex: !, ., #, $, %, etc.);</li>
+            <li>Incluir 1 letra maiúscula e 1 letra minúscula;</li>
+            <li>Incluir pelo menos 1 número.</li>
+          </ul>
+        </ng-template></p-password
+      >
+
       @if (submitted && registrationForm.get('password')?.hasError("required"))
       {
       <span class="text-danger"> Password é um campo obrigatório. </span>
@@ -115,14 +151,33 @@
       <label for="confirmPassword"
         >Confirmação Password <span class="text-danger">*</span></label
       >
-      <input
+      <p-password
+        autocomplete="off"
         formControlName="confirmPassword"
-        type="password"
-        class="form-control"
+        [toggleMask]="true"
         [class.is-invalid]="
           submitted && registrationForm.get('confirmPassword')?.errors
         "
-      />
+        styleClass="w-100"
+        class=" {{
+          submitted && registrationForm.get('confirmPassword')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
+      >
+        <ng-template #header>
+          <div class="font-semibold text-xm mb-4">Password de Confirmação</div>
+        </ng-template>
+        <ng-template #footer>
+          <p-divider />
+          <ul class="pl-2 my-0 leading-normal">
+            <li>Mínimo de 8 caracteres;</li>
+            <li>Pelo menos 1 carácter especial (ex: !, ., #, $, %, etc.);</li>
+            <li>Incluir 1 letra maiúscula e 1 letra minúscula;</li>
+            <li>Incluir pelo menos 1 número.</li>
+          </ul>
+        </ng-template></p-password
+      >
       @if (submitted &&
       registrationForm.get('confirmPassword')?.hasError("required")) {
       <span class="text-danger">
@@ -134,31 +189,20 @@
     </div>
     <!-- end confirm password -->
 
-    <!-- bullet points for helping setting a valid password -->
-    <div class="container my-2">
-      <strong>Requisitos da Palavra-passe:</strong>
-      <ul>
-        <li>Mínimo de 8 caracteres;</li>
-        <li>Pelo menos 1 carácter especial (ex: !, ., #, $, %, etc.);</li>
-        <li>Incluir 1 letra maiúscula e 1 letra minúscula;</li>
-        <li>Incluir pelo menos 1 número.</li>
-      </ul>
-    </div>
-    <!-- end bulltet points -->
-
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-
-    <!-- submit button -->
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="modalRef?.hide()">
-        Cancelar
-      </button>
-      <button type="submit" class="btn-main">
-        @if (loading){
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Registar
-      </button>
-    </div>
-    <!-- end submit button -->
   </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancelar
+    </button>
+    <button type="submit" class="btn-main" (click)="onSubmit()">
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Registar
+    </button>
+  </div>
+  <!-- end submit button -->
 </div>
