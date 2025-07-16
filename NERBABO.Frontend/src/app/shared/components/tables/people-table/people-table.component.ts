@@ -8,7 +8,7 @@ import { Person } from '../../../../core/models/person';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { PeopleService } from '../../../../core/services/people.service';
 import { UpdatePeopleComponent } from '../../../../features/people/update-people/update-people.component';
 import { DeletePeopleComponent } from '../../../../features/people/delete-people/delete-people.component';
@@ -39,8 +39,6 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
     IconAnchorComponent,
   ],
   templateUrl: './people-table.component.html',
-  styleUrls: ['./people-table.component.css'],
-  standalone: true,
 })
 export class PeopleTableComponent implements OnInit {
   @Input({ required: true }) people!: Person[];

@@ -16,9 +16,8 @@ import { FormsModule } from '@angular/forms';
 import { TruncatePipe } from '../../../pipes/truncate.pipe';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { InputTextModule } from 'primeng/inputtext';
-import { IconComponent } from '../../icon/icon.component';
 import { FormatDateRangePipe } from '../../../pipes/format-date-range.pipe';
-import { STATUS, StatusEnum } from '../../../../core/objects/status';
+import { StatusEnum } from '../../../../core/objects/status';
 import { ICONS } from '../../../../core/objects/icons';
 import { TagModule } from 'primeng/tag';
 
@@ -41,8 +40,6 @@ import { TagModule } from 'primeng/tag';
     TagModule,
   ],
   templateUrl: './actions-table.component.html',
-  styleUrls: ['./actions-table.component.css'],
-  standalone: true,
 })
 export class ActionsTableComponent implements OnInit {
   @Input({ required: true }) actions!: Action[];
@@ -181,11 +178,11 @@ export class ActionsTableComponent implements OnInit {
   }
 
   onUpdateActionModal(action: Action): void {
-    // Implement as needed
+    // TODO: IMPLEMENT Action Update
   }
 
   onDeleteActionModal(action: Action): void {
-    // Implement as needed
+    // TODO: IMPLEMENT Action Delte
   }
 
   getStatusSeverity(status: string) {

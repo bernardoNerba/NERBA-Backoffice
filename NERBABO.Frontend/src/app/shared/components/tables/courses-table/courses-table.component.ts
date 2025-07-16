@@ -24,6 +24,7 @@ import { Subscription } from 'rxjs';
 import { CoursesService } from '../../../../core/services/courses.service';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { SpinnerComponent } from '../../spinner/spinner.component';
 
 @Component({
   selector: 'app-courses-table',
@@ -40,9 +41,9 @@ import { ProgressBarModule } from 'primeng/progressbar';
     FormsModule,
     IconAnchorComponent,
     ProgressBarModule,
+    SpinnerComponent,
   ],
   templateUrl: './courses-table.component.html',
-  styleUrl: './courses-table.component.css',
 })
 export class CoursesTableComponent implements OnInit, OnDestroy {
   @Input({ required: true }) courses!: Course[];

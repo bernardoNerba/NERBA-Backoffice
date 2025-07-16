@@ -1,9 +1,12 @@
+<!-- Loading spinner -->
 @if (loading) {
 <div class="text-center py-5">
   <app-spinner />
   <p class="mt-2">Loading enquadramentos...</p>
 </div>
-} @else {
+}
+<!-- START table -->
+@else {
 <p-table
   #dt
   stripedRows
@@ -17,6 +20,7 @@
   (onPage)="pageChange($event)"
   [rowsPerPageOptions]="[10, 25, 50]"
 >
+  <!-- Table caption with Search and clear filter  -->
   <ng-template #caption>
     <div class="d-flex justify-content-end gap-2">
       <p-iconfield iconPosition="left">
@@ -75,6 +79,7 @@
   </ng-template>
   <ng-template #body let-frame>
     <tr>
+      <!-- DROPDOWN MENU -->
       <td>
         <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
         <p-button
@@ -85,6 +90,7 @@
           (click)="menu.toggle($event); selectedFrame = frame"
         />
       </td>
+      <!-- FRAME PROGRAM -->
       <td>
         <app-icon-anchor
           [field]="frame.program"
@@ -93,14 +99,19 @@
           [icon]="'pi pi-link'"
         />
       </td>
+      <!-- FRAME INTERVENTION -->
       <td class="text-truncate">{{ frame.intervention | truncate : 20 }}</td>
+      <!-- FRAME INTERVENTION TYPE -->
       <td class="text-truncate">
         {{ frame.interventionType | truncate : 20 }}
       </td>
+      <!-- FRAME OPERATION -->
       <td class="text-truncate">{{ frame.operation | truncate : 20 }}</td>
+      <!-- FRAME OPERATION TYPE -->
       <td class="text-truncate">{{ frame.operationType | truncate : 20 }}</td>
     </tr>
   </ng-template>
+  <!-- EMPTY STATE -->
   <ng-template #emptymessage>
     <tr>
       <td colspan="6">

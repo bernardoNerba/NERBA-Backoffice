@@ -1,3 +1,12 @@
+<!-- Loading spinner -->
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading enquadramentos...</p>
+</div>
+}
+<!-- START table -->
+@else {
 <p-table
   #dt
   stripedRows
@@ -63,6 +72,7 @@
   </ng-template>
   <ng-template #body let-course>
     <tr>
+      <!-- DROPDOWN MENU -->
       <td>
         <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
         <p-button
@@ -73,6 +83,7 @@
           (click)="menu.toggle($event); selectedCourse = course"
         />
       </td>
+      <!-- COURSE TITLE -->
       <td>
         <app-icon-anchor
           [field]="course.title"
@@ -81,10 +92,11 @@
           [icon]="'pi pi-link'"
         />
       </td>
+      <!-- COURSE MIN HABILITATION LVL  -->
       <td>
         <p-tag [value]="course.minHabilitationLevel" severity="secondary" />
       </td>
-
+      <!-- COURSE MODULE HOURS PROGRESS BAR -->
       <td>
         <div class="progress-container">
           <p-progressBar
@@ -94,6 +106,7 @@
           />
         </div>
       </td>
+      <!-- COURSE STATUS -->
       <td>
         <p-tag
           icon="{{ getStatusIcon(course.status) }}"
@@ -103,9 +116,11 @@
       </td>
     </tr>
   </ng-template>
+  <!-- EMPTY STATE -->
   <ng-template #emptymessage>
     <tr>
       <td colspan="5">Não foram encontrados cursos com essas diretrizes.</td>
     </tr>
   </ng-template>
 </p-table>
+}

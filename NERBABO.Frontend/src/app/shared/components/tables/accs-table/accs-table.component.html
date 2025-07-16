@@ -10,7 +10,7 @@
   [value]="users"
   size="small"
   [tableStyle]="{ 'min-width': '75rem' }"
-  [globalFilterFields]="['fullName', 'userName', 'email']"
+  [globalFilterFields]="['fullName', 'roles']"
   [paginator]="true"
   [rows]="10"
   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
@@ -24,7 +24,7 @@
         [(ngModel)]="selectedRoles"
         placeholder="Filtrar por Papéis"
         [style]="{ 'min-width': '200px' }"
-        (ngModelChange)="dt.filterGlobal($event, 'contains')"
+        (ngModelChange)="applyRoleFilter()"
       />
       <div class="d-flex gap-2">
         <p-iconfield iconPosition="left">
@@ -74,10 +74,10 @@
           <p-sortIcon field="roles" />
         </div>
       </th>
-      <th pSortableColumn="roles" style="width: 10%">
+      <th pSortableColumn="estado" style="width: 10%">
         <div class="flex items-center gap-2">
           Estado
-          <p-sortIcon field="roles" />
+          <p-sortIcon field="estado" />
         </div>
       </th>
     </tr>

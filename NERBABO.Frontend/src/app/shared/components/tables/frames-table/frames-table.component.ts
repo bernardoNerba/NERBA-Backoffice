@@ -8,7 +8,7 @@ import { Frame } from '../../../../core/models/frame';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FrameService } from '../../../../core/services/frame.service';
 import { UpdateFramesComponent } from '../../../../features/frames/update-frames/update-frames.component';
 import { DeleteFramesComponent } from '../../../../features/frames/delete-frames/delete-frames.component';
@@ -35,7 +35,6 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
     IconAnchorComponent,
   ],
   templateUrl: './frames-table.component.html',
-  styleUrl: './frames-table.component.css',
 })
 export class FramesTableComponent implements OnInit {
   @Input({ required: true }) frames!: Frame[];

@@ -29,14 +29,10 @@ import { AccsTableComponent } from '../../../shared/components/tables/accs-table
     IconComponent,
   ],
   templateUrl: './index-acc.component.html',
-  styleUrls: ['./index-acc.component.css'],
 })
 export class IndexAccComponent implements OnInit {
   roles = `${environment.roles}`.split(','); // roles set on the environment
   users$!: Observable<UserInfo[] | null>;
-  filteredUsers$!: Observable<UserInfo[]>;
-  searchControl = new FormControl('');
-  selectedRoles$ = new BehaviorSubject<string[]>([]);
   loading$!: Observable<boolean>;
   ICONS = ICONS;
 
@@ -50,37 +46,6 @@ export class IndexAccComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.filteredUsers$ = combineLatest([
-      this.users$,
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(300),
-        distinctUntilChanged()
-      ),
-      this.selectedRoles$,
-    ]).pipe(
-      map(([users, searchTerm, selectedRoles]) => {
-        if (!users) return [];
-        const term = (searchTerm || '').toLowerCase();
-        const selectedRolesArray = selectedRoles.map((r) => r.toLowerCase());
-        return users.filter((user) => {
-          const matchesSearch =
-            user.fullName?.toLowerCase().includes(term) ||
-            user.userName?.toLowerCase().includes(term) ||
-            user.email?.toLowerCase().includes(term);
-          const userRoles = (
-            Array.isArray(user.roles) ? user.roles : [user.roles]
-          ).map((role) => role.toLowerCase());
-          const matchesRole =
-            selectedRolesArray.length === 0 ||
-            selectedRolesArray.every((selectedRole) =>
-              userRoles.includes(selectedRole)
-            );
-          return matchesSearch && matchesRole;
-        });
-      }),
-      startWith([])
-    );
     this.updateBreadcrumbs();
   }
 

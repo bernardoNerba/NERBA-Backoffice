@@ -1,17 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import {
-  Observable,
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  startWith,
-} from 'rxjs';
+import { Observable } from 'rxjs';
 import { FrameService } from '../../../core/services/frame.service';
 import { CommonModule } from '@angular/common';
-import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { Frame } from '../../../core/models/frame';
 import { SharedService } from '../../../core/services/shared.service';
 import { CreateFramesComponent } from '../create-frames/create-frames.component';
@@ -24,7 +16,6 @@ import { FramesTableComponent } from '../../../shared/components/tables/frames-t
 @Component({
   selector: 'app-index-frame',
   templateUrl: './index-frames.component.html',
-  styleUrl: './index-frames.component.css',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -34,18 +25,8 @@ import { FramesTableComponent } from '../../../shared/components/tables/frames-t
 })
 export class IndexFramesComponent implements OnInit {
   frames$!: Observable<Frame[]>;
-  filteredFrames$!: Observable<Frame[]>;
   loading$: Observable<boolean>;
-  searchControl = new FormControl('');
   ICONS = ICONS;
-  columns = [
-    '#',
-    'Programa',
-    'Intervenção',
-    'Tipo Intervenção',
-    'Operação',
-    'Tipo Operação',
-  ];
 
   constructor(
     private readonly frameService: FrameService,
@@ -58,30 +39,6 @@ export class IndexFramesComponent implements OnInit {
 
   ngOnInit(): void {
     this.frameService.loadFrames();
-
-    // Set up search filtering
-    this.filteredFrames$ = combineLatest([
-      this.frames$,
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(100),
-        distinctUntilChanged()
-      ),
-    ]).pipe(
-      map(([frames, searchTerm]) => {
-        if (!searchTerm) return frames;
-        const term = searchTerm.toLowerCase();
-        return frames.filter(
-          (frame) =>
-            frame.program.toLowerCase().includes(term) ||
-            frame.intervention.toLowerCase().includes(term) ||
-            frame.interventionType.toLowerCase().includes(term) ||
-            frame.operation.toLowerCase().includes(term) ||
-            frame.operationType.toLowerCase().includes(term)
-        );
-      })
-    );
-
     this.updateBreadcumbs();
   }
 

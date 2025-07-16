@@ -1,14 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Person } from '../../../core/models/person';
-import {
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  Observable,
-  startWith,
-} from 'rxjs';
+import { Observable } from 'rxjs';
 import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
@@ -27,7 +20,6 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
     IconComponent,
   ],
   templateUrl: './index-people.component.html',
-  styleUrls: ['./index-people.component.css'],
 })
 export class IndexPeopleComponent implements OnInit {
   people$!: Observable<Person[]>;
@@ -46,28 +38,6 @@ export class IndexPeopleComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.filteredPeople$ = combineLatest([
-      this.people$,
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(300),
-        distinctUntilChanged()
-      ),
-    ]).pipe(
-      map(([people, searchTerm]) => {
-        if (!people) return [];
-        const term = (searchTerm || '').toLowerCase();
-        return people.filter(
-          (person) =>
-            person.fullName?.toLowerCase().includes(term) ||
-            person.nif?.toLowerCase().includes(term) ||
-            person.email?.toLowerCase().includes(term) ||
-            person.phoneNumber?.toLowerCase().includes(term) ||
-            person.habilitation?.toLowerCase().includes(term)
-        );
-      }),
-      startWith([])
-    );
     this.updateBreadcrumbs();
   }
 

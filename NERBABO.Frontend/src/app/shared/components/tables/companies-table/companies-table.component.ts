@@ -8,7 +8,7 @@ import { Company } from '../../../../core/models/company';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { UpdateCompaniesComponent } from '../../../../features/companies/update-companies/update-companies.component';
 import { DeleteCompaniesComponent } from '../../../../features/companies/delete-companies/delete-companies.component';
@@ -37,7 +37,6 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
     IconAnchorComponent,
   ],
   templateUrl: './companies-table.component.html',
-  styleUrls: ['./companies-table.component.css'],
   standalone: true,
 })
 export class CompaniesTableComponent implements OnInit {

@@ -18,6 +18,7 @@ import { DeleteModulesComponent } from '../../../../features/modules/delete-modu
 import { ModulesService } from '../../../../core/services/modules.service';
 import { Subscription } from 'rxjs';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
+import { SpinnerComponent } from '../../spinner/spinner.component';
 
 @Component({
   selector: 'app-modules-table',
@@ -33,10 +34,9 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
     InputTextModule,
     FormsModule,
     IconAnchorComponent,
+    SpinnerComponent,
   ],
   templateUrl: './modules-table.component.html',
-  styleUrls: ['./modules-table.component.css'],
-  standalone: true,
 })
 export class ModulesTableComponent implements OnInit {
   @ViewChild('dt') dt!: Table;

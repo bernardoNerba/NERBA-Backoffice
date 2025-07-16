@@ -27,7 +27,6 @@ import { IndexTaxesComponent } from './taxes/index-taxes/index-taxes.component';
     IndexTaxesComponent,
   ],
   templateUrl: './global-config.component.html',
-  styleUrl: './global-config.component.css',
 })
 export class GlobalConfigComponent implements OnInit, OnDestroy {
   formGeneralInfo: FormGroup = new FormGroup({});
@@ -73,7 +72,7 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error loading configuration:', err);
-        this.sharedService.showError('Failed to load configuration');
+        this.sharedService.showError('Falha ao obter configurações.');
       },
     });
   }

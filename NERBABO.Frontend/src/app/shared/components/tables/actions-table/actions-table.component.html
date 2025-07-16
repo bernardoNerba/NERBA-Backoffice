@@ -1,9 +1,12 @@
+<!-- Loading spinner -->
 @if (loading) {
 <div class="text-center py-5">
   <app-spinner />
   <p class="mt-2">Loading ações...</p>
 </div>
-} @else {
+}
+<!-- START Table -->
+@else {
 <p-table
   #dt
   stripedRows
@@ -16,6 +19,7 @@
   (onPage)="pageChange($event)"
   [rowsPerPageOptions]="[10, 25, 50]"
 >
+  <!-- Table caption with Search and clear filter  -->
   <ng-template #caption>
     <div class="d-flex justify-content-between gap-2 align-items-center">
       <p-calendar
@@ -80,6 +84,7 @@
   </ng-template>
   <ng-template #body let-action>
     <tr>
+      <!-- DROPDOWN MENU -->
       <td>
         <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
         <p-button
@@ -90,6 +95,7 @@
           (click)="menu.toggle($event); selectedAction = action"
         />
       </td>
+      <!-- ACTION TITLE -->
       <td>
         <p-button
           class="text-truncate"
@@ -100,6 +106,7 @@
           severity="secondary"
         />
       </td>
+      <!-- DATES RANGE -->
       <td>
         <span class="text-truncate">
           <i class="bi bi-calendar me-2"></i>
@@ -108,6 +115,7 @@
           }}
         </span>
       </td>
+      <!-- ACTION STATUS -->
       <td>
         <p-tag
           icon="{{ getStatusIcon(action.status) }}"
@@ -115,11 +123,13 @@
           [severity]="getStatusSeverity(action.status)"
         />
       </td>
+      <!-- ACTION REGIMENT TYPE -->
       <td>
         <p-tag [value]="action.regiment" severity="secondary" />
       </td>
     </tr>
   </ng-template>
+  <!-- EMPTY STATE -->
   <ng-template #emptymessage>
     <tr>
       <td colspan="5">

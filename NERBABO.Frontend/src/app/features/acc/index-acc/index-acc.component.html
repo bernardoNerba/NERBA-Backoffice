@@ -21,10 +21,9 @@
 
   <div class="card-body">
     <app-accs-table
-      [users]="(filteredUsers$ | async) ?? []"
+      [users]="(users$ | async) ?? []"
       [loading]="(loading$ | async) ?? false"
       [roles]="roles"
-      [selectedRoles]="selectedRoles$.value"
     />
   </div>
 </div>

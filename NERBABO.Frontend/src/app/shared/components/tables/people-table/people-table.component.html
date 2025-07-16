@@ -1,9 +1,12 @@
+<!-- Loading spinner -->
 @if (loading) {
 <div class="text-center py-5">
   <app-spinner />
   <p class="mt-2">Loading pessoas...</p>
 </div>
-} @else {
+}
+<!-- START table -->
+@else {
 <p-table
   #dt
   stripedRows
@@ -17,6 +20,7 @@
   (onPage)="pageChange($event)"
   [rowsPerPageOptions]="[10, 25, 50]"
 >
+  <!-- Table caption with Search and clear filter  -->
   <ng-template #caption>
     <div class="d-flex justify-content-end gap-2">
       <p-iconfield iconPosition="left">
@@ -82,6 +86,7 @@
   </ng-template>
   <ng-template #body let-person>
     <tr>
+      <!-- DROPDOWN MENU -->
       <td>
         <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
         <p-button
@@ -92,6 +97,7 @@
           (click)="menu.toggle($event); selectedPerson = person"
         />
       </td>
+      <!-- PERSON FULLNAME -->
       <td>
         <app-icon-anchor
           [field]="person.fullName"
@@ -100,10 +106,18 @@
           [icon]="'bi bi-link'"
         />
       </td>
+      <!-- NIF -->
       <td>{{ person.nif?.trim() || "N/A" }}</td>
+      <!-- HABILITATION -->
       <td>
-        <p-tag [value]="person.habilitation || 'N/A'" severity="secondary" />
+        <p-tag
+          [value]="person.habilitation"
+          [severity]="
+            person.habilitation === 'Sem Comprovativo' ? 'warn' : 'secondary'
+          "
+        />
       </td>
+      <!-- EMAIL -->
       <td>
         <app-icon-anchor
           [field]="person.email"
@@ -112,10 +126,13 @@
           [icon]="'pi pi-envelope'"
         />
       </td>
+      <!-- PHONE NUMBER -->
       <td>{{ person.phoneNumber?.trim() || "N/A" }}</td>
+      <!-- AGE -->
       <td>{{ person.age || "N/A" }}</td>
     </tr>
   </ng-template>
+  <!-- EMPTY STATE -->
   <ng-template #emptymessage>
     <tr>
       <td colspan="7">Não foram encontradas pessoas com essas diretrizes.</td>

@@ -21,7 +21,7 @@
 
   <div class="card-body">
     <app-companies-table
-      [companies]="(filteredCompanies$ | async) ?? []"
+      [companies]="(companies$ | async) ?? []"
       [loading]="(loading$ | async) ?? false"
     />
   </div>

@@ -4,12 +4,12 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Button } from 'primeng/button';
 import { Menu } from 'primeng/menu';
-import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { UserInfo } from '../../../../core/models/userInfo';
-import { MenuItem } from 'primeng/api';
+import { FilterService, MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AccService } from '../../../../core/services/acc.service';
 import { UpdateAccComponent } from '../../../../features/acc/update-acc/update-acc.component';
 import { BlockAccComponent } from '../../../../features/acc/block-acc/block-acc.component';
@@ -35,7 +35,6 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
     MultiSelectModule,
     CommonModule,
     FormsModule,
-    RouterLink,
     TruncatePipe,
     SpinnerComponent,
     InputTextModule,
@@ -44,14 +43,13 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
     IconAnchorComponent,
   ],
   templateUrl: './accs-table.component.html',
-  styleUrls: ['./accs-table.component.css'],
   standalone: true,
 })
 export class AccsTableComponent implements OnInit {
   @Input({ required: true }) users!: UserInfo[];
   @Input({ required: true }) loading!: boolean;
   @Input({ required: true }) roles!: string[];
-  @Input() selectedRoles: string[] = [];
+  selectedRoles: string[] = [];
   @ViewChild('dt') dt!: Table;
   menuItems: MenuItem[] | undefined;
   searchValue: string = '';
@@ -65,10 +63,23 @@ export class AccsTableComponent implements OnInit {
   constructor(
     private modalService: BsModalService,
     private router: Router,
-    private accService: AccService
+    private accService: AccService,
+    private filterService: FilterService
   ) {}
 
   ngOnInit(): void {
+    // Register custom filter for roles
+    this.filterService.register(
+      'rolesFilter',
+      (value: string[], selectedRoles: string[]) => {
+        if (!selectedRoles || selectedRoles.length === 0) {
+          return true; // No roles selected, show all users
+        }
+        // Check if all selected roles are present in the user's roles
+        return selectedRoles.every((role) => value.includes(role));
+      }
+    );
+
     this.menuItems = [
       {
         label: 'Opções',
@@ -104,37 +115,36 @@ export class AccsTableComponent implements OnInit {
       },
     ];
 
-    // Subscribe to user updates
     this.subscriptions.add(
       this.accService.updatedSource$.subscribe((userId) => {
         this.refreshUser(userId, 'update');
       })
     );
 
-    // Subscribe to user deletions (block/unblock treated as updates)
     this.subscriptions.add(
       this.accService.deletedSource$.subscribe((userId) => {
-        this.refreshUser(userId, 'update'); // Treat block/unblock as update
+        this.refreshUser(userId, 'update');
       })
     );
   }
 
+  // Apply the role filter
+  applyRoleFilter() {
+    this.dt.filter(this.selectedRoles, 'roles', 'rolesFilter');
+  }
+
   refreshUser(id: string, action: 'update'): void {
     if (id === '0') {
-      // If id is '0', it indicates a full refresh is needed (e.g., after create)
-      // Parent component should handle full refresh of users
       return;
     }
 
-    // Check if the user exists in the current users list
     const index = this.users.findIndex((user) => user.id === id);
-    if (index === -1) return; // User not in this list, no action needed
+    if (index === -1) return;
 
-    // Fetch the updated user
     this.accService.getUserById(id).subscribe({
       next: (updatedUser) => {
         this.users[index] = updatedUser;
-        this.users = [...this.users]; // Trigger change detection
+        this.users = [...this.users];
       },
       error: (error) => {
         console.error('Failed to refresh user: ', error);
@@ -204,9 +214,6 @@ export class AccsTableComponent implements OnInit {
     return status ? 'pi pi-check' : 'pi pi-times';
   }
 
-  private blockOrUnblock(isActive: boolean): string {
-    return isActive ? 'Bloquear' : 'Desbloquear';
-  }
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
