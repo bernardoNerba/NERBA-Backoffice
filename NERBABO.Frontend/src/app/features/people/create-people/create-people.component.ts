@@ -16,14 +16,35 @@ import { PeopleService } from '../../../core/services/people.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { Select } from 'primeng/select';
+import {
+  AutoCompleteCompleteEvent,
+  AutoCompleteModule,
+} from 'primeng/autocomplete';
+import { GENDERS } from '../../../core/objects/gender';
+import { DatePickerModule } from 'primeng/datepicker';
+import { matchDateOnly } from '../../../shared/utils';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-create-people',
-  imports: [ReactiveFormsModule, ErrorCardComponent, TypeaheadModule],
+  imports: [
+    ReactiveFormsModule,
+    ErrorCardComponent,
+    TypeaheadModule,
+    Select,
+    AutoCompleteModule,
+    DatePickerModule,
+    InputTextModule,
+    TextareaModule,
+  ],
   templateUrl: './create-people.component.html',
 })
 export class CreatePeopleComponent implements OnInit {
   allCountries = [...COUNTRIES];
+  filteredCountries: any;
+  allGender = [...GENDERS];
   allHabilitations = [...HABILITATIONS];
   allIdentificationTypes = [...IDENTIFICATION_TYPES];
   submitted = false;
@@ -87,6 +108,20 @@ export class CreatePeopleComponent implements OnInit {
     });
   }
 
+  filterCountry(event: AutoCompleteCompleteEvent) {
+    let filtered: any[] = [];
+    let query = event.query;
+
+    for (let i = 0; i < (this.allCountries as any[]).length; i++) {
+      let country = (this.allCountries as any[])[i];
+      if (country.gentilico.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(country);
+      }
+    }
+
+    this.filteredCountries = filtered;
+  }
+
   onSubmit() {
     this.submitted = true;
     this.errorMessages = [];
@@ -100,7 +135,6 @@ export class CreatePeopleComponent implements OnInit {
     }
 
     this.loading = true;
-
     this.peopleService.createPerson(this.registPersonForm.value).subscribe({
       next: (value) => {
         this.bsModalRef.hide();

@@ -6,13 +6,13 @@ export type Person = {
   nif: string;
   niss: string;
   address: string;
-  birthDate: Date;
+  birthDate: string;
   email: string;
   gender: string;
   habilitation: string;
   iban: string;
   identificationNumber: string;
-  identificationValidationDate: Date;
+  identificationValidationDate: string;
   identificationType: string;
   nationality: string;
   naturality: string;

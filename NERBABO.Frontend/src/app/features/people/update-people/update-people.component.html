@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">Editar Pessoa</h4>
+  <h4 class="modal-title">Atualizar Pessoa</h4>
   <button
     type="button"
     class="btn-close"
@@ -7,25 +7,29 @@
     (click)="bsModalRef.hide()"
   ></button>
 </div>
-
 <div class="modal-body">
-  <form [formGroup]="updatePersonForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="updatePersonForm">
     <div class="container">
       <div class="row">
         <!-- first name -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="firstName"
               >Nome Próprio
               <span class="text-danger">*</span>
             </label>
             <input
+              type="text"
+              pInputText
               formControlName="firstName"
-              type="firstName"
-              class="form-control"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('firstName')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('firstName')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('firstName')?.hasError("required")) {
@@ -44,19 +48,24 @@
         <!-- end firstName -->
 
         <!-- last name -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="lastName"
               >Último Nome
               <span class="text-danger">*</span>
             </label>
             <input
-              formControlName="lastName"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="lastName"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('lastName')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('lastName')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('lastName')?.hasError("required")) {
@@ -75,19 +84,24 @@
         <!-- end last name -->
 
         <!-- NIF -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="nif"
               >NIF
               <span class="text-danger">*</span>
             </label>
             <input
-              formControlName="nif"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="nif"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('nif')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('nif')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted && updatePersonForm.get('nif')?.hasError("required"))
             {
@@ -104,16 +118,21 @@
         <!-- END NIF -->
 
         <!-- NISS -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="niss">NISS</label>
             <input
-              formControlName="niss"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="niss"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('niss')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('niss')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('niss')?.hasError("required")) {
@@ -130,17 +149,23 @@
         <!-- END NISS -->
 
         <!-- Numero de Identificação -->
-        <div class="col-sm-12">
+        <div class="col-md-12">
           <div class="mb-3">
             <label for="identificationNumber">Número de Identificação </label>
             <input
-              formControlName="identificationNumber"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="identificationNumber"
               [class.is-invalid]="
                 submitted &&
                 updatePersonForm.get('identificationNumber')?.errors
               "
+              class="w-100 {{
+                submitted &&
+                updatePersonForm.get('identificationNumber')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('identificationNumber')?.hasError("required"))
@@ -162,21 +187,25 @@
         <!-- END Numero de Identificação -->
 
         <!-- Identification Type -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="identificationType">Tipo de Identificação</label>
-            <select
+            <p-select
               formControlName="identificationType"
-              class="form-control"
+              [options]="allIdentificationTypes"
+              optionLabel="value"
+              optionValue="value"
+              placeholder="Selecione um tipo..."
+              styleClass="w-100"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('identificationType')?.errors
               "
-            >
-              <option active value="Não Especificado">Não Especificado</option>
-              @for (type of allIdentificationTypes; track type.key){
-              <option value="{{ type.value }}">{{ type.value }}</option>
-              }
-            </select>
+              class="{{
+                submitted && updatePersonForm.get('identificationType')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
             @if (submitted &&
             updatePersonForm.get('identificationType')?.hasError("required")) {
             <span class="text-danger">
@@ -188,17 +217,28 @@
         <!-- END Identification Type -->
 
         <!-- Identification Validation Date -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="identificationValidationDate">Data Validação NI</label>
-            <input
+            <p-datepicker
               formControlName="identificationValidationDate"
-              type="date"
-              class="form-control"
+              [showIcon]="true"
+              dataType="string"
+              inputId="identificationValidationDate"
+              [showOnFocus]="false"
+              placeholder="dia/mes/ano"
+              dateFormat="dd/mm/yy"
+              styleClass="w-100"
               [class.is-invalid]="
                 submitted &&
                 updatePersonForm.get('identificationValidationDate')?.errors
               "
+              class="{{
+                submitted &&
+                updatePersonForm.get('identificationValidationDate')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('identificationValidationDate')?.hasError("required"))
@@ -212,16 +252,21 @@
         <!-- END Identification Validation Date -->
 
         <!-- IBAN -->
-        <div class="col-sm-12">
+        <div class="col-md-12">
           <div class="mb-3">
             <label for="iban">IBAN</label>
             <input
-              formControlName="iban"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="iban"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('iban')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('iban')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('iban')?.hasError("required")) {
@@ -238,17 +283,21 @@
         <!-- END IBAN -->
 
         <!-- Address -->
-        <div class="col-sm-12">
+        <div class="col-md-12">
           <div class="mb-3">
             <label for="address">Morada</label>
             <textarea
               formControlName="address"
               rows="3"
-              type="text"
-              class="form-control"
+              pTextarea
               [class.is-invalid]="
                 submitted && updatePersonForm.get('address')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('address')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             ></textarea>
             @if (submitted &&
             updatePersonForm.get('address')?.hasError("required")) {
@@ -259,16 +308,21 @@
         <!-- END Address -->
 
         <!-- Postal Code -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="zipCode">Código Postal</label>
             <input
-              formControlName="zipCode"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="zipCode"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('zipCode')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('zipCode')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('zipCode')?.hasError("required")) {
@@ -287,16 +341,26 @@
         <!-- END Postal Code -->
 
         <!-- Birth Date -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="birthDate">Data de Nascimento</label>
-            <input
+            <p-datepicker
               formControlName="birthDate"
-              type="date"
-              class="form-control"
+              [showIcon]="true"
+              inputId="birthDate"
+              dataType="string"
+              [showOnFocus]="false"
+              placeholder="dia/mes/ano"
+              dateFormat="dd/mm/yy"
+              styleClass="w-100"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('birthDate')?.errors
               "
+              class="{{
+                submitted && updatePersonForm.get('birthDate')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('birthDate')?.hasError("required")) {
@@ -309,16 +373,21 @@
         <!-- END Birth Date -->
 
         <!-- Phone Number -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="phoneNumber">Número de Telefone</label>
             <input
+              type="text"
+              pInputText
               formControlName="phoneNumber"
-              type="tel"
-              class="form-control"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('phoneNumber')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('phoneNumber')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('phoneNumber')?.hasError("required")) {
@@ -337,16 +406,21 @@
         <!-- END Phone Number -->
 
         <!-- Email -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="email">Email</label>
             <input
+              type="text"
+              pInputText
               formControlName="email"
-              type="email"
-              class="form-control"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('email')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('email')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('email')?.hasError("required")) {
@@ -366,16 +440,21 @@
         <!-- END Email -->
 
         <!-- Naturality -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="naturality">Naturalidade</label>
             <input
-              formControlName="naturality"
               type="text"
-              class="form-control"
+              pInputText
+              formControlName="naturality"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('naturality')?.errors
               "
+              class="w-100 {{
+                submitted && updatePersonForm.get('naturality')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('naturality')?.hasError("required")) {
@@ -394,21 +473,25 @@
         <!-- END Naturality -->
 
         <!-- Nationality -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="nationality">Nacionalidade</label>
-            <input
+            <p-autocomplete
               formControlName="nationality"
-              type="text"
-              class="form-control"
-              [typeahead]="allCountries"
-              [typeaheadMinLength]="0"
-              typeaheadOptionField="gentilico"
-              [typeaheadScrollable]="true"
-              [typeaheadOptionsLimit]="8"
+              [suggestions]="filteredCountries"
+              (completeMethod)="filterCountry($event)"
+              optionLabel="gentilico"
+              optionValue="gentilico"
+              [dropdown]="true"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('nationality')?.errors
               "
+              styleClass="w-100"
+              class="{{
+                submitted && updatePersonForm.get('nationality')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
             @if (submitted &&
             updatePersonForm.get('nationality')?.hasError("required")) {
@@ -427,21 +510,25 @@
         <!-- END Nationality -->
 
         <!-- Gender -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="gender">Gênero</label>
-            <select
+            <p-select
               formControlName="gender"
-              class="form-control"
+              [options]="allGender"
+              optionLabel="value"
+              optionValue="value"
+              placeholder="Selecione um genero..."
+              styleClass="w-100"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('gender')?.errors
               "
-            >
-              <option active value="Não Especificado">Não Especificado</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Feminino">Feminino</option>
-              <option value="Outro">Outro</option>
-            </select>
+              class="{{
+                submitted && updatePersonForm.get('gender')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
             @if (submitted &&
             updatePersonForm.get('gender')?.hasError("required")) {
             <span class="text-danger"> Gênero é um campo obrigatório. </span>
@@ -451,22 +538,25 @@
         <!-- END Gender -->
 
         <!-- Habilitation -->
-        <div class="col-sm-6">
+        <div class="col-md-6">
           <div class="mb-3">
             <label for="habilitation">Habilitação</label>
-            <select
+            <p-select
               formControlName="habilitation"
-              class="form-control"
+              [options]="allHabilitations"
+              optionLabel="value"
+              optionValue="value"
+              placeholder="Selecione uma habilitação..."
+              styleClass="w-100"
               [class.is-invalid]="
                 submitted && updatePersonForm.get('habilitation')?.errors
               "
-            >
-              @for(habilitation of allHabilitations; track habilitation.value){
-              <option value="{{ habilitation.value }}">
-                {{ habilitation.value }}
-              </option>
-              }
-            </select>
+              class="{{
+                submitted && updatePersonForm.get('habilitation')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
             @if (submitted &&
             updatePersonForm.get('habilitation')?.hasError("required")) {
             <span class="text-danger">
@@ -480,15 +570,23 @@
     </div>
 
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
-        Cancelar
-      </button>
-      <button type="submit" class="btn-main">
-        @if (loading) {
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Submeter
-      </button>
-    </div>
   </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
 </div>

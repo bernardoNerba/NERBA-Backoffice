@@ -305,3 +305,7 @@ a.nav-link:hover {
   margin: 0;
   line-height: 1;
 }
+
+.modal-body {
+  background-color: var(--gray-1);
+}

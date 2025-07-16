@@ -15,6 +15,16 @@ import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { CommonModule } from '@angular/common';
 import { SharedService } from '../../../core/services/shared.service';
 import { Person } from '../../../core/models/person';
+import { GENDERS } from '../../../core/objects/gender';
+import { convertDateOnlyToPtDate } from '../../../shared/utils';
+import { Select } from 'primeng/select';
+import {
+  AutoCompleteCompleteEvent,
+  AutoCompleteModule,
+} from 'primeng/autocomplete';
+import { DatePickerModule } from 'primeng/datepicker';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-update-people',
@@ -23,11 +33,18 @@ import { Person } from '../../../core/models/person';
     ErrorCardComponent,
     ReactiveFormsModule,
     TypeaheadModule,
+    Select,
+    AutoCompleteModule,
+    DatePickerModule,
+    InputTextModule,
+    TextareaModule,
   ],
   templateUrl: './update-people.component.html',
 })
 export class UpdatePeopleComponent implements OnInit {
   allCountries = [...COUNTRIES];
+  filteredCountries: any;
+  allGender = [...GENDERS];
   allHabilitations = [...HABILITATIONS];
   allIdentificationTypes = [...IDENTIFICATION_TYPES];
   @Input() id!: number;
@@ -50,6 +67,12 @@ export class UpdatePeopleComponent implements OnInit {
     if (personFromService) this.currentPerson = personFromService;
 
     this.initializeForm();
+    this.updatePersonForm.patchValue({
+      birthDate: convertDateOnlyToPtDate(this.currentPerson.birthDate),
+      identificationValidationDate: convertDateOnlyToPtDate(
+        this.currentPerson.identificationValidationDate
+      ),
+    });
   }
 
   private initializeForm() {
@@ -90,7 +113,7 @@ export class UpdatePeopleComponent implements OnInit {
         this.currentPerson.iban,
         [Validators.maxLength(25), Validators.minLength(25)],
       ],
-      birthDate: [this.currentPerson.birthDate],
+      birthDate: [''],
       address: [this.currentPerson.address],
       zipCode: [
         this.currentPerson.zipCode,
@@ -117,6 +140,20 @@ export class UpdatePeopleComponent implements OnInit {
     });
   }
 
+  filterCountry(event: AutoCompleteCompleteEvent) {
+    let filtered: any[] = [];
+    let query = event.query;
+
+    for (let i = 0; i < (this.allCountries as any[]).length; i++) {
+      let country = (this.allCountries as any[])[i];
+      if (country.gentilico.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(country);
+      }
+    }
+
+    this.filteredCountries = filtered;
+  }
+
   onSubmit() {
     this.submitted = true;
 
@@ -129,6 +166,7 @@ export class UpdatePeopleComponent implements OnInit {
     }
 
     const formValue = this.updatePersonForm.value;
+
     this.loading = true;
 
     this.peopleService
