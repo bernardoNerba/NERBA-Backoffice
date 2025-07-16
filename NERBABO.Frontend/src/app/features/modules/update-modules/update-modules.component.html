@@ -8,7 +8,7 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form">
     <div class="container">
       <div class="row">
         <!-- Module Name -->
@@ -19,11 +19,17 @@
               <span class="text-danger">*</span>
             </label>
             <input
+              type="text"
+              pInputText
               formControlName="name"
-              type="name"
-              class="form-control"
               [class.is-invalid]="submitted && form.get('name')?.errors"
+              class="w-100 {{
+                submitted && form.get('name')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
             />
+
             @if (submitted && form.get('name')?.hasError("required")) {
             <span class="text-danger"> UFCD é um campo obrigatório. </span>
             } @else if (submitted && form.get('name')?.hasError("minlength") ||
@@ -35,20 +41,24 @@
           </div>
         </div>
         <!-- Module Total Hours -->
-        <div class="col-sm-6">
+        <div class="col-sm-12">
           <div class="mb-3">
             <label for="hours">
               Total Horas
               <span class="text-danger">*</span>
             </label>
-            <input
+            <p-inputnumber
               formControlName="hours"
-              id="hours"
-              type="number"
-              class="form-control"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              class="w-100 {{
+                submitted && form.get('hours')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
               [class.is-invalid]="submitted && form.get('hours')?.errors"
-              required
-              isInRange
+              mode="decimal"
+              [minFractionDigits]="1"
             />
 
             <div
@@ -68,33 +78,27 @@
             </div>
           </div>
         </div>
-        <!-- Module is active -->
-        <div class="col-sm-6">
-          <label class="form-check-label" for="isActive">Módulo Ativo</label>
-          <div class="form-check form-switch">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              role="switch"
-              id="isActive"
-              formControlName="isActive"
-            />
-          </div>
-        </div>
       </div>
     </div>
 
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-    <!-- submit button -->
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
-        Cancel
-      </button>
-      <button type="submit" class="btn-main" [disabled]="loading">
-        @if (loading){
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Save
-      </button>
-    </div>
   </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
 </div>

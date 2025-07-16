@@ -11,10 +11,18 @@ import { SharedService } from '../../../core/services/shared.service';
 import { UniversalValidators } from 'ngx-validators';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { CommonModule } from '@angular/common';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-create-modules',
-  imports: [ReactiveFormsModule, ErrorCardComponent, CommonModule],
+  imports: [
+    ReactiveFormsModule,
+    ErrorCardComponent,
+    CommonModule,
+    InputTextModule,
+    InputNumberModule,
+  ],
   templateUrl: './create-modules.component.html',
 })
 export class CreateModulesComponent implements OnInit {

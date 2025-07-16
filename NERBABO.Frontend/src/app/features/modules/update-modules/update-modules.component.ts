@@ -13,10 +13,18 @@ import { UniversalValidators } from 'ngx-validators';
 import { OkResponse } from '../../../core/models/okResponse';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { CommonModule } from '@angular/common';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-update-modules',
-  imports: [ErrorCardComponent, CommonModule, ReactiveFormsModule],
+  imports: [
+    ErrorCardComponent,
+    CommonModule,
+    ReactiveFormsModule,
+    InputNumberModule,
+    InputTextModule,
+  ],
   templateUrl: './update-modules.component.html',
 })
 export class UpdateModulesComponent implements OnInit {

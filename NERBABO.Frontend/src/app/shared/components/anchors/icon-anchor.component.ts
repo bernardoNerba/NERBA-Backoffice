@@ -10,7 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
       style="text-decoration: none"
       class="p-button p-button-text p-button-secondary text-truncate"
       [href]="link"
-      tooltipPosition="right"
+      tooltipPosition="top"
       [pTooltip]="tooltipContent"
       [autoHide]="false"
     >
