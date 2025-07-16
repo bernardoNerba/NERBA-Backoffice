@@ -12,10 +12,19 @@ import { ACTIVITY_SECTOR } from '../../../core/objects/ativitySector';
 import { COMPANY_SIZE } from '../../../core/objects/companySize';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { OkResponse } from '../../../core/models/okResponse';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-create-companies',
-  imports: [ReactiveFormsModule, ErrorCardComponent],
+  imports: [
+    ReactiveFormsModule,
+    ErrorCardComponent,
+    InputTextModule,
+    TextareaModule,
+    SelectModule,
+  ],
   templateUrl: './create-companies.component.html',
 })
 export class CreateCompaniesComponent implements OnInit {

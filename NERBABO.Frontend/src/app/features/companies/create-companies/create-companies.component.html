@@ -8,7 +8,7 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form [formGroup]="createCompanyForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="createCompanyForm">
     <div class="row p-4">
       <!-- NAME FORM FIELD -->
       <div class="col-md-12">
@@ -19,13 +19,18 @@
           </label>
           <input
             type="text"
-            class="form-control"
-            id="name"
+            pInputText
             formControlName="name"
             [class.is-invalid]="
               submitted && createCompanyForm.get('name')?.errors
             "
+            class="w-100 {{
+              submitted && createCompanyForm.get('name')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
           />
+
           @if (submitted && createCompanyForm.get('name')?.hasError("required"))
           {
           <span class="text-danger"> Designação é um campo obrigatório. </span>
@@ -45,12 +50,16 @@
           <label for="phoneNumber">Contacto Telefónico </label>
           <input
             type="text"
-            class="form-control"
-            id="phoneNumber"
+            pInputText
             formControlName="phoneNumber"
             [class.is-invalid]="
               submitted && createCompanyForm.get('phoneNumber')?.errors
             "
+            class="w-100 {{
+              submitted && createCompanyForm.get('phoneNumber')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
           />
           @if ( createCompanyForm.get('phoneNumber')?.hasError("minlength") ||
           createCompanyForm.get('phoneNumber')?.hasError("maxlength")) {
@@ -67,13 +76,17 @@
         <div class="mb-3">
           <label for="address">Morada </label>
           <textarea
-            type="text"
-            class="form-control"
-            id="address"
             formControlName="address"
+            pTextarea
+            rows="3"
             [class.is-invalid]="
               submitted && createCompanyForm.get('address')?.errors
             "
+            class="w-100 {{
+              submitted && createCompanyForm.get('address')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
           ></textarea>
           @if (submitted &&
           createCompanyForm.get('address')?.hasError("required")) {
@@ -94,12 +107,16 @@
           <label for="locality">Localidade </label>
           <input
             type="text"
-            class="form-control"
-            id="locality"
+            pInputText
             formControlName="locality"
             [class.is-invalid]="
               submitted && createCompanyForm.get('locality')?.errors
             "
+            class="w-100 {{
+              submitted && createCompanyForm.get('locality')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
           />
           @if ( createCompanyForm.get('locality')?.hasError("minlength") ||
           createCompanyForm.get('locality')?.hasError("maxlength")) {
@@ -117,12 +134,16 @@
           <label for="zipCode">Código Postal </label>
           <input
             type="text"
-            class="form-control"
-            id="zipCode"
+            pInputText
             formControlName="zipCode"
             [class.is-invalid]="
               submitted && createCompanyForm.get('zipCode')?.errors
             "
+            class="w-100 {{
+              submitted && createCompanyForm.get('zipCode')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
           />
           @if ( createCompanyForm.get('zipCode')?.hasError("minlength") ||
           createCompanyForm.get('zipCode')?.hasError("maxlength")) {
@@ -141,12 +162,16 @@
           <label for="email">Email</label>
           <input
             type="text"
-            class="form-control"
-            id="email"
+            pInputText
             formControlName="email"
             [class.is-invalid]="
               submitted && createCompanyForm.get('email')?.errors
             "
+            class="w-100 {{
+              submitted && createCompanyForm.get('email')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
           />
           @if ( createCompanyForm.get('email')?.hasError("minlength") ||
           createCompanyForm.get('email')?.hasError("maxlength")) {
@@ -160,21 +185,22 @@
       <div class="col-md-6">
         <div class="mb-3">
           <label for="ativitySector">Setor de Atividade</label>
-          <select
-            type="text"
-            class="form-select"
-            id="ativitySector"
+          <p-select
             formControlName="ativitySector"
+            [options]="activitySectors"
+            optionLabel="value"
+            optionValue="value"
+            placeholder="Selecione um setor de atividade..."
+            styleClass="w-100"
             [class.is-invalid]="
               submitted && createCompanyForm.get('ativitySector')?.errors
             "
-          >
-            @for(activity of activitySectors; track activity.value){
-            <option value="{{ activity.value }}">
-              {{ activity.value }}
-            </option>
-            }
-          </select>
+            class="{{
+              submitted && createCompanyForm.get('ativitySector')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          />
           @if (submitted &&
           createCompanyForm.get('ativitySector')?.hasError("required")) {
           <span class="text-danger">
@@ -189,21 +215,22 @@
       <div class="col-md-6">
         <div class="mb-3">
           <label for="size">Tamanho</label>
-          <select
-            type="text"
-            class="form-select"
-            id="size"
+          <p-select
             formControlName="size"
+            [options]="companySizes"
+            optionLabel="value"
+            optionValue="value"
+            placeholder="Selecione um setor de atividade..."
+            styleClass="w-100"
             [class.is-invalid]="
               submitted && createCompanyForm.get('size')?.errors
             "
-          >
-            @for(size of companySizes; track size.value){
-            <option value="{{ size.value }}">
-              {{ size.value }}
-            </option>
-            }
-          </select>
+            class="{{
+              submitted && createCompanyForm.get('size')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          />
           @if (submitted && createCompanyForm.get('size')?.hasError("required"))
           {
           <span class="text-danger"> Tamanho é um campo obrigatório. </span>
@@ -213,17 +240,23 @@
       <!-- END size FORM FIELD -->
     </div>
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-
-    <!-- submit button -->
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
-        Cancel
-      </button>
-      <button type="submit" class="btn-main" [disabled]="loading">
-        @if (loading){
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Save
-      </button>
-    </div>
   </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
 </div>

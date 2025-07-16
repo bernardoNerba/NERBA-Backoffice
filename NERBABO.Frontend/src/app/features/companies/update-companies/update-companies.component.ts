@@ -14,10 +14,20 @@ import { Company } from '../../../core/models/company';
 import { OkResponse } from '../../../core/models/okResponse';
 import { CommonModule } from '@angular/common';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-update-companies',
-  imports: [ReactiveFormsModule, CommonModule, ErrorCardComponent],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    ErrorCardComponent,
+    InputTextModule,
+    TextareaModule,
+    SelectModule,
+  ],
   templateUrl: './update-companies.component.html',
 })
 export class UpdateCompaniesComponent {
@@ -28,8 +38,8 @@ export class UpdateCompaniesComponent {
   errorMessages: string[] = [];
   updateCompanyForm: FormGroup = new FormGroup({});
 
-  activitySectors = ACTIVITY_SECTOR.map((value) => value.value.toLowerCase());
-  companySizes = COMPANY_SIZE.map((value) => value.value.toLowerCase());
+  activitySectors = ACTIVITY_SECTOR;
+  companySizes = COMPANY_SIZE;
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -54,8 +64,8 @@ export class UpdateCompaniesComponent {
           locality: this.currentCompany.locality,
           zipCode: this.currentCompany.zipCode,
           email: this.currentCompany.email,
-          ativitySector: this.currentCompany.ativitySector.toLowerCase(),
-          size: this.currentCompany.size.toLowerCase(),
+          ativitySector: this.currentCompany.ativitySector,
+          size: this.currentCompany.size,
         });
         this.loading = false;
       },
