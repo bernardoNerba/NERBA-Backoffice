@@ -44,18 +44,12 @@ null){
       >
         <div class="accordion-body">
           <div class="container-fluid px-0">
-            <app-error-card
-              [errors]="errorMessagesGeneralInfo"
-              [submitted]="submittedGeneralInfo"
-            />
+            <app-error-card [errors]="errorMessages" [submitted]="submitted" />
 
-            <form
-              [formGroup]="formGeneralInfo"
-              (submit)="onSubmitGeneralInfo()"
-            >
+            <form [formGroup]="form" (submit)="onSubmit()">
               <div class="row">
+                <!-- DESIGNAÇÃO -->
                 <div class="col-md-6">
-                  <!-- DESIGNAÇÃO -->
                   <div class="mb-3">
                     <label for="designation"
                       >Designação
@@ -63,30 +57,32 @@ null){
                     </label>
                     <input
                       type="text"
-                      class="form-control"
-                      id="designation"
+                      pInputText
                       formControlName="designation"
                       [class.is-invalid]="
-                        submittedGeneralInfo &&
-                        formGeneralInfo.get('designation')?.errors
+                        submitted && form.get('designation')?.errors
                       "
+                      class="w-100 {{
+                        submitted && form.get('designation')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
                     />
-                    @if (submittedGeneralInfo &&
-                    formGeneralInfo.get('designation')?.hasError("required")) {
+                    @if (submitted &&
+                    form.get('designation')?.hasError("required")) {
                     <span class="text-danger">
                       Designação é um campo obrigatório.
                     </span>
-                    } @else if (
-                    formGeneralInfo.get('designation')?.hasError("minlength") ||
-                    formGeneralInfo.get('designation')?.hasError("maxlength")) {
+                    } @else if ( form.get('designation')?.hasError("minlength")
+                    || form.get('designation')?.hasError("maxlength")) {
                     <span class="text-danger">
                       Designação deve ter entre 3 e 255 caracteres.
                     </span>
                     }
                   </div>
                 </div>
+                <!-- NIPC -->
                 <div class="col-md-6">
-                  <!-- NIPC -->
                   <div class="mb-3">
                     <label for="nipc"
                       >NIPC
@@ -94,35 +90,33 @@ null){
                     </label>
                     <input
                       type="text"
-                      class="form-control"
-                      id="nipc"
+                      pInputText
                       formControlName="nipc"
-                      [class.is-invalid]="
-                        submittedGeneralInfo &&
-                        formGeneralInfo.get('nipc')?.errors
-                      "
+                      [class.is-invalid]="submitted && form.get('nipc')?.errors"
+                      class="w-100 {{
+                        submitted && form.get('nipc')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
                     />
-                    @if (submittedGeneralInfo &&
-                    formGeneralInfo.get('nipc')?.hasError("required")) {
+                    @if (submitted && form.get('nipc')?.hasError("required")) {
                     <span class="text-danger">
                       NIPC é um campo obrigatório.
                     </span>
-                    } @else if (
-                    formGeneralInfo.get('nipc')?.hasError("minlength") ||
-                    formGeneralInfo.get('nipc')?.hasError("maxlength")) {
+                    } @else if ( form.get('nipc')?.hasError("minlength") ||
+                    form.get('nipc')?.hasError("maxlength")) {
                     <span class="text-danger">
                       NIPC deve ter exatamente 9 caracteres.
                     </span>
-                    } @else if
-                    (formGeneralInfo.get('nipc')?.hasError("numberRequired")) {
+                    } @else if (form.get('nipc')?.hasError("numberRequired")) {
                     <span class="text-danger">
                       NIPC deve conter somente números.
                     </span>
                     }
                   </div>
                 </div>
+                <!-- SEDE -->
                 <div class="col-md-12">
-                  <!-- SEDE -->
                   <div class="mb-3">
                     <label for="site"
                       >Sede
@@ -130,84 +124,97 @@ null){
                     </label>
                     <input
                       type="text"
-                      class="form-control"
-                      id="site"
+                      pInputText
                       formControlName="site"
-                      [class.is-invalid]="
-                        submittedGeneralInfo &&
-                        formGeneralInfo.get('site')?.errors
-                      "
+                      [class.is-invalid]="submitted && form.get('site')?.errors"
+                      class="w-100 {{
+                        submitted && form.get('site')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
                     />
-                    @if (submittedGeneralInfo &&
-                    formGeneralInfo.get('site')?.hasError("required")) {
+                    @if (submitted && form.get('site')?.hasError("required")) {
                     <span class="text-danger">
                       Sede é um campo obrigatório.
                     </span>
-                    } @else if (
-                    formGeneralInfo.get('site')?.hasError("minlength") ||
-                    formGeneralInfo.get('site')?.hasError("maxlength")) {
+                    } @else if ( form.get('site')?.hasError("minlength") ||
+                    form.get('site')?.hasError("maxlength")) {
                     <span class="text-danger">
                       Sede deve ter entre 3 e 500 caracteres.
                     </span>
                     }
                   </div>
                 </div>
+                <!-- TAXA IVA -->
                 <div class="col-md-4">
-                  <!-- TAXA IVA -->
                   <div class="mb-3">
                     <label for="ivaId"
                       >Taxa Iva
                       <span class="text-danger">*</span>
                     </label>
-                    <select
+                    <p-select
                       formControlName="ivaId"
-                      id="ivaId"
-                      class="form-control"
+                      [options]="(taxes$ | async) ?? []"
+                      placeholder="Selecione uma taxa de iva..."
+                      styleClass="w-100"
                       [class.is-invalid]="
-                        submittedGeneralInfo &&
-                        formGeneralInfo.get('ivaId')?.errors
+                        submitted && form.get('ivaId')?.errors
                       "
-                    >
-                      @for (iva of (taxes$ | async); track iva.id;){
-                      <option value="{{ iva.id }}">
-                        {{ iva.name }} - {{ iva.valuePercent }}%
-                      </option>
-                      }
-                    </select>
-                    @if (submittedGeneralInfo &&
-                    formGeneralInfo.get('ivaId')?.hasError("required")) {
+                      optionLabel="name"
+                      optionValue="id"
+                      class="{{
+                        submitted && form.get('ivaId')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                    />
+                    @if (submitted && form.get('ivaId')?.hasError("required")) {
                     <span class="text-danger">
                       Taxa Iva é um campo obrigatório.
                     </span>
                     }
                   </div>
                 </div>
+                <!-- VALOR HORA FORMADOR -->
                 <div class="col-md-4">
-                  <!-- VALOR HORA FORMADOR -->
                   <div class="mb-3">
                     <label for="hourValueTeacher"
                       >Valor Hora Formador
                       <span class="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="hourValueTeacher"
+                    <p-inputnumber
                       formControlName="hourValueTeacher"
+                      [showButtons]="true"
+                      buttonLayout="horizontal"
+                      inputId="horizontal"
+                      spinnerMode="horizontal"
+                      [step]="0.5"
+                      mode="currency"
+                      currency="EUR"
+                      styleClass="w-100"
                       [class.is-invalid]="
-                        submittedGeneralInfo &&
-                        formGeneralInfo.get('hourValueTeacher')?.errors
+                        submitted && form.get('hourValueTeacher')?.errors
                       "
-                    />
-                    @if (submittedGeneralInfo &&
-                    formGeneralInfo.get('hourValueTeacher')?.hasError("required"))
-                    {
+                      class="w-100 {{
+                        submitted && form.get('hourValueTeacher')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                    >
+                      <ng-template #incrementbuttonicon>
+                        <span class="pi pi-plus"></span>
+                      </ng-template>
+                      <ng-template #decrementbuttonicon>
+                        <span class="pi pi-minus"></span>
+                      </ng-template>
+                    </p-inputnumber>
+                    @if (submitted &&
+                    form.get('hourValueTeacher')?.hasError("required")) {
                     <span class="text-danger">
                       Valor Hora Formador é um campo obrigatório.
                     </span>
                     } @else if (
-                    formGeneralInfo.get('hourValueTeacher')?.hasError("numberRequired"))
-                    {
+                    form.get('hourValueTeacher')?.hasError("numberRequired")) {
                     <span class="text-danger">
                       Valor Hora Formador deve ser um valor que possa ser
                       traduzido para monetário.
@@ -215,31 +222,46 @@ null){
                     }
                   </div>
                 </div>
+                <!-- VALOR HORA ALIMENTAÇÃO -->
                 <div class="col-md-4">
-                  <!-- VALOR HORA ALIMENTAÇÃO -->
                   <div class="mb-3">
                     <label for="hourValueAlimentation"
                       >Valor Hora Alimentação
                       <span class="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="hourValueAlimentation"
+                    <p-inputnumber
                       formControlName="hourValueAlimentation"
+                      [showButtons]="true"
+                      buttonLayout="horizontal"
+                      inputId="horizontal"
+                      spinnerMode="horizontal"
+                      [step]="0.5"
+                      mode="currency"
+                      currency="EUR"
+                      styleClass="w-100"
                       [class.is-invalid]="
-                        submittedGeneralInfo &&
-                        formGeneralInfo.get('hourValueAlimentation')?.errors
+                        submitted && form.get('hourValueAlimentation')?.errors
                       "
-                    />
-                    @if (submittedGeneralInfo &&
-                    formGeneralInfo.get('hourValueAlimentation')?.hasError("required"))
-                    {
+                      class="w-100 {{
+                        submitted && form.get('hourValueAlimentation')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                    >
+                      <ng-template #incrementbuttonicon>
+                        <span class="pi pi-plus"></span>
+                      </ng-template>
+                      <ng-template #decrementbuttonicon>
+                        <span class="pi pi-minus"></span>
+                      </ng-template>
+                    </p-inputnumber>
+                    @if (submitted &&
+                    form.get('hourValueAlimentation')?.hasError("required")) {
                     <span class="text-danger">
                       Valor Hora Alimentação é um campo obrigatório.
                     </span>
                     } @else if (
-                    formGeneralInfo.get('hourValueAlimentation')?.hasError("numberRequired"))
+                    form.get('hourValueAlimentation')?.hasError("numberRequired"))
                     {
                     <span class="text-danger">
                       Valor Hora Alimentação deve ser um valor que possa ser
@@ -248,8 +270,8 @@ null){
                     }
                   </div>
                 </div>
+                <!-- Entidade Bancária -->
                 <div class="col-md-4">
-                  <!-- Entidade Bancária -->
                   <div class="mb-3">
                     <label for="bankEntity"
                       >Entidade Bancária
@@ -257,22 +279,24 @@ null){
                     </label>
                     <input
                       type="text"
-                      class="form-control"
-                      id="bankEntity"
+                      pInputText
                       formControlName="bankEntity"
                       [class.is-invalid]="
-                        submittedGeneralInfo &&
-                        formGeneralInfo.get('bankEntity')?.errors
+                        submitted && form.get('bankEntity')?.errors
                       "
+                      class="w-100 {{
+                        submitted && form.get('bankEntity')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
                     />
-                    @if (submittedGeneralInfo &&
-                    formGeneralInfo.get('bankEntity')?.hasError("required")) {
+                    @if (submitted &&
+                    form.get('bankEntity')?.hasError("required")) {
                     <span class="text-danger">
                       Entidade Bancária é um campo obrigatório.
                     </span>
-                    } @else if (
-                    formGeneralInfo.get('bankEntity')?.hasError("minlength") ||
-                    formGeneralInfo.get('bankEntity')?.hasError("maxlength")) {
+                    } @else if ( form.get('bankEntity')?.hasError("minlength")
+                    || form.get('bankEntity')?.hasError("maxlength")) {
                     <span class="text-danger">
                       Entidade Bancária deve ter entre 3 e 50 caracteres.
                     </span>
@@ -288,21 +312,21 @@ null){
                     </label>
                     <input
                       type="text"
-                      class="form-control"
-                      id="iban"
+                      pInputText
                       formControlName="iban"
-                      [class.is-invalid]="
-                        submittedGeneralInfo &&
-                        formGeneralInfo.get('iban')?.errors
-                      "
+                      [class.is-invalid]="submitted && form.get('iban')?.errors"
+                      class="w-100 {{
+                        submitted && form.get('iban')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
                     />
-                    @if (submittedGeneralInfo &&
-                    formGeneralInfo.get('iban')?.hasError("required")) {
+                    @if (submitted && form.get('iban')?.hasError("required")) {
                     <span class="text-danger">
                       IBAN é um campo obrigatório.
                     </span>
-                    } @else if ( formGeneralInfo.get('iban')?.hasError("") ||
-                    formGeneralInfo.get('iban')?.hasError("maxlength")) {
+                    } @else if ( form.get('iban')?.hasError("") ||
+                    form.get('iban')?.hasError("maxlength")) {
                     <span class="text-danger">
                       IBAN deve ter exatamente 25 caracteres.
                     </span>
@@ -314,12 +338,8 @@ null){
               <!-- TODO: LOGO FINANCIAMENTO -->
 
               <div class="text-end">
-                <button
-                  type="submit"
-                  class="btn-main"
-                  [disabled]="loadingGeneralInfo"
-                >
-                  @if (loadingGeneralInfo){
+                <button type="submit" class="btn-main" [disabled]="loading">
+                  @if (loading){
                   <span class="spinner-border spinner-border-sm me-1"></span>
                   } Guardar Informações
                 </button>

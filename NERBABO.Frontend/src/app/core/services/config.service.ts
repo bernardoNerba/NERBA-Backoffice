@@ -74,11 +74,15 @@ export class ConfigService {
   }
 
   private fetchTaxes(): Observable<Tax[]> {
-    return this.http.get<Tax[]>(`${API_ENDPOINTS.get_taxes}`);
+    return this.http.get<Tax[]>(API_ENDPOINTS.get_taxes);
   }
 
   private fetchGeneralInfo(): Observable<GeneralInfo> {
-    return this.http.get<GeneralInfo>(`${API_ENDPOINTS.get_general_conf}`);
+    return this.http.get<GeneralInfo>(API_ENDPOINTS.get_general_conf);
+  }
+
+  fetchTaxesByType(type: string): Observable<Tax[]> {
+    return this.http.get<Tax[]>(API_ENDPOINTS.get_taxes_by_type + type);
   }
 
   updateGeneralInfo(model: GeneralInfo): Observable<OkResponse> {
