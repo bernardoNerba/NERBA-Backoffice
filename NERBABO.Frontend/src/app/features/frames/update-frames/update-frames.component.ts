@@ -12,11 +12,17 @@ import { ErrorCardComponent } from '../../../shared/components/error-card/error-
 import { SharedService } from '../../../core/services/shared.service';
 import { Frame } from '../../../core/models/frame';
 import { OkResponse } from '../../../core/models/okResponse';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-update-frames',
   templateUrl: './update-frames.component.html',
-  imports: [CommonModule, ReactiveFormsModule, ErrorCardComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ErrorCardComponent,
+    InputTextModule,
+  ],
 })
 export class UpdateFramesComponent implements OnInit {
   id!: number;

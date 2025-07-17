@@ -9,7 +9,7 @@
 </div>
 
 <div class="modal-body">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form">
     <div class="mb-3">
       <label for="program"
         >Programa
@@ -17,10 +17,12 @@
       </label>
       <input
         type="text"
-        class="form-control"
-        id="program"
+        pInputText
         formControlName="program"
         [class.is-invalid]="submitted && form.get('program')?.errors"
+        class="w-100 {{
+          submitted && form.get('program')?.errors ? 'ng-invalid ng-dirty' : ''
+        }}"
       />
       @if (submitted && form.get('program')?.hasError("required")) {
       <span class="text-danger"> Programa é um campo obrigatório. </span>
@@ -39,10 +41,14 @@
       </label>
       <input
         type="text"
-        class="form-control"
-        id="intervention"
+        pInputText
         formControlName="intervention"
         [class.is-invalid]="submitted && form.get('intervention')?.errors"
+        class="w-100 {{
+          submitted && form.get('intervention')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
       @if (submitted && form.get('intervention')?.hasError("required")) {
       <span class="text-danger"> Intervenção é um campo obrigatório. </span>
@@ -60,10 +66,14 @@
       >
       <input
         type="text"
-        class="form-control"
-        id="interventionType"
+        pInputText
         formControlName="interventionType"
         [class.is-invalid]="submitted && form.get('interventionType')?.errors"
+        class="w-100 {{
+          submitted && form.get('interventionType')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
       @if (submitted && form.get('interventionType')?.hasError("required")) {
       <span class="text-danger">
@@ -82,10 +92,14 @@
       <label for="operation">Operação <span class="text-danger">*</span></label>
       <input
         type="text"
-        class="form-control"
-        id="operation"
+        pInputText
         formControlName="operation"
         [class.is-invalid]="submitted && form.get('operation')?.errors"
+        class="w-100 {{
+          submitted && form.get('operation')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
       @if (submitted && form.get('operation')?.hasError("required")) {
       <span class="text-danger"> Operação é um campo obrigatório. </span>
@@ -103,10 +117,14 @@
       >
       <input
         type="text"
-        class="form-control"
-        id="operationType"
+        pInputText
         formControlName="operationType"
         [class.is-invalid]="submitted && form.get('operationType')?.errors"
+        class="w-100 {{
+          submitted && form.get('operationType')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
       @if (submitted && form.get('operationType')?.hasError("required")) {
       <span class="text-danger">
@@ -121,15 +139,22 @@
     </div>
 
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
-        Cancelar
-      </button>
-      <button type="submit" class="btn-main" [disabled]="loading">
-        @if (loading){
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Submeter
-      </button>
-    </div>
   </form>
+</div>
+<div class="modal-footer">
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Submeter
+    </button>
+  </div>
 </div>

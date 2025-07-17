@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">Editar Enquadramento</h4>
+  <h4 class="modal-title">Atualizar Enquadramento</h4>
   <button
     type="button"
     class="btn-close"
@@ -9,118 +9,152 @@
 </div>
 
 <div class="modal-body">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form">
     <div class="mb-3">
       <label for="program"
-        >Program
+        >Programa
         <span class="text-danger">*</span>
       </label>
       <input
         type="text"
-        class="form-control"
-        id="program"
+        pInputText
         formControlName="program"
-        [class.is-invalid]="submitted && form.controls['program'].invalid"
+        [class.is-invalid]="submitted && form.get('program')?.errors"
+        class="w-100 {{
+          submitted && form.get('program')?.errors ? 'ng-invalid ng-dirty' : ''
+        }}"
       />
-      <div
-        *ngIf="submitted && form.controls['program'].invalid"
-        class="invalid-feedback"
-      >
-        Program is required
-      </div>
+      @if (submitted && form.get('program')?.hasError("required")) {
+      <span class="text-danger"> Programa é um campo obrigatório. </span>
+      } @else if (submitted && form.get('program')?.hasError("minlength") ||
+      form.get('program')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Programa deve ter entre 3 e 150 caracteres.
+      </span>
+      }
     </div>
 
     <div class="mb-3">
       <label for="intervention"
-        >Intervention
+        >Intervenção
         <span class="text-danger">*</span>
       </label>
       <input
         type="text"
-        class="form-control"
-        id="intervention"
+        pInputText
         formControlName="intervention"
-        [class.is-invalid]="submitted && form.controls['intervention'].invalid"
+        [class.is-invalid]="submitted && form.get('intervention')?.errors"
+        class="w-100 {{
+          submitted && form.get('intervention')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
-      <div
-        *ngIf="submitted && form.controls['intervention'].invalid"
-        class="invalid-feedback"
-      >
-        Intervention is required
-      </div>
+      @if (submitted && form.get('intervention')?.hasError("required")) {
+      <span class="text-danger"> Intervenção é um campo obrigatório. </span>
+      } @else if (submitted && form.get('intervention')?.hasError("minlength")
+      || form.get('intervention')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Intervenção deve ter entre 3 e 55 caracteres.
+      </span>
+      }
     </div>
 
     <div class="mb-3">
       <label for="interventionType"
-        >Intervention Type
-        <span class="text-danger">*</span>
-      </label>
+        >Tipo de Intervenção <span class="text-danger">*</span></label
+      >
       <input
         type="text"
-        class="form-control"
-        id="interventionType"
+        pInputText
         formControlName="interventionType"
-        [class.is-invalid]="
-          submitted && form.controls['interventionType'].invalid
-        "
+        [class.is-invalid]="submitted && form.get('interventionType')?.errors"
+        class="w-100 {{
+          submitted && form.get('interventionType')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
-      <div
-        *ngIf="submitted && form.controls['interventionType'].invalid"
-        class="invalid-feedback"
-      >
-        Intervention Type is required
-      </div>
+      @if (submitted && form.get('interventionType')?.hasError("required")) {
+      <span class="text-danger">
+        Tipo de Intervenção é um campo obrigatório.
+      </span>
+      } @else if (submitted &&
+      form.get('interventionType')?.hasError("minlength") ||
+      form.get('interventionType')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Tipo de Intervenção deve ter entre 3 e 150 caracteres.
+      </span>
+      }
     </div>
 
     <div class="mb-3">
-      <label for="operation"
-        >Operation
-        <span class="text-danger">*</span>
-      </label>
+      <label for="operation">Operação <span class="text-danger">*</span></label>
       <input
         type="text"
-        class="form-control"
-        id="operation"
+        pInputText
         formControlName="operation"
-        [class.is-invalid]="submitted && form.controls['operation'].invalid"
+        [class.is-invalid]="submitted && form.get('operation')?.errors"
+        class="w-100 {{
+          submitted && form.get('operation')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
-      <div
-        *ngIf="submitted && form.controls['operation'].invalid"
-        class="invalid-feedback"
-      >
-        Operation is required
-      </div>
+      @if (submitted && form.get('operation')?.hasError("required")) {
+      <span class="text-danger"> Operação é um campo obrigatório. </span>
+      } @else if (submitted && form.get('operation')?.hasError("minlength") ||
+      form.get('operation')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Operação deve ter entre 3 e 150 caracteres.
+      </span>
+      }
     </div>
 
     <div class="mb-3">
       <label for="operationType"
-        >Operation Type
-        <span class="text-danger">*</span>
-      </label>
+        >Tipo de Operação <span class="text-danger">*</span></label
+      >
       <input
         type="text"
-        class="form-control"
-        id="operationType"
+        pInputText
         formControlName="operationType"
-        [class.is-invalid]="submitted && form.controls['operationType'].invalid"
+        [class.is-invalid]="submitted && form.get('operationType')?.errors"
+        class="w-100 {{
+          submitted && form.get('operationType')?.errors
+            ? 'ng-invalid ng-dirty'
+            : ''
+        }}"
       />
-      <div
-        *ngIf="submitted && form.controls['operationType'].invalid"
-        class="invalid-feedback"
-      >
-        Operation Type is required
-      </div>
+      @if (submitted && form.get('operationType')?.hasError("required")) {
+      <span class="text-danger">
+        Tipo de Operação é um campo obrigatório.
+      </span>
+      } @else if (submitted && form.get('operationType')?.hasError("minlength")
+      || form.get('operationType')?.hasError("maxlength")) {
+      <span class="text-danger">
+        Tipo de Operação deve ter entre 3 e 150 caracteres.
+      </span>
+      }
     </div>
+
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
-        Cancelar
-      </button>
-      <button type="submit" class="btn-main">
-        @if (loading) {
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Submeter
-      </button>
-    </div>
   </form>
+</div>
+<div class="modal-footer">
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Submeter
+    </button>
+  </div>
 </div>

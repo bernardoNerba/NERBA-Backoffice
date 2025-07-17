@@ -11,11 +11,17 @@ import { CommonModule } from '@angular/common';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { SharedService } from '../../../core/services/shared.service';
 import { OkResponse } from '../../../core/models/okResponse';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-create-frames',
   templateUrl: './create-frames.component.html',
-  imports: [CommonModule, ReactiveFormsModule, ErrorCardComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ErrorCardComponent,
+    InputTextModule,
+  ],
 })
 export class CreateFramesComponent implements OnInit {
   errorMessages: Array<string> = [];
@@ -92,8 +98,6 @@ export class CreateFramesComponent implements OnInit {
     }
 
     this.loading = true;
-
-    console.log(this.form.value);
 
     this.frameService.create(this.form.value).subscribe({
       next: (value: OkResponse) => {
