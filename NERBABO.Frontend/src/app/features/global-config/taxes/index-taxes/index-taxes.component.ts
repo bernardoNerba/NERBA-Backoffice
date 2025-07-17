@@ -21,7 +21,7 @@ import { CreateTaxesComponent } from '../create-taxes/create-taxes.component';
 import { UpdateTaxesComponent } from '../update-taxes/update-taxes.component';
 import { DeleteTaxesComponent } from '../delete-taxes/delete-taxes.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { IIndex } from '../../../../core/interfaces/iindex';
+import { IIndex } from '../../../../core/interfaces/IIndex';
 
 interface TaxTypeFilter {
   label: string;

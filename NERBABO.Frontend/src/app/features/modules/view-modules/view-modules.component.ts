@@ -11,7 +11,6 @@ import { Course } from '../../../core/models/course';
 import { Action } from '../../../core/models/action';
 import { ActionsService } from '../../../core/services/actions.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { UpdateModulesComponent } from '../update-modules/update-modules.component';
 import { DeleteModulesComponent } from '../delete-modules/delete-modules.component';
 import { ActiveBadgeComponent } from '../../../shared/components/badges/active-badge/active-badge.component';
 import { StatusEnum } from '../../../core/objects/status';
@@ -19,7 +18,8 @@ import { CoursesTableComponent } from '../../../shared/components/tables/courses
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
-import { IView } from '../../../core/interfaces/iview';
+import { IView } from '../../../core/interfaces/IView';
+import { UpsertModulesComponent } from '../upsert-modules/upsert-modules.component';
 
 @Component({
   selector: 'app-view-modules',
@@ -73,7 +73,7 @@ export class ViewModulesComponent implements IView, OnInit, OnDestroy {
     const initialState = {
       id: this.id,
     };
-    this.modalService.show(UpdateModulesComponent, {
+    this.modalService.show(UpsertModulesComponent, {
       initialState: initialState,
       class: 'modal-md',
     });

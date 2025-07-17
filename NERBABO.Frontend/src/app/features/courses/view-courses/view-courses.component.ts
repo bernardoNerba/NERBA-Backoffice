@@ -24,7 +24,7 @@ import { ModulesTableComponent } from '../../../shared/components/tables/modules
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
-import { IView } from '../../../core/interfaces/iview';
+import { IView } from '../../../core/interfaces/IView';
 
 @Component({
   selector: 'app-view-courses',

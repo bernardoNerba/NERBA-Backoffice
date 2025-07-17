@@ -10,7 +10,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { CreateCoursesComponent } from '../create-courses/create-courses.component';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
-import { IIndex } from '../../../core/interfaces/iindex';
+import { IIndex } from '../../../core/interfaces/IIndex';
 
 @Component({
   selector: 'app-index-courses',

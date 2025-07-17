@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { PeopleTableComponent } from '../../../shared/components/tables/people-table/people-table.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
-import { IIndex } from '../../../core/interfaces/iindex';
+import { IIndex } from '../../../core/interfaces/IIndex';
 
 @Component({
   selector: 'app-index-people',

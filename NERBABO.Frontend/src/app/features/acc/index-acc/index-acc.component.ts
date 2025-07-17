@@ -11,7 +11,7 @@ import { environment } from '../../../../environments/environment.development';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { AccsTableComponent } from '../../../shared/components/tables/accs-table/accs-table.component';
-import { IIndex } from '../../../core/interfaces/iindex';
+import { IIndex } from '../../../core/interfaces/IIndex';
 
 @Component({
   selector: 'app-index-acc',

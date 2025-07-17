@@ -42,7 +42,7 @@ import { convertDateOnlyToPtDate } from '../../../shared/utils';
   templateUrl: './upsert-people.component.html',
 })
 export class UpsertPeopleComponent implements IUpsert, OnInit {
-  @Input() id!: number;
+  @Input({ required: true }) id!: number;
   currentPerson?: Person | null;
 
   submitted: boolean = false;
@@ -66,13 +66,11 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.initializeForm();
     if (this.id !== 0) {
       this.isUpdate = true;
       const personFromService = this.peopleService.personById(this.id);
       if (personFromService) this.currentPerson = personFromService;
-    }
-    this.initializeForm();
-    if (this.isUpdate) {
       this.patchFormValues();
     }
   }

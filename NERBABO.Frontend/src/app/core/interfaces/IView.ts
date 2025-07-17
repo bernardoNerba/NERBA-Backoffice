@@ -1,9 +1,6 @@
-import { MenuItem } from 'primeng/api';
-import { Subscription } from 'rxjs';
-
 export interface IView {
-  menuItems: MenuItem[] | undefined;
-  subscriptions: Subscription;
+  menuItems: any;
+  subscriptions: any;
 
   initializeEntity(): void;
   populateMenu(): void;

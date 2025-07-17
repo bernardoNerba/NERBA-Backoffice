@@ -13,12 +13,12 @@ import { Router } from '@angular/router';
 import { Module } from '../../../../core/models/module';
 import { MenuItem } from 'primeng/api';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { UpdateModulesComponent } from '../../../../features/modules/update-modules/update-modules.component';
 import { DeleteModulesComponent } from '../../../../features/modules/delete-modules/delete-modules.component';
 import { ModulesService } from '../../../../core/services/modules.service';
 import { Subscription } from 'rxjs';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { SpinnerComponent } from '../../spinner/spinner.component';
+import { UpsertModulesComponent } from '../../../../features/modules/upsert-modules/upsert-modules.component';
 
 @Component({
   selector: 'app-modules-table',
@@ -144,7 +144,7 @@ export class ModulesTableComponent implements OnInit {
     const initialState = {
       id: m.id,
     };
-    this.modalService.show(UpdateModulesComponent, {
+    this.modalService.show(UpsertModulesComponent, {
       initialState: initialState,
       class: 'modal-md',
     });

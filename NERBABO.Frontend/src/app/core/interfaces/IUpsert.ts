@@ -1,12 +1,10 @@
-import { FormGroup } from '@angular/forms';
-
 export interface IUpsert {
   id: number;
   submitted: boolean;
   loading: boolean;
+  isUpdate: boolean;
   errorMessages: string[];
-  form: FormGroup;
-
+  form: any;
   initializeForm(): void;
 
   patchFormValues(): void;

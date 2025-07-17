@@ -13,7 +13,7 @@ import { UpdateCompaniesComponent } from '../update-companies/update-companies.c
 import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
-import { IView } from '../../../core/interfaces/iview';
+import { IView } from '../../../core/interfaces/IView';
 
 @Component({
   selector: 'app-view-companies',

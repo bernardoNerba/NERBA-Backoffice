@@ -12,7 +12,7 @@ import { PersonRelationship } from '../../../core/models/personRelationships';
 import { ICONS } from '../../../core/objects/icons';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
-import { IView } from '../../../core/interfaces/iview';
+import { IView } from '../../../core/interfaces/IView';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 
 @Component({

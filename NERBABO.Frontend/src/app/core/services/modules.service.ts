@@ -27,10 +27,6 @@ export class ModulesService {
     this.fetchModules(); // Fetch all modules for index-modules view
   }
 
-  createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
-    return this.http.post<OkResponse>(`${API_ENDPOINTS.modules}`, model);
-  }
-
   toggleModuleIsActive(id: number): void {
     this.http
       .put<OkResponse>(`${API_ENDPOINTS.modules}${id}/toggle`, {})
@@ -46,7 +42,16 @@ export class ModulesService {
       });
   }
 
-  updateModule(id: number, model: Module): Observable<OkResponse> {
+  upsertModule(model: Module, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.updateModule(model.id, model);
+    return this.createModule(model);
+  }
+
+  private createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
+    return this.http.post<OkResponse>(`${API_ENDPOINTS.modules}`, model);
+  }
+
+  private updateModule(id: number, model: Module): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.modules}${id}`, model)
       .pipe(finalize(() => this.notifyModuleUpdate(id))); // Notify update after success

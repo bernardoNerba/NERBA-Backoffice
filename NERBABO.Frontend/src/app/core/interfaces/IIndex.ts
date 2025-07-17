@@ -1,7 +1,5 @@
-import { Observable } from 'rxjs';
-
 export interface IIndex {
-  loading$: Observable<boolean>;
+  loading$: any;
 
   onCreateModal(): void;
 

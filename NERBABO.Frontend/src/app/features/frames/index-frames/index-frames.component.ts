@@ -7,11 +7,10 @@ import { CommonModule } from '@angular/common';
 import { Frame } from '../../../core/models/frame';
 import { SharedService } from '../../../core/services/shared.service';
 import { CreateFramesComponent } from '../create-frames/create-frames.component';
-import { UpdateFramesComponent } from '../update-frames/update-frames.component';
-import { DeleteFramesComponent } from '../delete-frames/delete-frames.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
 import { FramesTableComponent } from '../../../shared/components/tables/frames-table/frames-table.component';
+import { IIndex } from '../../../core/interfaces/IIndex';
 
 @Component({
   selector: 'app-index-frame',
@@ -23,7 +22,7 @@ import { FramesTableComponent } from '../../../shared/components/tables/frames-t
     FramesTableComponent,
   ],
 })
-export class IndexFramesComponent implements OnInit {
+export class IndexFramesComponent implements OnInit, IIndex {
   frames$!: Observable<Frame[]>;
   loading$: Observable<boolean>;
   ICONS = ICONS;
