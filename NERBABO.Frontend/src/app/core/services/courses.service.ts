@@ -50,11 +50,16 @@ export class CoursesService {
     this.loadingSubject.next(false);
   }
 
+  upsert(model: Course, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.update(model, model.id);
+    return this.create(model);
+  }
+
   getActive(): Observable<Course[]> {
     return this.http.get<Course[]>(API_ENDPOINTS.courses_active);
   }
 
-  create(
+  private create(
     model: Omit<Course, 'id' | 'actionsQnt' | 'modulesQnt'>
   ): Observable<OkResponse> {
     return this.http
@@ -62,7 +67,7 @@ export class CoursesService {
       .pipe(tap(() => this.notifyCourseUpdate(0)));
   }
 
-  update(
+  private update(
     model: Omit<Course, 'actionsQnt' | 'modulesQnt'>,
     id: number
   ): Observable<OkResponse> {

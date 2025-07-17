@@ -86,8 +86,6 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
       hours: this.currentModule?.hours,
       isActive: this.currentModule?.isActive,
     });
-    console.log('triggered');
-    console.log(this.form.value);
   }
   onSubmit(): void {
     this.submitted = true;

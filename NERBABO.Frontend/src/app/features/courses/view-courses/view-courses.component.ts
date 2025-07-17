@@ -11,7 +11,6 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { UpdateCoursesComponent } from '../update-courses/update-courses.component';
 import { DeleteCoursesComponent } from '../delete-courses/delete-courses.component';
 import { ChangeStatusCoursesComponent } from '../change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-module-courses.component';
@@ -25,6 +24,7 @@ import { ActionsTableComponent } from '../../../shared/components/tables/actions
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IView } from '../../../core/interfaces/IView';
+import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -80,11 +80,10 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
   }
 
   onUpdateModal() {
-    this.modalService.show(UpdateCoursesComponent, {
+    this.modalService.show(UpsertCoursesComponent, {
       class: 'modal-lg',
       initialState: {
         id: this.id,
-        course: this.course,
       },
     });
   }

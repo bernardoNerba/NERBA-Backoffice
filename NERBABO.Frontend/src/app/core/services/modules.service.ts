@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, finalize, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { Module } from '../models/module';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
@@ -48,13 +48,15 @@ export class ModulesService {
   }
 
   private createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
-    return this.http.post<OkResponse>(`${API_ENDPOINTS.modules}`, model);
+    return this.http
+      .post<OkResponse>(`${API_ENDPOINTS.modules}`, model)
+      .pipe(tap(() => this.notifyModuleUpdate(0)));
   }
 
   private updateModule(id: number, model: Module): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.modules}${id}`, model)
-      .pipe(finalize(() => this.notifyModuleUpdate(id))); // Notify update after success
+      .pipe(tap(() => this.notifyModuleUpdate(id))); // Notify update after success
   }
 
   getSingleModule(id: number): Observable<Module> {
@@ -68,7 +70,7 @@ export class ModulesService {
   deleteModule(id: number): Observable<OkResponse> {
     return this.http
       .delete<OkResponse>(`${API_ENDPOINTS.modules}${id}`)
-      .pipe(finalize(() => this.notifyModuleDelete(id))); // Notify delete after success
+      .pipe(tap(() => this.notifyModuleDelete(id))); // Notify delete after success
   }
 
   getCoursesByModule(id: number): Observable<Course[]> {

@@ -54,6 +54,7 @@ export class ViewModulesComponent implements IView, OnInit, OnDestroy {
     private router: Router,
     private modalService: BsModalService
   ) {}
+
   ngOnInit(): void {
     const moduleId = this.route.snapshot.paramMap.get('id');
     this.id = Number.parseInt(moduleId ?? '');

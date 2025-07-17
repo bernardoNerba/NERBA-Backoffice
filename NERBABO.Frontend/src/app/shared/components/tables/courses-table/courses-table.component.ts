@@ -14,8 +14,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { Table } from 'primeng/table';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { CreateCoursesComponent } from '../../../../features/courses/create-courses/create-courses.component';
-import { UpdateCoursesComponent } from '../../../../features/courses/update-courses/update-courses.component';
 import { DeleteCoursesComponent } from '../../../../features/courses/delete-courses/delete-courses.component';
 import { ChangeStatusCoursesComponent } from '../../../../features/courses/change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../../../../features/courses/assign-module-courses/assign-module-courses.component';
@@ -26,6 +24,7 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { CreateActionsComponent } from '../../../../features/actions/create-actions/create-actions.component';
+import { UpsertCoursesComponent } from '../../../../features/courses/upsert-courses/upsert-courses.component';
 
 @Component({
   selector: 'app-courses-table',
@@ -132,11 +131,6 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
         this.refreshCourse(courseId);
       })
     );
-    this.subscriptions.add(
-      this.coursesService.courses$.subscribe((courses) => {
-        this.courses = courses; // Update the courses input
-      })
-    );
   }
 
   // Calculate progress percentage for a course
@@ -196,18 +190,17 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
   }
 
   onAddCourseModal() {
-    this.modalService.show(CreateCoursesComponent, {
+    this.modalService.show(UpsertCoursesComponent, {
       class: 'modal-lg',
-      initialState: {},
+      initialState: { id: 0 },
     });
   }
 
   onUpdateCourseModal(course: Course) {
-    this.modalService.show(UpdateCoursesComponent, {
+    this.modalService.show(UpsertCoursesComponent, {
       class: 'modal-lg',
       initialState: {
         id: course.id,
-        course: course,
       },
     });
   }

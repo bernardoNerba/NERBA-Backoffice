@@ -110,6 +110,12 @@ export class ModulesTableComponent implements OnInit {
         this.modules = this.modules.filter((module) => module.id !== moduleId);
       })
     );
+
+    this.subscriptions.add(
+      this.modulesService.deletedSource$.subscribe((moduleId) => {
+        this.modules = this.modules.filter((module) => module.id !== moduleId);
+      })
+    );
   }
 
   columns = [
@@ -122,20 +128,25 @@ export class ModulesTableComponent implements OnInit {
     if (moduleId === 0) {
       // If moduleId is 0, it indicates a full refresh is needed (e.g., after create)
       // Parent component should handle full refresh of course.modules
+      this.modulesService.triggerFetch();
       return;
     }
 
     // Check if the module exists in the current modules list
-    const index = this.modules.findIndex((module) => module.id === moduleId);
-    if (index === -1) return; // Module not in this course's modules, no action needed
-
     this.modulesService.getSingleModule(moduleId).subscribe({
       next: (updatedModule) => {
-        this.modules[index] = updatedModule;
-        this.modules = [...this.modules]; // Trigger change detection
+        const index = this.modules.findIndex(
+          (module) => module.id === moduleId
+        );
+        if (index !== -1) {
+          this.modules[index] = updatedModule;
+          this.modules = [...this.modules]; // Trigger change detection
+        }
       },
       error: (error) => {
         console.error('Failed to refresh module: ', error);
+
+        this.modulesService.triggerFetch();
       },
     });
   }

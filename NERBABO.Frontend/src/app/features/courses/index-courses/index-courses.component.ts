@@ -8,9 +8,9 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
-import { CreateCoursesComponent } from '../create-courses/create-courses.component';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
+import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
 
 @Component({
   selector: 'app-index-courses',
@@ -41,9 +41,11 @@ export class IndexCoursesComponent implements IIndex, OnInit {
   }
 
   onCreateModal() {
-    this.modalService.show(CreateCoursesComponent, {
+    this.modalService.show(UpsertCoursesComponent, {
       class: 'modal-lg',
-      initialState: {},
+      initialState: {
+        id: 0,
+      },
     });
   }
 
