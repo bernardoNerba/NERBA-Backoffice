@@ -42,7 +42,9 @@ export class IndexPeopleComponent implements IIndex, OnInit {
 
   onCreateModal(): void {
     this.modalService.show(UpsertPeopleComponent, {
-      initialState: {},
+      initialState: {
+        id: 0,
+      },
       class: 'modal-lg',
     });
   }
