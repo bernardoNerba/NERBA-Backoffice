@@ -22,48 +22,7 @@
   </div>
   <!-- ACTION MENU -->
   <div class="col-2 d-flex justify-content-end">
-    <button
-      class="btn-main"
-      type="button"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      <i class="bi bi-three-dots-vertical"></i>
-    </button>
-    <ul class="dropdown-menu">
-      <li>
-        <a class="dropdown-item" (click)="onUpdateCourseModal(course)"
-          ><app-icon [icon]="ICONS.edit" class="me-3" /> Editar</a
-        >
-      </li>
-
-      <li>
-        <a
-          class="dropdown-item"
-          (click)="onDeleteCourseModal(course.id, course.title)"
-          ><app-icon [icon]="ICONS.delete" class="me-3" /> Eliminar</a
-        >
-      </li>
-
-      <li>
-        <a class="dropdown-item" (click)="onChangeStatusModal(course)">
-          <app-icon [icon]="ICONS.change" class="me-3" />Atualizar Estado</a
-        >
-      </li>
-      <li>
-        <a class="dropdown-item" (click)="onAssignModuleModal(course)">
-          <app-icon [icon]="ICONS.modules" class="me-3" />Atribuir Módulo</a
-        >
-      </li>
-      <li>
-        <a
-          class="dropdown-item"
-          (click)="onCreateActionModal(course.id, course.title)"
-        >
-          <app-icon [icon]="ICONS.add" class="me-3" />Criar Ação Formação</a
-        >
-      </li>
-    </ul>
+    <app-dropdown-menu [menuItems]="menuItems" />
   </div>
 </div>
 <!-- END TITLE + DROPDOWN MENU -->

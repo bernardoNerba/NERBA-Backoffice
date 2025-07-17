@@ -6,38 +6,7 @@
   </div>
   <!-- ACTION MENU -->
   <div class="col-2 d-flex justify-content-end">
-    <button
-      class="btn-main"
-      type="button"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      <i class="bi bi-three-dots-vertical"></i>
-    </button>
-    <ul class="dropdown-menu">
-      <li>
-        <a class="dropdown-item" (click)="onUpdateModal(module)">
-          <app-icon [icon]="ICONS.edit" [marginEnd]="3" />
-          Editar Informações</a
-        >
-      </li>
-      <li>
-        <a
-          class="dropdown-item"
-          (click)="onDeleteModal(module.id, module.name)"
-        >
-          <app-icon [icon]="ICONS.delete" [marginEnd]="3" />Eliminar
-          Informações</a
-        >
-      </li>
-      <li>
-        <a class="dropdown-item" (click)="onToggleModule(module.id)">
-          <app-icon [icon]="ICONS.change" class="me-3" />{{
-            module.isActive ? "Desativar" : "Ativar"
-          }}</a
-        >
-      </li>
-    </ul>
+    <app-dropdown-menu [menuItems]="menuItems" />
   </div>
 </div>
 <!-- END TITLE + DROPDOWN MENU -->

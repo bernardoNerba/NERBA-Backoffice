@@ -5,7 +5,7 @@ import { ICONS } from '../../../core/objects/icons';
 import { Frame } from '../../../core/models/frame';
 import { CoursesService } from '../../../core/services/courses.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FrameService } from '../../../core/services/frame.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
@@ -24,6 +24,10 @@ import { CoursesTableComponent } from '../../../shared/components/tables/courses
 import { Module } from '../../../core/models/module';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
+import { MenuItem } from 'primeng/api';
+import { Menu } from 'primeng/menu';
+import { Button } from 'primeng/button';
+import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -33,6 +37,7 @@ import { ActionsTableComponent } from '../../../shared/components/tables/actions
     MessageModule,
     ModulesTableComponent,
     ActionsTableComponent,
+    DropdownMenuComponent,
   ],
   templateUrl: './view-courses.component.html',
 })
@@ -42,10 +47,11 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
   actions$?: Observable<Action[]>;
   frame!: Frame;
   modules!: Module[];
-  title?: string;
+  title!: string;
   frameId!: number;
   ICONS = ICONS;
   STATUS = StatusEnum;
+  menuItems: MenuItem[] | undefined;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -86,7 +92,7 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
   }
   onDeleteCourseModal(id: number, title: string) {
     this.modalService.show(DeleteCoursesComponent, {
-      class: 'modal-lg',
+      class: 'modal-md',
       initialState: {
         id: id,
         title: title,
@@ -142,13 +148,14 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
 
           this.frameService.getSingle(course.frameId).subscribe({
             next: (frame: Frame) => {
-              console.log(frame);
               this.frame = frame;
             },
             error: (error: any) => {
               this.sharedService.showError(error.detail);
             },
           });
+
+          this.populateMenu(course);
         }
       })
     );
@@ -156,6 +163,41 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
 
   private initializeActions() {
     this.actions$ = this.actionsService.getActionsByCourseId(this.id);
+  }
+
+  private populateMenu(course: Course) {
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: [
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.onUpdateCourseModal(course),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.onDeleteCourseModal(course.id, course.title),
+          },
+          {
+            label: 'Atualizar Estado',
+            icon: 'pi pi-refresh',
+            command: () => this.onChangeStatusModal(course),
+          },
+          {
+            label: 'Atribuir Módulo',
+            icon: 'pi pi-plus-circle',
+            command: () => this.onAssignModuleModal(course),
+          },
+          {
+            label: 'Criar Ação Formação',
+            icon: 'pi pi-plus-circle',
+            command: () => this.onCreateActionModal(course.id, course.title),
+          },
+        ],
+      },
+    ];
   }
 
   private updateBreadcrumbs(id: number, title: string): void {

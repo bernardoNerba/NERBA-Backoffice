@@ -10,13 +10,14 @@ import { SharedService } from '../../../core/services/shared.service';
 import { UpdatePeopleComponent } from '../update-people/update-people.component';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { PersonRelationship } from '../../../core/models/personRelationships';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
+import { MenuItem } from 'primeng/api';
+import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 
 @Component({
   selector: 'app-detail-person',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, DropdownMenuComponent],
   templateUrl: './view-people.component.html',
 })
 export class ViewPeopleComponent implements OnInit, OnDestroy {
@@ -26,6 +27,7 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
   fullName!: string;
   id!: number;
   ICONS = ICONS;
+  menuItems: MenuItem[] | undefined;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -105,11 +107,50 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
           this.fullName = person.fullName;
           this.id = person.id;
           this.updateBreadcrumbs(person.id, person.fullName);
+          this.populateMenu(person);
         }
       })
     );
 
     this.relationships$ = this.peopleService.getPersonRelationships(this.id);
+  }
+
+  private populateMenu(person: Person): void {
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: [
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.updatePersonModal(),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.deletePersonModal(),
+          },
+          {
+            // TODO: Implement create colaborator from person
+            label: 'Criar como Colaborador',
+            icon: 'pi pi-plus',
+            command: () => {},
+          },
+          {
+            // TODO: Implement create student from person
+            label: 'Criar como Formando',
+            icon: 'pi pi-plus',
+            command: () => {},
+          },
+          {
+            // TODO: Implement create teacher from person
+            label: 'Criar como Formador',
+            icon: 'pi pi-plus',
+            command: () => {},
+          },
+        ],
+      },
+    ];
   }
 
   private updateSourceSubcription() {

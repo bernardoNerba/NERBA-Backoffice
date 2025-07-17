@@ -11,10 +11,12 @@ import { Student } from '../../../core/models/student';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpdateCompaniesComponent } from '../update-companies/update-companies.component';
 import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
+import { MenuItem } from 'primeng/api';
+import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 
 @Component({
   selector: 'app-view-companies',
-  imports: [CommonModule, IconComponent, RouterLink],
+  imports: [CommonModule, IconComponent, RouterLink, DropdownMenuComponent],
   templateUrl: './view-companies.component.html',
 })
 export class ViewCompaniesComponent implements OnInit, OnDestroy {
@@ -24,6 +26,7 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
   name?: string;
   ICONS = ICONS;
   hasStudents: boolean = false;
+  menuItems: MenuItem[] | undefined;
 
   private subscription: Subscription = new Subscription();
 
@@ -84,6 +87,7 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
           this.id = company.id;
           this.name = company.name;
           this.updateBreadcrumbs(this.id, this.name);
+          this.populateMenu(company);
         }
       })
     );
@@ -104,6 +108,26 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  private populateMenu(company: Company): void {
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: [
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.onUpdateCompanyModal(),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.onDeleteCompanyModal(),
+          },
+        ],
+      },
+    ];
   }
 
   private updateBreadcrumbs(id: number, name: string): void {

@@ -17,6 +17,8 @@ import { ActiveBadgeComponent } from '../../../shared/components/badges/active-b
 import { StatusEnum } from '../../../core/objects/status';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
+import { MenuItem } from 'primeng/api';
+import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 
 @Component({
   selector: 'app-view-modules',
@@ -26,6 +28,7 @@ import { ActionsTableComponent } from '../../../shared/components/tables/actions
     ActiveBadgeComponent,
     CoursesTableComponent,
     ActionsTableComponent,
+    DropdownMenuComponent,
   ],
   templateUrl: './view-modules.component.html',
 })
@@ -38,6 +41,7 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
   ICONS = ICONS;
   STATUS = StatusEnum;
   hasActions: boolean = false;
+  menuItems: MenuItem[] | undefined;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -106,11 +110,37 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
           this.id = module.id;
           this.name = module.name;
           this.updateBreadcrumbs(this.id, this.name);
+          this.populateMenu(module);
         }
       })
     );
     this.courses$ = this.modulesService.getCoursesByModule(this.id);
     this.actions$ = this.actionsService.getActionsByModuleId(this.id);
+  }
+
+  private populateMenu(module: Module) {
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: [
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.onUpdateModal(module),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.onDeleteModal(module.id, module.name),
+          },
+          {
+            label: 'Atualizar Estado',
+            icon: 'pi pi-refresh',
+            command: () => this.onToggleModule(module.id),
+          },
+        ],
+      },
+    ];
   }
 
   private updateSourceSubscription() {

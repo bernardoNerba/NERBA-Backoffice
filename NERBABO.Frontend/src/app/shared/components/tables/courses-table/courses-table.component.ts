@@ -224,7 +224,7 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
 
   onDeleteCourseModal(id: number, title: string) {
     this.modalService.show(DeleteCoursesComponent, {
-      class: 'modal-lg',
+      class: 'modal-md',
       initialState: {
         id: id,
         title: title,
