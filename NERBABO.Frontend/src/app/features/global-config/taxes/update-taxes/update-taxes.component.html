@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">Editar Regime de {{ type }}</h4>
+  <h4 class="modal-title">Atualizar Taxa de {{ type }}</h4>
   <button
     type="button"
     class="btn-close"
@@ -8,30 +8,30 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form">
     <!-- form container -->
-    <div class="row p-4">
+    <div class="row">
       <div class="col-md-12">
         <div class="mb-3">
           <label for="name"
-            >Regime {{ type }}
+            >Nome Regime
             <span class="text-danger">*</span>
           </label>
           <input
             type="text"
-            class="form-control"
-            id="name"
+            pInputText
             formControlName="name"
             [class.is-invalid]="submitted && form.get('name')?.errors"
+            class="w-100 {{
+              submitted && form.get('name')?.errors ? 'ng-invalid ng-dirty' : ''
+            }}"
           />
           @if (submitted && form.get('name')?.hasError("required")) {
-          <span class="text-danger">
-            Regime {{ type }} é um campo obrigatório.
-          </span>
+          <span class="text-danger"> Nome Regime é um campo obrigatório. </span>
           } @else if ( form.get('name')?.hasError("minlength") ||
           form.get('name')?.hasError("maxlength")) {
           <span class="text-danger">
-            Regime {{ type }} deve ter entre 3 e 50 caracteres.
+            Nome Regime deve ter entre 3 e 50 caracteres.
           </span>
           }
         </div>
@@ -39,26 +39,27 @@
       <div class="col-md-12">
         <div class="mb-3">
           <label for="valuePercent"
-            >Percentagem {{ type }}
+            >Percentagem
             <span class="text-danger">*</span>
           </label>
-          <input
-            type="text"
-            class="form-control"
-            id="bankEntity"
+          <p-inputnumber
             formControlName="valuePercent"
+            inputId="percent"
+            suffix="%"
             [class.is-invalid]="submitted && form.get('valuePercent')?.errors"
+            class="w-100 {{
+              submitted && form.get('valuePercent')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
           />
           @if (submitted && form.get('valuePercent')?.hasError("required")) {
-          <span class="text-danger">
-            Percentagem {{ type }} é um campo obrigatório.
-          </span>
+          <span class="text-danger"> Percentagem é um campo obrigatório. </span>
           } @else if ( form.get('valuePercent')?.hasError("numberRequired") ||
           form.get('valuePercent')?.hasError("rangeValueToSmall") ||
           form.get('valuePercent')?.hasError("rangeValueToBig")) {
           <span class="text-danger">
-            Percentagem {{ type }} deve ser uma percentagem, um valor de 0 a
-            100.
+            Percentagem deve ser uma percentagem, um valor de 0 a 100.
           </span>
           }
         </div>
@@ -66,17 +67,23 @@
     </div>
 
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
-
-    <!-- submit button -->
-    <div class="text-end">
-      <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
-        Cancel
-      </button>
-      <button type="submit" class="btn-main" [disabled]="loading">
-        @if (loading){
-        <span class="spinner-border spinner-border-sm me-1"></span>
-        } Save
-      </button>
-    </div>
   </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
 </div>

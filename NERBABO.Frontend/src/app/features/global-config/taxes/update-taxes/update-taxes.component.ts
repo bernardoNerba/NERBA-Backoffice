@@ -13,10 +13,18 @@ import { SharedService } from '../../../../core/services/shared.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { Tax } from '../../../../core/models/tax';
 import { OkResponse } from '../../../../core/models/okResponse';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-update-taxes',
-  imports: [ErrorCardComponent, CommonModule, ReactiveFormsModule],
+  imports: [
+    ErrorCardComponent,
+    CommonModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    InputNumberModule,
+  ],
   templateUrl: './update-taxes.component.html',
 })
 export class UpdateTaxesComponent implements OnInit {

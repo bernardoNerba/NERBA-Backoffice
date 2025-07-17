@@ -11,15 +11,24 @@ import { ErrorCardComponent } from '../../../../shared/components/error-card/err
 import { SharedService } from '../../../../core/services/shared.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { OkResponse } from '../../../../core/models/okResponse';
-import { TAX_TYPES } from '../../../../core/objects/taxType';
+import { TAX_TYPES, TaxType } from '../../../../core/objects/taxType';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-create-taxes',
-  imports: [ReactiveFormsModule, ErrorCardComponent],
+  imports: [
+    ReactiveFormsModule,
+    ErrorCardComponent,
+    InputTextModule,
+    InputNumberModule,
+    SelectModule,
+  ],
   templateUrl: './create-taxes.component.html',
 })
 export class CreateTaxesComponent implements OnInit {
-  allTaxes = [...TAX_TYPES];
+  allTaxes = TAX_TYPES;
   form: FormGroup = new FormGroup({});
   submitted = false;
   loading = false;
