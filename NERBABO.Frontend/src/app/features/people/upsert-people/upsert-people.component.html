@@ -1,5 +1,7 @@
 <div class="modal-header">
-  <h4 class="modal-title">Atualizar Pessoa</h4>
+  <h4 class="modal-title">
+    @if (isUpdate) { Atualizar Pessoa } @else { Registar Pessoa }
+  </h4>
   <button
     type="button"
     class="btn-close"
@@ -8,7 +10,7 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form [formGroup]="updatePersonForm">
+  <form [formGroup]="form">
     <div class="container">
       <div class="row">
         <!-- first name -->
@@ -22,23 +24,20 @@
               type="text"
               pInputText
               formControlName="firstName"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('firstName')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('firstName')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('firstName')?.errors
+                submitted && form.get('firstName')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('firstName')?.hasError("required")) {
+            @if (submitted && form.get('firstName')?.hasError("required")) {
             <span class="text-danger">
               Nome Próprio é um campo obrigatório.
             </span>
             } @else if (submitted &&
-            updatePersonForm.get('firstName')?.hasError("minlength") ||
-            updatePersonForm.get('firstName')?.hasError("maxlength")) {
+            form.get('firstName')?.hasError("minlength") ||
+            form.get('firstName')?.hasError("maxlength")) {
             <span class="text-danger">
               Nome Próprio deve ter entre 3 e 100 caracteres.
             </span>
@@ -58,23 +57,19 @@
               type="text"
               pInputText
               formControlName="lastName"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('lastName')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('lastName')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('lastName')?.errors
+                submitted && form.get('lastName')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('lastName')?.hasError("required")) {
+            @if (submitted && form.get('lastName')?.hasError("required")) {
             <span class="text-danger">
               Último Nome é um campo obrigatório.
             </span>
-            } @else if (submitted &&
-            updatePersonForm.get('lastName')?.hasError("minlength") ||
-            updatePersonForm.get('lastName')?.hasError("maxlength")) {
+            } @else if (submitted && form.get('lastName')?.hasError("minlength")
+            || form.get('lastName')?.hasError("maxlength")) {
             <span class="text-danger">
               Último Nome deve ter entre 3 e 100 caracteres.
             </span>
@@ -94,21 +89,17 @@
               type="text"
               pInputText
               formControlName="nif"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('nif')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('nif')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('nif')?.errors
+                submitted && form.get('nif')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted && updatePersonForm.get('nif')?.hasError("required"))
-            {
+            @if (submitted && form.get('nif')?.hasError("required")) {
             <span class="text-danger"> NIF é um campo obrigatório. </span>
-            } @else if (submitted &&
-            updatePersonForm.get('nif')?.hasError("minlength") ||
-            updatePersonForm.get('nif')?.hasError("maxlength")) {
+            } @else if (submitted && form.get('nif')?.hasError("minlength") ||
+            form.get('nif')?.hasError("maxlength")) {
             <span class="text-danger">
               NIF deve ter extamente 9 caracteres.
             </span>
@@ -125,21 +116,17 @@
               type="text"
               pInputText
               formControlName="niss"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('niss')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('niss')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('niss')?.errors
+                submitted && form.get('niss')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('niss')?.hasError("required")) {
+            @if (submitted && form.get('niss')?.hasError("required")) {
             <span class="text-danger"> NISS é um campo obrigatório. </span>
-            } @else if (submitted &&
-            updatePersonForm.get('niss')?.hasError("minlength") ||
-            updatePersonForm.get('niss')?.hasError("maxlength")) {
+            } @else if (submitted && form.get('niss')?.hasError("minlength") ||
+            form.get('niss')?.hasError("maxlength")) {
             <span class="text-danger">
               NISS deve ter extamente 11 caracteres.
             </span>
@@ -157,27 +144,22 @@
               pInputText
               formControlName="identificationNumber"
               [class.is-invalid]="
-                submitted &&
-                updatePersonForm.get('identificationNumber')?.errors
+                submitted && form.get('identificationNumber')?.errors
               "
               class="w-100 {{
-                submitted &&
-                updatePersonForm.get('identificationNumber')?.errors
+                submitted && form.get('identificationNumber')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
             @if (submitted &&
-            updatePersonForm.get('identificationNumber')?.hasError("required"))
-            {
+            form.get('identificationNumber')?.hasError("required")) {
             <span class="text-danger">
               Número de Identificação é um campo obrigatório.
             </span>
             } @else if (submitted &&
-            updatePersonForm.get('identificationNumber')?.hasError("minlength")
-            ||
-            updatePersonForm.get('identificationNumber')?.hasError("maxlength"))
-            {
+            form.get('identificationNumber')?.hasError("minlength") ||
+            form.get('identificationNumber')?.hasError("maxlength")) {
             <span class="text-danger">
               Número de Identificação entre 5 e 10 caracteres.
             </span>
@@ -198,16 +180,16 @@
               placeholder="Selecione um tipo..."
               styleClass="w-100"
               [class.is-invalid]="
-                submitted && updatePersonForm.get('identificationType')?.errors
+                submitted && form.get('identificationType')?.errors
               "
               class="{{
-                submitted && updatePersonForm.get('identificationType')?.errors
+                submitted && form.get('identificationType')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
             @if (submitted &&
-            updatePersonForm.get('identificationType')?.hasError("required")) {
+            form.get('identificationType')?.hasError("required")) {
             <span class="text-danger">
               Tipo de Identificação é um campo obrigatório.
             </span>
@@ -223,26 +205,23 @@
             <p-datepicker
               formControlName="identificationValidationDate"
               [showIcon]="true"
-              dataType="string"
               inputId="identificationValidationDate"
               [showOnFocus]="false"
               placeholder="dia/mes/ano"
+              dataType="string"
               dateFormat="dd/mm/yy"
               styleClass="w-100"
               [class.is-invalid]="
-                submitted &&
-                updatePersonForm.get('identificationValidationDate')?.errors
+                submitted && form.get('identificationValidationDate')?.errors
               "
               class="{{
-                submitted &&
-                updatePersonForm.get('identificationValidationDate')?.errors
+                submitted && form.get('identificationValidationDate')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
             @if (submitted &&
-            updatePersonForm.get('identificationValidationDate')?.hasError("required"))
-            {
+            form.get('identificationValidationDate')?.hasError("required")) {
             <span class="text-danger">
               Data de Validação do Documento é um campo obrigatório.
             </span>
@@ -259,21 +238,17 @@
               type="text"
               pInputText
               formControlName="iban"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('iban')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('iban')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('iban')?.errors
+                submitted && form.get('iban')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('iban')?.hasError("required")) {
+            @if (submitted && form.get('iban')?.hasError("required")) {
             <span class="text-danger"> IBAN é um campo obrigatório. </span>
-            } @else if (submitted &&
-            updatePersonForm.get('iban')?.hasError("minlength") ||
-            updatePersonForm.get('iban')?.hasError("maxlength")) {
+            } @else if (submitted && form.get('iban')?.hasError("minlength") ||
+            form.get('iban')?.hasError("maxlength")) {
             <span class="text-danger">
               IBAN deve ter extamente 25 caracteres.
             </span>
@@ -290,17 +265,14 @@
               formControlName="address"
               rows="3"
               pTextarea
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('address')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('address')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('address')?.errors
+                submitted && form.get('address')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             ></textarea>
-            @if (submitted &&
-            updatePersonForm.get('address')?.hasError("required")) {
+            @if (submitted && form.get('address')?.hasError("required")) {
             <span class="text-danger"> Morada é um campo obrigatório. </span>
             }
           </div>
@@ -315,23 +287,19 @@
               type="text"
               pInputText
               formControlName="zipCode"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('zipCode')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('zipCode')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('zipCode')?.errors
+                submitted && form.get('zipCode')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('zipCode')?.hasError("required")) {
+            @if (submitted && form.get('zipCode')?.hasError("required")) {
             <span class="text-danger">
               Código Postal é um campo obrigatório.
             </span>
-            } @else if (submitted &&
-            updatePersonForm.get('zipCode')?.hasError("minlength") ||
-            updatePersonForm.get('zipCode')?.hasError("maxlength")) {
+            } @else if (submitted && form.get('zipCode')?.hasError("minlength")
+            || form.get('zipCode')?.hasError("maxlength")) {
             <span class="text-danger">
               Código Postal deve ter extamente 8 caracteres.
             </span>
@@ -348,22 +316,19 @@
               formControlName="birthDate"
               [showIcon]="true"
               inputId="birthDate"
-              dataType="string"
               [showOnFocus]="false"
               placeholder="dia/mes/ano"
               dateFormat="dd/mm/yy"
+              dataType="string"
               styleClass="w-100"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('birthDate')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('birthDate')?.errors"
               class="{{
-                submitted && updatePersonForm.get('birthDate')?.errors
+                submitted && form.get('birthDate')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('birthDate')?.hasError("required")) {
+            @if (submitted && form.get('birthDate')?.hasError("required")) {
             <span class="text-danger">
               Data de Nascimento é um campo obrigatório.
             </span>
@@ -380,23 +345,20 @@
               type="text"
               pInputText
               formControlName="phoneNumber"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('phoneNumber')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('phoneNumber')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('phoneNumber')?.errors
+                submitted && form.get('phoneNumber')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('phoneNumber')?.hasError("required")) {
+            @if (submitted && form.get('phoneNumber')?.hasError("required")) {
             <span class="text-danger">
               Número de Telefone é um campo obrigatório.
             </span>
             } @else if (submitted &&
-            updatePersonForm.get('phoneNumber')?.hasError("minlength") ||
-            updatePersonForm.get('phoneNumber')?.hasError("maxlength")) {
+            form.get('phoneNumber')?.hasError("minlength") ||
+            form.get('phoneNumber')?.hasError("maxlength")) {
             <span class="text-danger">
               Número de Telefone deve ter extamente 9 caracteres.
             </span>
@@ -413,24 +375,19 @@
               type="text"
               pInputText
               formControlName="email"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('email')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('email')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('email')?.errors
+                submitted && form.get('email')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('email')?.hasError("required")) {
+            @if (submitted && form.get('email')?.hasError("required")) {
             <span class="text-danger"> Email é um campo obrigatório. </span>
-            } @else if (submitted &&
-            updatePersonForm.get('email')?.hasError("email")) {
+            } @else if (submitted && form.get('email')?.hasError("email")) {
             <span class="text-danger"> Por favor insira um email válido. </span>
-            } @else if (submitted &&
-            (updatePersonForm.get('email')?.hasError("minlength") ||
-            updatePersonForm.get('email')?.hasError("maxlength"))) {
+            } @else if (submitted && (form.get('email')?.hasError("minlength")
+            || form.get('email')?.hasError("maxlength"))) {
             <span class="text-danger">
               Email deve ter entre 5 e 50 caracteres.
             </span>
@@ -447,23 +404,20 @@
               type="text"
               pInputText
               formControlName="naturality"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('naturality')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('naturality')?.errors"
               class="w-100 {{
-                submitted && updatePersonForm.get('naturality')?.errors
+                submitted && form.get('naturality')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('naturality')?.hasError("required")) {
+            @if (submitted && form.get('naturality')?.hasError("required")) {
             <span class="text-danger">
               Naturalidade é um campo obrigatório.
             </span>
             } @else if (submitted &&
-            (updatePersonForm.get('naturality')?.hasError("minlength") ||
-            updatePersonForm.get('naturality')?.hasError("maxlength"))) {
+            (form.get('naturality')?.hasError("minlength") ||
+            form.get('naturality')?.hasError("maxlength"))) {
             <span class="text-danger">
               Naturalidade deve ter entre 3 e 100 caracteres.
             </span>
@@ -483,24 +437,21 @@
               optionLabel="gentilico"
               optionValue="gentilico"
               [dropdown]="true"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('nationality')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('nationality')?.errors"
               styleClass="w-100"
               class="{{
-                submitted && updatePersonForm.get('nationality')?.errors
+                submitted && form.get('nationality')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('nationality')?.hasError("required")) {
+            @if (submitted && form.get('nationality')?.hasError("required")) {
             <span class="text-danger">
               Nacionalidade é um campo obrigatório.
             </span>
             } @else if (submitted &&
-            (updatePersonForm.get('nationality')?.hasError("minlength") ||
-            updatePersonForm.get('nationality')?.hasError("maxlength"))) {
+            (form.get('nationality')?.hasError("minlength") ||
+            form.get('nationality')?.hasError("maxlength"))) {
             <span class="text-danger">
               Nacionalidade deve ter entre 3 e 100 caracteres.
             </span>
@@ -520,17 +471,14 @@
               optionValue="value"
               placeholder="Selecione um genero..."
               styleClass="w-100"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('gender')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('gender')?.errors"
               class="{{
-                submitted && updatePersonForm.get('gender')?.errors
+                submitted && form.get('gender')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('gender')?.hasError("required")) {
+            @if (submitted && form.get('gender')?.hasError("required")) {
             <span class="text-danger"> Gênero é um campo obrigatório. </span>
             }
           </div>
@@ -548,17 +496,14 @@
               optionValue="value"
               placeholder="Selecione uma habilitação..."
               styleClass="w-100"
-              [class.is-invalid]="
-                submitted && updatePersonForm.get('habilitation')?.errors
-              "
+              [class.is-invalid]="submitted && form.get('habilitation')?.errors"
               class="{{
-                submitted && updatePersonForm.get('habilitation')?.errors
+                submitted && form.get('habilitation')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted &&
-            updatePersonForm.get('habilitation')?.hasError("required")) {
+            @if (submitted && form.get('habilitation')?.hasError("required")) {
             <span class="text-danger">
               Habilitação é um campo obrigatório.
             </span>

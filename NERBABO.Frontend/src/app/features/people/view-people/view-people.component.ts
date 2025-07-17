@@ -7,13 +7,13 @@ import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Person } from '../../../core/models/person';
 import { SharedService } from '../../../core/services/shared.service';
-import { UpdatePeopleComponent } from '../update-people/update-people.component';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { PersonRelationship } from '../../../core/models/personRelationships';
 import { ICONS } from '../../../core/objects/icons';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IView } from '../../../core/interfaces/iview';
+import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 
 @Component({
   selector: 'app-detail-person',
@@ -58,7 +58,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     const initialState = {
       id: this.id,
     };
-    this.bsModalService.show(UpdatePeopleComponent, {
+    this.bsModalService.show(UpsertPeopleComponent, {
       initialState: initialState,
       class: 'modal-lg',
     });

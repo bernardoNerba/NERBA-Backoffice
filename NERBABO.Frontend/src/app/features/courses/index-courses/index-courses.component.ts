@@ -10,6 +10,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { CreateCoursesComponent } from '../create-courses/create-courses.component';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
+import { IIndex } from '../../../core/interfaces/iindex';
 
 @Component({
   selector: 'app-index-courses',
@@ -21,7 +22,7 @@ import { CoursesTableComponent } from '../../../shared/components/tables/courses
   ],
   templateUrl: './index-courses.component.html',
 })
-export class IndexCoursesComponent implements OnInit {
+export class IndexCoursesComponent implements IIndex, OnInit {
   courses$!: Observable<Course[]>;
   loading$!: Observable<boolean>;
   ICONS = ICONS;
@@ -34,18 +35,19 @@ export class IndexCoursesComponent implements OnInit {
     this.courses$ = this.coursesService.courses$;
     this.loading$ = this.coursesService.loading$;
   }
+
   ngOnInit(): void {
-    this.updateBreadcumbs();
+    this.updateBreadcrumbs();
   }
 
-  onAddCourseModal() {
+  onCreateModal() {
     this.modalService.show(CreateCoursesComponent, {
       class: 'modal-lg',
       initialState: {},
     });
   }
 
-  private updateBreadcumbs(): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',

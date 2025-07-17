@@ -5,11 +5,12 @@ import { Observable } from 'rxjs';
 import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
-import { CreatePeopleComponent } from '../create-people/create-people.component';
+import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { PeopleTableComponent } from '../../../shared/components/tables/people-table/people-table.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { IIndex } from '../../../core/interfaces/iindex';
 
 @Component({
   selector: 'app-index-people',
@@ -21,7 +22,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
   ],
   templateUrl: './index-people.component.html',
 })
-export class IndexPeopleComponent implements OnInit {
+export class IndexPeopleComponent implements IIndex, OnInit {
   people$!: Observable<Person[]>;
   loading$!: Observable<boolean>;
   ICONS = ICONS;
@@ -39,14 +40,14 @@ export class IndexPeopleComponent implements OnInit {
     this.updateBreadcrumbs();
   }
 
-  onAddPersonModal() {
-    this.modalService.show(CreatePeopleComponent, {
+  onCreateModal(): void {
+    this.modalService.show(UpsertPeopleComponent, {
       initialState: {},
       class: 'modal-lg',
     });
   }
 
-  private updateBreadcrumbs(): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',

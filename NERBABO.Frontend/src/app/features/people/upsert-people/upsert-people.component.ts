@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { COUNTRIES } from '../../../core/objects/countries';
 import {
   HabilitationEnum,
@@ -24,9 +24,12 @@ import { GENDERS } from '../../../core/objects/gender';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+import { IUpsert } from '../../../core/interfaces/IUpsert';
+import { Person } from '../../../core/models/person';
+import { convertDateOnlyToPtDate } from '../../../shared/utils';
 
 @Component({
-  selector: 'app-create-people',
+  selector: 'app-upsert-people',
   imports: [
     ReactiveFormsModule,
     ErrorCardComponent,
@@ -36,18 +39,24 @@ import { TextareaModule } from 'primeng/textarea';
     InputTextModule,
     TextareaModule,
   ],
-  templateUrl: './create-people.component.html',
+  templateUrl: './upsert-people.component.html',
 })
-export class CreatePeopleComponent implements OnInit {
-  allCountries = [...COUNTRIES];
+export class UpsertPeopleComponent implements IUpsert, OnInit {
+  @Input() id!: number;
+  currentPerson?: Person | null;
+
+  submitted: boolean = false;
+  loading: boolean = false;
+  isUpdate: boolean = false;
+
+  allCountries = COUNTRIES;
   filteredCountries: any;
-  allGender = [...GENDERS];
-  allHabilitations = [...HABILITATIONS];
-  allIdentificationTypes = [...IDENTIFICATION_TYPES];
-  submitted = false;
-  loading = false;
+  allGender = GENDERS;
+  allHabilitations = HABILITATIONS;
+  allIdentificationTypes = IDENTIFICATION_TYPES;
+
+  form: FormGroup = new FormGroup({});
   errorMessages: string[] = [];
-  registPersonForm: FormGroup = new FormGroup({});
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -57,11 +66,19 @@ export class CreatePeopleComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (this.id !== 0) {
+      this.isUpdate = true;
+      const personFromService = this.peopleService.personById(this.id);
+      if (personFromService) this.currentPerson = personFromService;
+    }
     this.initializeForm();
+    if (this.isUpdate) {
+      this.patchFormValues();
+    }
   }
 
-  private initializeForm() {
-    this.registPersonForm = this.formBuilder.group({
+  initializeForm(): void {
+    this.form = this.formBuilder.group({
       firstName: [
         '',
         [
@@ -105,6 +122,30 @@ export class CreatePeopleComponent implements OnInit {
     });
   }
 
+  patchFormValues(): void {
+    this.form.patchValue({
+      firstName: this.currentPerson?.firstName,
+      lastName: this.currentPerson?.lastName,
+      nif: this.currentPerson?.nif,
+      identificationNumber: this.currentPerson?.identificationNumber,
+      identificationValidationDate: convertDateOnlyToPtDate(
+        this.currentPerson?.identificationValidationDate ?? ''
+      ),
+      identificationType: this.currentPerson?.identificationType,
+      niss: this.currentPerson?.niss,
+      iban: this.currentPerson?.iban,
+      birthDate: convertDateOnlyToPtDate(this.currentPerson?.birthDate ?? ''),
+      address: this.currentPerson?.address,
+      zipCode: this.currentPerson?.zipCode,
+      phoneNumber: this.currentPerson?.phoneNumber,
+      email: this.currentPerson?.email,
+      naturality: this.currentPerson?.naturality,
+      nationality: this.currentPerson?.nationality,
+      gender: this.currentPerson?.gender,
+      habilitation: this.currentPerson?.habilitation,
+    });
+  }
+
   filterCountry(event: AutoCompleteCompleteEvent) {
     let filtered: any[] = [];
     let query = event.query;
@@ -119,12 +160,12 @@ export class CreatePeopleComponent implements OnInit {
     this.filteredCountries = filtered;
   }
 
-  onSubmit() {
+  onSubmit(): void {
     this.submitted = true;
     this.errorMessages = [];
 
-    if (this.registPersonForm.invalid) {
-      this.registPersonForm.markAllAsTouched();
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.sharedService.showError(
         'Os dados fornecidos não estão de acordo com as diretrizes.'
       );
@@ -132,16 +173,19 @@ export class CreatePeopleComponent implements OnInit {
     }
 
     this.loading = true;
-    this.peopleService.createPerson(this.registPersonForm.value).subscribe({
-      next: (value) => {
-        this.bsModalRef.hide();
-        this.peopleService.triggerFetchPeople();
-        this.sharedService.showSuccess(value.message);
-      },
-      error: (error) => {
-        this.errorMessages = this.sharedService.handleErrorResponse(error);
-        this.loading = false;
-      },
-    });
+
+    this.peopleService
+      .upsertPerson({ id: this.id, ...this.form.value }, this.isUpdate)
+      .subscribe({
+        next: (value) => {
+          this.bsModalRef.hide();
+          this.peopleService.triggerFetchPeople();
+          this.sharedService.showSuccess(value.message);
+        },
+        error: (error) => {
+          this.errorMessages = this.sharedService.handleErrorResponse(error);
+          this.loading = false;
+        },
+      });
   }
 }

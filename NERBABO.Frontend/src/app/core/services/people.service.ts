@@ -29,13 +29,22 @@ export class PeopleService {
     this.fetchPeopleWithoutUser();
   }
 
-  createPerson(model: Omit<Person, 'id' | 'fullName'>): Observable<OkResponse> {
+  upsertPerson(model: Person, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) {
+      return this.updatePerson(model.id, model);
+    }
+    return this.createPerson(model);
+  }
+
+  private createPerson(
+    model: Omit<Person, 'id' | 'fullName' | 'age'>
+  ): Observable<OkResponse> {
     return this.http
       .post<OkResponse>(`${API_ENDPOINTS.all_people}create`, model)
       .pipe(tap(() => this.notifyPersonUpdate(0))); // Notify full refresh after create
   }
 
-  updatePerson(
+  private updatePerson(
     id: number,
     model: Omit<Person, 'fullName' | 'age'>
   ): Observable<OkResponse> {

@@ -39,37 +39,17 @@ export class IndexFramesComponent implements OnInit {
 
   ngOnInit(): void {
     this.frameService.loadFrames();
-    this.updateBreadcumbs();
+    this.updateBreadcrumbs();
   }
 
-  onAddFrameModal(): void {
+  onCreateModal(): void {
     this.modalService.show(CreateFramesComponent, {
       class: 'modal-md',
       initialState: {},
     });
   }
 
-  onUpdateFrameModal(frame: Frame): void {
-    this.modalService.show(UpdateFramesComponent, {
-      class: 'modal-md',
-      initialState: {
-        id: frame.id,
-        frame: frame,
-      },
-    });
-  }
-
-  onDeleteFrameModal(frame: Frame): void {
-    this.modalService.show(DeleteFramesComponent, {
-      class: 'modal-md',
-      initialState: {
-        id: frame.id,
-        name: `${frame.program} - ${frame.intervention}`,
-      },
-    });
-  }
-
-  private updateBreadcumbs(): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',

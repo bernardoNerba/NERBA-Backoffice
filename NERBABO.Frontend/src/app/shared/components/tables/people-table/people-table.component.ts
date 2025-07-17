@@ -10,7 +10,6 @@ import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Router } from '@angular/router';
 import { PeopleService } from '../../../../core/services/people.service';
-import { UpdatePeopleComponent } from '../../../../features/people/update-people/update-people.component';
 import { DeletePeopleComponent } from '../../../../features/people/delete-people/delete-people.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +19,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { BadgeModule } from 'primeng/badge';
 import { Tag } from 'primeng/tag';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
+import { UpsertPeopleComponent } from '../../../../features/people/upsert-people/upsert-people.component';
 
 @Component({
   selector: 'app-people-table',
@@ -127,7 +127,7 @@ export class PeopleTableComponent implements OnInit {
   }
 
   onUpdatePersonModal(person: Person): void {
-    this.modalService.show(UpdatePeopleComponent, {
+    this.modalService.show(UpsertPeopleComponent, {
       class: 'modal-lg',
       initialState: {
         id: person.id,

@@ -10,6 +10,7 @@ import { CreateCompaniesComponent } from '../create-companies/create-companies.c
 import { ICONS } from '../../../core/objects/icons';
 import { CompaniesTableComponent } from '../../../shared/components/tables/companies-table/companies-table.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { IIndex } from '../../../core/interfaces/iindex';
 
 @Component({
   selector: 'app-index-companies',
@@ -21,7 +22,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
   ],
   templateUrl: './index-companies.component.html',
 })
-export class IndexCompaniesComponent implements OnInit {
+export class IndexCompaniesComponent implements IIndex, OnInit {
   companies$!: Observable<Company[]>;
   loading$!: Observable<boolean>;
   ICONS = ICONS;
@@ -39,14 +40,14 @@ export class IndexCompaniesComponent implements OnInit {
     this.updateBreadcrumbs();
   }
 
-  onAddCompanyModal() {
+  onCreateModal(): void {
     this.modalService.show(CreateCompaniesComponent, {
       initialState: {},
       class: 'modal-lg',
     });
   }
 
-  private updateBreadcrumbs(): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',

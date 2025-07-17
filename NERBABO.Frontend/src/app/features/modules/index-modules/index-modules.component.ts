@@ -10,6 +10,7 @@ import { CreateModulesComponent } from '../create-modules/create-modules.compone
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
+import { IIndex } from '../../../core/interfaces/iindex';
 
 @Component({
   selector: 'app-index-modules',
@@ -21,7 +22,7 @@ import { ModulesTableComponent } from '../../../shared/components/tables/modules
   ],
   templateUrl: './index-modules.component.html',
 })
-export class IndexModulesComponent implements OnInit {
+export class IndexModulesComponent implements IIndex, OnInit {
   modules$!: Observable<Module[]>;
   loading$!: Observable<boolean>;
   ICONS = ICONS;
@@ -39,14 +40,14 @@ export class IndexModulesComponent implements OnInit {
     this.updateBreadcrumbs();
   }
 
-  onAddModal(): void {
+  onCreateModal(): void {
     this.modalService.show(CreateModulesComponent, {
       initialState: {},
       class: 'modal-md',
     });
   }
 
-  private updateBreadcrumbs(): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',

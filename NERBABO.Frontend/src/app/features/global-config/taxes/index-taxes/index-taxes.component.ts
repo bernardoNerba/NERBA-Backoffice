@@ -21,6 +21,7 @@ import { CreateTaxesComponent } from '../create-taxes/create-taxes.component';
 import { UpdateTaxesComponent } from '../update-taxes/update-taxes.component';
 import { DeleteTaxesComponent } from '../delete-taxes/delete-taxes.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { IIndex } from '../../../../core/interfaces/iindex';
 
 interface TaxTypeFilter {
   label: string;
@@ -44,7 +45,7 @@ interface TaxTypeFilter {
   ],
   templateUrl: './index-taxes.component.html',
 })
-export class IndexTaxesComponent implements OnInit {
+export class IndexTaxesComponent implements IIndex, OnInit {
   @ViewChild('dt') dt!: Table;
   taxes: Tax[] = [];
   filteredTaxes: Tax[] = [];
@@ -85,7 +86,7 @@ export class IndexTaxesComponent implements OnInit {
           {
             label: 'Editar',
             icon: 'pi pi-pencil',
-            command: () => this.onUpdateTaxModal(this.selectedTax!),
+            command: () => this.onUpdateModal(this.selectedTax!),
           },
           {
             label: 'Eliminar',
@@ -126,14 +127,14 @@ export class IndexTaxesComponent implements OnInit {
     this.filteredTaxes = filtered;
   }
 
-  onAddTaxModal() {
+  onCreateModal() {
     this.modalService.show(CreateTaxesComponent, {
       initialState: {},
       class: 'modal-md',
     });
   }
 
-  onUpdateTaxModal(tax: Tax) {
+  onUpdateModal(tax: Tax) {
     this.modalService.show(UpdateTaxesComponent, {
       initialState: { currentTax: tax, type: tax.type as TaxType },
       class: 'modal-md',
@@ -207,7 +208,7 @@ export class IndexTaxesComponent implements OnInit {
     this.dt.reset();
   }
 
-  private updateBreadcrumbs(): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',

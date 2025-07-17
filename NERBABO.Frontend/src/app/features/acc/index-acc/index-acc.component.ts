@@ -11,6 +11,7 @@ import { environment } from '../../../../environments/environment.development';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { AccsTableComponent } from '../../../shared/components/tables/accs-table/accs-table.component';
+import { IIndex } from '../../../core/interfaces/iindex';
 
 @Component({
   selector: 'app-index-acc',
@@ -22,7 +23,7 @@ import { AccsTableComponent } from '../../../shared/components/tables/accs-table
   ],
   templateUrl: './index-acc.component.html',
 })
-export class IndexAccComponent implements OnInit {
+export class IndexAccComponent implements IIndex, OnInit {
   roles = `${environment.roles}`.split(','); // roles set on the environment
   users$!: Observable<UserInfo[] | null>;
   loading$!: Observable<boolean>;
@@ -41,14 +42,14 @@ export class IndexAccComponent implements OnInit {
     this.updateBreadcrumbs();
   }
 
-  onCreateUserModal(): void {
+  onCreateModal(): void {
     this.modalService.show(CreateAccComponent, {
       class: 'modal-md',
       initialState: {},
     });
   }
 
-  private updateBreadcrumbs(): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         displayName: 'Dashboard',
