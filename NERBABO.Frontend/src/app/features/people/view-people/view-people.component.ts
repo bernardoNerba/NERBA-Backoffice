@@ -13,6 +13,7 @@ import { PersonRelationship } from '../../../core/models/personRelationships';
 import { ICONS } from '../../../core/objects/icons';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
+import { IView } from '../../../core/interfaces/iview';
 
 @Component({
   selector: 'app-detail-person',
@@ -20,7 +21,7 @@ import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/
   imports: [CommonModule, DropdownMenuComponent],
   templateUrl: './view-people.component.html',
 })
-export class ViewPeopleComponent implements OnInit, OnDestroy {
+export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   person$?: Observable<Person | null>;
   relationships$?: Observable<PersonRelationship | null>;
   selectedId!: number;
@@ -29,7 +30,7 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
   ICONS = ICONS;
   menuItems: MenuItem[] | undefined;
 
-  private subscriptions: Subscription = new Subscription();
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -48,12 +49,12 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.initializePerson();
-    this.updateSourceSubcription();
+    this.initializeEntity();
+    this.updateSourceSubscription();
     this.deleteSourceSubscription();
   }
 
-  updatePersonModal() {
+  onUpdateModal() {
     const initialState = {
       id: this.id,
     };
@@ -63,7 +64,7 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
     });
   }
 
-  deletePersonModal() {
+  onDeleteModal() {
     const initialState = {
       id: this.id,
       fullName: this.fullName,
@@ -71,7 +72,7 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
     this.bsModalService.show(DeletePeopleComponent, { initialState });
   }
 
-  private updateBreadcrumbs(id: number, fullName: string): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         displayName: 'Dashboard',
@@ -84,14 +85,14 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
         className: '',
       },
       {
-        displayName: fullName || 'Detalhes',
-        url: `/people/${id}`,
+        displayName: this.fullName || 'Detalhes',
+        url: `/people/${this.id}`,
         className: 'inactive',
       },
     ]);
   }
 
-  private initializePerson() {
+  initializeEntity() {
     this.person$ = this.peopleService.getSinglePerson(this.id).pipe(
       catchError((error) => {
         if (error.status === 401 || error.status === 403) {
@@ -106,8 +107,8 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
         if (person) {
           this.fullName = person.fullName;
           this.id = person.id;
-          this.updateBreadcrumbs(person.id, person.fullName);
-          this.populateMenu(person);
+          this.updateBreadcrumbs();
+          this.populateMenu();
         }
       })
     );
@@ -115,7 +116,7 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
     this.relationships$ = this.peopleService.getPersonRelationships(this.id);
   }
 
-  private populateMenu(person: Person): void {
+  populateMenu(): void {
     this.menuItems = [
       {
         label: 'Opções',
@@ -123,12 +124,12 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
           {
             label: 'Editar',
             icon: 'pi pi-pencil',
-            command: () => this.updatePersonModal(),
+            command: () => this.onUpdateModal(),
           },
           {
             label: 'Eliminar',
             icon: 'pi pi-exclamation-triangle',
-            command: () => this.deletePersonModal(),
+            command: () => this.onDeleteModal(),
           },
           {
             // TODO: Implement create colaborator from person
@@ -153,17 +154,17 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private updateSourceSubcription() {
+  updateSourceSubscription() {
     this.subscriptions.add(
       this.peopleService.updatedSource$.subscribe((updatedId: number) => {
         if (this.id === updatedId) {
-          this.initializePerson();
+          this.initializeEntity();
         }
       })
     );
   }
 
-  private deleteSourceSubscription() {
+  deleteSourceSubscription() {
     this.subscriptions.add(
       this.peopleService.deletedSource$.subscribe((deletedId: number) => {
         if (this.id === deletedId) {

@@ -4,7 +4,7 @@ import { Module } from '../../../core/models/module';
 import { ICONS } from '../../../core/objects/icons';
 import { ModulesService } from '../../../core/services/modules.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
@@ -19,6 +19,7 @@ import { CoursesTableComponent } from '../../../shared/components/tables/courses
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
+import { IView } from '../../../core/interfaces/iview';
 
 @Component({
   selector: 'app-view-modules',
@@ -32,7 +33,7 @@ import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/
   ],
   templateUrl: './view-modules.component.html',
 })
-export class ViewModulesComponent implements OnInit, OnDestroy {
+export class ViewModulesComponent implements IView, OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   module$?: Observable<Module | null>;
   courses$?: Observable<Course[] | null>;
@@ -43,7 +44,7 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
   hasActions: boolean = false;
   menuItems: MenuItem[] | undefined;
 
-  private subscriptions: Subscription = new Subscription();
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private modulesService: ModulesService,
@@ -53,7 +54,6 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     private router: Router,
     private modalService: BsModalService
   ) {}
-
   ngOnInit(): void {
     const moduleId = this.route.snapshot.paramMap.get('id');
     this.id = Number.parseInt(moduleId ?? '');
@@ -63,15 +63,15 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.initializeModule();
+    this.initializeEntity();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
     this.toggleSourceSubscription();
   }
 
-  onUpdateModal(m: Module) {
+  onUpdateModal(): void {
     const initialState = {
-      id: m.id,
+      id: this.id,
     };
     this.modalService.show(UpdateModulesComponent, {
       initialState: initialState,
@@ -79,10 +79,10 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDeleteModal(id: number, name: string) {
+  onDeleteModal(): void {
     const initialState = {
-      id: id,
-      name: name,
+      id: this.id,
+      name: this.name,
     };
     this.modalService.show(DeleteModulesComponent, {
       initialState: initialState,
@@ -90,11 +90,11 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     });
   }
 
-  onToggleModule(id: number): void {
-    this.modulesService.toggleModuleIsActive(id);
+  onToggleModule(): void {
+    this.modulesService.toggleModuleIsActive(this.id);
   }
 
-  private initializeModule() {
+  initializeEntity() {
     this.module$ = this.modulesService.getSingleModule(this.id).pipe(
       catchError((error) => {
         if (error.status === 401 || error.status === 403) {
@@ -109,8 +109,8 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
         if (module) {
           this.id = module.id;
           this.name = module.name;
-          this.updateBreadcrumbs(this.id, this.name);
-          this.populateMenu(module);
+          this.updateBreadcrumbs();
+          this.populateMenu();
         }
       })
     );
@@ -118,7 +118,7 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     this.actions$ = this.actionsService.getActionsByModuleId(this.id);
   }
 
-  private populateMenu(module: Module) {
+  populateMenu() {
     this.menuItems = [
       {
         label: 'Opções',
@@ -126,34 +126,34 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
           {
             label: 'Editar',
             icon: 'pi pi-pencil',
-            command: () => this.onUpdateModal(module),
+            command: () => this.onUpdateModal(),
           },
           {
             label: 'Eliminar',
             icon: 'pi pi-exclamation-triangle',
-            command: () => this.onDeleteModal(module.id, module.name),
+            command: () => this.onDeleteModal(),
           },
           {
             label: 'Atualizar Estado',
             icon: 'pi pi-refresh',
-            command: () => this.onToggleModule(module.id),
+            command: () => this.onToggleModule(),
           },
         ],
       },
     ];
   }
 
-  private updateSourceSubscription() {
+  updateSourceSubscription() {
     this.subscriptions.add(
       this.modulesService.updatedSource$.subscribe((id: number) => {
         if (this.id === id) {
-          this.initializeModule();
+          this.initializeEntity();
         }
       })
     );
   }
 
-  private deleteSourceSubscription() {
+  deleteSourceSubscription() {
     this.subscriptions.add(
       this.modulesService.deletedSource$.subscribe((id: number) => {
         if (this.id === id) this.router.navigateByUrl('/modules');
@@ -165,13 +165,13 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.modulesService.toggleSource$.subscribe((id: number) => {
         if (this.id === id) {
-          this.initializeModule();
+          this.initializeEntity();
         }
       })
     );
   }
 
-  private updateBreadcrumbs(id: number, name: string): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',
@@ -184,8 +184,8 @@ export class ViewModulesComponent implements OnInit, OnDestroy {
         className: '',
       },
       {
-        url: `/modules/${id}`,
-        displayName: name.substring(0, 21) + '...' || 'Detalhes',
+        url: `/modules/${this.id}`,
+        displayName: this.name?.substring(0, 21) + '...' || 'Detalhes',
         className: 'inactive',
       },
     ]);

@@ -13,13 +13,14 @@ import { UpdateCompaniesComponent } from '../update-companies/update-companies.c
 import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
+import { IView } from '../../../core/interfaces/iview';
 
 @Component({
   selector: 'app-view-companies',
   imports: [CommonModule, IconComponent, RouterLink, DropdownMenuComponent],
   templateUrl: './view-companies.component.html',
 })
-export class ViewCompaniesComponent implements OnInit, OnDestroy {
+export class ViewCompaniesComponent implements IView, OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   company$?: Observable<Company | null>;
   students$!: Observable<Student[] | []>;
@@ -28,7 +29,7 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
   hasStudents: boolean = false;
   menuItems: MenuItem[] | undefined;
 
-  private subscription: Subscription = new Subscription();
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private companiesService: CompaniesService,
@@ -47,13 +48,13 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.initializeCompany();
+    this.initializeEntity();
     this.initializeStudentsFromCompany();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
   }
 
-  onUpdateCompanyModal() {
+  onUpdateModal() {
     const initialState = {
       id: this.id,
     };
@@ -63,7 +64,7 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDeleteCompanyModal() {
+  onDeleteModal() {
     const initialState = {
       id: this.id,
       name: this.name,
@@ -71,7 +72,7 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
     this.modalService.show(DeleteCompaniesComponent, { initialState });
   }
 
-  private initializeCompany() {
+  initializeEntity() {
     this.company$ = this.companiesService.getCompanyById(this.id).pipe(
       catchError((error) => {
         if (error.status === 401 || error.status === 403) {
@@ -86,8 +87,8 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
         if (company) {
           this.id = company.id;
           this.name = company.name;
-          this.updateBreadcrumbs(this.id, this.name);
-          this.populateMenu(company);
+          this.updateBreadcrumbs();
+          this.populateMenu();
         }
       })
     );
@@ -110,7 +111,7 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
     );
   }
 
-  private populateMenu(company: Company): void {
+  populateMenu(): void {
     this.menuItems = [
       {
         label: 'Opções',
@@ -118,19 +119,19 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
           {
             label: 'Editar',
             icon: 'pi pi-pencil',
-            command: () => this.onUpdateCompanyModal(),
+            command: () => this.onUpdateModal(),
           },
           {
             label: 'Eliminar',
             icon: 'pi pi-exclamation-triangle',
-            command: () => this.onDeleteCompanyModal(),
+            command: () => this.onDeleteModal(),
           },
         ],
       },
     ];
   }
 
-  private updateBreadcrumbs(id: number, name: string): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',
@@ -143,26 +144,26 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
         className: '',
       },
       {
-        url: `/companies/${id}`,
-        displayName: name.substring(0, 21) + '...' || 'Detalhes',
+        url: `/companies/${this.id}`,
+        displayName: this.name?.substring(0, 21) + '...' || 'Detalhes',
         className: 'inactive',
       },
     ]);
   }
 
-  private updateSourceSubscription() {
-    this.subscription.add(
+  updateSourceSubscription() {
+    this.subscriptions.add(
       this.companiesService.updatedSource$.subscribe((id: number) => {
         if (this.id === id) {
-          this.initializeCompany();
+          this.initializeEntity();
           this.initializeStudentsFromCompany();
         }
       })
     );
   }
 
-  private deleteSourceSubscription() {
-    this.subscription.add(
+  deleteSourceSubscription() {
+    this.subscriptions.add(
       this.companiesService.deletedSource$.subscribe((id: number) => {
         if (this.id === id) {
           this, this.router.navigateByUrl('/companies');
@@ -172,6 +173,6 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 }
