@@ -5,13 +5,13 @@ import { UserInfo } from '../../../core/models/userInfo';
 import { AccService } from '../../../core/services/acc.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { CreateAccComponent } from '../create-acc/create-acc.component';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment.development';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { AccsTableComponent } from '../../../shared/components/tables/accs-table/accs-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
+import { UpsertAccComponent } from '../upsert-acc/upsert-acc.component';
 
 @Component({
   selector: 'app-index-acc',
@@ -43,9 +43,9 @@ export class IndexAccComponent implements IIndex, OnInit {
   }
 
   onCreateModal(): void {
-    this.modalService.show(CreateAccComponent, {
+    this.modalService.show(UpsertAccComponent, {
       class: 'modal-md',
-      initialState: {},
+      initialState: { id: 0 },
     });
   }
 

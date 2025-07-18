@@ -27,6 +27,11 @@ export class AccService {
     this.fetchUsers();
   }
 
+  upsert(model: any, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.updateUser(model);
+    return this.register(model);
+  }
+
   register(model: Register): Observable<OkResponse> {
     return this.http
       .post<OkResponse>(API_ENDPOINTS.create_acc, model)
@@ -46,7 +51,7 @@ export class AccService {
   }
 
   getUserById(id: string): Observable<UserInfo> {
-    return this.http.get<UserInfo>(`${API_ENDPOINTS.all_accs}${id}`);
+    return this.http.get<UserInfo>(`${API_ENDPOINTS.single_acc}${id}`);
   }
 
   private fetchUsers(): void {

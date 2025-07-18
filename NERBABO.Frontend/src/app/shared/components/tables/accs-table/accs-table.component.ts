@@ -11,7 +11,6 @@ import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Router } from '@angular/router';
 import { AccService } from '../../../../core/services/acc.service';
-import { UpdateAccComponent } from '../../../../features/acc/update-acc/update-acc.component';
 import { BlockAccComponent } from '../../../../features/acc/block-acc/block-acc.component';
 import { AssignRoleAccComponent } from '../../../../features/acc/assign-role-acc/assign-role-acc.component';
 import { CommonModule } from '@angular/common';
@@ -23,6 +22,7 @@ import { IconComponent } from '../../icon/icon.component';
 import { ICONS } from '../../../../core/objects/icons';
 import { Tag } from 'primeng/tag';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
+import { UpsertAccComponent } from '../../../../features/acc/upsert-acc/upsert-acc.component';
 
 @Component({
   selector: 'app-accs-table',
@@ -153,9 +153,9 @@ export class AccsTableComponent implements OnInit {
   }
 
   onUpdateUserModal(id: string): void {
-    this.modalService.show(UpdateAccComponent, {
+    this.modalService.show(UpsertAccComponent, {
       class: 'modal-md',
-      initialState: { id },
+      initialState: { id: id },
     });
   }
 

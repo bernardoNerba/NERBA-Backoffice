@@ -1,5 +1,5 @@
 export interface IUpsert {
-  id: number;
+  id: number | string;
   submitted: boolean;
   loading: boolean;
   isUpdate: boolean;
