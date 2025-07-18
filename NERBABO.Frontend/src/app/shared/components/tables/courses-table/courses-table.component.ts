@@ -7,7 +7,7 @@ import { StatusEnum } from '../../../../core/objects/status';
 import { TagModule } from 'primeng/tag';
 import { Button } from 'primeng/button';
 import { Menu } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, SortEvent } from 'primeng/api';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -17,7 +17,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { DeleteCoursesComponent } from '../../../../features/courses/delete-courses/delete-courses.component';
 import { ChangeStatusCoursesComponent } from '../../../../features/courses/change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../../../../features/courses/assign-module-courses/assign-module-courses.component';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CoursesService } from '../../../../core/services/courses.service';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
@@ -145,11 +145,26 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
 
   // Determine progress bar class based on percentage
   getProgressBarClass(course: Course): string {
-    return this.getProgressPercentage(course) >= 100 ? '' : 'black';
+    const percentage = this.getProgressPercentage(course);
+    return percentage >= 100 ? '' : 'black';
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe(); // Clean up subscriptions
+  // Custom sort function for the table
+  onSort(event: SortEvent): void {
+    if (event.field === 'progressPercentage' && this.courses) {
+      this.courses.sort((a: Course, b: Course) => {
+        const valueA = this.getProgressPercentage(a);
+        const valueB = this.getProgressPercentage(b);
+        let result = 0;
+
+        if (valueA < valueB) result = -1;
+        else if (valueA > valueB) result = 1;
+
+        return event.order ? result * event.order : result;
+      });
+      // Trigger change detection
+      this.courses = [...this.courses];
+    }
   }
 
   // Refresh a single course by fetching its updated data
@@ -294,5 +309,9 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
 
   isFirstPage(): boolean {
     return this.courses ? this.first === 0 : true;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

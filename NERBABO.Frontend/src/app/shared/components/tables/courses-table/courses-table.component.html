@@ -18,8 +18,10 @@
   [rows]="10"
   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
   (onPage)="pageChange($event)"
+  (onSort)="onSort($event)"
   [rowsPerPageOptions]="[10, 25, 50]"
 >
+  >
   <ng-template #caption>
     <div class="d-flex justify-content-end gap-2">
       <p-iconfield iconPosition="left">
@@ -56,10 +58,10 @@
           <p-sortIcon field="minHabilitationLevel" />
         </div>
       </th>
-      <th pSortableColumn="totalDuration" style="width: 15%">
+      <th pSortableColumn="progressPercentage" style="width: 15%">
         <div class="flex items-center gap-2">
-          Duração
-          <p-sortIcon field="totalDuration" />
+          Completo
+          <p-sortIcon field="progressPercentage" />
         </div>
       </th>
       <th pSortableColumn="status" style="width: 15%">
@@ -92,7 +94,7 @@
           [icon]="'pi pi-link'"
         />
       </td>
-      <!-- COURSE MIN HABILITATION LVL  -->
+      <!-- COURSE MIN HABILITATION LVL -->
       <td>
         <p-tag [value]="course.minHabilitationLevel" severity="secondary" />
       </td>
@@ -102,7 +104,7 @@
           <p-progressBar
             [value]="getProgressPercentage(course)"
             [showValue]="true"
-            [color]="getProgressBarClass(course)"
+            color="{{ getProgressBarClass(course) }}"
           />
         </div>
       </td>
