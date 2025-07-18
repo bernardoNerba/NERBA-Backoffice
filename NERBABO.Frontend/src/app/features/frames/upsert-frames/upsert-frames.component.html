@@ -1,5 +1,7 @@
 <div class="modal-header">
-  <h4 class="modal-title">Registar Enquadramento</h4>
+  <h4 class="modal-title">
+    {{ isUpdate ? "Atualizar" : "Registar" }} Enquadramento
+  </h4>
   <button
     type="button"
     class="btn-close"
@@ -10,6 +12,7 @@
 
 <div class="modal-body">
   <form [formGroup]="form">
+    <!-- Program -->
     <div class="mb-3">
       <label for="program"
         >Programa
@@ -34,6 +37,7 @@
       }
     </div>
 
+    <!-- Intervention -->
     <div class="mb-3">
       <label for="intervention"
         >Intervenção
@@ -60,6 +64,7 @@
       }
     </div>
 
+    <!-- Intervention Type -->
     <div class="mb-3">
       <label for="interventionType"
         >Tipo de Intervenção <span class="text-danger">*</span></label
@@ -88,6 +93,7 @@
       }
     </div>
 
+    <!-- Operation -->
     <div class="mb-3">
       <label for="operation">Operação <span class="text-danger">*</span></label>
       <input
@@ -111,6 +117,7 @@
       }
     </div>
 
+    <!-- Operation Type -->
     <div class="mb-3">
       <label for="operationType"
         >Tipo de Operação <span class="text-danger">*</span></label
@@ -141,6 +148,7 @@
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
   </form>
 </div>
+
 <div class="modal-footer">
   <div class="text-end">
     <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">

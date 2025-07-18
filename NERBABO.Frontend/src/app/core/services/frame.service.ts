@@ -53,6 +53,11 @@ export class FrameService {
     return this.http.get<Frame>(`${API_ENDPOINTS.frames}${id}`);
   }
 
+  upsert(model: Frame, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.update(model.id, model);
+    return this.create(model);
+  }
+
   create(frame: Omit<Frame, 'id'>): Observable<OkResponse> {
     return this.http.post<OkResponse>(`${API_ENDPOINTS.frames}create`, frame);
   }

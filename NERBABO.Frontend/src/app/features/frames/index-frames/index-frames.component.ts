@@ -6,11 +6,12 @@ import { FrameService } from '../../../core/services/frame.service';
 import { CommonModule } from '@angular/common';
 import { Frame } from '../../../core/models/frame';
 import { SharedService } from '../../../core/services/shared.service';
-import { CreateFramesComponent } from '../create-frames/create-frames.component';
+
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
 import { FramesTableComponent } from '../../../shared/components/tables/frames-table/frames-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
+import { UpsertFramesComponent } from '../upsert-frames/upsert-frames.component';
 
 @Component({
   selector: 'app-index-frame',
@@ -42,9 +43,11 @@ export class IndexFramesComponent implements OnInit, IIndex {
   }
 
   onCreateModal(): void {
-    this.modalService.show(CreateFramesComponent, {
+    this.modalService.show(UpsertFramesComponent, {
       class: 'modal-md',
-      initialState: {},
+      initialState: {
+        id: 0,
+      },
     });
   }
 

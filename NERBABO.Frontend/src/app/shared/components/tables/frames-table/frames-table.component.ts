@@ -10,7 +10,6 @@ import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Router } from '@angular/router';
 import { FrameService } from '../../../../core/services/frame.service';
-import { UpdateFramesComponent } from '../../../../features/frames/update-frames/update-frames.component';
 import { DeleteFramesComponent } from '../../../../features/frames/delete-frames/delete-frames.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +17,7 @@ import { TruncatePipe } from '../../../pipes/truncate.pipe';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
+import { UpsertFramesComponent } from '../../../../features/frames/upsert-frames/upsert-frames.component';
 
 @Component({
   selector: 'app-frames-table',
@@ -123,11 +123,10 @@ export class FramesTableComponent implements OnInit {
   }
 
   onUpdateFrameModal(frame: Frame): void {
-    this.modalService.show(UpdateFramesComponent, {
+    this.modalService.show(UpsertFramesComponent, {
       class: 'modal-md',
       initialState: {
         id: frame.id,
-        frame: frame,
       },
     });
   }
