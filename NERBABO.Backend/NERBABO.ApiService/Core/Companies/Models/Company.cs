@@ -35,7 +35,7 @@ namespace NERBABO.ApiService.Core.Companies.Models
                 Locality = c.Locality,
                 ZipCode = c.ZipCode,
                 Email = c.Email,
-                AtivitySector = c.AtivitySector.Humanize().Transform(To.TitleCase),
+                AtivitySector = c.AtivitySector.Humanize().Transform(To.SentenceCase),
                 Size = c.Size.Humanize().Transform(To.TitleCase),
                 StudentsCount = c.StudentsCount
             };

@@ -1,25 +1,26 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { IUpsert } from '../../../core/interfaces/IUpsert';
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ACTIVITY_SECTOR } from '../../../core/objects/ativitySector';
-import { COMPANY_SIZE } from '../../../core/objects/companySize';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { CompaniesService } from '../../../core/services/companies.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { Company } from '../../../core/models/company';
 import { OkResponse } from '../../../core/models/okResponse';
+import { Company } from '../../../core/models/company';
 import { CommonModule } from '@angular/common';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { ACTIVITY_SECTOR } from '../../../core/objects/ativitySector';
+import { COMPANY_SIZE } from '../../../core/objects/companySize';
 
 @Component({
-  selector: 'app-update-companies',
+  selector: 'app-upsert-companies',
   imports: [
     ReactiveFormsModule,
     CommonModule,
@@ -28,15 +29,18 @@ import { SelectModule } from 'primeng/select';
     TextareaModule,
     SelectModule,
   ],
-  templateUrl: './update-companies.component.html',
+  templateUrl: './upsert-companies.component.html',
 })
-export class UpdateCompaniesComponent {
+export class UpsertCompaniesComponent implements IUpsert, OnInit {
   @Input({ required: true }) id!: number;
-  currentCompany!: Company;
-  submitted = false;
-  loading = false;
+  currentCompany?: Company | null;
+
+  submitted: boolean = false;
+  loading: boolean = false;
+  isUpdate: boolean = false;
+
   errorMessages: string[] = [];
-  updateCompanyForm: FormGroup = new FormGroup({});
+  form: FormGroup = new FormGroup({});
 
   activitySectors = ACTIVITY_SECTOR;
   companySizes = COMPANY_SIZE;
@@ -49,36 +53,26 @@ export class UpdateCompaniesComponent {
   ) {}
 
   ngOnInit(): void {
-    // Initialize form first
     this.initializeForm();
 
-    this.loading = true;
-    this.companiesService.getCompanyById(this.id).subscribe({
-      next: (company: Company) => {
-        this.currentCompany = company;
-        // Update form values after initialization
-        this.updateCompanyForm.patchValue({
-          name: this.currentCompany.name,
-          address: this.currentCompany.address,
-          phoneNumber: this.currentCompany.phoneNumber,
-          locality: this.currentCompany.locality,
-          zipCode: this.currentCompany.zipCode,
-          email: this.currentCompany.email,
-          ativitySector: this.currentCompany.ativitySector,
-          size: this.currentCompany.size,
-        });
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessages = this.sharedService.handleErrorResponse(error);
-        this.loading = false;
-      },
-    });
+    if (this.id !== 0) {
+      this.isUpdate = true;
+
+      this.companiesService.getCompanyById(this.id).subscribe({
+        next: (company: Company) => {
+          this.currentCompany = company;
+          this.patchFormValues();
+        },
+        error: (error) => {
+          this.sharedService.showError('Empresa não encontrada.');
+          this.bsModalRef.hide();
+        },
+      });
+    }
   }
 
-  private initializeForm() {
-    // Initialize form with default values
-    this.updateCompanyForm = this.formBuilder.group({
+  initializeForm(): void {
+    this.form = this.formBuilder.group({
       id: this.id,
       name: [
         '',
@@ -98,28 +92,36 @@ export class UpdateCompaniesComponent {
     });
   }
 
-  onSubmit() {
+  patchFormValues(): void {
+    this.form.patchValue({
+      name: this.currentCompany?.name,
+      address: this.currentCompany?.address,
+      phoneNumber: this.currentCompany?.phoneNumber,
+      locality: this.currentCompany?.locality,
+      zipCode: this.currentCompany?.zipCode,
+      email: this.currentCompany?.email,
+      ativitySector: this.currentCompany?.ativitySector,
+      size: this.currentCompany?.size,
+    });
+  }
+
+  onSubmit(): void {
     this.submitted = true;
 
-    if (this.updateCompanyForm.invalid) {
-      this.updateCompanyForm.markAllAsTouched();
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.sharedService.showError(
         'Os dados fornecidos não estão de acordo com as diretrizes.'
       );
       return;
     }
-
-    const formValue = this.updateCompanyForm.value;
-    console.log(formValue);
     this.loading = true;
 
-    this.companiesService.updateCompany(formValue, this.id).subscribe({
+    this.companiesService.updateCompany(this.form.value, this.id).subscribe({
       next: (value: OkResponse) => {
-        console.log(value);
         this.bsModalRef.hide();
         this.companiesService.triggerFetch();
         this.sharedService.showSuccess(value.message);
-        this.companiesService.notifyUpdate(this.id);
       },
       error: (error) => {
         this.errorMessages = this.sharedService.handleErrorResponse(error);

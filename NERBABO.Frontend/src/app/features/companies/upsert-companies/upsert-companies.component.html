@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">Atualizar Empresa</h4>
+  <h4 class="modal-title">{{ isUpdate ? "Atualizar" : "Registar" }} Empresa</h4>
   <button
     type="button"
     class="btn-close"
@@ -8,7 +8,7 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form [formGroup]="updateCompanyForm">
+  <form [formGroup]="form">
     <div class="row p-4">
       <!-- NAME FORM FIELD -->
       <div class="col-md-12">
@@ -21,21 +21,16 @@
             type="text"
             pInputText
             formControlName="name"
-            [class.is-invalid]="
-              submitted && updateCompanyForm.get('name')?.errors
-            "
+            [class.is-invalid]="submitted && form.get('name')?.errors"
             class="w-100 {{
-              submitted && updateCompanyForm.get('name')?.errors
-                ? 'ng-invalid ng-dirty'
-                : ''
+              submitted && form.get('name')?.errors ? 'ng-invalid ng-dirty' : ''
             }}"
           />
 
-          @if (submitted && updateCompanyForm.get('name')?.hasError("required"))
-          {
+          @if (submitted && form.get('name')?.hasError("required")) {
           <span class="text-danger"> Designação é um campo obrigatório. </span>
-          } @else if ( updateCompanyForm.get('name')?.hasError("minlength") ||
-          updateCompanyForm.get('name')?.hasError("maxlength")) {
+          } @else if ( form.get('name')?.hasError("minlength") ||
+          form.get('name')?.hasError("maxlength")) {
           <span class="text-danger">
             Designação deve ter entre 3 e 155 caracteres.
           </span>
@@ -52,17 +47,15 @@
             type="text"
             pInputText
             formControlName="phoneNumber"
-            [class.is-invalid]="
-              submitted && updateCompanyForm.get('phoneNumber')?.errors
-            "
+            [class.is-invalid]="submitted && form.get('phoneNumber')?.errors"
             class="w-100 {{
-              submitted && updateCompanyForm.get('phoneNumber')?.errors
+              submitted && form.get('phoneNumber')?.errors
                 ? 'ng-invalid ng-dirty'
                 : ''
             }}"
           />
-          @if ( updateCompanyForm.get('phoneNumber')?.hasError("minlength") ||
-          updateCompanyForm.get('phoneNumber')?.hasError("maxlength")) {
+          @if ( form.get('phoneNumber')?.hasError("minlength") ||
+          form.get('phoneNumber')?.hasError("maxlength")) {
           <span class="text-danger">
             Contacto Telefónico deve ter exatamente 9 números.
           </span>
@@ -79,20 +72,17 @@
             formControlName="address"
             pTextarea
             rows="3"
-            [class.is-invalid]="
-              submitted && updateCompanyForm.get('address')?.errors
-            "
+            [class.is-invalid]="submitted && form.get('address')?.errors"
             class="w-100 {{
-              submitted && updateCompanyForm.get('address')?.errors
+              submitted && form.get('address')?.errors
                 ? 'ng-invalid ng-dirty'
                 : ''
             }}"
           ></textarea>
-          @if (submitted &&
-          updateCompanyForm.get('address')?.hasError("required")) {
+          @if (submitted && form.get('address')?.hasError("required")) {
           <span class="text-danger"> Morada é um campo obrigatório. </span>
-          } @else if ( updateCompanyForm.get('address')?.hasError("minlength")
-          || updateCompanyForm.get('address')?.hasError("maxlength")) {
+          } @else if ( form.get('address')?.hasError("minlength") ||
+          form.get('address')?.hasError("maxlength")) {
           <span class="text-danger">
             Morada deve ter entre 3 e 155 caracteres.
           </span>
@@ -109,17 +99,15 @@
             type="text"
             pInputText
             formControlName="locality"
-            [class.is-invalid]="
-              submitted && updateCompanyForm.get('locality')?.errors
-            "
+            [class.is-invalid]="submitted && form.get('locality')?.errors"
             class="w-100 {{
-              submitted && updateCompanyForm.get('locality')?.errors
+              submitted && form.get('locality')?.errors
                 ? 'ng-invalid ng-dirty'
                 : ''
             }}"
           />
-          @if ( updateCompanyForm.get('locality')?.hasError("minlength") ||
-          updateCompanyForm.get('locality')?.hasError("maxlength")) {
+          @if ( form.get('locality')?.hasError("minlength") ||
+          form.get('locality')?.hasError("maxlength")) {
           <span class="text-danger">
             Localidade deve ter entre 3 e 55 caracteres.
           </span>
@@ -136,17 +124,15 @@
             type="text"
             pInputText
             formControlName="zipCode"
-            [class.is-invalid]="
-              submitted && updateCompanyForm.get('zipCode')?.errors
-            "
+            [class.is-invalid]="submitted && form.get('zipCode')?.errors"
             class="w-100 {{
-              submitted && updateCompanyForm.get('zipCode')?.errors
+              submitted && form.get('zipCode')?.errors
                 ? 'ng-invalid ng-dirty'
                 : ''
             }}"
           />
-          @if ( updateCompanyForm.get('zipCode')?.hasError("minlength") ||
-          updateCompanyForm.get('zipCode')?.hasError("maxlength")) {
+          @if ( form.get('zipCode')?.hasError("minlength") ||
+          form.get('zipCode')?.hasError("maxlength")) {
           <span class="text-danger">
             Código Postal deve ter exatamente 8 caractéres, 4 números + '-' + 3
             números.
@@ -164,17 +150,15 @@
             type="text"
             pInputText
             formControlName="email"
-            [class.is-invalid]="
-              submitted && updateCompanyForm.get('email')?.errors
-            "
+            [class.is-invalid]="submitted && form.get('email')?.errors"
             class="w-100 {{
-              submitted && updateCompanyForm.get('email')?.errors
+              submitted && form.get('email')?.errors
                 ? 'ng-invalid ng-dirty'
                 : ''
             }}"
           />
-          @if ( updateCompanyForm.get('email')?.hasError("minlength") ||
-          updateCompanyForm.get('email')?.hasError("maxlength")) {
+          @if ( form.get('email')?.hasError("minlength") ||
+          form.get('email')?.hasError("maxlength")) {
           <span class="text-danger"> Formato do Email Inválido.</span>
           }
         </div>
@@ -192,17 +176,14 @@
             optionValue="value"
             placeholder="Selecione um setor de atividade..."
             styleClass="w-100"
-            [class.is-invalid]="
-              submitted && updateCompanyForm.get('ativitySector')?.errors
-            "
+            [class.is-invalid]="submitted && form.get('ativitySector')?.errors"
             class="{{
-              submitted && updateCompanyForm.get('ativitySector')?.errors
+              submitted && form.get('ativitySector')?.errors
                 ? 'ng-invalid ng-dirty'
                 : ''
             }}"
           />
-          @if (submitted &&
-          updateCompanyForm.get('ativitySector')?.hasError("required")) {
+          @if (submitted && form.get('ativitySector')?.hasError("required")) {
           <span class="text-danger">
             Setor de Atividade é um campo obrigatório.
           </span>
@@ -222,17 +203,12 @@
             optionValue="value"
             placeholder="Selecione um setor de atividade..."
             styleClass="w-100"
-            [class.is-invalid]="
-              submitted && updateCompanyForm.get('size')?.errors
-            "
+            [class.is-invalid]="submitted && form.get('size')?.errors"
             class="{{
-              submitted && updateCompanyForm.get('size')?.errors
-                ? 'ng-invalid ng-dirty'
-                : ''
+              submitted && form.get('size')?.errors ? 'ng-invalid ng-dirty' : ''
             }}"
           />
-          @if (submitted && updateCompanyForm.get('size')?.hasError("required"))
-          {
+          @if (submitted && form.get('size')?.hasError("required")) {
           <span class="text-danger"> Tamanho é um campo obrigatório. </span>
           }
         </div>

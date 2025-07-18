@@ -6,11 +6,11 @@ import { Company } from '../../../core/models/company';
 import { Observable } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { CreateCompaniesComponent } from '../create-companies/create-companies.component';
 import { ICONS } from '../../../core/objects/icons';
 import { CompaniesTableComponent } from '../../../shared/components/tables/companies-table/companies-table.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
+import { UpsertCompaniesComponent } from '../upsert-companies/upsert-companies.component';
 
 @Component({
   selector: 'app-index-companies',
@@ -41,8 +41,8 @@ export class IndexCompaniesComponent implements IIndex, OnInit {
   }
 
   onCreateModal(): void {
-    this.modalService.show(CreateCompaniesComponent, {
-      initialState: {},
+    this.modalService.show(UpsertCompaniesComponent, {
+      initialState: { id: 0 },
       class: 'modal-lg',
     });
   }

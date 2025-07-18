@@ -10,7 +10,6 @@ import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Router } from '@angular/router';
 import { CompaniesService } from '../../../../core/services/companies.service';
-import { UpdateCompaniesComponent } from '../../../../features/companies/update-companies/update-companies.component';
 import { DeleteCompaniesComponent } from '../../../../features/companies/delete-companies/delete-companies.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +18,7 @@ import { SpinnerComponent } from '../../spinner/spinner.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
+import { UpsertCompaniesComponent } from '../../../../features/companies/upsert-companies/upsert-companies.component';
 
 @Component({
   selector: 'app-companies-table',
@@ -128,7 +128,7 @@ export class CompaniesTableComponent implements OnInit {
   }
 
   onUpdateCompanyModal(company: Company): void {
-    this.modalService.show(UpdateCompaniesComponent, {
+    this.modalService.show(UpsertCompaniesComponent, {
       class: 'modal-lg',
       initialState: {
         id: company.id,
