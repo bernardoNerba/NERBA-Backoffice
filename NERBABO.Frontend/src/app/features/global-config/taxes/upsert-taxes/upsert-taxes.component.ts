@@ -1,58 +1,70 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { ErrorCardComponent } from '../../../../shared/components/error-card/error-card.component';
+import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { IUpsert } from '../../../../core/interfaces/IUpsert';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { UniversalValidators } from 'ngx-validators';
-import { ErrorCardComponent } from '../../../../shared/components/error-card/error-card.component';
-import { CommonModule } from '@angular/common';
 import { SharedService } from '../../../../core/services/shared.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { Tax } from '../../../../core/models/tax';
+import { UniversalValidators } from 'ngx-validators';
 import { OkResponse } from '../../../../core/models/okResponse';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectModule } from 'primeng/select';
+import { TAX_TYPES } from '../../../../core/objects/taxType';
 
 @Component({
-  selector: 'app-update-taxes',
+  selector: 'app-upsert-taxes',
   imports: [
     ErrorCardComponent,
     CommonModule,
     ReactiveFormsModule,
     InputTextModule,
     InputNumberModule,
+    SelectModule,
   ],
-  templateUrl: './update-taxes.component.html',
+  templateUrl: './upsert-taxes.component.html',
 })
-export class UpdateTaxesComponent implements OnInit {
-  currentTax!: Tax;
+export class UpsertTaxesComponent implements IUpsert, OnInit {
+  @Input({ required: true }) id!: string | number;
+  currentTax?: Tax | null;
+  type?: string;
+
+  submitted: boolean = false;
+  loading: boolean = false;
+  isUpdate: boolean = false;
+
+  allTaxes = TAX_TYPES;
+
+  errorMessages: string[] = [];
   form: FormGroup = new FormGroup({});
-  submitted = false;
-  loading = false;
-  errorMessages = [];
-  type!: string;
 
   constructor(
     public bsModalRef: BsModalRef,
-    private fb: FormBuilder,
+    private formBuilder: FormBuilder,
     private sharedService: SharedService,
     private confService: ConfigService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
-    this.pathForm();
+    if (this.id !== 0) {
+      this.isUpdate = true;
+      this.patchFormValues();
+    }
   }
 
-  private initializeForm() {
-    console.log(this.currentTax);
-    this.form = this.fb.group({
+  initializeForm(): void {
+    this.form = this.formBuilder.group({
+      id: 0,
       name: [
-        this.currentTax.name,
-
+        '',
         [
           Validators.required,
           Validators.minLength(3),
@@ -60,22 +72,25 @@ export class UpdateTaxesComponent implements OnInit {
         ],
       ],
       valuePercent: [
-        this.currentTax.valuePercent,
+        '',
         [Validators.required, UniversalValidators.isInRange(0, 100)],
       ],
       type: ['', [Validators.required]],
+      isActive: true,
     });
   }
 
-  private pathForm(): void {
+  patchFormValues(): void {
     this.form.patchValue({
-      name: this.currentTax.name,
-      valuePercent: this.currentTax.valuePercent,
+      id: this.id,
+      name: this.currentTax?.name,
+      valuePercent: this.currentTax?.valuePercent,
       type: this.type,
+      isActive: this.currentTax?.isActive,
     });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     this.submitted = true;
     this.errorMessages = [];
 
@@ -89,11 +104,7 @@ export class UpdateTaxesComponent implements OnInit {
 
     this.loading = true;
 
-    const model = this.form.value;
-    model.id = this.currentTax.id;
-    model.isActive = this.currentTax.isActive;
-
-    this.confService.updateIvaTax(model).subscribe({
+    this.confService.upsert(this.form.value, this.isUpdate).subscribe({
       next: (value: OkResponse) => {
         console.log(value);
         this.confService.triggerFetchConfigs();

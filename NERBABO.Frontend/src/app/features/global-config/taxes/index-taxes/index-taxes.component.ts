@@ -17,11 +17,10 @@ import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TaxType } from '../../../../core/objects/taxType';
-import { CreateTaxesComponent } from '../create-taxes/create-taxes.component';
-import { UpdateTaxesComponent } from '../update-taxes/update-taxes.component';
 import { DeleteTaxesComponent } from '../delete-taxes/delete-taxes.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { IIndex } from '../../../../core/interfaces/IIndex';
+import { UpsertTaxesComponent } from '../upsert-taxes/upsert-taxes.component';
 
 interface TaxTypeFilter {
   label: string;
@@ -128,15 +127,15 @@ export class IndexTaxesComponent implements IIndex, OnInit {
   }
 
   onCreateModal() {
-    this.modalService.show(CreateTaxesComponent, {
-      initialState: {},
+    this.modalService.show(UpsertTaxesComponent, {
+      initialState: { id: 0 },
       class: 'modal-md',
     });
   }
 
   onUpdateModal(tax: Tax) {
-    this.modalService.show(UpdateTaxesComponent, {
-      initialState: { currentTax: tax, type: tax.type as TaxType },
+    this.modalService.show(UpsertTaxesComponent, {
+      initialState: { id: tax.id, currentTax: tax, type: tax.type as TaxType },
       class: 'modal-md',
     });
   }
@@ -163,7 +162,7 @@ export class IndexTaxesComponent implements IIndex, OnInit {
 
   onToggleTaxStatus(tax: Tax) {
     const updatedTax = { ...tax, isActive: !tax.isActive };
-    this.configService.updateIvaTax(updatedTax).subscribe({
+    this.configService.updateTax(updatedTax).subscribe({
       next: (value) => {
         this.configService.triggerFetchConfigs();
         this.sharedService.showSuccess(value.message);

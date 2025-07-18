@@ -1,5 +1,8 @@
 <div class="modal-header">
-  <h4 class="modal-title">Registar Taxa</h4>
+  <h4 class="modal-title">
+    {{ isUpdate ? "Atualizar" : "Register" }} Taxa
+    {{ isUpdate ? "de " + type : "" }}
+  </h4>
   <button
     type="button"
     class="btn-close"
@@ -36,7 +39,7 @@
           }
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="{{ isUpdate ? 'col-md-12' : 'col-md-6' }}">
         <div class="mb-3">
           <label for="valuePercent"
             >Percentagem
@@ -64,6 +67,7 @@
           }
         </div>
       </div>
+      @if(!isUpdate) {
       <div class="col-md-6">
         <div class="mb-3">
           <label for="type"
@@ -90,6 +94,7 @@
           }
         </div>
       </div>
+      }
     </div>
 
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
@@ -109,7 +114,7 @@
     >
       @if (loading){
       <span class="spinner-border spinner-border-sm me-1"></span>
-      } Save
+      } {{ isUpdate ? "Atualizar" : "Registar" }}
     </button>
   </div>
 </div>

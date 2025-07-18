@@ -25,13 +25,18 @@ export class ConfigService {
     this.loadConfigs();
   }
 
-  createIvaTax(
+  upsert(model: Tax, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.updateTax(model);
+    return this.createTax(model);
+  }
+
+  private createTax(
     model: Omit<Tax, 'id' | 'valueDecimal | isActive'>
   ): Observable<OkResponse> {
     return this.http.post<OkResponse>(API_ENDPOINTS.create_tax, model);
   }
 
-  updateIvaTax(model: Omit<Tax, 'valueDecimal'>): Observable<OkResponse> {
+  updateTax(model: Omit<Tax, 'valueDecimal'>): Observable<OkResponse> {
     return this.http.put<OkResponse>(
       `${API_ENDPOINTS.update_tax}${model.id}`,
       model
