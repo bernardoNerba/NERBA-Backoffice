@@ -5,22 +5,26 @@ import { ICONS } from '../../../core/objects/icons';
 import { Frame } from '../../../core/models/frame';
 import { CoursesService } from '../../../core/services/courses.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FrameService } from '../../../core/services/frame.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
-import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { UpdateCoursesComponent } from '../update-courses/update-courses.component';
 import { DeleteCoursesComponent } from '../delete-courses/delete-courses.component';
 import { ChangeStatusCoursesComponent } from '../change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-module-courses.component';
 import { ActionsService } from '../../../core/services/actions.service';
 import { Action } from '../../../core/models/action';
-import { FormatDateRangePipe } from '../../../shared/pipes/format-date-range.pipe';
-import { STATUS, StatusEnum } from '../../../core/objects/status';
-import { CreateActionsComponent } from '../../actions/create-actions/create-actions.component';
+import { StatusEnum } from '../../../core/objects/status';
+import { Module } from '../../../core/models/module';
+import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
+import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
+import { MenuItem } from 'primeng/api';
+import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
+import { IView } from '../../../core/interfaces/IView';
+import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
+import { UpsertActionsComponent } from '../../actions/upsert-actions/upsert-actions.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -28,24 +32,26 @@ import { CreateActionsComponent } from '../../actions/create-actions/create-acti
     IconComponent,
     CommonModule,
     MessageModule,
-    TruncatePipe,
-    RouterLink,
-    FormatDateRangePipe,
+    ModulesTableComponent,
+    ActionsTableComponent,
+    DropdownMenuComponent,
   ],
   templateUrl: './view-courses.component.html',
-  styleUrl: './view-courses.component.css',
 })
-export class ViewCoursesComponent implements OnInit, OnDestroy {
+export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   course$?: Observable<Course | null>;
   actions$?: Observable<Action[]>;
   frame!: Frame;
-  title?: string;
+  modules!: Module[];
+  title!: string;
   frameId!: number;
+  course!: Course;
   ICONS = ICONS;
   STATUS = StatusEnum;
+  menuItems: MenuItem[] | undefined;
 
-  private subscriptions: Subscription = new Subscription();
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private coursesService: CoursesService,
@@ -65,7 +71,7 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.initializeCourse();
+    this.initializeEntity();
     this.initializeActions();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
@@ -73,54 +79,54 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
     this.changeStatusSourceSubscription();
   }
 
-  onUpdateCourseModal(course: Course) {
-    this.modalService.show(UpdateCoursesComponent, {
+  onUpdateModal() {
+    this.modalService.show(UpsertCoursesComponent, {
       class: 'modal-lg',
       initialState: {
-        id: course.id,
-        course: course,
+        id: this.id,
       },
     });
   }
-  onDeleteCourseModal(id: number, title: string) {
+  onDeleteModal() {
     this.modalService.show(DeleteCoursesComponent, {
-      class: 'modal-lg',
+      class: 'modal-md',
       initialState: {
-        id: id,
-        title: title,
+        id: this.id,
+        title: this.title,
       },
     });
   }
 
-  onChangeStatusModal(course: Course) {
+  onChangeStatusModal() {
     this.modalService.show(ChangeStatusCoursesComponent, {
       class: 'modal-md',
       initialState: {
-        course: course,
+        course: this.course,
       },
     });
   }
 
-  onAssignModuleModal(course: Course) {
+  onAssignModuleModal() {
     this.modalService.show(AssignModuleCoursesComponent, {
       class: 'modal-md',
       initialState: {
-        course: course,
+        course: this.course,
       },
     });
   }
 
-  onCreateActionModal(id: number, title: string) {
-    this.modalService.show(CreateActionsComponent, {
+  onCreateActionModal() {
+    this.modalService.show(UpsertActionsComponent, {
       class: 'modal-lg',
       initialState: {
-        courseId: id,
-        courseTitle: title,
+        id: 0,
+        courseId: this.id,
+        courseTitle: this.title,
       },
     });
   }
 
-  private initializeCourse() {
+  initializeEntity() {
     this.course$ = this.coursesService.getSingleCourse(this.id).pipe(
       catchError((error) => {
         if (error.status === 401 || error.status === 403) {
@@ -135,18 +141,20 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
         if (course) {
           this.id = course.id;
           this.title = course.title;
+          this.course = course;
 
-          this.updateBreadcrumbs(this.id, this.title);
+          this.updateBreadcrumbs();
 
           this.frameService.getSingle(course.frameId).subscribe({
             next: (frame: Frame) => {
-              console.log(frame);
               this.frame = frame;
             },
             error: (error: any) => {
-              this.sharedService.showError('Sem enquadramento associado.');
+              this.sharedService.showError(error.detail);
             },
           });
+
+          this.populateMenu();
         }
       })
     );
@@ -156,7 +164,42 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
     this.actions$ = this.actionsService.getActionsByCourseId(this.id);
   }
 
-  private updateBreadcrumbs(id: number, title: string): void {
+  populateMenu() {
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: [
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.onUpdateModal(),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.onDeleteModal(),
+          },
+          {
+            label: 'Atualizar Estado',
+            icon: 'pi pi-refresh',
+            command: () => this.onChangeStatusModal(),
+          },
+          {
+            label: 'Atribuir Módulo',
+            icon: 'pi pi-plus-circle',
+            command: () => this.onAssignModuleModal(),
+          },
+          {
+            label: 'Criar Ação Formação',
+            icon: 'pi pi-plus-circle',
+            command: () => this.onCreateActionModal(),
+          },
+        ],
+      },
+    ];
+  }
+
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',
@@ -169,27 +212,27 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
         className: '',
       },
       {
-        url: `/courses/${id}`,
+        url: `/courses/${this.id}`,
         displayName:
-          title.length > 21
-            ? title.substring(0, 21) + '...'
-            : title || 'Detalhes',
+          this.title.length > 21
+            ? this.title.substring(0, 21) + '...'
+            : this.title || 'Detalhes',
         className: 'inactive',
       },
     ]);
   }
 
-  private updateSourceSubscription() {
+  updateSourceSubscription() {
     this.subscriptions.add(
       this.coursesService.updatedSource$.subscribe((id: number) => {
         if (this.id === id) {
-          this.initializeCourse();
+          this.initializeEntity();
         }
       })
     );
   }
 
-  private deleteSourceSubscription() {
+  deleteSourceSubscription() {
     this.subscriptions.add(
       this.coursesService.deletedSource$.subscribe((id: number) => {
         if (this.id === id) {
@@ -203,7 +246,7 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.coursesService.assignModuleSource$.subscribe((id: number) => {
         if (this.id === id) {
-          this.initializeCourse();
+          this.initializeEntity();
         }
       })
     );
@@ -213,7 +256,7 @@ export class ViewCoursesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.coursesService.changeStatusSource$.subscribe((id: number) => {
         if (this.id === id) {
-          this.initializeCourse();
+          this.initializeEntity();
         }
       })
     );

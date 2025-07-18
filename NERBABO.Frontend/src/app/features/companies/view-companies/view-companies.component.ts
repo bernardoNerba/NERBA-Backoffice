@@ -8,25 +8,28 @@ import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Student } from '../../../core/models/student';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { UpdateCompaniesComponent } from '../update-companies/update-companies.component';
+import { BsModalService } from 'ngx-bootstrap/modal';
 import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
+import { MenuItem } from 'primeng/api';
+import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
+import { IView } from '../../../core/interfaces/IView';
+import { UpsertCompaniesComponent } from '../upsert-companies/upsert-companies.component';
 
 @Component({
   selector: 'app-view-companies',
-  imports: [CommonModule, IconComponent, RouterLink],
+  imports: [CommonModule, IconComponent, RouterLink, DropdownMenuComponent],
   templateUrl: './view-companies.component.html',
-  styleUrl: './view-companies.component.css',
 })
-export class ViewCompaniesComponent implements OnInit, OnDestroy {
+export class ViewCompaniesComponent implements IView, OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   company$?: Observable<Company | null>;
   students$!: Observable<Student[] | []>;
   name?: string;
   ICONS = ICONS;
   hasStudents: boolean = false;
+  menuItems: MenuItem[] | undefined;
 
-  private subscription: Subscription = new Subscription();
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private companiesService: CompaniesService,
@@ -45,23 +48,23 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.initializeCompany();
+    this.initializeEntity();
     this.initializeStudentsFromCompany();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
   }
 
-  onUpdateCompanyModal() {
+  onUpdateModal() {
     const initialState = {
       id: this.id,
     };
-    this.modalService.show(UpdateCompaniesComponent, {
+    this.modalService.show(UpsertCompaniesComponent, {
       initialState: initialState,
       class: 'modal-lg',
     });
   }
 
-  onDeleteCompanyModal() {
+  onDeleteModal() {
     const initialState = {
       id: this.id,
       name: this.name,
@@ -69,7 +72,7 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
     this.modalService.show(DeleteCompaniesComponent, { initialState });
   }
 
-  private initializeCompany() {
+  initializeEntity() {
     this.company$ = this.companiesService.getCompanyById(this.id).pipe(
       catchError((error) => {
         if (error.status === 401 || error.status === 403) {
@@ -84,7 +87,8 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
         if (company) {
           this.id = company.id;
           this.name = company.name;
-          this.updateBreadcrumbs(this.id, this.name);
+          this.updateBreadcrumbs();
+          this.populateMenu();
         }
       })
     );
@@ -107,7 +111,27 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
     );
   }
 
-  private updateBreadcrumbs(id: number, name: string): void {
+  populateMenu(): void {
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: [
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.onUpdateModal(),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.onDeleteModal(),
+          },
+        ],
+      },
+    ];
+  }
+
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',
@@ -120,26 +144,26 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
         className: '',
       },
       {
-        url: `/companies/${id}`,
-        displayName: name.substring(0, 21) + '...' || 'Detalhes',
+        url: `/companies/${this.id}`,
+        displayName: this.name?.substring(0, 21) + '...' || 'Detalhes',
         className: 'inactive',
       },
     ]);
   }
 
-  private updateSourceSubscription() {
-    this.subscription.add(
+  updateSourceSubscription() {
+    this.subscriptions.add(
       this.companiesService.updatedSource$.subscribe((id: number) => {
         if (this.id === id) {
-          this.initializeCompany();
+          this.initializeEntity();
           this.initializeStudentsFromCompany();
         }
       })
     );
   }
 
-  private deleteSourceSubscription() {
-    this.subscription.add(
+  deleteSourceSubscription() {
+    this.subscriptions.add(
       this.companiesService.deletedSource$.subscribe((id: number) => {
         if (this.id === id) {
           this, this.router.navigateByUrl('/companies');
@@ -149,6 +173,6 @@ export class ViewCompaniesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 }

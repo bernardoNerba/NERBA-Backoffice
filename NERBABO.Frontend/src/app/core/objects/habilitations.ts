@@ -1,6 +1,6 @@
 export enum HabilitationEnum {
   WithoutProof = 'Sem Comprovativo',
-  WithoutHabilitation = 'Sem escolaridade',
+  WithoutHabilitation = 'Sem Escolaridade',
   FirstYear = '1º Ano',
   SecondYear = '2º Ano',
   ThirdYear = '3º Ano',

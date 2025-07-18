@@ -1,0 +1,104 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ isUpdate ? "Atualizar" : "Registar" }} Módulo</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form">
+    <div class="container">
+      <div class="row">
+        <!-- Module Name -->
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label for="name"
+              >UFCD
+              <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              pInputText
+              formControlName="name"
+              [class.is-invalid]="submitted && form.get('name')?.errors"
+              class="w-100 {{
+                submitted && form.get('name')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
+
+            @if (submitted && form.get('name')?.hasError("required")) {
+            <span class="text-danger"> UFCD é um campo obrigatório. </span>
+            } @else if (submitted && form.get('name')?.hasError("minlength") ||
+            form.get('name')?.hasError("maxlength")) {
+            <span class="text-danger">
+              UFCD deve ter entre 3 e 255 caracteres.
+            </span>
+            }
+          </div>
+        </div>
+        <!-- Module Total Hours -->
+        <div class="col-sm-12">
+          <div class="mb-3">
+            <label for="hours">
+              Total Horas
+              <span class="text-danger">*</span>
+            </label>
+            <p-inputnumber
+              formControlName="hours"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              class="w-100 {{
+                submitted && form.get('hours')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+              [class.is-invalid]="submitted && form.get('hours')?.errors"
+              mode="decimal"
+              [minFractionDigits]="1"
+            />
+
+            <div
+              *ngIf="submitted && form.get('hours')?.errors"
+              class="text-danger mt-1"
+              style="font-size: 0.875em"
+            >
+              <span *ngIf="form.get('hours')?.hasError('required')">
+                O total de horas é um campo obrigatório.
+              </span>
+              <span *ngIf="form.get('hours')?.hasError('rangeValueToSmall')">
+                O número é muito baixo (mínimo: 0).
+              </span>
+              <span *ngIf="form.get('hours')?.hasError('rangeValueToBig')">
+                O número é muito alto (máximo: 1000).
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+  </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
+</div>

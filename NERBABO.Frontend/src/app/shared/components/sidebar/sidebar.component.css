@@ -19,7 +19,6 @@
   display: flex;
   align-items: center;
   padding: 20px 15px;
-  border-bottom: 1px solid var(--gray-3);
   position: relative;
   flex-shrink: 0;
   height: 72px; /* Fixed height to prevent layout shifts */
@@ -52,13 +51,7 @@
 
 .menu-section {
   padding: 15px 0;
-  border-bottom: 1px solid var(--gray-3);
-  box-sizing: border-box;
   overflow: hidden; /* Prevent content from causing layout shifts */
-}
-
-.menu-section:last-child {
-  border-bottom: none;
 }
 
 .section-title {

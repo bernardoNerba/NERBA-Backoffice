@@ -1,0 +1,122 @@
+<!-- Loading spinner -->
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading empresas...</p>
+</div>
+}
+<!-- START Table -->
+@else {
+<p-table
+  #dt
+  stripedRows
+  [value]="companies"
+  size="small"
+  [tableStyle]="{ 'min-width': '70rem' }"
+  [globalFilterFields]="['name', 'phoneNumber', 'email', 'ativitySector']"
+  [paginator]="true"
+  [rows]="10"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  (onPage)="pageChange($event)"
+  [rowsPerPageOptions]="[10, 25, 50]"
+>
+  <!-- Table caption with Search and clear filter  -->
+  <ng-template #caption>
+    <div class="d-flex justify-content-end gap-2">
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          [(ngModel)]="searchValue"
+          (ngModelChange)="dt.filterGlobal($event, 'contains')"
+          pInputText
+          type="text"
+          placeholder="Procurar..."
+        />
+      </p-iconfield>
+      <p-button
+        icon="pi pi-filter-slash"
+        [outlined]="true"
+        (click)="clearFilters()"
+      />
+    </div>
+  </ng-template>
+  <!-- END Table caption with Search and clear filter  -->
+  <ng-template #header>
+    <tr>
+      <th [width]="20">#</th>
+      <th pSortableColumn="name">
+        <div class="flex items-center gap-2">
+          Designação
+          <p-sortIcon field="name" />
+        </div>
+      </th>
+      <th pSortableColumn="studentsCount" style="width: 12%">
+        <div class="flex items-center gap-2">
+          Formandos
+          <p-sortIcon field="studentsCount" />
+        </div>
+      </th>
+      <th pSortableColumn="phoneNumber" style="width: 10%">
+        <div class="flex items-center gap-2">
+          Tel.
+          <p-sortIcon field="phoneNumber" />
+        </div>
+      </th>
+      <th pSortableColumn="email" style="width: 15%">
+        <div class="flex items-center gap-2">
+          Email
+          <p-sortIcon field="email" />
+        </div>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-company>
+    <tr>
+      <!-- DROPDOWN MENU -->
+      <td>
+        <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
+        <p-button
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          severity="secondary"
+          [outlined]="true"
+          (click)="menu.toggle($event); selectedCompany = company"
+        />
+      </td>
+      <!-- COMPANY NAME -->
+      <td>
+        <app-icon-anchor
+          [field]="company.name"
+          [display]="company.name | truncate : 40"
+          [link]="'/companies/' + company.id"
+          [icon]="'pi pi-link'"
+        />
+      </td>
+      <!-- COMPANY STUDENTS COUNT -->
+      <td>
+        {{ company.studentsCount }}
+      </td>
+      <!-- COMPANY PHONE NUMBER -->
+      <td>{{ company.phoneNumber || "N/A" }}</td>
+      <!-- COMPANY EMAIL -->
+      <td>
+        <app-icon-anchor
+          [field]="company.email"
+          [display]="company.email.split('@')[0]"
+          [link]="'mailto:' + company.email"
+          [icon]="'pi pi-envelope'"
+        />
+      </td>
+    </tr>
+  </ng-template>
+  <!-- EMPTY STATE -->
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="7">Não foram encontradas empresas com essas diretrizes.</td>
+    </tr>
+  </ng-template>
+</p-table>
+<!-- END Table -->
+}

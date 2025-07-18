@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, finalize, Observable, Subject, tap } from 'rxjs';
 import { Course } from '../models/course';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
@@ -50,32 +50,45 @@ export class CoursesService {
     this.loadingSubject.next(false);
   }
 
+  upsert(model: Course, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.update(model, model.id);
+    return this.create(model);
+  }
+
   getActive(): Observable<Course[]> {
     return this.http.get<Course[]>(API_ENDPOINTS.courses_active);
   }
 
-  create(
+  private create(
     model: Omit<Course, 'id' | 'actionsQnt' | 'modulesQnt'>
   ): Observable<OkResponse> {
-    return this.http.post<OkResponse>(API_ENDPOINTS.courses, model);
+    return this.http
+      .post<OkResponse>(API_ENDPOINTS.courses, model)
+      .pipe(tap(() => this.notifyCourseUpdate(0)));
   }
 
-  update(
+  private update(
     model: Omit<Course, 'actionsQnt' | 'modulesQnt'>,
     id: number
   ): Observable<OkResponse> {
-    return this.http.put<OkResponse>(API_ENDPOINTS.courses + id, model);
+    return this.http
+      .put<OkResponse>(API_ENDPOINTS.courses + id, model)
+      .pipe(tap(() => this.notifyCourseUpdate(id)));
   }
 
   delete(id: number): Observable<OkResponse> {
-    return this.http.delete<OkResponse>(API_ENDPOINTS.courses + id);
+    return this.http
+      .delete<OkResponse>(API_ENDPOINTS.courses + id)
+      .pipe(tap(() => this.notifyCourseDelete(id)));
   }
 
   changeStatus(id: number, status: string): Observable<OkResponse> {
-    return this.http.put<OkResponse>(
-      `${API_ENDPOINTS.courses}${id}/status?status=${status}`,
-      {}
-    );
+    return this.http
+      .put<OkResponse>(
+        `${API_ENDPOINTS.courses}${id}/status?status=${status}`,
+        {}
+      )
+      .pipe(tap(() => this.notifyCourseChangeStatus(id)));
   }
 
   getSingleCourse(id: number): Observable<Course> {

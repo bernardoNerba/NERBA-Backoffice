@@ -14,7 +14,7 @@ export enum ActivitySector {
   RealEstate = 'Atividades imobiliárias',
   ProfessionalServices = 'Atividades de consultoria, científicas, técnicas e similares',
   AdministrativeSupport = 'Atividades administrativas e dos serviços de apoio',
-  PublicAdministration = 'Administração Pública e Defesa; Segurança Social Obrigatória',
+  PublicAdministration = 'Administração pública e defesa; segurança social obrigatória',
   Education = 'Educação',
   HealthAndSocialWork = 'Atividades de saúde humana e apoio social',
   ArtsAndEntertainment = 'Atividades artísticas, de espetáculos, desportivas e recreativas',

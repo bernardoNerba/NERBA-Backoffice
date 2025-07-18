@@ -30,6 +30,12 @@ export class NavbarComponent implements OnInit {
   }
   toggleSidebar(): void {
     this.sharedService.isCollapsed = !this.sharedService.isCollapsed;
+
+    // Store user preference in localStorage
+    localStorage.setItem(
+      'sidebarCollapsed',
+      this.sharedService.isCollapsed.toString()
+    );
   }
 
   get isCollapsed() {

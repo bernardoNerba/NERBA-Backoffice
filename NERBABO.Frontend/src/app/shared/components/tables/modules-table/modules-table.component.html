@@ -1,0 +1,109 @@
+<!-- Loading spinner -->
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading pessoas...</p>
+</div>
+}
+<!-- START table -->
+@else {
+<p-table
+  #dt
+  stripedRows
+  [value]="modules"
+  size="small"
+  [tableStyle]="{ 'min-width': '60rem' }"
+  [globalFilterFields]="['name']"
+  [paginator]="true"
+  [rows]="10"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  (onPage)="pageChange($event)"
+  [rowsPerPageOptions]="[10, 25, 50]"
+>
+  <!-- Table caption with Search and clear filter  -->
+  <ng-template #caption>
+    <div class="d-flex justify-content-end gap-2">
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          [(ngModel)]="searchValue"
+          (ngModelChange)="dt.filterGlobal($event, 'contains')"
+          pInputText
+          type="text"
+          placeholder="Procurar..."
+        />
+      </p-iconfield>
+      <p-button
+        icon="pi pi-filter-slash"
+        [outlined]="true"
+        (click)="clearFilters()"
+      />
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th [width]="20">#</th>
+      <th pSortableColumn="name">
+        <div class="flex items-center gap-2">
+          UFCD
+          <p-sortIcon field="name" />
+        </div>
+      </th>
+      <th pSortableColumn="hours" style="width: 15%">
+        <div class="flex items-center gap-2">
+          Horas
+          <p-sortIcon field="hours" />
+        </div>
+      </th>
+      <th pSortableColumn="isActive" style="width: 15%">
+        <div class="flex items-center gap-2">
+          Estado
+          <p-sortIcon field="isActive" />
+        </div>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-module>
+    <tr>
+      <!-- DROPDOWN MENU -->
+      <td>
+        <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
+        <p-button
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          severity="secondary"
+          [outlined]="true"
+          (click)="menu.toggle($event); selectedModule = module"
+        />
+      </td>
+      <!-- MODULE NAME -->
+      <td>
+        <app-icon-anchor
+          [field]="module.name"
+          [display]="module.name | truncate : 50"
+          [link]="'/modules/' + module.id"
+          [icon]="'pi pi-link'"
+        />
+      </td>
+      <!-- MODULE HOURS -->
+      <td>{{ module.hours }} h</td>
+      <!-- MODULE IS ACTIVE -->
+      <td>
+        <p-tag
+          icon="{{ getStatusIcon(module.isActive) }}"
+          [value]="module.isActive ? 'Ativo' : 'Inativo'"
+          [severity]="getStatusSeverity(module.isActive)"
+        />
+      </td>
+    </tr>
+  </ng-template>
+  <!-- EMPTY STATE -->
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5">Não foram encontrados módulos com essas diretrizes.</td>
+    </tr>
+  </ng-template>
+</p-table>
+}

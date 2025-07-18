@@ -7,7 +7,6 @@ import { SharedService } from '../../../core/services/shared.service';
   selector: 'app-delete-courses',
   imports: [],
   templateUrl: './delete-courses.component.html',
-  styleUrl: './delete-courses.component.css',
 })
 export class DeleteCoursesComponent {
   @Input({ required: true }) id!: number;

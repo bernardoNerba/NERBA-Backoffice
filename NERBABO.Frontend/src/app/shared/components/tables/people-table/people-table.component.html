@@ -1,0 +1,142 @@
+<!-- Loading spinner -->
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading pessoas...</p>
+</div>
+}
+<!-- START table -->
+@else {
+<p-table
+  #dt
+  stripedRows
+  [value]="people"
+  size="small"
+  [tableStyle]="{ 'min-width': '80rem' }"
+  [globalFilterFields]="['fullName', 'nif']"
+  [paginator]="true"
+  [rows]="10"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  (onPage)="pageChange($event)"
+  [rowsPerPageOptions]="[10, 25, 50]"
+>
+  <!-- Table caption with Search and clear filter  -->
+  <ng-template #caption>
+    <div class="d-flex justify-content-end gap-2">
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          [(ngModel)]="searchValue"
+          (ngModelChange)="dt.filterGlobal($event, 'contains')"
+          pInputText
+          type="text"
+          placeholder="Procurar..."
+        />
+      </p-iconfield>
+      <p-button
+        icon="pi pi-filter-slash"
+        [outlined]="true"
+        (click)="clearFilters()"
+      />
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th [width]="20">#</th>
+      <th pSortableColumn="fullName">
+        <div class="flex items-center gap-2">
+          Nome
+          <p-sortIcon field="fullName" />
+        </div>
+      </th>
+      <th pSortableColumn="nif" style="width: 15%">
+        <div class="flex items-center gap-2">
+          NIF
+          <p-sortIcon field="nif" />
+        </div>
+      </th>
+      <th pSortableColumn="habilitation" style="width: 15%">
+        <div class="flex items-center gap-2">
+          Habilitações
+          <p-sortIcon field="habilitation" />
+        </div>
+      </th>
+      <th pSortableColumn="email" style="width: 20%">
+        <div class="flex items-center gap-2">
+          Email
+          <p-sortIcon field="email" />
+        </div>
+      </th>
+      <th pSortableColumn="phoneNumber" style="width: 15%">
+        <div class="flex items-center gap-2">
+          Tel.
+          <p-sortIcon field="phoneNumber" />
+        </div>
+      </th>
+
+      <th pSortableColumn="age" style="width: 10%">
+        <div class="flex items-center gap-2">
+          Idade
+          <p-sortIcon field="age" />
+        </div>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-person>
+    <tr>
+      <!-- DROPDOWN MENU -->
+      <td>
+        <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
+        <p-button
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          severity="secondary"
+          [outlined]="true"
+          (click)="menu.toggle($event); selectedPerson = person"
+        />
+      </td>
+      <!-- PERSON FULLNAME -->
+      <td>
+        <app-icon-anchor
+          [field]="person.fullName"
+          [display]="person.fullName | truncate : 30"
+          [link]="'/people/' + person.id"
+          [icon]="'bi bi-link'"
+        />
+      </td>
+      <!-- NIF -->
+      <td>{{ person.nif?.trim() || "N/A" }}</td>
+      <!-- HABILITATION -->
+      <td>
+        <p-tag
+          [value]="person.habilitation"
+          [severity]="
+            person.habilitation === 'Sem Comprovativo' ? 'warn' : 'secondary'
+          "
+        />
+      </td>
+      <!-- EMAIL -->
+      <td>
+        <app-icon-anchor
+          [field]="person.email"
+          [display]="person.email.split('@')[0]"
+          [link]="'mailto:' + person.email"
+          [icon]="'pi pi-envelope'"
+        />
+      </td>
+      <!-- PHONE NUMBER -->
+      <td>{{ person.phoneNumber?.trim() || "N/A" }}</td>
+      <!-- AGE -->
+      <td>{{ person.age || "N/A" }}</td>
+    </tr>
+  </ng-template>
+  <!-- EMPTY STATE -->
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="7">Não foram encontradas pessoas com essas diretrizes.</td>
+    </tr>
+  </ng-template>
+</p-table>
+}

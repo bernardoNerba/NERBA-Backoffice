@@ -1,0 +1,238 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ isUpdate ? "Atualizar" : "Registar" }} Empresa</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form">
+    <div class="row p-4">
+      <!-- NAME FORM FIELD -->
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label for="name"
+            >Designação
+            <span class="text-danger">*</span>
+          </label>
+          <input
+            type="text"
+            pInputText
+            formControlName="name"
+            [class.is-invalid]="submitted && form.get('name')?.errors"
+            class="w-100 {{
+              submitted && form.get('name')?.errors ? 'ng-invalid ng-dirty' : ''
+            }}"
+          />
+
+          @if (submitted && form.get('name')?.hasError("required")) {
+          <span class="text-danger"> Designação é um campo obrigatório. </span>
+          } @else if ( form.get('name')?.hasError("minlength") ||
+          form.get('name')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Designação deve ter entre 3 e 155 caracteres.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END NAME FORM FIELD -->
+
+      <!-- phoneNumber FORM FIELD -->
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label for="phoneNumber">Contacto Telefónico </label>
+          <input
+            type="text"
+            pInputText
+            formControlName="phoneNumber"
+            [class.is-invalid]="submitted && form.get('phoneNumber')?.errors"
+            class="w-100 {{
+              submitted && form.get('phoneNumber')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          />
+          @if ( form.get('phoneNumber')?.hasError("minlength") ||
+          form.get('phoneNumber')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Contacto Telefónico deve ter exatamente 9 números.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END phoneNumber FORM FIELD -->
+
+      <!-- ADDRESS FORM FIELD -->
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label for="address">Morada </label>
+          <textarea
+            formControlName="address"
+            pTextarea
+            rows="3"
+            [class.is-invalid]="submitted && form.get('address')?.errors"
+            class="w-100 {{
+              submitted && form.get('address')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          ></textarea>
+          @if (submitted && form.get('address')?.hasError("required")) {
+          <span class="text-danger"> Morada é um campo obrigatório. </span>
+          } @else if ( form.get('address')?.hasError("minlength") ||
+          form.get('address')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Morada deve ter entre 3 e 155 caracteres.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END ADDRESS FORM FIELD -->
+
+      <!-- locality FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="locality">Localidade </label>
+          <input
+            type="text"
+            pInputText
+            formControlName="locality"
+            [class.is-invalid]="submitted && form.get('locality')?.errors"
+            class="w-100 {{
+              submitted && form.get('locality')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          />
+          @if ( form.get('locality')?.hasError("minlength") ||
+          form.get('locality')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Localidade deve ter entre 3 e 55 caracteres.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END locality FORM FIELD -->
+
+      <!-- zipCode FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="zipCode">Código Postal </label>
+          <input
+            type="text"
+            pInputText
+            formControlName="zipCode"
+            [class.is-invalid]="submitted && form.get('zipCode')?.errors"
+            class="w-100 {{
+              submitted && form.get('zipCode')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          />
+          @if ( form.get('zipCode')?.hasError("minlength") ||
+          form.get('zipCode')?.hasError("maxlength")) {
+          <span class="text-danger">
+            Código Postal deve ter exatamente 8 caractéres, 4 números + '-' + 3
+            números.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END zipCode FORM FIELD -->
+
+      <!-- email FORM FIELD -->
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label for="email">Email</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="email"
+            [class.is-invalid]="submitted && form.get('email')?.errors"
+            class="w-100 {{
+              submitted && form.get('email')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          />
+          @if ( form.get('email')?.hasError("minlength") ||
+          form.get('email')?.hasError("maxlength")) {
+          <span class="text-danger"> Formato do Email Inválido.</span>
+          }
+        </div>
+      </div>
+      <!-- END email FORM FIELD -->
+
+      <!-- ativitySector FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="ativitySector">Setor de Atividade</label>
+          <p-select
+            formControlName="ativitySector"
+            [options]="activitySectors"
+            optionLabel="value"
+            optionValue="value"
+            placeholder="Selecione um setor de atividade..."
+            styleClass="w-100"
+            [class.is-invalid]="submitted && form.get('ativitySector')?.errors"
+            class="{{
+              submitted && form.get('ativitySector')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          />
+          @if (submitted && form.get('ativitySector')?.hasError("required")) {
+          <span class="text-danger">
+            Setor de Atividade é um campo obrigatório.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END ativitySector FORM FIELD -->
+
+      <!-- size FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="size">Tamanho</label>
+          <p-select
+            formControlName="size"
+            [options]="companySizes"
+            optionLabel="value"
+            optionValue="value"
+            placeholder="Selecione um setor de atividade..."
+            styleClass="w-100"
+            [class.is-invalid]="submitted && form.get('size')?.errors"
+            class="{{
+              submitted && form.get('size')?.errors ? 'ng-invalid ng-dirty' : ''
+            }}"
+          />
+          @if (submitted && form.get('size')?.hasError("required")) {
+          <span class="text-danger"> Tamanho é um campo obrigatório. </span>
+          }
+        </div>
+      </div>
+      <!-- END size FORM FIELD -->
+    </div>
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+  </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
+</div>

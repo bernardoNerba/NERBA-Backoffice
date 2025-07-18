@@ -3,18 +3,18 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Person } from '../models/person';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
-import { environment } from '../../../environments/environment.development';
-import { OkResponse } from '../models/okResponse';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
+import { OkResponse } from '../models/okResponse';
 import { PersonRelationship } from '../models/personRelationships';
+import { finalize, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PeopleService {
-  private peopleSubject = new BehaviorSubject<Array<Person>>([]);
-  private peopleWithoutUserSubject = new BehaviorSubject<Array<Person>>([]);
-  private loadingSubject = new BehaviorSubject<boolean>(true);
+  private peopleSubject = new BehaviorSubject<Person[]>([]);
+  private peopleWithoutUserSubject = new BehaviorSubject<Person[]>([]);
+  private loadingSubject = new BehaviorSubject<boolean>(false);
   private updatedSource = new Subject<number>();
   private deletedSource = new Subject<number>();
 
@@ -29,36 +29,43 @@ export class PeopleService {
     this.fetchPeopleWithoutUser();
   }
 
-  createPerson(model: Omit<Person, 'id' | 'fullName'>): Observable<OkResponse> {
-    return this.http.post<OkResponse>(
-      `${environment.appUrl}/api/people/create`,
-      model
-    );
+  upsertPerson(model: Person, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) {
+      return this.updatePerson(model.id, model);
+    }
+    return this.createPerson(model);
   }
 
-  updatePerson(
+  private createPerson(
+    model: Omit<Person, 'id' | 'fullName' | 'age'>
+  ): Observable<OkResponse> {
+    return this.http
+      .post<OkResponse>(`${API_ENDPOINTS.all_people}create`, model)
+      .pipe(tap(() => this.notifyPersonUpdate(0))); // Notify full refresh after create
+  }
+
+  private updatePerson(
     id: number,
     model: Omit<Person, 'fullName' | 'age'>
   ): Observable<OkResponse> {
-    return this.http.put<OkResponse>(
-      `${environment.appUrl}/api/people/update/${id}`,
-      model
-    );
+    return this.http
+      .put<OkResponse>(`${API_ENDPOINTS.all_people}update/${id}`, model)
+      .pipe(tap(() => this.notifyPersonUpdate(id))); // Notify update after success
   }
 
-  deletePerson(id: number) {
-    return this.http.delete<OkResponse>(
-      `${environment.appUrl}/api/people/delete/${id}`
-    );
+  deletePerson(id: number): Observable<OkResponse> {
+    return this.http
+      .delete<OkResponse>(`${API_ENDPOINTS.all_people}delete/${id}`)
+      .pipe(tap(() => this.notifyPersonDelete(id))); // Notify delete after success
   }
 
-  getSinglePerson(id: number) {
-    return this.http.get<Person>(`${environment.appUrl}/api/people/${id}`);
+  getSinglePerson(id: number): Observable<Person> {
+    return this.http.get<Person>(`${API_ENDPOINTS.all_people}${id}`);
   }
 
-  getPersonRelationships(id: number) {
+  getPersonRelationships(id: number): Observable<PersonRelationship> {
     return this.http.get<PersonRelationship>(
-      `${environment.appUrl}/api/people/${id}/relationships`
+      `${API_ENDPOINTS.all_people}${id}/relationships`
     );
   }
 
@@ -70,7 +77,7 @@ export class PeopleService {
     this.deletedSource.next(personId);
   }
 
-  get hasPeopleData() {
+  get hasPeopleData(): boolean {
     return this.peopleSubject.getValue().length > 0;
   }
 
@@ -78,42 +85,44 @@ export class PeopleService {
     this.fetchPeople();
   }
 
-  personById(id: number) {
+  personById(id: number): Person | undefined {
     return this.peopleSubject.getValue()?.find((value) => value.id === id);
   }
 
   private fetchPeople(): void {
     this.loadingSubject.next(true);
-
-    this.http.get<Array<Person>>(API_ENDPOINTS.all_people).subscribe({
-      next: (data: Person[]) => {
-        // store data on the observable
-        this.peopleSubject.next(data);
-      },
-      error: (err) => {
-        console.error('Failed to fetch people:', err);
-        this.peopleSubject.next([]);
-        if (err.status === 403 || err.status === 401) {
-          this.sharedService.redirectUser();
-        }
-      },
-    });
-    this.loadingSubject.next(false);
+    this.http
+      .get<Person[]>(API_ENDPOINTS.all_people)
+      .pipe(finalize(() => this.loadingSubject.next(false)))
+      .subscribe({
+        next: (data: Person[]) => {
+          this.peopleSubject.next(data);
+        },
+        error: (err) => {
+          console.error('Failed to fetch people:', err);
+          this.peopleSubject.next([]);
+          if (err.status === 403 || err.status === 401) {
+            this.sharedService.redirectUser();
+          }
+        },
+      });
   }
 
   private fetchPeopleWithoutUser(): void {
-    this.http.get<Array<Person>>(API_ENDPOINTS.people_not_user).subscribe({
-      next: (data: Person[]) => {
-        // store data on the observable
-        this.peopleWithoutUserSubject.next(data);
-      },
-      error: (err) => {
-        console.error('Failed to fetch people:', err);
-        this.peopleWithoutUserSubject.next([]);
-        if (err.status === 403 || err.status === 401) {
-          this.sharedService.redirectUser();
-        }
-      },
-    });
+    this.http
+      .get<Person[]>(API_ENDPOINTS.people_not_user)
+      .pipe(finalize(() => this.loadingSubject.next(false)))
+      .subscribe({
+        next: (data: Person[]) => {
+          this.peopleWithoutUserSubject.next(data);
+        },
+        error: (err) => {
+          console.error('Failed to fetch people without user:', err);
+          this.peopleWithoutUserSubject.next([]);
+          if (err.status === 403 || err.status === 401) {
+            this.sharedService.redirectUser();
+          }
+        },
+      });
   }
 }

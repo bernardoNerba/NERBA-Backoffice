@@ -6,28 +6,7 @@
   </div>
   <!-- ACTION MENU -->
   <div class="col-2 d-flex justify-content-end">
-    <button
-      class="btn-main"
-      type="button"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      <i class="bi bi-three-dots-vertical"></i>
-    </button>
-    <ul class="dropdown-menu">
-      <li>
-        <a class="dropdown-item" (click)="onUpdateCompanyModal()">
-          <app-icon [icon]="ICONS.edit" [marginEnd]="3" />
-          Editar Informações</a
-        >
-      </li>
-      <li>
-        <a class="dropdown-item" (click)="onDeleteCompanyModal()">
-          <app-icon [icon]="ICONS.delete" [marginEnd]="3" />Eliminar
-          Informações</a
-        >
-      </li>
-    </ul>
+    <app-dropdown-menu [menuItems]="menuItems" />
   </div>
 </div>
 <!-- END TITLE + DROPDOWN MENU -->

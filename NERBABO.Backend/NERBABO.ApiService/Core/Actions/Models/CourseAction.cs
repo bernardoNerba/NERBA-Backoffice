@@ -57,7 +57,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 AdministrationCode = ca.AdministrationCode,
                 Address = ca.Address,
                 Locality = ca.Locality,
-                WeekDays = [.. ca.WeekDays.Select(x => x.Humanize().Transform(To.TitleCase))],
+                WeekDays = [.. ca.WeekDays.Select(x => x.Humanize().Transform(To.SentenceCase))],
                 StartDate = ca.StartDate.ToString("yyyy-MM-dd"),
                 EndDate = ca.EndDate.ToString("yyyy-MM-dd"),
                 Status = ca.Status.Humanize().Transform(To.TitleCase),

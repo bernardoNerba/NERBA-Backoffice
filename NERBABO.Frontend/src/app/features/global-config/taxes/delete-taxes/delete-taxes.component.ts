@@ -8,7 +8,6 @@ import { OkResponse } from '../../../../core/models/okResponse';
   selector: 'app-delete-taxes',
   imports: [],
   templateUrl: './delete-taxes.component.html',
-  styleUrl: './delete-taxes.component.css',
 })
 export class DeleteTaxesComponent {
   id!: number;

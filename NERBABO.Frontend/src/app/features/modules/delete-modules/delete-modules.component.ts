@@ -7,7 +7,6 @@ import { SharedService } from '../../../core/services/shared.service';
   selector: 'app-delete-modules',
   imports: [],
   templateUrl: './delete-modules.component.html',
-  styleUrl: './delete-modules.component.css',
 })
 export class DeleteModulesComponent {
   id!: number;

@@ -1,5 +1,5 @@
 enum IdentificationType {
-  ResidentialAuthorization = 'Autorização de Residência',
+  ResidentialAuthorization = 'Autorização De Residência',
   CivilIdentification = 'Identificação Civil (CC/BI)',
   Military = 'Militar',
   Passport = 'Passaporte',

@@ -16,6 +16,9 @@ import { SharedService } from '../../core/services/shared.service';
 import { ConfigService } from '../../core/services/config.service';
 import { OkResponse } from '../../core/models/okResponse';
 import { IndexTaxesComponent } from './taxes/index-taxes/index-taxes.component';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-global-config',
@@ -25,15 +28,17 @@ import { IndexTaxesComponent } from './taxes/index-taxes/index-taxes.component';
     ErrorCardComponent,
     SpinnerComponent,
     IndexTaxesComponent,
+    InputTextModule,
+    InputNumberModule,
+    SelectModule,
   ],
   templateUrl: './global-config.component.html',
-  styleUrl: './global-config.component.css',
 })
 export class GlobalConfigComponent implements OnInit, OnDestroy {
-  formGeneralInfo: FormGroup = new FormGroup({});
-  submittedGeneralInfo = false;
-  loadingGeneralInfo = false;
-  errorMessagesGeneralInfo = [];
+  form: FormGroup = new FormGroup({});
+  submitted = false;
+  loading = false;
+  errorMessages = [];
   private destroy$ = new Subject<void>();
   configurationInfo$!: Observable<GeneralInfo | null>;
   taxes$!: Observable<Array<Tax>>;
@@ -51,15 +56,14 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
   }
 
   private loadConfiguration(): void {
-    this.taxes$ = this.confService.taxes$;
+    this.taxes$ = this.confService.fetchTaxesByType('IVA');
     this.configurationInfo$ = this.confService.configurationInfo$;
     this.loading$ = this.confService.loading$;
 
     this.configurationInfo$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (config) => {
-        console.log('Configuration data:', config);
         if (config) {
-          this.formGeneralInfo.patchValue({
+          this.form.patchValue({
             designation: config.designation ?? '',
             site: config.site ?? '',
             ivaId: config.ivaId ?? '',
@@ -73,13 +77,13 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error loading configuration:', err);
-        this.sharedService.showError('Failed to load configuration');
+        this.sharedService.showError('Falha ao obter configurações.');
       },
     });
   }
 
   private initializeForm(): void {
-    this.formGeneralInfo = this.fb.group({
+    this.form = this.fb.group({
       designation: [
         '',
         [
@@ -134,27 +138,27 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSubmitGeneralInfo() {
-    this.submittedGeneralInfo = true;
-    this.errorMessagesGeneralInfo = [];
+  onSubmit() {
+    this.submitted = true;
+    this.errorMessages = [];
 
-    if (this.formGeneralInfo.invalid) {
-      this.formGeneralInfo.markAllAsTouched();
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.sharedService.showError(
         'Os dados fornecidos não estão de acordo com as diretrizes.'
       );
       return;
     }
 
-    this.loadingGeneralInfo = true;
+    this.loading = true;
 
-    const model = this.formGeneralInfo.value;
+    const model = this.form.value;
 
     this.confService.updateGeneralInfo(model).subscribe({
       next: (value: OkResponse) => {
         this.confService.triggerFetchConfigs();
         this.sharedService.showSuccess(value.message);
-        this.loadingGeneralInfo = false;
+        this.loading = false;
       },
       error: (error: any) => {
         this.sharedService.handleErrorResponse(error);

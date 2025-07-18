@@ -1,61 +1,79 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-
-import { type Register } from '../models/register';
-import { type OkResponse } from '../models/okResponse';
-import { type UserInfo } from '../models/userInfo';
+import { Register } from '../models/register';
+import { OkResponse } from '../models/okResponse';
+import { UserInfo } from '../models/userInfo';
 import { SharedService } from './shared.service';
 import { UserUpdate } from '../models/userUpdate';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
+import { finalize, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccService {
-  private usersSubject = new BehaviorSubject<Array<UserInfo> | null>(null);
-  private loadingSubject = new BehaviorSubject<boolean>(true);
+  private usersSubject = new BehaviorSubject<UserInfo[] | null>(null);
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private updatedSource = new Subject<string>();
+  private deletedSource = new Subject<string>();
 
   users$ = this.usersSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
+  updatedSource$ = this.updatedSource.asObservable();
+  deletedSource$ = this.deletedSource.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
     this.fetchUsers();
   }
 
+  upsert(model: any, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.updateUser(model);
+    return this.register(model);
+  }
+
   register(model: Register): Observable<OkResponse> {
-    return this.http.post<OkResponse>(API_ENDPOINTS.create_acc, model);
+    return this.http
+      .post<OkResponse>(API_ENDPOINTS.create_acc, model)
+      .pipe(tap(() => this.notifyUpdate('0'))); // Notify full refresh after create
   }
 
   blockUser(userId: string): Observable<OkResponse> {
-    return this.http.put<OkResponse>(`${API_ENDPOINTS.block_acc}${userId}`, {});
+    return this.http
+      .put<OkResponse>(`${API_ENDPOINTS.block_acc}${userId}`, {})
+      .pipe(tap(() => this.notifyDelete(userId))); // Treat block/unblock as delete for refresh
+  }
+
+  updateUser(model: UserUpdate): Observable<OkResponse> {
+    return this.http
+      .put<OkResponse>(`${API_ENDPOINTS.update_acc}${model.id}`, model)
+      .pipe(tap(() => this.notifyUpdate(model.id))); // Notify update after success
+  }
+
+  getUserById(id: string): Observable<UserInfo> {
+    return this.http.get<UserInfo>(`${API_ENDPOINTS.single_acc}${id}`);
   }
 
   private fetchUsers(): void {
     this.loadingSubject.next(true);
-
-    this.http.get<Array<UserInfo>>(API_ENDPOINTS.all_accs).subscribe({
-      next: (data) => {
-        this.usersSubject.next(data);
-      },
-      error: (err) => {
-        this.usersSubject.next(null);
-        if (err.status === 403 || err.status === 401) {
-          this.sharedService.redirectUser();
-        }
-      },
-    });
-    this.loadingSubject.next(false);
+    this.http
+      .get<UserInfo[]>(API_ENDPOINTS.all_accs)
+      .pipe(finalize(() => this.loadingSubject.next(false)))
+      .subscribe({
+        next: (data) => {
+          this.usersSubject.next(data);
+        },
+        error: (err) => {
+          console.error('Failed to fetch users:', err);
+          this.usersSubject.next(null);
+          if (err.status === 403 || err.status === 401) {
+            this.sharedService.redirectUser();
+          }
+        },
+      });
   }
 
-  updateUser(model: UserUpdate): Observable<OkResponse> {
-    return this.http.put<OkResponse>(
-      `${API_ENDPOINTS.update_acc}${model.id}`,
-      model
-    );
-  }
-
-  get hasUsersData() {
+  get hasUsersData(): boolean {
     return this.usersSubject.getValue() != null;
   }
 
@@ -65,5 +83,13 @@ export class AccService {
 
   triggerFetchUsers() {
     this.fetchUsers();
+  }
+
+  notifyUpdate(userId: string) {
+    this.updatedSource.next(userId);
+  }
+
+  notifyDelete(userId: string) {
+    this.deletedSource.next(userId);
   }
 }

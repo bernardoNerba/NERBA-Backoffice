@@ -1,48 +1,31 @@
 import { Component, OnInit } from '@angular/core';
-import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
-import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Person } from '../../../core/models/person';
-import {
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  Observable,
-  startWith,
-} from 'rxjs';
+import { Observable } from 'rxjs';
 import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
-import { CreatePeopleComponent } from '../create-people/create-people.component';
-import { UpdatePeopleComponent } from '../update-people/update-people.component';
-import { DeletePeopleComponent } from '../delete-people/delete-people.component';
+import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 import { CommonModule } from '@angular/common';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
-import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
+import { PeopleTableComponent } from '../../../shared/components/tables/people-table/people-table.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { IIndex } from '../../../core/interfaces/IIndex';
 
 @Component({
   selector: 'app-index-people',
   imports: [
     CommonModule,
-    SpinnerComponent,
-    RouterLink,
     ReactiveFormsModule,
+    PeopleTableComponent,
     IconComponent,
-    TruncatePipe,
   ],
   templateUrl: './index-people.component.html',
-  styleUrl: './index-people.component.css',
 })
-export class IndexPeopleComponent implements OnInit {
+export class IndexPeopleComponent implements IIndex, OnInit {
   people$!: Observable<Person[]>;
   loading$!: Observable<boolean>;
-  columns = ['#', 'Nome', 'NIF', 'Idade', 'Habilitações', 'Email', 'Tel.'];
-  filteredPeople$!: Observable<Person[]>;
   ICONS = ICONS;
-
-  searchControl = new FormControl('');
 
   constructor(
     private peopleService: PeopleService,
@@ -51,65 +34,22 @@ export class IndexPeopleComponent implements OnInit {
   ) {
     this.people$ = this.peopleService.people$;
     this.loading$ = this.peopleService.loading$;
-
-    this.updateBreadcrumbs();
   }
 
   ngOnInit(): void {
-    this.filteredPeople$ = combineLatest([
-      this.people$,
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(100),
-        distinctUntilChanged()
-      ),
-      // add other streams to query
-    ]).pipe(
-      map(([people, searchTerm]) => {
-        if (!people) return [];
-
-        const term = (searchTerm || '').toLowerCase();
-        // make them a term
-
-        return people.filter((person) => {
-          const matchesSearch =
-            person.fullName?.toLowerCase().includes(term) ||
-            person.nif?.includes(term);
-
-          // check if matches
-          return matchesSearch;
-        });
-      }),
-      startWith([])
-    );
+    this.updateBreadcrumbs();
   }
 
-  onAddPersonModal() {
-    this.modalService.show(CreatePeopleComponent, {
-      initialState: {},
+  onCreateModal(): void {
+    this.modalService.show(UpsertPeopleComponent, {
+      initialState: {
+        id: 0,
+      },
       class: 'modal-lg',
     });
   }
 
-  onUpdatePersonModal(person: Person) {
-    const initialState = {
-      id: person.id,
-    };
-    this.modalService.show(UpdatePeopleComponent, {
-      initialState: initialState,
-      class: 'modal-lg',
-    });
-  }
-
-  onDeletePersonModal(id: number, fullName: string) {
-    const initialState = {
-      id: id,
-      fullName: fullName,
-    };
-    this.modalService.show(DeletePeopleComponent, { initialState });
-  }
-
-  private updateBreadcrumbs(): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         url: '/dashboard',

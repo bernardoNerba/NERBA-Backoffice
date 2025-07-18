@@ -1,7 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">
-    Atribuir Papel a <span class="text-secondary">{{ user.fullName }}</span>
-  </h4>
+  <h4 class="modal-title">Atribuir Papel</h4>
   <button
     type="button"
     class="btn-close"
@@ -12,33 +10,25 @@
 <div class="modal-body">
   <form [formGroup]="form">
     <div class="form-group">
+      <div class="property">
+        <strong>Nome da Pessoa</strong>
+        <p class="text-break text-muted mb-0">
+          {{ user.fullName }}
+        </p>
+      </div>
       <label for="roleInput"
         >Atribuir Papel <span class="text-danger">*</span></label
       >
-      <input
-        id="roleInput"
-        type="text"
-        class="form-control"
+      <p-multiselect
+        [options]="availableRoles"
         formControlName="roleInput"
-        [typeahead]="filteredRoles"
-        [typeaheadMinLength]="0"
-        [typeaheadOptionField]="'name'"
-        (typeaheadOnSelect)="onSelectRole($event.item)"
-        placeholder="Comece a escrever um papel..."
+        placeholder="Selecione um ou mais papeis..."
+        [maxSelectedLabels]="3"
+        class="w-100"
+        [showClear]="true"
       />
     </div>
   </form>
-
-  <div class="mt-2">
-    @for(role of selectedRoles; track role;){
-    <span class="normal-badge-success me-1">
-      <button type="button" class="close-btn" (click)="removeRole(role)">
-        <i class="bi bi-x-circle-fill"></i>
-      </button>
-      {{ role }}
-    </span>
-    }
-  </div>
 </div>
 <div class="modal-footer text-end">
   <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">

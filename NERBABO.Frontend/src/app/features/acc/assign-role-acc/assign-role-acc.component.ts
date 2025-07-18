@@ -24,17 +24,15 @@ import { AuthService } from '../../../core/services/auth.service';
     FormsModule,
   ],
   templateUrl: './assign-role-acc.component.html',
-  styleUrl: './assign-role-acc.component.css',
 })
 export class AssignRoleAccComponent implements OnInit {
   @Input() user!: UserInfo;
 
   form: FormGroup = new FormGroup({
-    roleInput: new FormControl('', Validators.required),
+    roleInput: new FormControl([], Validators.required),
   });
 
   availableRoles: string[] = `${environment.roles}`.trim().split(',');
-  selectedRoles: string[] = [];
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -44,41 +42,18 @@ export class AssignRoleAccComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.form.get('roleInput')?.valueChanges.subscribe((value) => {
-      console.log(value);
-    });
-
     if (Array.isArray(this.user.roles)) {
       this.user.roles.forEach((element) => {
-        this.selectedRoles.push(element);
+        this.form.value.roleInput.push(element);
       });
     }
   }
 
-  onSelectRole(selected: string): void {
-    if (!this.selectedRoles.includes(selected)) {
-      this.selectedRoles.push(selected);
-    }
-    this.form.get('roleInput')?.reset(); // Clear input
-  }
-
-  removeRole(role: string): void {
-    this.selectedRoles = this.selectedRoles.filter((r) => r !== role);
-  }
-
-  get filteredRoles(): string[] {
-    return this.availableRoles.filter(
-      (role) =>
-        !this.selectedRoles.includes(role) && !this.user.roles.includes(role)
-    );
-  }
-
   onSubmit() {
-    console.log('clicked');
     this.authService
       .assignRole({
         userId: this.user.id,
-        roles: this.selectedRoles,
+        roles: this.form.value.roleInput,
       })
       .subscribe({
         next: (value) => {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { Module } from '../models/module';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
@@ -24,11 +24,7 @@ export class ModulesService {
   toggleSource$ = this.toggleSource.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
-    this.fetchModules();
-  }
-
-  createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
-    return this.http.post<OkResponse>(`${API_ENDPOINTS.modules}`, model);
+    this.fetchModules(); // Fetch all modules for index-modules view
   }
 
   toggleModuleIsActive(id: number): void {
@@ -36,9 +32,8 @@ export class ModulesService {
       .put<OkResponse>(`${API_ENDPOINTS.modules}${id}/toggle`, {})
       .subscribe({
         next: (value) => {
-          this.triggerFetch();
+          this.notifyModuleToggle(id); // Notify toggle instead of full fetch
           this.sharedService.showSuccess(value.message);
-          this.notifyModuleToggle(id);
         },
         error: (error) => {
           console.log(error);
@@ -47,8 +42,21 @@ export class ModulesService {
       });
   }
 
-  updateModule(id: number, model: Module): Observable<OkResponse> {
-    return this.http.put<OkResponse>(`${API_ENDPOINTS.modules}${id}`, model);
+  upsertModule(model: Module, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.updateModule(model.id, model);
+    return this.createModule(model);
+  }
+
+  private createModule(model: Omit<Module, 'id'>): Observable<OkResponse> {
+    return this.http
+      .post<OkResponse>(`${API_ENDPOINTS.modules}`, model)
+      .pipe(tap(() => this.notifyModuleUpdate(0)));
+  }
+
+  private updateModule(id: number, model: Module): Observable<OkResponse> {
+    return this.http
+      .put<OkResponse>(`${API_ENDPOINTS.modules}${id}`, model)
+      .pipe(tap(() => this.notifyModuleUpdate(id))); // Notify update after success
   }
 
   getSingleModule(id: number): Observable<Module> {
@@ -60,7 +68,9 @@ export class ModulesService {
   }
 
   deleteModule(id: number): Observable<OkResponse> {
-    return this.http.delete<OkResponse>(`${API_ENDPOINTS.modules}${id}`);
+    return this.http
+      .delete<OkResponse>(`${API_ENDPOINTS.modules}${id}`)
+      .pipe(tap(() => this.notifyModuleDelete(id))); // Notify delete after success
   }
 
   getCoursesByModule(id: number): Observable<Course[]> {
@@ -81,20 +91,20 @@ export class ModulesService {
 
   private fetchModules(): void {
     this.loadingSubject.next(true);
-
     this.http.get<Module[]>(API_ENDPOINTS.modules).subscribe({
       next: (data: Module[]) => {
         this.modulesSubject.next(data);
+        this.loadingSubject.next(false);
       },
       error: (err) => {
         console.error('Failed to fetch modules', err);
         this.modulesSubject.next([]);
+        this.loadingSubject.next(false);
         if (err.status === 403 || err.status === 401) {
           this.sharedService.redirectUser();
         }
       },
     });
-    this.loadingSubject.next(false);
   }
 
   triggerFetch() {

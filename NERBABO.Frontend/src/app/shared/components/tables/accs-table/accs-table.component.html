@@ -1,0 +1,146 @@
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading utilizadores...</p>
+</div>
+} @else {
+<p-table
+  #dt
+  stripedRows
+  [value]="users"
+  size="small"
+  [tableStyle]="{ 'min-width': '75rem' }"
+  [globalFilterFields]="['fullName', 'roles']"
+  [paginator]="true"
+  [rows]="10"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  (onPage)="pageChange($event)"
+  [rowsPerPageOptions]="[10, 25, 50]"
+>
+  <ng-template #caption>
+    <div class="d-flex justify-content-between gap-2 align-items-center">
+      <p-multiSelect
+        [options]="roles"
+        [(ngModel)]="selectedRoles"
+        placeholder="Filtrar por Papéis"
+        [style]="{ 'min-width': '200px' }"
+        (ngModelChange)="applyRoleFilter()"
+      />
+      <div class="d-flex gap-2">
+        <p-iconfield iconPosition="left">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            [(ngModel)]="searchValue"
+            (ngModelChange)="dt.filterGlobal($event, 'contains')"
+            pInputText
+            type="text"
+            placeholder="Procurar..."
+          />
+        </p-iconfield>
+        <p-button
+          icon="pi pi-filter-slash"
+          [outlined]="true"
+          (click)="clearFilters()"
+        />
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th [width]="80">#</th>
+      <th pSortableColumn="fullName">
+        <div class="flex items-center gap-2">
+          Nome Completo
+          <p-sortIcon field="fullName" />
+        </div>
+      </th>
+      <th pSortableColumn="userName" style="width: 20%">
+        <div class="flex items-center gap-2">
+          Username
+          <p-sortIcon field="userName" />
+        </div>
+      </th>
+      <th pSortableColumn="email" style="width: 20%">
+        <div class="flex items-center gap-2">
+          Email
+          <p-sortIcon field="email" />
+        </div>
+      </th>
+      <th pSortableColumn="roles" style="width: 35%">
+        <div class="flex items-center gap-2">
+          Papeis
+          <p-sortIcon field="roles" />
+        </div>
+      </th>
+      <th pSortableColumn="estado" style="width: 10%">
+        <div class="flex items-center gap-2">
+          Estado
+          <p-sortIcon field="estado" />
+        </div>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-user>
+    <tr>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <p-menu
+            #menu
+            [model]="menuItems"
+            [popup]="true"
+            [appendTo]="'body'"
+          />
+          <p-button
+            icon="pi pi-ellipsis-v"
+            [rounded]="true"
+            severity="secondary"
+            [outlined]="true"
+            (click)="menu.toggle($event); selectedUser = user"
+          />
+        </div>
+      </td>
+      <td>
+        <app-icon-anchor
+          [field]="user.fullName"
+          [display]="user.fullName | truncate : 30"
+          [link]="'/people/' + user.personId"
+          [icon]="'pi pi-link'"
+        />
+      </td>
+      <td>{{ user.userName | truncate : 15 }}</td>
+      <td>
+        <app-icon-anchor
+          [field]="user.email"
+          [display]="user.email.split('@')[0]"
+          [link]="'mailto:' + user.email"
+          [icon]="'pi pi-envelope'"
+        />
+      </td>
+      <td>
+        @for (role of user.roles; track role) {
+        <span class="badge bg-light text-dark me-1">
+          <app-icon [icon]="ICONS.success" />
+          {{ role | uppercase }}
+        </span>
+        }
+      </td>
+      <td>
+        <p-tag
+          icon="{{ getStatusIcon(user.isActive) }}"
+          [value]="user.isActive ? 'Ativo' : 'Inativo'"
+          [severity]="getStatusSeverity(user.isActive)"
+        />
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5">
+        Não foram encontrados utilizadores com essas diretrizes.
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+}

@@ -1,0 +1,141 @@
+<!-- Loading spinner -->
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading ações...</p>
+</div>
+}
+<!-- START Table -->
+@else {
+<p-table
+  #dt
+  stripedRows
+  [value]="filteredActions"
+  size="small"
+  [tableStyle]="{ 'min-width': '70rem' }"
+  [paginator]="true"
+  [rows]="10"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  (onPage)="pageChange($event)"
+  [rowsPerPageOptions]="[10, 25, 50]"
+>
+  <!-- Table caption with Search and clear filter  -->
+  <ng-template #caption>
+    <div class="d-flex justify-content-between gap-2 align-items-center">
+      <p-calendar
+        [(ngModel)]="dateRange"
+        (ngModelChange)="filterByDateRange()"
+        selectionMode="range"
+        [showIcon]="true"
+        placeholder="Filtrar por tempo..."
+        dateFormat="yy-mm-dd"
+        [style]="{ 'min-width': '250px' }"
+        title="Selecione um intervalo de datas para filtrar ações"
+      />
+      <div class="d-flex gap-2">
+        <p-iconfield iconPosition="left">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            [(ngModel)]="searchValue"
+            (ngModelChange)="applyFilters()"
+            pInputText
+            type="text"
+            placeholder="Procurar..."
+          />
+        </p-iconfield>
+        <p-button
+          icon="pi pi-filter-slash"
+          [outlined]="true"
+          (click)="clearFilters()"
+        />
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th [width]="20">#</th>
+      <th pSortableColumn="title">
+        <div class="flex items-center gap-2">
+          Título
+          <p-sortIcon field="title" />
+        </div>
+      </th>
+      <th pSortableColumn="startDate" style="width: 25%">
+        <div class="flex items-center gap-2">
+          Data
+          <p-sortIcon field="startDate" />
+        </div>
+      </th>
+      <th pSortableColumn="status" style="width: 15%">
+        <div class="flex items-center gap-2">
+          Status
+          <p-sortIcon field="status" />
+        </div>
+      </th>
+      <th pSortableColumn="regiment" style="width: 10%">
+        <div class="flex items-center gap-2">
+          Regime
+          <p-sortIcon field="regiment" />
+        </div>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-action>
+    <tr>
+      <!-- DROPDOWN MENU -->
+      <td>
+        <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
+        <p-button
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          severity="secondary"
+          [outlined]="true"
+          (click)="menu.toggle($event); selectedAction = action"
+        />
+      </td>
+      <!-- ACTION TITLE -->
+      <td>
+        <p-button
+          class="text-truncate"
+          icon="bi bi-link"
+          variant="text"
+          [routerLink]="['/actions', action.id]"
+          label="{{ action.title | truncate : 40 }}"
+          severity="secondary"
+        />
+      </td>
+      <!-- DATES RANGE -->
+      <td>
+        <span class="text-truncate">
+          <i class="bi bi-calendar me-2"></i>
+          {{
+            [action.startDate, action.endDate] | formatDateRange | truncate : 40
+          }}
+        </span>
+      </td>
+      <!-- ACTION STATUS -->
+      <td>
+        <p-tag
+          icon="{{ getStatusIcon(action.status) }}"
+          [value]="action.status"
+          [severity]="getStatusSeverity(action.status)"
+        />
+      </td>
+      <!-- ACTION REGIMENT TYPE -->
+      <td>
+        <p-tag [value]="action.regiment" severity="secondary" />
+      </td>
+    </tr>
+  </ng-template>
+  <!-- EMPTY STATE -->
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5">
+        Não foram encontradas ações formação com essas diretrizes.
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+}

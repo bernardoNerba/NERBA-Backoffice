@@ -7,28 +7,30 @@ import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Person } from '../../../core/models/person';
 import { SharedService } from '../../../core/services/shared.service';
-import { UpdatePeopleComponent } from '../update-people/update-people.component';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { PersonRelationship } from '../../../core/models/personRelationships';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
+import { MenuItem } from 'primeng/api';
+import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
+import { IView } from '../../../core/interfaces/IView';
+import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 
 @Component({
   selector: 'app-detail-person',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, DropdownMenuComponent],
   templateUrl: './view-people.component.html',
-  styleUrl: './view-people.component.css',
 })
-export class ViewPeopleComponent implements OnInit, OnDestroy {
+export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   person$?: Observable<Person | null>;
   relationships$?: Observable<PersonRelationship | null>;
   selectedId!: number;
   fullName!: string;
   id!: number;
   ICONS = ICONS;
+  menuItems: MenuItem[] | undefined;
 
-  private subscriptions: Subscription = new Subscription();
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -47,22 +49,22 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.initializePerson();
-    this.updateSourceSubcription();
+    this.initializeEntity();
+    this.updateSourceSubscription();
     this.deleteSourceSubscription();
   }
 
-  updatePersonModal() {
+  onUpdateModal() {
     const initialState = {
       id: this.id,
     };
-    this.bsModalService.show(UpdatePeopleComponent, {
+    this.bsModalService.show(UpsertPeopleComponent, {
       initialState: initialState,
       class: 'modal-lg',
     });
   }
 
-  deletePersonModal() {
+  onDeleteModal() {
     const initialState = {
       id: this.id,
       fullName: this.fullName,
@@ -70,7 +72,7 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
     this.bsModalService.show(DeletePeopleComponent, { initialState });
   }
 
-  private updateBreadcrumbs(id: number, fullName: string): void {
+  updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
         displayName: 'Dashboard',
@@ -83,14 +85,14 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
         className: '',
       },
       {
-        displayName: fullName || 'Detalhes',
-        url: `/people/${id}`,
+        displayName: this.fullName || 'Detalhes',
+        url: `/people/${this.id}`,
         className: 'inactive',
       },
     ]);
   }
 
-  private initializePerson() {
+  initializeEntity() {
     this.person$ = this.peopleService.getSinglePerson(this.id).pipe(
       catchError((error) => {
         if (error.status === 401 || error.status === 403) {
@@ -105,7 +107,8 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
         if (person) {
           this.fullName = person.fullName;
           this.id = person.id;
-          this.updateBreadcrumbs(person.id, person.fullName);
+          this.updateBreadcrumbs();
+          this.populateMenu();
         }
       })
     );
@@ -113,17 +116,55 @@ export class ViewPeopleComponent implements OnInit, OnDestroy {
     this.relationships$ = this.peopleService.getPersonRelationships(this.id);
   }
 
-  private updateSourceSubcription() {
+  populateMenu(): void {
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: [
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.onUpdateModal(),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.onDeleteModal(),
+          },
+          {
+            // TODO: Implement create colaborator from person
+            label: 'Criar como Colaborador',
+            icon: 'pi pi-plus',
+            command: () => {},
+          },
+          {
+            // TODO: Implement create student from person
+            label: 'Criar como Formando',
+            icon: 'pi pi-plus',
+            command: () => {},
+          },
+          {
+            // TODO: Implement create teacher from person
+            label: 'Criar como Formador',
+            icon: 'pi pi-plus',
+            command: () => {},
+          },
+        ],
+      },
+    ];
+  }
+
+  updateSourceSubscription() {
     this.subscriptions.add(
       this.peopleService.updatedSource$.subscribe((updatedId: number) => {
         if (this.id === updatedId) {
-          this.initializePerson();
+          this.initializeEntity();
         }
       })
     );
   }
 
-  private deleteSourceSubscription() {
+  deleteSourceSubscription() {
     this.subscriptions.add(
       this.peopleService.deletedSource$.subscribe((deletedId: number) => {
         if (this.id === deletedId) {
