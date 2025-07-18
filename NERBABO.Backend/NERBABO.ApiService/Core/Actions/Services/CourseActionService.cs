@@ -371,14 +371,27 @@ namespace NERBABO.ApiService.Core.Actions.Services
                     .Fail("Erro de Validação", "Data de fim inválida.");
             }
 
-            if ((startDate != existingCourseAction.StartDate
-                || endDate != existingCourseAction.EndDate)
-                && startDate >= endDate)
+            // Changes made on the dates
+            if (startDate.ToString("yyyy-MM-dd") != existingCourseAction.StartDate.ToString("yyyy-MM-dd") ||
+                endDate.ToString("yyyy-MM-dd") != existingCourseAction.EndDate.ToString("yyyy-MM-dd"))
             {
-                _logger.LogWarning("Start date {startDate} must be before end date {endDate}.", startDate, endDate);
-                return Result<RetrieveCourseActionDto>
-                    .Fail("Erro de Validação", "A data de início deve ser anterior à data de fim.");
+                // Check if start date is before end date
+                if (startDate >= endDate)
+                {
+                    _logger.LogWarning("Start date {startDate} must be before end date {endDate}.", startDate, endDate);
+                    return Result<RetrieveCourseActionDto>
+                        .Fail("Erro de Validação", "A data de início deve ser anterior à data de fim.");
+                }
+
+                // Check if the new start date is after today
+                if (startDate < DateOnly.FromDateTime(DateTime.UtcNow))
+                {
+                    _logger.LogWarning("Start date {startDate} cannot be in the past.", startDate);
+                    return Result<RetrieveCourseActionDto>
+                        .Fail("Erro de Validação", "A data de início não pode ser anterior à data atual.");
+                }
             }
+
 
             var actionEntity = CourseAction.ConvertUpdateDtoToEntity(entityDto, existingCourseAction.Coordenator, existingCourse);
             _context.Entry(existingCourseAction).CurrentValues.SetValues(actionEntity);

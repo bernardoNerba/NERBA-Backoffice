@@ -20,6 +20,8 @@ import { FormatDateRangePipe } from '../../../pipes/format-date-range.pipe';
 import { StatusEnum } from '../../../../core/objects/status';
 import { ICONS } from '../../../../core/objects/icons';
 import { TagModule } from 'primeng/tag';
+import { UpsertAccComponent } from '../../../../features/acc/upsert-acc/upsert-acc.component';
+import { UpsertActionsComponent } from '../../../../features/actions/upsert-actions/upsert-actions.component';
 
 @Component({
   selector: 'app-actions-table',
@@ -178,7 +180,14 @@ export class ActionsTableComponent implements OnInit {
   }
 
   onUpdateActionModal(action: Action): void {
-    // TODO: IMPLEMENT Action Update
+    this.modalService.show(UpsertActionsComponent, {
+      class: 'modal-md',
+      initialState: {
+        id: action.id,
+        courseId: action.courseId,
+        courseTitle: action.courseTitle,
+      },
+    });
   }
 
   onDeleteActionModal(action: Action): void {

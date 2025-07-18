@@ -23,8 +23,8 @@ import { CoursesService } from '../../../../core/services/courses.service';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { SpinnerComponent } from '../../spinner/spinner.component';
-import { CreateActionsComponent } from '../../../../features/actions/create-actions/create-actions.component';
 import { UpsertCoursesComponent } from '../../../../features/courses/upsert-courses/upsert-courses.component';
+import { UpsertActionsComponent } from '../../../../features/actions/upsert-actions/upsert-actions.component';
 
 @Component({
   selector: 'app-courses-table',
@@ -221,9 +221,10 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
   }
 
   onCreateActionModal(id: number, title: string) {
-    this.modalService.show(CreateActionsComponent, {
+    this.modalService.show(UpsertActionsComponent, {
       class: 'modal-lg',
       initialState: {
+        id: 0,
         courseId: id,
         courseTitle: title,
       },

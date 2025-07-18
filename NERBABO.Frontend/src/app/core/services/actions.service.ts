@@ -51,7 +51,12 @@ export class ActionsService {
   }
 
   getActionById(id: number): Observable<Action> {
-    return this.http.get<Action>(`${API_ENDPOINTS.actions}/${id}`);
+    return this.http.get<Action>(`${API_ENDPOINTS.actions}${id}`);
+  }
+
+  upsert(model: ActionForm, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.updateAction(model.id, model);
+    return this.createAction(model);
   }
 
   createAction(model: Omit<ActionForm, 'id'>): Observable<OkResponse> {
@@ -62,13 +67,13 @@ export class ActionsService {
 
   updateAction(id: number, model: Partial<ActionForm>): Observable<OkResponse> {
     return this.http
-      .put<OkResponse>(`${API_ENDPOINTS.actions}/${id}`, model)
+      .put<OkResponse>(`${API_ENDPOINTS.actions}${id}`, model)
       .pipe(tap(() => this.notifyUpdate(id)));
   }
 
   deleteAction(id: number): Observable<OkResponse> {
     return this.http
-      .delete<OkResponse>(`${API_ENDPOINTS.actions}/${id}`)
+      .delete<OkResponse>(`${API_ENDPOINTS.actions}${id}`)
       .pipe(tap(() => this.notifyDelete(id)));
   }
 

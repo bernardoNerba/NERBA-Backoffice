@@ -26,11 +26,9 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         public List<string> WeekDays { get; set; } = [];
 
         [Required(ErrorMessage = "Data de Início é um campo obrigatório.")]
-        [FutureDate(ErrorMessage = "A data de ínicio deve ser uma data futura.")]
         public string StartDate { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Data de Fim é um campo obrigatório.")]
-        [FutureDate(ErrorMessage = "A data de fim deve ser uma data futura.")]
         public string EndDate { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Estado é um campo obrigatório.")]

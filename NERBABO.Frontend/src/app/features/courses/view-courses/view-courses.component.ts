@@ -17,7 +17,6 @@ import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-mo
 import { ActionsService } from '../../../core/services/actions.service';
 import { Action } from '../../../core/models/action';
 import { StatusEnum } from '../../../core/objects/status';
-import { CreateActionsComponent } from '../../actions/create-actions/create-actions.component';
 import { Module } from '../../../core/models/module';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
@@ -25,6 +24,7 @@ import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
+import { UpsertActionsComponent } from '../../actions/upsert-actions/upsert-actions.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -116,9 +116,10 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
   }
 
   onCreateActionModal() {
-    this.modalService.show(CreateActionsComponent, {
+    this.modalService.show(UpsertActionsComponent, {
       class: 'modal-lg',
       initialState: {
+        id: 0,
         courseId: this.id,
         courseTitle: this.title,
       },
