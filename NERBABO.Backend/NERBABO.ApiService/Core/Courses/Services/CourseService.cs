@@ -191,8 +191,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
 
             // Update cache
-            await _cache.SetAsync($"course:{existingCourse.Id}", existingCourse, TimeSpan.FromMinutes(30));
-            await DeleteCacheAsync();
+            await DeleteCacheAsync(id);
 
             return Result
                 .Ok("Curso Atualizado", "Estado do Curso atualizado com sucesso.");
