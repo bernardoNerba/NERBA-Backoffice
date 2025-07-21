@@ -70,7 +70,7 @@ export class ActionsService {
     return this.http.post<OkResponse>(`${API_ENDPOINTS.actions}`, model).pipe(
       tap(() => {
         this.notifyUpdate(0);
-        this.coursesService.notifyCreateAction(0);
+        this.coursesService.notifyModifiedAction(model.courseId);
       })
     );
   }
@@ -78,13 +78,21 @@ export class ActionsService {
   updateAction(id: number, model: Partial<ActionForm>): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.actions}${id}`, model)
-      .pipe(tap(() => this.notifyUpdate(id)));
+      .pipe(
+        tap(() => {
+          this.notifyUpdate(id);
+          this.coursesService.notifyModifiedAction(model.courseId!);
+        })
+      );
   }
 
-  deleteAction(id: number): Observable<OkResponse> {
-    return this.http
-      .delete<OkResponse>(`${API_ENDPOINTS.actions}${id}`)
-      .pipe(tap(() => this.notifyDelete(id)));
+  deleteAction(id: number, courseId: number): Observable<OkResponse> {
+    return this.http.delete<OkResponse>(`${API_ENDPOINTS.actions}${id}`).pipe(
+      tap(() => {
+        this.notifyDelete(id);
+        this.coursesService.notifyModifiedAction(courseId);
+      })
+    );
   }
 
   notifyUpdate(actionId: number) {

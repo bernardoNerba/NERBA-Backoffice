@@ -21,6 +21,7 @@ import { StatusEnum } from '../../../../core/objects/status';
 import { ICONS } from '../../../../core/objects/icons';
 import { TagModule } from 'primeng/tag';
 import { UpsertActionsComponent } from '../../../../features/actions/upsert-actions/upsert-actions.component';
+import { DeleteActionsComponent } from '../../../../features/actions/delete-actions/delete-actions.component';
 
 @Component({
   selector: 'app-actions-table',
@@ -77,7 +78,12 @@ export class ActionsTableComponent implements OnInit {
           {
             label: 'Eliminar',
             icon: 'pi pi-exclamation-triangle',
-            command: () => this.onDeleteActionModal(this.selectedAction!),
+            command: () =>
+              this.onDeleteActionModal(
+                this.selectedAction!.id,
+                this.selectedAction!.title,
+                this.selectedAction!.courseId
+              ),
           },
           {
             label: 'Detalhes',
@@ -187,8 +193,15 @@ export class ActionsTableComponent implements OnInit {
     });
   }
 
-  onDeleteActionModal(action: Action): void {
-    // TODO: IMPLEMENT Action Delte
+  onDeleteActionModal(id: number, title: string, courseId: number): void {
+    this.modalService.show(DeleteActionsComponent, {
+      class: 'modal-md',
+      initialState: {
+        id: id,
+        title: title,
+        courseId: courseId,
+      },
+    });
   }
 
   getStatusSeverity(status: string) {

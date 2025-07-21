@@ -183,7 +183,7 @@ export class UpsertActionsComponent implements IUpsert, OnInit {
     this.actionsService.upsert(formData, this.isUpdate).subscribe({
       next: (value) => {
         if (this.form.value.id === 0) {
-          this.courseService.notifyCreateAction(this.form.value.courseId);
+          this.courseService.notifyModifiedAction(this.form.value.courseId);
         }
         this.bsModalRef.hide();
         this.sharedService.showSuccess(value.message);

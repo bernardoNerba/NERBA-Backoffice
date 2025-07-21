@@ -77,7 +77,7 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
     this.deleteSourceSubscription();
     this.assignModuleSourceSubscription();
     this.changeStatusSourceSubscription();
-    this.createActionSourceSubscription();
+    this.modifiedActionSourceSubscription();
   }
 
   onUpdateModal() {
@@ -263,11 +263,12 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
     );
   }
 
-  private createActionSourceSubscription() {
+  private modifiedActionSourceSubscription() {
     this.subscriptions.add(
-      this.coursesService.createActionSource$.subscribe((id: number) => {
+      this.coursesService.modifiedActionSource$.subscribe((id: number) => {
         if (this.id === id) {
           this.initializeEntity();
+          this.initializeActions();
         }
       })
     );

@@ -4,7 +4,6 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
 import { Observable } from 'rxjs';
 import { Action } from '../../../core/models/action';
-import { FrameService } from '../../../core/services/frame.service';
 import { ActionsService } from '../../../core/services/actions.service';
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -16,7 +15,6 @@ import { CommonModule } from '@angular/common';
   selector: 'app-index-actions',
   imports: [ActionsTableComponent, IconComponent, CommonModule],
   templateUrl: './index-actions.component.html',
-  styleUrl: './index-actions.component.css',
 })
 export class IndexActionsComponent implements IIndex, OnInit {
   actions$!: Observable<Action[]>;
