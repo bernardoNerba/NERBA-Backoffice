@@ -23,6 +23,7 @@ import { TagModule } from 'primeng/tag';
 import { UpsertActionsComponent } from '../../../../features/actions/upsert-actions/upsert-actions.component';
 import { DeleteActionsComponent } from '../../../../features/actions/delete-actions/delete-actions.component';
 import { DatePicker } from 'primeng/datepicker';
+import { ChangeStatusActionsComponent } from '../../../../features/actions/change-status-actions/change-status-actions.component';
 
 @Component({
   selector: 'app-actions-table',
@@ -85,6 +86,11 @@ export class ActionsTableComponent implements OnInit {
                 this.selectedAction!.title,
                 this.selectedAction!.courseId
               ),
+          },
+          {
+            label: 'Atualizar Estado',
+            icon: 'pi pi-refresh',
+            command: () => this.onChangeStatusModal(this.selectedAction!),
           },
           {
             label: 'Detalhes',
@@ -201,6 +207,15 @@ export class ActionsTableComponent implements OnInit {
         id: id,
         title: title,
         courseId: courseId,
+      },
+    });
+  }
+
+  onChangeStatusModal(action: Action) {
+    this.modalService.show(ChangeStatusActionsComponent, {
+      class: 'modal-md',
+      initialState: {
+        action: action,
       },
     });
   }

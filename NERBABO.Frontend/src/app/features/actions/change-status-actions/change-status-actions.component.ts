@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Course } from '../../../core/models/course';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { SelectModule } from 'primeng/select';
+import { Action } from '../../../core/models/action';
 import { STATUS } from '../../../core/objects/status';
 import {
   FormBuilder,
@@ -9,23 +7,25 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
-import { CoursesService } from '../../../core/services/courses.service';
+import { ActionsService } from '../../../core/services/actions.service';
+import { SelectModule } from 'primeng/select';
+import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-change-status-courses',
+  selector: 'app-change-status-actions',
   imports: [
-    ReactiveFormsModule,
-    CommonModule,
     SelectModule,
     ErrorCardComponent,
+    CommonModule,
+    ReactiveFormsModule,
   ],
-  templateUrl: './change-status-courses.component.html',
+  templateUrl: './change-status-actions.component.html',
 })
-export class ChangeStatusCoursesComponent implements OnInit {
-  course!: Course;
+export class ChangeStatusActionsComponent implements OnInit {
+  action!: Action;
   loading: boolean = false;
   submitted: boolean = false;
   form: FormGroup = new FormGroup({});
@@ -36,14 +36,12 @@ export class ChangeStatusCoursesComponent implements OnInit {
     public bsModalRef: BsModalRef,
     private formBuilder: FormBuilder,
     private sharedService: SharedService,
-    private coursesService: CoursesService
+    private actionsService: ActionsService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
-    this.form.patchValue({
-      status: this.course.status,
-    });
+    this.form.patchValue({ status: this.action.status });
   }
 
   onSubmit() {
@@ -60,8 +58,8 @@ export class ChangeStatusCoursesComponent implements OnInit {
 
     this.loading = true;
 
-    this.coursesService
-      .changeStatus(this.course.id, this.form.value.status)
+    this.actionsService
+      .changeStatus(this.action.id, this.form.value.status)
       .subscribe({
         next: (value) => {
           this.bsModalRef.hide();

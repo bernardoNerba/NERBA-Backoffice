@@ -95,6 +95,19 @@ export class ActionsService {
     );
   }
 
+  changeStatus(id: number, status: string): Observable<OkResponse> {
+    return this.http
+      .put<OkResponse>(
+        `${API_ENDPOINTS.actions}${id}/status?status=${status}`,
+        {}
+      )
+      .pipe(
+        tap(() => {
+          this.notifyUpdate(id);
+        })
+      );
+  }
+
   notifyUpdate(actionId: number) {
     this.updatedSource.next(actionId);
   }

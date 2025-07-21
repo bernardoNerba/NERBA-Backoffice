@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './shared/guards/auth.guard';
 import { unauthOnlyGuard } from './shared/guards/unauth-only.guard';
+import { ViewActionsComponent } from './features/actions/view-actions/view-actions.component';
 
 export const routes: Routes = [
   {
@@ -37,6 +38,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/actions/index-actions/index-actions.component').then(
         (m) => m.IndexActionsComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'actions/:id',
+    loadComponent: () =>
+      import('./features/actions/view-actions/view-actions.component').then(
+        (m) => m.ViewActionsComponent
       ),
     canActivate: [authGuard],
   },

@@ -164,9 +164,9 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         /// <response code="404">The action with given id does not exist or status doesnt exist.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user is not Admin or FM or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [HttpPut("{id:long}/status/{status}")]
+        [HttpPut("{id:long}/status")]
         [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
-        public async Task<IActionResult> ChangeActionStatusAsync(long id, string status)
+        public async Task<IActionResult> ChangeActionStatusAsync(long id, [FromQuery] string status)
         {
             var result = await _courseActionService.ChangeActionStatusAsync(id, status);
             return _responseHandler.HandleResult(result);
