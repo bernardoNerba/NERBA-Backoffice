@@ -192,6 +192,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
             var existingCourseActions = await _context.Actions
                 .Include(a => a.Coordenator)
                 .Include(a => a.Course)
+                .OrderByDescending(a => a.CreatedAt)
                 .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
                 .ToListAsync();
             if (existingCourseActions is null || existingCourseActions.Count == 0)
@@ -244,8 +245,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             var retrieveActions = existingCourseActions
                 .AsValueEnumerable()
-                .OrderByDescending(a => a.Status)
-                .ThenByDescending(a => a.CreatedAt)
+                .OrderByDescending(a => a.CreatedAt)
                 .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
                 .ToList();
 
@@ -457,8 +457,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             var orderedActions = existingActionsWithCourse
                 .AsValueEnumerable()
-                .OrderByDescending(a => a.Status)
-                    .ThenByDescending(a => a.CreatedAt)
+                .OrderByDescending(a => a.CreatedAt)
                 .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
                 .ToList();
 

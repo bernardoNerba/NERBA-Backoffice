@@ -6,6 +6,7 @@ import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
 import { ActionForm } from '../models/actionForm';
 import { SharedService } from './shared.service';
+import { CoursesService } from './courses.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,13 @@ export class ActionsService {
   updatedSource$ = this.updatedSource.asObservable();
   deletedSource$ = this.deletedSource.asObservable();
 
-  constructor(private http: HttpClient, private sharedService: SharedService) {}
+  constructor(
+    private http: HttpClient,
+    private sharedService: SharedService,
+    private coursesService: CoursesService
+  ) {
+    this.fetchActions();
+  }
 
   getActionsByModuleId(id: number): Observable<Action[]> {
     return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByModule}${id}`);
@@ -31,10 +38,10 @@ export class ActionsService {
     return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByCourse}${id}`);
   }
 
-  fetchActions(courseId: number): void {
+  private fetchActions(): void {
     this.loadingSubject.next(true);
     this.http
-      .get<Action[]>(`${API_ENDPOINTS.actions}/course/${courseId}`)
+      .get<Action[]>(API_ENDPOINTS.actions)
       .pipe(finalize(() => this.loadingSubject.next(false)))
       .subscribe({
         next: (data) => {
@@ -60,9 +67,12 @@ export class ActionsService {
   }
 
   createAction(model: Omit<ActionForm, 'id'>): Observable<OkResponse> {
-    return this.http
-      .post<OkResponse>(`${API_ENDPOINTS.actions}`, model)
-      .pipe(tap(() => this.notifyUpdate(0)));
+    return this.http.post<OkResponse>(`${API_ENDPOINTS.actions}`, model).pipe(
+      tap(() => {
+        this.notifyUpdate(0);
+        this.coursesService.notifyCreateAction(0);
+      })
+    );
   }
 
   updateAction(id: number, model: Partial<ActionForm>): Observable<OkResponse> {
@@ -85,7 +95,7 @@ export class ActionsService {
     this.deletedSource.next(actionId);
   }
 
-  triggerFetchActions(courseId: number) {
-    this.fetchActions(courseId);
+  triggerFetchActions() {
+    this.fetchActions();
   }
 }

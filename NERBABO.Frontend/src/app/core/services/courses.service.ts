@@ -16,6 +16,7 @@ export class CoursesService {
   private deletedSource = new Subject<number>();
   private changeStatusSource = new Subject<number>();
   private assignModuleSource = new Subject<number>();
+  private createActionSource = new Subject<number>();
 
   courses$ = this.coursesSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
@@ -23,6 +24,7 @@ export class CoursesService {
   deletedSource$ = this.deletedSource.asObservable();
   changeStatusSource$ = this.changeStatusSource.asObservable();
   assignModuleSource$ = this.assignModuleSource.asObservable();
+  createActionSource$ = this.createActionSource.asObservable();
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
     this.fetchCourses();
@@ -116,5 +118,9 @@ export class CoursesService {
 
   notifyCourseAssignModule(id: number) {
     this.assignModuleSource.next(id);
+  }
+
+  notifyCreateAction(id: number) {
+    this.createActionSource.next(id);
   }
 }

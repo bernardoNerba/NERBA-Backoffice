@@ -28,6 +28,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourse = await _context.Courses
                 .Include(c => c.Modules)
                 .Include(c => c.Frame)
+                .Include(c => c.Actions)
                 .FirstOrDefaultAsync(c => c.Id == courseId);
             if (existingCourse is null)
             {
@@ -163,7 +164,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     .Fail("Não encontrado.", "Curso não encontrado.",
                     StatusCodes.Status404NotFound);
             }
-            
+
             if (!string.IsNullOrEmpty(status)
             && !EnumHelp.IsValidEnum<StatusEnum>(status))
             {
@@ -352,6 +353,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
                 .Include(c => c.Modules)
+                .Include(c => c.Actions)
                 .ToListAsync();
 
             // perform in memory logic
@@ -371,9 +373,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
             // update cache
-            await _cache.SetAsync(cacheKey, existingCourses, TimeSpan.FromMinutes(30));
+            await _cache.SetAsync(cacheKey, activeCourses, TimeSpan.FromMinutes(30));
 
-            _logger.LogInformation("Retrieved {CourseCount} active courses.", existingCourses.Count);
+            _logger.LogInformation("Retrieved {CourseCount} active courses.", activeCourses.Count);
             return Result<IEnumerable<RetrieveCourseDto>>
                 .Ok(activeCourses);
         }
@@ -392,8 +394,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
                 .Include(c => c.Modules)
-                .OrderBy(c => c.Status)
-                    .ThenByDescending(c => c.CreatedAt)
+                .Include(c => c.Actions)
+                .OrderByDescending(c => c.CreatedAt)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .ToListAsync();
 
@@ -436,6 +438,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
                 .Include(c => c.Modules)
+                .Include(c => c.Actions)
                 .Where(c => c.FrameId == frameId)
                 .OrderBy(c => c.Status)
                     .ThenByDescending(c => c.CreatedAt)
@@ -515,7 +518,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
             var existingCoursesWithModule = await _context.Courses
+                .Include(c => c.Frame)
                 .Include(c => c.Modules)
+                .Include(c => c.Actions)
                 .Where(c => c.Modules.Any(m => m.Id == moduleId))
                 .ToListAsync();
 
@@ -553,7 +558,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             var existingCourse = await _context.Courses
                 .Where(c => c.Id == courseId)
+                .Include(c => c.Frame)
                 .Include(c => c.Modules)
+                .Include(c => c.Actions)
                 .FirstOrDefaultAsync();
 
             if (existingCourse is null)
@@ -589,6 +596,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourse = await _context.Courses
                 .Include(c => c.Frame)
                 .Include(c => c.Modules)
+                .Include(c => c.Actions)
                 .FirstOrDefaultAsync(c => c.Id == entityDto.Id);
             if (existingCourse is null)
             {

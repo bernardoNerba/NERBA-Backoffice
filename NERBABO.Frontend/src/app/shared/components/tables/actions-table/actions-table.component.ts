@@ -20,7 +20,6 @@ import { FormatDateRangePipe } from '../../../pipes/format-date-range.pipe';
 import { StatusEnum } from '../../../../core/objects/status';
 import { ICONS } from '../../../../core/objects/icons';
 import { TagModule } from 'primeng/tag';
-import { UpsertAccComponent } from '../../../../features/acc/upsert-acc/upsert-acc.component';
 import { UpsertActionsComponent } from '../../../../features/actions/upsert-actions/upsert-actions.component';
 
 @Component({
@@ -96,14 +95,14 @@ export class ActionsTableComponent implements OnInit {
     // Subscribe to action updates
     this.subscriptions.add(
       this.actionsService.updatedSource$.subscribe((actionId) => {
-        this.refreshAction(actionId, 'update');
+        this.refreshAction(actionId);
       })
     );
 
     // Subscribe to action deletions
     this.subscriptions.add(
       this.actionsService.deletedSource$.subscribe((actionId) => {
-        this.refreshAction(actionId, 'delete');
+        this.actions = this.actions.filter((action) => action.id !== actionId);
       })
     );
   }
@@ -153,35 +152,33 @@ export class ActionsTableComponent implements OnInit {
     this.applyFilters();
   }
 
-  refreshAction(id: number, action: 'update' | 'delete'): void {
+  refreshAction(id: number): void {
     if (id === 0) {
-      // Parent component handles full refresh
+      // if id is 0, needs a full refresh
+      this.actionsService.triggerFetchActions();
       return;
     }
 
-    const index = this.actions.findIndex((action) => action.id === id);
-    if (index === -1) return;
-
-    if (action === 'delete') {
-      this.actions = this.actions.filter((action) => action.id !== id);
-      this.applyFilters(); // Reapply filters after deletion
-    } else if (action === 'update') {
-      this.actionsService.getActionById(id).subscribe({
-        next: (updatedAction) => {
+    // Check if the current action in the current actions list
+    this.actionsService.getActionById(id).subscribe({
+      next: (updatedAction) => {
+        const index = this.actions.findIndex((action) => action.id == id);
+        if (index !== -1) {
           this.actions[index] = updatedAction;
           this.actions = [...this.actions];
           this.applyFilters(); // Reapply filters after update
-        },
-        error: (error) => {
-          console.error('Failed to refresh action: ', error);
-        },
-      });
-    }
+        }
+      },
+      error: (error) => {
+        console.error('Failed to refresh action: ', error);
+        this.actionsService.triggerFetchActions();
+      },
+    });
   }
 
   onUpdateActionModal(action: Action): void {
     this.modalService.show(UpsertActionsComponent, {
-      class: 'modal-md',
+      class: 'modal-lg',
       initialState: {
         id: action.id,
         courseId: action.courseId,
@@ -254,6 +251,7 @@ export class ActionsTableComponent implements OnInit {
   clearFilters() {
     this.searchValue = '';
     this.dateRange = null;
+    this.dt.reset();
     this.applyFilters();
   }
 
