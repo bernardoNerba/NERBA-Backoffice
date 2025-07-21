@@ -110,12 +110,6 @@ export class ModulesTableComponent implements OnInit {
         this.modules = this.modules.filter((module) => module.id !== moduleId);
       })
     );
-
-    this.subscriptions.add(
-      this.modulesService.deletedSource$.subscribe((moduleId) => {
-        this.modules = this.modules.filter((module) => module.id !== moduleId);
-      })
-    );
   }
 
   columns = [
@@ -127,7 +121,6 @@ export class ModulesTableComponent implements OnInit {
   private refreshModule(moduleId: number): void {
     if (moduleId === 0) {
       // If moduleId is 0, it indicates a full refresh is needed (e.g., after create)
-      // Parent component should handle full refresh of course.modules
       this.modulesService.triggerFetch();
       return;
     }

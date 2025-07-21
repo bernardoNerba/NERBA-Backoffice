@@ -14,28 +14,29 @@ export class SidebarComponent implements OnInit {
   isAdmin!: boolean;
 
   mainMenuItems = [
-    { name: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-    { name: 'Pessoas', icon: 'people', route: '/people' },
-    { name: 'Cursos', icon: 'school', route: '/courses' },
-    { name: 'Modulos', icon: 'view_module', route: '/modules' },
-    { name: 'Empresas', icon: 'business', route: '/companies' },
+    { name: 'Dashboard', icon: 'pi pi-chart-line', route: '/dashboard' },
+    { name: 'Pessoas', icon: 'pi pi-users', route: '/people' },
+    { name: 'Modulos', icon: 'pi pi-objects-column', route: '/modules' },
+    { name: 'Cursos', icon: 'pi pi-graduation-cap', route: '/courses' },
+    { name: 'Ações Formativas', icon: 'pi pi-bookmark-fill', route: '/actions' },
+    { name: 'Empresas', icon: 'pi pi-building', route: '/companies' },
   ];
 
   adminMenuItems = [
-    { name: 'Configurações', icon: 'settings', route: '/config' },
-    { name: 'Enquadramentos', icon: 'crop_free', route: '/frames' },
-    { name: 'Contas', icon: 'manage_accounts', route: '/accs' },
+    { name: 'Configurações', icon: 'pi pi-cog', route: '/config' },
+    { name: 'Enquadramentos', icon: 'pi pi-expand', route: '/frames' },
+    { name: 'Contas', icon: 'pi pi-users', route: '/accs' },
   ];
 
   bottomMenuItems = [
     {
       name: 'Notificações',
-      icon: 'notifications',
+      icon: 'pi pi-bell',
       route: '/notifications',
     },
     {
       name: 'Logout',
-      icon: 'logout',
+      icon: 'pi pi-sign-out',
       route: '/logout',
     },
   ];

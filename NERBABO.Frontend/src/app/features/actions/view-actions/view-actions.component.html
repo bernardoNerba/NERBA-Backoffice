@@ -1,0 +1,237 @@
+@if (action$ | async; as action) {
+<!-- TITLE + DROPDOWN MENU -->
+<div class="row align-items-center">
+  <div class="col-10">
+    <h3 class="text-truncate">{{ action.title }}</h3>
+  </div>
+  <!-- ACTION MENU -->
+  <div class="col-2 d-flex justify-content-end">
+    <app-dropdown-menu [menuItems]="menuItems" />
+  </div>
+</div>
+<!-- END TITLE + DROPDOWN MENU -->
+
+<div class="container-fluid px-0 my-4">
+  <div class="accordion" id="general-info-accordion">
+    <!-- GENERAL INFO ACCORDION-->
+    @if (course$ | async; as course) {
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-general-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#general-info-content"
+          aria-expanded="false"
+          aria-controls="general-info-content"
+        >
+          <app-icon [icon]="ICONS.info" [marginEnd]="3" />
+          <h5>Informações Do Curso</h5>
+        </button>
+      </h2>
+      <div
+        id="general-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-general-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="row g-3">
+              <!-- Course Title -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Título</strong>
+                  <p class="text-break mb-0">
+                    {{ course.title }}
+                  </p>
+                </div>
+              </div>
+              <!-- Course MinLvl -->
+              <div class="col-md-4 col-sm-6">
+                <div class="property">
+                  <strong>Nível Min. Habilitações</strong>
+                  <p class="text-break mb-0">
+                    {{ course.minHabilitationLevel }}
+                  </p>
+                </div>
+              </div>
+              <!-- Course total duration -->
+              <div class="col-md-4 col-sm-6">
+                <div class="property">
+                  <strong>Duração Total</strong>
+                  <p class="text-break mb-0">
+                    {{ course.totalDuration - course.remainingDuration }} /
+                    {{ course.totalDuration }}
+                    h
+                  </p>
+                </div>
+              </div>
+              <!-- Course status -->
+              <div class="col-md-4 col-sm-6">
+                <div class="property">
+                  <strong>Estado</strong>
+                  <p class="text-break mb-0">{{ course.status }}</p>
+                </div>
+              </div>
+              <!-- Course Area -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Área</strong>
+                  <p class="text-break mb-0">{{ course.area }}</p>
+                </div>
+              </div>
+              <!-- Course Objectives -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Objetivos</strong>
+                  <p class="text-break mb-0">{{ course.objectives }}</p>
+                </div>
+              </div>
+              <!-- Course Destinators -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Destinatários</strong>
+                  @for(dest of course.destinators; track dest) {
+                  <p class="text-break mb-0">{{ dest }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    <!-- END GENERAL INFO ACCORDION -->
+    <!-- GENERAL INFO ACCORDION-->
+    @if (course$ | async; as course) {
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-action-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#action-info-content"
+          aria-expanded="false"
+          aria-controls="action-info-content"
+        >
+          <app-icon [icon]="ICONS.action" [marginEnd]="3" />
+          <h5>Informações Ação Formação</h5>
+        </button>
+      </h2>
+      <div
+        id="action-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-action-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="row g-3">
+              <!-- Action Title -->
+              <div class="col-12">
+                <div class="property">
+                  <strong>Título</strong>
+                  <p class="text-break mb-0">
+                    {{ action.title }}
+                  </p>
+                </div>
+              </div>
+              <!-- Action Admin Code -->
+              <div class="col-md-3 col-sm-6">
+                <div class="property">
+                  <strong>Cod. Administrativo</strong>
+                  <p class="text-break mb-0">
+                    {{ action.administrationCode }}
+                  </p>
+                </div>
+              </div>
+              <!-- Action Admin Code -->
+              <div class="col-md-3 col-sm-6">
+                <div class="property">
+                  <strong>Data Ínicio</strong>
+                  <p class="text-break mb-0">
+                    {{ action.startDate | date : "dd/MM/yyyy" }}
+                  </p>
+                </div>
+              </div>
+              <!-- Action Admin Code -->
+              <div class="col-md-3 col-sm-6">
+                <div class="property">
+                  <strong>Data Fim</strong>
+                  <p class="text-break mb-0">
+                    {{ action.endDate | date : "dd/MM/yyyy" }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Regiment -->
+              <div class="col-md-3 col-sm-6">
+                <div class="property">
+                  <strong>Regime</strong>
+                  <p class="text-break mb-0">
+                    {{ action.regiment }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Week Days -->
+              <div class="col-md-3 col-sm-6">
+                <div class="property">
+                  <strong>Dias da Semana</strong>
+                  @if (action.weekDays.length !== 0) { @for (day of
+                  action.weekDays; track day ) {
+                  <p class="text-break mb-0">{{ day }}</p>
+                  } } @else {
+                  <p class="text-break mb-0">N/A</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Locality -->
+              <div class="col-md-3 col-sm-6">
+                <div class="property">
+                  <strong>Localidade</strong>
+                  <p class="text-break mb-0">
+                    {{ action.locality || "N/A" }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Coordenator -->
+              <div class="col-md-3 col-sm-6">
+                <div class="property">
+                  <strong>Coordenador</strong>
+                  <p class="text-break mb-0">
+                    {{ action.coordenatorName }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Coordenator -->
+              <div class="col-md-3 col-sm-6">
+                <div class="property">
+                  <strong>Estado</strong>
+                  <p class="text-break mb-0">
+                    {{ action.status }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="property">
+                  <strong>Morada</strong>
+                  <p class="text-break mb-0">
+                    {{ action.address || "N/A" }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    <!-- END GENERAL INFO ACCORDION -->
+  </div>
+</div>
+}

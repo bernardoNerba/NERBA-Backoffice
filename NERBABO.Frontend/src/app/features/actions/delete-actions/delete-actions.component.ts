@@ -1,30 +1,31 @@
 import { Component, Input } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { CoursesService } from '../../../core/services/courses.service';
 import { SharedService } from '../../../core/services/shared.service';
+import { ActionsService } from '../../../core/services/actions.service';
 
 @Component({
-  selector: 'app-delete-courses',
+  selector: 'app-delete-actions',
   imports: [],
-  templateUrl: './delete-courses.component.html',
+  templateUrl: './delete-actions.component.html',
 })
-export class DeleteCoursesComponent {
+export class DeleteActionsComponent {
   @Input({ required: true }) id!: number;
   @Input({ required: true }) title!: string;
+  @Input({ required: true }) courseId!: number;
   deleting: boolean = false;
 
   constructor(
     public bsModalRef: BsModalRef,
-    private coursesService: CoursesService,
+    private actionsService: ActionsService,
     private sharedService: SharedService
   ) {}
 
   confirmDelete(): void {
     this.deleting = true;
 
-    this.coursesService.delete(this.id).subscribe({
+    this.actionsService.deleteAction(this.id, this.courseId).subscribe({
       next: (value) => {
-        this.coursesService.triggerFetchCourses();
+        this.actionsService.triggerFetchActions();
         this.bsModalRef.hide();
         this.sharedService.showSuccess(value.message);
       },

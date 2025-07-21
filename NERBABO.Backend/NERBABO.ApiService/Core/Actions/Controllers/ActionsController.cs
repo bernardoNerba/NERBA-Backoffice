@@ -152,7 +152,24 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
 
             var result = await _courseActionService.UpdateAsync(updateCourseActionDto);
             return _responseHandler.HandleResult(result);
+        }
 
+        /// <summary>
+        /// Changes the status of a action by a given Id.
+        /// </summary>
+        /// <param name="id">The ID of the action to be updated</param>
+        /// <param name="status">The string containg the status new values.</param>
+        /// <response code="200">The action was updated successfully.</response>
+        /// <response code="400">Validation ERROR when validating Status.</response>
+        /// <response code="404">The action with given id does not exist or status doesnt exist.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is not Admin or FM or user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPut("{id:long}/status")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> ChangeActionStatusAsync(long id, [FromQuery] string status)
+        {
+            var result = await _courseActionService.ChangeActionStatusAsync(id, status);
+            return _responseHandler.HandleResult(result);
         }
     }
 }

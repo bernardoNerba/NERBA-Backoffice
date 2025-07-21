@@ -23,6 +23,7 @@ import {
   faClock,
   faBook,
   faBuilding,
+  faBookmark,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -49,4 +50,5 @@ export const ICONS = {
   time: faClock,
   book: faBook,
   company: faBuilding,
+  action: faBookmark,
 };

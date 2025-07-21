@@ -1,3 +1,4 @@
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
@@ -192,6 +193,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
             var existingCourseActions = await _context.Actions
                 .Include(a => a.Coordenator)
                 .Include(a => a.Course)
+                .OrderByDescending(a => a.CreatedAt)
                 .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
                 .ToListAsync();
             if (existingCourseActions is null || existingCourseActions.Count == 0)
@@ -244,8 +246,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             var retrieveActions = existingCourseActions
                 .AsValueEnumerable()
-                .OrderByDescending(a => a.Status)
-                .ThenByDescending(a => a.CreatedAt)
+                .OrderByDescending(a => a.CreatedAt)
                 .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
                 .ToList();
 
@@ -430,15 +431,6 @@ namespace NERBABO.ApiService.Core.Actions.Services
             }
         }
 
-        private async Task DeleteActionCacheAsync(long? id = null)
-        {
-            if (id is not null)
-                await _cacheService.RemoveAsync($"action:{id}");
-
-            await _cacheService.RemoveAsync("action:list");
-            await _cacheService.RemovePatternAsync("action:module:list:*");
-        }
-
         public async Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllByCourseIdAsync(long courseId)
         {
             var existingActionsWithCourse = await _context.Actions
@@ -457,13 +449,59 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             var orderedActions = existingActionsWithCourse
                 .AsValueEnumerable()
-                .OrderByDescending(a => a.Status)
-                    .ThenByDescending(a => a.CreatedAt)
+                .OrderByDescending(a => a.CreatedAt)
                 .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
                 .ToList();
 
             return Result<IEnumerable<RetrieveCourseActionDto>>
                 .Ok(orderedActions);
+        }
+
+        public async Task<Result> ChangeActionStatusAsync(long id, string status)
+        {
+            var existingAction = await _context.Actions.FindAsync(id);
+            if (existingAction is null)
+            {
+                _logger.LogWarning("Action with ID {id} not found.", id);
+                return Result.Fail("Não encontrado.", "Ação Formação não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            if (!string.IsNullOrEmpty(status)
+                && !EnumHelp.IsValidEnum<StatusEnum>(status))
+            {
+                _logger.LogWarning("Invalid status value: {status}", status);
+                return Result.Fail("Erro de Validação", $"O estado {status} não é válido.");
+            }
+
+            // Compare status verifying if there is a change to perform
+            StatusEnum s = Enum.GetValues<StatusEnum>()
+                .First(e => string.Equals(e.Humanize().Transform(To.TitleCase), status,
+                StringComparison.OrdinalIgnoreCase));
+
+            if (existingAction.Status == s)
+            {
+                _logger.LogWarning("Action with ID {id} already has status {status}.", id, s);
+                return Result.Fail("Erro de Validação", "Não alterou nenhum dado. Modifique os dados e tente novamente.");
+            }
+
+            existingAction.Status = s;
+            await _context.SaveChangesAsync();
+
+            // Update cache
+            await DeleteActionCacheAsync(id);
+
+            return Result
+                .Ok("Estado da Ação Formativa alterado.", "Estado da Ação Formativa alterado com sucesso.");
+        }
+
+        private async Task DeleteActionCacheAsync(long? id = null)
+        {
+            if (id is not null)
+                await _cacheService.RemoveAsync($"action:{id}");
+
+            await _cacheService.RemoveAsync("action:list");
+            await _cacheService.RemovePatternAsync("action:module:list:*");
         }
     }
 }

@@ -1,0 +1,28 @@
+<div class="card-table">
+  <div class="card-header">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-12 col-sm-8">
+          <h3 class="text-center text-md-start mb-3 mb-md-0">
+            Gestão de Ações Formativas
+          </h3>
+        </div>
+        <div
+          class="col-12 col-sm-4 text-center text-md-end"
+          (click)="onCreateModal()"
+        >
+          <button type="button" class="btn-main">
+            <app-icon [icon]="ICONS.add" [marginEnd]="1" />
+            Registar Ação Formação
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <app-actions-table
+      [actions]="(actions$ | async) ?? []"
+      [loading]="(loading$ | async) ?? false"
+    />
+  </div>
+</div>

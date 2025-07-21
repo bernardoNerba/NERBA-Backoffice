@@ -22,7 +22,7 @@
   <!-- Table caption with Search and clear filter  -->
   <ng-template #caption>
     <div class="d-flex justify-content-between gap-2 align-items-center">
-      <p-calendar
+      <p-datepicker
         [(ngModel)]="dateRange"
         (ngModelChange)="filterByDateRange()"
         selectionMode="range"
