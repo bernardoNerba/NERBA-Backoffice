@@ -19,4 +19,7 @@ export type Person = {
   phoneNumber: string;
   zipCode: string;
   age: number;
+  isTeacher: boolean;
+  isStudent: boolean;
+  isColaborator: boolean;
 };

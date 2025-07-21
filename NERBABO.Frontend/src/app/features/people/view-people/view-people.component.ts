@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { Observable, of, Subscription } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { PeopleService } from '../../../core/services/people.service';
@@ -8,7 +8,6 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { Person } from '../../../core/models/person';
 import { SharedService } from '../../../core/services/shared.service';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
-import { PersonRelationship } from '../../../core/models/personRelationships';
 import { ICONS } from '../../../core/objects/icons';
 import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
@@ -18,17 +17,20 @@ import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component'
 @Component({
   selector: 'app-detail-person',
   standalone: true,
-  imports: [CommonModule, DropdownMenuComponent],
+  imports: [CommonModule, DropdownMenuComponent, RouterModule],
   templateUrl: './view-people.component.html',
 })
 export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   person$?: Observable<Person | null>;
-  relationships$?: Observable<PersonRelationship | null>;
   selectedId!: number;
   fullName!: string;
   id!: number;
   ICONS = ICONS;
   menuItems: MenuItem[] | undefined;
+
+  isStudent: boolean = false;
+  isTeacher: boolean = false;
+  isColaborator: boolean = false;
 
   subscriptions: Subscription = new Subscription();
 
@@ -72,6 +74,21 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     this.bsModalService.show(DeletePeopleComponent, { initialState });
   }
 
+  onCreateColaborator() {
+    console.log('Create collaborator triggered for person ID:', this.id);
+    // TODO: Implement logic to create a collaborator
+  }
+
+  onCreateStudent() {
+    console.log('Create student triggered for person ID:', this.id);
+    // TODO: Implement logic to create a student
+  }
+
+  onCreateTeacher() {
+    console.log('Create teacher triggered for person ID:', this.id);
+    // TODO: Implement logic to create a teacher
+  }
+
   updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
@@ -105,51 +122,62 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       }),
       tap((person) => {
         if (person) {
+          console.log(person);
           this.fullName = person.fullName;
           this.id = person.id;
+          this.isColaborator = person.isColaborator ?? false;
+          this.isStudent = person.isStudent ?? false;
+          this.isTeacher = person.isTeacher ?? false;
           this.updateBreadcrumbs();
           this.populateMenu();
         }
       })
     );
-
-    this.relationships$ = this.peopleService.getPersonRelationships(this.id);
   }
 
   populateMenu(): void {
+    const items: MenuItem[] = [
+      {
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        command: () => this.onUpdateModal(),
+      },
+      {
+        label: 'Eliminar',
+        icon: 'pi pi-exclamation-triangle',
+        command: () => this.onDeleteModal(),
+      },
+    ];
+
+    // Conditionally add "Criar como ..." options based on person properties
+    if (!this.isColaborator) {
+      items.push({
+        label: 'Criar como Colaborador',
+        icon: 'pi pi-plus',
+        command: () => this.onCreateColaborator(),
+      });
+    }
+
+    if (!this.isStudent) {
+      items.push({
+        label: 'Criar como Formando',
+        icon: 'pi pi-plus',
+        command: () => this.onCreateStudent(),
+      });
+    }
+
+    if (!this.isTeacher) {
+      items.push({
+        label: 'Criar como Formador',
+        icon: 'pi pi-plus',
+        command: () => this.onCreateTeacher(),
+      });
+    }
+
     this.menuItems = [
       {
         label: 'Opções',
-        items: [
-          {
-            label: 'Editar',
-            icon: 'pi pi-pencil',
-            command: () => this.onUpdateModal(),
-          },
-          {
-            label: 'Eliminar',
-            icon: 'pi pi-exclamation-triangle',
-            command: () => this.onDeleteModal(),
-          },
-          {
-            // TODO: Implement create colaborator from person
-            label: 'Criar como Colaborador',
-            icon: 'pi pi-plus',
-            command: () => {},
-          },
-          {
-            // TODO: Implement create student from person
-            label: 'Criar como Formando',
-            icon: 'pi pi-plus',
-            command: () => {},
-          },
-          {
-            // TODO: Implement create teacher from person
-            label: 'Criar como Formador',
-            icon: 'pi pi-plus',
-            command: () => {},
-          },
-        ],
+        items,
       },
     ];
   }

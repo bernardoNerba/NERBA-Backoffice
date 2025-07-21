@@ -146,6 +146,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'people/:id/teacher',
+    loadComponent: () =>
+      import('./features/people/view-teacher/view-teacher.component').then(
+        (m) => m.ViewTeacherComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'not-found',
     loadComponent: () =>
       import('./shared/not-found/not-found.component').then(

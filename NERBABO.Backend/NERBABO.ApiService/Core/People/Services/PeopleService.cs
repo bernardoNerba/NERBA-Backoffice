@@ -170,6 +170,8 @@ public class PeopleService(
         // Not in cache so fetch from database
         var existingPeople = _context.People
             .Include(p => p.User)
+            .Include(p => p.Teacher)
+            .Include(p => p.Student)
             .Select(p => Person.ConvertEntityToRetrieveDto(p))
             .AsValueEnumerable()
             .OrderByDescending(p => p.FullName)
@@ -234,6 +236,8 @@ public class PeopleService(
         // Not in cache so fetch from database
         var existingPerson = await _context.People
                 .Include(p => p.User)
+                .Include(p => p.Teacher)
+                .Include(p => p.Student)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
         if (existingPerson is null)

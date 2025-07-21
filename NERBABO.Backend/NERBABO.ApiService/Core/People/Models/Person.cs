@@ -85,6 +85,9 @@ public class Person : Entity<long>
             Gender = person.Gender.Humanize().Transform(To.TitleCase),
             Habilitation = person.Habilitation.Humanize().Transform(To.TitleCase),
             IdentificationType = person.IdentificationType.Humanize().Transform(To.TitleCase),
+            IsTeacher = person.Teacher != null,
+            IsStudent = person.Student != null,
+            IsColaborator = person.User != null,
         };
     }
 
