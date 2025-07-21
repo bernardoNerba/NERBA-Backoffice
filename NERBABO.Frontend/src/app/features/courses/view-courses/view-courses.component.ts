@@ -42,10 +42,9 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   course$?: Observable<Course | null>;
   actions$?: Observable<Action[]>;
-  frame!: Frame;
+  frame$?: Observable<Frame>;
   modules!: Module[];
   title!: string;
-  frameId!: number;
   course!: Course;
   ICONS = ICONS;
   STATUS = StatusEnum;
@@ -144,17 +143,9 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
           this.title = course.title;
           this.course = course;
 
+          this.initializeFrame(course.frameId);
+
           this.updateBreadcrumbs();
-
-          this.frameService.getSingle(course.frameId).subscribe({
-            next: (frame: Frame) => {
-              this.frame = frame;
-            },
-            error: (error: any) => {
-              this.sharedService.showError(error.detail);
-            },
-          });
-
           this.populateMenu();
         }
       })
@@ -163,6 +154,10 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
 
   private initializeActions() {
     this.actions$ = this.actionsService.getActionsByCourseId(this.id);
+  }
+
+  private initializeFrame(frameId: number) {
+    this.frame$ = this.frameService.getSingle(frameId);
   }
 
   populateMenu() {

@@ -22,6 +22,7 @@ import { ICONS } from '../../../../core/objects/icons';
 import { TagModule } from 'primeng/tag';
 import { UpsertActionsComponent } from '../../../../features/actions/upsert-actions/upsert-actions.component';
 import { DeleteActionsComponent } from '../../../../features/actions/delete-actions/delete-actions.component';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-actions-table',
@@ -31,7 +32,6 @@ import { DeleteActionsComponent } from '../../../../features/actions/delete-acti
     InputIcon,
     Button,
     Menu,
-    CalendarModule,
     CommonModule,
     FormsModule,
     RouterLink,
@@ -40,6 +40,7 @@ import { DeleteActionsComponent } from '../../../../features/actions/delete-acti
     InputTextModule,
     FormatDateRangePipe,
     TagModule,
+    DatePicker,
   ],
   templateUrl: './actions-table.component.html',
 })
