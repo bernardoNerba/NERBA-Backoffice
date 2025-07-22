@@ -18,6 +18,23 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         private readonly IResponseHandler _responseHandler = responseHandler;
 
         /// <summary>
+        /// Gets the teacher associated with a given id.
+        /// </summary>
+        /// <param name="id">The teacher id to perform query.</param>
+        /// <response code="200">The teacher with the id was found. returns a RetrieveTeacherDto type response.</response>
+        /// <response code="404">The teacher with the id not found.</response>
+        /// <response code="401">The user is not authorized, invalid jwt or user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        /// [Authorize(Policy = "ActiveUser")]
+        [Authorize(Policy = "ActiveUser")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTeacherByIdAsync(long id)
+        {
+            Result<RetrieveTeacherDto> result = await _teacherService.GetByIdAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
         /// Gets the teacher associated with a person, by the personid.
         /// </summary>
         /// <param name="personId">The person id to perform query.</param>

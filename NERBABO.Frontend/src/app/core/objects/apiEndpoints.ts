@@ -46,4 +46,8 @@ export const API_ENDPOINTS = {
 
   // frames
   frames: `${environment.appUrl}/api/frame/`,
+
+  // teacher
+  teachers: `${environment.appUrl}/api/teacher/`,
+  teacherByPerson: `${environment.appUrl}/api/teacher/person/`,
 };

@@ -270,7 +270,11 @@ public class PeopleService(
 
     public async Task<Result<RetrievePersonDto>> UpdateAsync(UpdatePersonDto entityDto)
     {
-        var existingPerson = await _context.People.FindAsync(entityDto.Id);
+        var existingPerson = await _context.People
+            .Include(p => p.Teacher)
+            .Include(p => p.Student)
+            .Include(p => p.User)
+            .FirstOrDefaultAsync(p => p.Id == entityDto.Id);
         if (existingPerson is null)
             return Result<RetrievePersonDto>
                 .Fail("Não encontrado.", "Pessoa não encontrada.",

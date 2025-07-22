@@ -13,6 +13,7 @@ import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
+import { UpsertTeachersComponent } from '../../teachers/upsert-teachers/upsert-teachers.component';
 
 @Component({
   selector: 'app-detail-person',
@@ -85,8 +86,13 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   }
 
   onCreateTeacher() {
-    console.log('Create teacher triggered for person ID:', this.id);
-    // TODO: Implement logic to create a teacher
+    this.bsModalService.show(UpsertTeachersComponent, {
+      initialState: {
+        id: 0,
+        personId: this.id,
+      },
+      class: 'modal-lg',
+    });
   }
 
   updateBreadcrumbs(): void {
