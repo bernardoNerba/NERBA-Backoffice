@@ -108,7 +108,10 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         className: '',
       },
       {
-        displayName: this.fullName || 'Detalhes',
+        displayName:
+          this.fullName.length > 21
+            ? this.fullName.substring(0, 21) + '...'
+            : this.fullName || 'Detalhes',
         url: `/people/${this.id}`,
         className: 'inactive',
       },

@@ -25,7 +25,7 @@ export class ViewTeachersComponent implements IView, OnInit {
   person$?: Observable<Person | null>;
   id!: number; // person id
   teacherId!: number;
-  fullName?: string;
+  fullName: string = '';
   menuItems: MenuItem[] | undefined;
 
   isStudent: boolean = false;
@@ -171,7 +171,10 @@ export class ViewTeachersComponent implements IView, OnInit {
         className: '',
       },
       {
-        displayName: this.fullName || 'Detalhes Pessoa',
+        displayName:
+          this.fullName.length > 21
+            ? this.fullName.substring(0, 21) + '...'
+            : this.fullName || 'Detalhes Pessoa',
         url: `/people/${this.id}`,
         className: '',
       },
