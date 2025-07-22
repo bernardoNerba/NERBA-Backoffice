@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SharedService } from './shared.service';
 import { Observable } from 'rxjs';
-import { Teacher } from '../objects/teacher';
+import { Teacher, TeacherForm } from '../objects/teacher';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
 
@@ -20,18 +20,27 @@ export class TeachersService {
     return this.http.get<Teacher>(API_ENDPOINTS.teacherByPerson + personId);
   }
 
-  upsert(model: Teacher, isUpdate: boolean): Observable<OkResponse> {
+  upsert(model: TeacherForm, isUpdate: boolean): Observable<OkResponse> {
     if (isUpdate) return this.update(model);
     return this.create(model);
   }
 
   private create(
-    model: Omit<Teacher, 'id' | 'isLecturingFM' | 'isLecturingCQ'>
+    model: Omit<TeacherForm, 'id' | 'isLecturingFM' | 'isLecturingCQ'>
   ): Observable<OkResponse> {
     return this.http.post<OkResponse>(API_ENDPOINTS.teachers, model);
   }
 
-  private update(model: Teacher): Observable<OkResponse> {
-    return this.http.put<OkResponse>(API_ENDPOINTS.teachers + model.id, model);
+  private update(model: TeacherForm): Observable<OkResponse> {
+    return this.http.put<OkResponse>(
+      API_ENDPOINTS.teachers + 'update/' + model.id,
+      model
+    );
+  }
+
+  delete(id: number): Observable<OkResponse> {
+    return this.http.delete<OkResponse>(
+      API_ENDPOINTS.teachers + 'delete/' + id
+    );
   }
 }

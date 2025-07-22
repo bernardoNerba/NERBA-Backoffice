@@ -112,6 +112,9 @@ public class Teacher : Entity<long>
         return new RetrieveTeacherDto
         {
             Id = teacher.Id,
+            PersonId = teacher.PersonId,
+            IvaRegimeId = teacher.IvaRegimeId,
+            IrsRegimeId = teacher.IrsRegimeId,
             IvaRegime = teacher.IvaRegime.Name,
             IrsRegime = teacher.IrsRegime.Name,
             Ccp = teacher.Ccp,

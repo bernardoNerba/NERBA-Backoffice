@@ -167,31 +167,49 @@
         </div>
         <!-- END Competences -->
 
+        @if (isUpdate) {
         <!-- Is Lecturing FM -->
         <div class="col-md-6">
-          <div class="mb-3">
-            <p-checkbox
-              formControlName="isLecturingFM"
-              label="Leciona Formação Modular"
-              [binary]="true"
-              styleClass="w-100"
-            />
+          <div class="mb-3 d-flex justify-content-start">
+            <label for="competences" class="me-3"
+              >Leciona Formação Modular</label
+            >
+            <p-toggleswitch formControlName="isLecturingFM">
+              <ng-template #handle let-checked="checked">
+                <i
+                  [ngClass]="[
+                    '!text-xs',
+                    'pi',
+                    checked ? 'pi-check' : 'pi-times'
+                  ]"
+                ></i>
+              </ng-template>
+            </p-toggleswitch>
           </div>
         </div>
         <!-- END Is Lecturing FM -->
 
         <!-- Is Lecturing CQ -->
         <div class="col-md-6">
-          <div class="mb-3">
-            <p-checkbox
-              formControlName="isLecturingCQ"
-              label="Leciona Cursos de Qualificação"
-              [binary]="true"
-              styleClass="w-100"
-            />
+          <div class="mb-3 d-flex justify-content-start">
+            <label for="competences" class="me-3"
+              >Leciona Cursos de Qualificação</label
+            >
+            <p-toggleswitch formControlName="isLecturingCQ">
+              <ng-template #handle let-checked="checked">
+                <i
+                  [ngClass]="[
+                    '!text-xs',
+                    'pi',
+                    checked ? 'pi-check' : 'pi-times'
+                  ]"
+                ></i>
+              </ng-template>
+            </p-toggleswitch>
           </div>
         </div>
         <!-- END Is Lecturing CQ -->
+        }
       </div>
     </div>
 

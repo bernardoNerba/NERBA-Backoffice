@@ -20,6 +20,7 @@ import { ConfigService } from '../../../core/services/config.service';
 import { PeopleService } from '../../../core/services/people.service';
 import { TeachersService } from '../../../core/services/teachers.service';
 import { SharedService } from '../../../core/services/shared.service';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'app-upsert-teachers',
@@ -31,6 +32,7 @@ import { SharedService } from '../../../core/services/shared.service';
     CheckboxModule,
     DropdownModule,
     InputTextModule,
+    ToggleSwitchModule,
   ],
 })
 export class UpsertTeachersComponent implements IUpsert, OnInit {
@@ -73,7 +75,7 @@ export class UpsertTeachersComponent implements IUpsert, OnInit {
           this.loadPerson(teacher.personId);
         },
         error: (error: any) => {
-          this.sharedService.showError(error.detail);
+          this.sharedService.showError('Informação não foi encontrada.');
           this.bsModalRef.hide();
         },
       });
@@ -142,6 +144,8 @@ export class UpsertTeachersComponent implements IUpsert, OnInit {
       );
       return;
     }
+
+    console.log(this.form.value);
 
     this.loading = true;
     this.teachersService

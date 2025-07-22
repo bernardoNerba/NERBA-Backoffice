@@ -197,7 +197,12 @@ public class TeacherService(
 
     public async Task<Result<RetrieveTeacherDto>> UpdateAsync(UpdateTeacherDto entityDto)
     {
-        var existingTeacher = await _context.Teachers.FindAsync(entityDto.Id);
+        var existingTeacher = await _context.Teachers
+            .Include(t => t.IvaRegime)
+            .Include(t => t.IrsRegime)
+            .Include(t => t.Person)
+            .Where(t => t.Id == entityDto.Id)
+            .FirstOrDefaultAsync();
         if (existingTeacher is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Formador não encontrado.",
@@ -251,7 +256,6 @@ public class TeacherService(
 
         var teacher = Teacher.ConvertUpdateDtoToEntity(entityDto, person, iva, irs);
 
-
         _context.Entry(existingTeacher).CurrentValues.SetValues(teacher);
         _context.SaveChanges();
 
@@ -274,6 +278,6 @@ public class TeacherService(
             await _cacheService.RemoveAsync($"teacher:{id}");
 
         await _cacheService.RemoveAsync("teacher:list");
-        await _cacheService.RemoveAsync("teacher:person:*");
+        await _cacheService.RemovePatternAsync("teacher:person:*");
     }
 }
