@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SharedService } from './shared.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { Teacher, TeacherForm } from '../objects/teacher';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
@@ -10,6 +10,14 @@ import { OkResponse } from '../models/okResponse';
   providedIn: 'root',
 })
 export class TeachersService {
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private updatedSource = new Subject<number>();
+  private deletedSource = new Subject<number>();
+
+  loading$ = this.loadingSubject.asObservable();
+  updatedSource$ = this.updatedSource.asObservable();
+  deletedSource$ = this.deletedSource.asObservable();
+
   constructor(private http: HttpClient, private sharedService: SharedService) {}
 
   getTeacherById(id: number): Observable<Teacher> {
@@ -28,19 +36,28 @@ export class TeachersService {
   private create(
     model: Omit<TeacherForm, 'id' | 'isLecturingFM' | 'isLecturingCQ'>
   ): Observable<OkResponse> {
-    return this.http.post<OkResponse>(API_ENDPOINTS.teachers, model);
+    return this.http
+      .post<OkResponse>(API_ENDPOINTS.teachers, model)
+      .pipe(tap(() => this.notifyTeacherUpdate(0)));
   }
 
   private update(model: TeacherForm): Observable<OkResponse> {
-    return this.http.put<OkResponse>(
-      API_ENDPOINTS.teachers + 'update/' + model.id,
-      model
-    );
+    return this.http
+      .put<OkResponse>(API_ENDPOINTS.teachers + 'update/' + model.id, model)
+      .pipe(tap(() => this.notifyTeacherUpdate(model.id)));
   }
 
   delete(id: number): Observable<OkResponse> {
-    return this.http.delete<OkResponse>(
-      API_ENDPOINTS.teachers + 'delete/' + id
-    );
+    return this.http
+      .delete<OkResponse>(API_ENDPOINTS.teachers + 'delete/' + id)
+      .pipe(tap(() => this.notifyTeacherDelete(id)));
+  }
+
+  notifyTeacherUpdate(id: number) {
+    this.updatedSource.next(id);
+  }
+
+  notifyTeacherDelete(id: number) {
+    this.deletedSource.next(id);
   }
 }

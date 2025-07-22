@@ -13,6 +13,7 @@ import { Person } from '../../../core/models/person';
 import { PeopleService } from '../../../core/services/people.service';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { UpsertTeachersComponent } from '../upsert-teachers/upsert-teachers.component';
+import { DeleteTeachersComponent } from '../delete-teachers/delete-teachers.component';
 
 @Component({
   selector: 'app-view-teachers',
@@ -56,6 +57,8 @@ export class ViewTeachersComponent implements IView, OnInit {
     this.initializePerson();
     this.initializeEntity();
     this.populateMenu();
+    this.updateSourceSubscription();
+    this.deleteSourceSubscription();
   }
 
   initializeEntity(): void {
@@ -126,15 +129,33 @@ export class ViewTeachersComponent implements IView, OnInit {
   }
 
   updateSourceSubscription(): void {
-    throw new Error('Method not implemented.');
+    this.subscriptions.add(
+      this.teacherService.updatedSource$.subscribe((updatedId: number) => {
+        if (this.teacherId === updatedId) {
+          this.initializeEntity();
+          this.initializePerson();
+        }
+      })
+    );
   }
 
   onDeleteModal(): void {
-    throw new Error('Method not implemented.');
+    this.bsModalService.show(DeleteTeachersComponent, {
+      initialState: {
+        id: this.teacherId,
+        fullName: this.fullName,
+      },
+    });
   }
 
   deleteSourceSubscription(): void {
-    throw new Error('Method not implemented.');
+    this.subscriptions.add(
+      this.teacherService.deletedSource$.subscribe((deletedId: number) => {
+        if (this.teacherId === deletedId) {
+          this.router.navigateByUrl('/people/' + this.id);
+        }
+      })
+    );
   }
 
   updateBreadcrumbs(): void {
