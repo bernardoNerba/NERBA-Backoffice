@@ -14,6 +14,7 @@ import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 import { UpsertTeachersComponent } from '../../teachers/upsert-teachers/upsert-teachers.component';
+import { UpsertAccComponent } from '../../acc/upsert-acc/upsert-acc.component';
 
 @Component({
   selector: 'app-detail-person',
@@ -76,8 +77,13 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   }
 
   onCreateColaborator() {
-    console.log('Create collaborator triggered for person ID:', this.id);
-    // TODO: Implement logic to create a collaborator
+    this.bsModalService.show(UpsertAccComponent, {
+      initialState: {
+        id: 0,
+        personId: this.id
+      },
+      class: 'modal-md'
+    });
   }
 
   onCreateStudent() {
