@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
@@ -190,39 +192,58 @@ public class PeopleService(
             .Ok(existingPeople);
     }
 
-    public async Task<Result<IEnumerable<RetrievePersonDto>>> GetAllWithoutUserAsync()
+    public async Task<Result<IEnumerable<RetrievePersonDto>>> GetAllWithoutProfileAsync(string profile)
     {
+        // Validate and parse the profile input
+        if (string.IsNullOrWhiteSpace(profile) || !Enum.TryParse<ProfilesEnum>(profile.Humanize(LetterCasing.Title), true, out var profileEnum))
+        {
+            return Result<IEnumerable<RetrievePersonDto>>
+                .Fail("Perfil inválido.", $"O perfil '{profile}' não é válido.", StatusCodes.Status400BadRequest);
+        }
+
         // Check if data entries exist in cache
-        var cacheKey = "person:without:user";
+        var cacheKey = $"person:without:{profile}";
         var cachedPeople = await _cacheService.GetAsync<List<RetrievePersonDto>>(cacheKey);
-        if (cachedPeople is not null && cachedPeople.Count > 0)
+        if (cachedPeople is not null && cachedPeople.Any())
+        {
             return Result<IEnumerable<RetrievePersonDto>>
                 .Ok(cachedPeople);
+        }
 
-        var existingUsers = await _context.Users.ToListAsync();
-        var existingPeople = await _context.People.ToListAsync();
+        // Fetch from database
+        var existingPeople = await _context.People
+            .Include(p => p.User)
+            .Include(p => p.Teacher)
+            .Include(p => p.Student)
+            .ToListAsync();
 
-        var userIdsWithPeople = existingUsers
+        // Filter people without the specified profile
+        Expression<Func<Person, bool>> filter = profileEnum switch
+        {
+            ProfilesEnum.Colaborator => p => !p.IsColaborator,
+            ProfilesEnum.Student => p => !p.IsStudent,
+            ProfilesEnum.Teacher => p => !p.IsTeacher,
+            _ => throw new ArgumentOutOfRangeException(nameof(profileEnum), "Perfil não suportado.")
+        };
+
+        var peopleWithoutProfile = existingPeople
             .AsValueEnumerable()
-            .Select(u => u.PersonId)
-            .ToHashSet();
-
-        var peopleWithoutUser = existingPeople
-            .AsValueEnumerable()
-            .Where(p => !userIdsWithPeople.Contains(p.Id))
+            .Where(filter.Compile())
+            .OrderByDescending(p => p.CreatedAt)
             .Select(Person.ConvertEntityToRetrieveDto)
             .ToList();
 
-        // Check if data
-        if (peopleWithoutUser is null || peopleWithoutUser.Count == 0)
+        // Check if data exists
+        if (!peopleWithoutProfile.Any())
+        {
             return Result<IEnumerable<RetrievePersonDto>>
-                .Fail("Não encontrado.", "Não foram encontradas pessoas sem conta registada no sistema",
-                StatusCodes.Status404NotFound);
+                .Fail("Não encontrado.", $"Não foram encontradas pessoas sem o perfil {profile}.", StatusCodes.Status404NotFound);
+        }
 
-        await _cacheService.SetAsync(cacheKey, peopleWithoutUser, TimeSpan.FromMinutes(30));
+        // Update cache
+        await _cacheService.SetAsync(cacheKey, peopleWithoutProfile, TimeSpan.FromMinutes(30));
 
-        return Result<IEnumerable<RetrievePersonDto>>
-            .Ok(peopleWithoutUser);
+        return Result<IEnumerable<RetrievePersonDto>>.Ok(peopleWithoutProfile);
     }
 
     public async Task<Result<RetrievePersonDto>> GetByIdAsync(long id)
@@ -365,6 +386,6 @@ public class PeopleService(
             await _cacheService.RemoveAsync($"person:{id}");
 
         await _cacheService.RemoveAsync("person:list");
-        await _cacheService.RemoveAsync("person:without:user");
+        await _cacheService.RemovePatternAsync("person:without:*");
     }
 }

@@ -110,7 +110,7 @@ export class PeopleService {
 
   private fetchPeopleWithoutUser(): void {
     this.http
-      .get<Person[]>(API_ENDPOINTS.people_not_user)
+      .get<Person[]>(API_ENDPOINTS.people_not_user + 'colaborator/')
       .pipe(finalize(() => this.loadingSubject.next(false)))
       .subscribe({
         next: (data: Person[]) => {
