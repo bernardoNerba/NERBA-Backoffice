@@ -6,7 +6,7 @@ import { SharedService } from '../../../core/services/shared.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { MenuItem } from 'primeng/api';
 import { catchError, Observable, of, Subscription, tap } from 'rxjs';
-import { Teacher } from '../../../core/objects/teacher';
+import { Teacher } from '../../../core/models/teacher';
 import { ICONS } from '../../../core/objects/icons';
 import { CommonModule } from '@angular/common';
 import { Person } from '../../../core/models/person';

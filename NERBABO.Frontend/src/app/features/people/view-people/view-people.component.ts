@@ -15,6 +15,7 @@ import { IView } from '../../../core/interfaces/IView';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 import { UpsertTeachersComponent } from '../../teachers/upsert-teachers/upsert-teachers.component';
 import { UpsertAccComponent } from '../../acc/upsert-acc/upsert-acc.component';
+import { UpsertStudentsComponent } from '../../students/upsert-students/upsert-students.component';
 
 @Component({
   selector: 'app-detail-person',
@@ -80,15 +81,20 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     this.bsModalService.show(UpsertAccComponent, {
       initialState: {
         id: 0,
-        personId: this.id
+        personId: this.id,
       },
-      class: 'modal-md'
+      class: 'modal-md',
     });
   }
 
   onCreateStudent() {
-    console.log('Create student triggered for person ID:', this.id);
-    // TODO: Implement logic to create a student
+    this.bsModalService.show(UpsertStudentsComponent, {
+      initialState: {
+        id: 0,
+        personId: this.id,
+      },
+      class: 'modal-lg',
+    });
   }
 
   onCreateTeacher() {

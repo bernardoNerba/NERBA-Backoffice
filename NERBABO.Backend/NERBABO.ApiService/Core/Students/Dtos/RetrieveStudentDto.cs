@@ -23,11 +23,7 @@ namespace NERBABO.ApiService.Core.Students.Dtos
         public string? CompanyName { get; set; }
         public string? CompanyRole { get; set; }
         public string StudentFullName { get; set; }
-
-        [JsonIgnore]
         public bool IsEmployeed { get; set; }
-
-        [JsonIgnore]
         public bool IsRegisteredWithJobCenter { get; set; }
 
         public string JobCenter => IsRegisteredWithJobCenter 

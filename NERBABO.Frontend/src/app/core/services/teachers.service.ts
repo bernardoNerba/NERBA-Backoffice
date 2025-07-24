@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SharedService } from './shared.service';
 import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
-import { Teacher, TeacherForm } from '../objects/teacher';
+import { Teacher, TeacherForm } from '../models/teacher';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
 

@@ -73,20 +73,20 @@ nano appsettings.Development.json
 ```
 
 4. If this is the first time you are running a asp.net core web api project you may need to run:
-   
+
 ```bash
 dotnet dev-certs https --trust
 ```
 
 5. Install npm dependencies
-   
+
 ```bash
 cd NERBABO.Frontend
 npm install
 ```
 
 6. Create environment files
-Create: `src/environments/environment.development.ts`
+   Create: `src/environments/environment.development.ts`
 
 ```bash
 mkdir src/environments
@@ -95,12 +95,12 @@ nano src/environments/environment.development.ts
 
 - `environment.development.ts` example:
 
-``` ts
+```ts
 export const environment = {
   production: false,
-  appUrl: 'http://localhost:8080',
-  userKey: 'NerbaBackofficeUser',
-  roles: ['Admin', 'User', 'CQ', 'FM'],
+  appUrl: "http://localhost:8080",
+  userKey: "NerbaBackofficeUser",
+  roles: ["Admin", "User", "CQ", "FM"],
 };
 ```
 
@@ -126,11 +126,12 @@ This will:
 ## Working with Swagger
 
 Swagger allows us to build a documentation page that can also be used to test endpoints.
+
 1. Swagger runs on /swagger url.
 2. If the ApiService runs succesfully it will automatically open swagger for you.
 3. Authenticate through the login endpoint, body example:
 
-``` json
+```json
 {
   "usernameOrEmail": "admin",
   "password": "AsecurePassword123!"
@@ -139,7 +140,7 @@ Swagger allows us to build a documentation page that can also be used to test en
 
 3. This should return a json object like this:
 
-``` json
+```json
 {
   "firstName": "Admin",
   "lastName": "Admin",
@@ -150,7 +151,6 @@ Swagger allows us to build a documentation page that can also be used to test en
 4. Copy the jwt token from the response
 5. Go to the top of the page and click on the "Authorize" button.
 6. You will be prompted to the jwt, use the Bearer format. "Bearer <token_goes_here>".
-
 
 ### Working on Angular Separately
 
@@ -178,7 +178,7 @@ If you're interested in contributing, please feel free to open a pull request or
 
 - [ ] Add new Integration tests project
 - [ ] Document, with comments, critical methods and classes
-- [ ] Write the frontend code for Teachers, Students, Modules, Companies, Courses features
+- [ ] Write the frontend code for Teachers, Students features
 - [ ] Frontend data filtering for user-friendly and efficient interaction
 
 ## Code of Conduct

@@ -13,7 +13,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { IUpsert } from '../../../core/interfaces/IUpsert';
-import { Teacher } from '../../../core/objects/teacher';
+import { Teacher } from '../../../core/models/teacher';
 import { Person } from '../../../core/models/person';
 import { Tax } from '../../../core/models/tax';
 import { ConfigService } from '../../../core/services/config.service';
