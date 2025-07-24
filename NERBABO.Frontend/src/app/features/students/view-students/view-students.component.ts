@@ -11,15 +11,24 @@ import { PeopleService } from '../../../core/services/people.service';
 import { CommonModule } from '@angular/common';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-header.component';
+import { Company } from '../../../core/models/company';
+import { CompaniesService } from '../../../core/services/companies.service';
+import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-view-students',
-  imports: [CommonModule, DropdownMenuComponent, NavHeaderComponent],
+  imports: [
+    CommonModule,
+    DropdownMenuComponent,
+    NavHeaderComponent,
+    TruncatePipe,
+  ],
   templateUrl: './view-students.component.html',
 })
 export class ViewStudentsComponent implements IView, OnInit {
   student$?: Observable<Student | null>;
   person$?: Observable<Person | null>;
+  company$?: Observable<Company | null>;
   id!: number; // person id
   studentId!: number;
   fullName: string = '';
@@ -33,7 +42,8 @@ export class ViewStudentsComponent implements IView, OnInit {
     private router: Router,
     private studentsService: StudentsService,
     private peopleService: PeopleService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private companiesService: CompaniesService
   ) {}
 
   ngOnInit(): void {
@@ -64,6 +74,7 @@ export class ViewStudentsComponent implements IView, OnInit {
       tap((student) => {
         if (student) {
           this.studentId = student.id;
+          this.initializeCompany(student.companyId ?? 0);
         }
       })
     );
@@ -87,6 +98,10 @@ export class ViewStudentsComponent implements IView, OnInit {
         }
       })
     );
+  }
+
+  initializeCompany(companyId: number): void {
+    this.company$ = this.companiesService.getCompanyById(companyId);
   }
 
   populateMenu(): void {
