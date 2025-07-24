@@ -4,7 +4,7 @@ import { MenuItem } from 'primeng/api';
 import { catchError, Observable, of, Subscription, tap } from 'rxjs';
 import { Student } from '../../../core/models/student';
 import { Person } from '../../../core/models/person';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { StudentsService } from '../../../core/services/students.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { PeopleService } from '../../../core/services/people.service';
@@ -14,8 +14,9 @@ import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-he
 import { Company } from '../../../core/models/company';
 import { CompaniesService } from '../../../core/services/companies.service';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpsertStudentsComponent } from '../upsert-students/upsert-students.component';
+import { DeleteStudentsComponent } from '../delete-students/delete-students.component';
 
 @Component({
   selector: 'app-view-students',
@@ -148,7 +149,12 @@ export class ViewStudentsComponent implements IView, OnInit {
   }
 
   onDeleteModal(): void {
-    throw new Error('Method not implemented.');
+    this.modalService.show(DeleteStudentsComponent, {
+      initialState: {
+        id: this.studentId,
+        fullName: this.fullName,
+      },
+    });
   }
 
   deleteSourceSubscription(): void {
