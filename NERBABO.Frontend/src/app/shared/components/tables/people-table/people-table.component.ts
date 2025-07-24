@@ -1,14 +1,21 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Button } from 'primeng/button';
 import { Menu } from 'primeng/menu';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { Person } from '../../../../core/models/person';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PeopleService } from '../../../../core/services/people.service';
 import { DeletePeopleComponent } from '../../../../features/people/delete-people/delete-people.component';
 import { CommonModule } from '@angular/common';
@@ -21,6 +28,11 @@ import { Tag } from 'primeng/tag';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { UpsertPeopleComponent } from '../../../../features/people/upsert-people/upsert-people.component';
 
+interface ProfileOption {
+  label: string;
+  value: string;
+}
+
 @Component({
   selector: 'app-people-table',
   imports: [
@@ -29,6 +41,7 @@ import { UpsertPeopleComponent } from '../../../../features/people/upsert-people
     InputIcon,
     Button,
     Menu,
+    MultiSelectModule,
     CommonModule,
     FormsModule,
     TruncatePipe,
@@ -37,18 +50,27 @@ import { UpsertPeopleComponent } from '../../../../features/people/upsert-people
     BadgeModule,
     Tag,
     IconAnchorComponent,
+    RouterLink,
   ],
   templateUrl: './people-table.component.html',
 })
-export class PeopleTableComponent implements OnInit {
+export class PeopleTableComponent implements OnInit, AfterViewInit {
   @Input({ required: true }) people!: Person[];
   @Input({ required: true }) loading!: boolean;
   @ViewChild('dt') dt!: Table;
   menuItems: MenuItem[] | undefined;
   searchValue: string = '';
   selectedPerson: Person | undefined;
+  selectedProfiles: ProfileOption[] = [];
   first = 0;
   rows = 10;
+
+  // Profile options for the multiselect
+  profileOptions: ProfileOption[] = [
+    { label: 'Formador', value: 'Teacher' },
+    { label: 'Formando', value: 'Student' },
+    { label: 'Colaborador', value: 'Colaborator' },
+  ];
 
   private subscriptions = new Subscription();
 
@@ -98,6 +120,10 @@ export class PeopleTableComponent implements OnInit {
     );
   }
 
+  ngAfterViewInit(): void {
+    // No need to register custom filter function, we'll handle filtering manually
+  }
+
   refreshPerson(id: number, action: 'update' | 'delete'): void {
     if (id === 0) {
       // If id is 0, it indicates a full refresh is needed (e.g., after create)
@@ -145,6 +171,38 @@ export class PeopleTableComponent implements OnInit {
     });
   }
 
+  // Filtered people based on selected profiles
+  get filteredPeople(): Person[] {
+    if (this.selectedProfiles.length === 0) {
+      return this.people;
+    }
+
+    const selectedValues = this.selectedProfiles.map(
+      (profile) => profile.value
+    );
+
+    return this.people.filter((person) => {
+      return selectedValues.some((profileType) => {
+        switch (profileType) {
+          case 'Teacher':
+            return person.isTeacher;
+          case 'Student':
+            return person.isStudent;
+          case 'Colaborator':
+            return person.isColaborator;
+          default:
+            return false;
+        }
+      });
+    });
+  }
+
+  // Profile filter function - simplified
+  onProfileFilterChange(): void {
+    // The filtering is handled by the getter above
+    // This method exists to trigger change detection when profiles are selected
+  }
+
   next() {
     this.first = this.first + this.rows;
   }
@@ -163,15 +221,18 @@ export class PeopleTableComponent implements OnInit {
   }
 
   isLastPage(): boolean {
-    return this.people ? this.first + this.rows >= this.people.length : true;
+    return this.filteredPeople
+      ? this.first + this.rows >= this.filteredPeople.length
+      : true;
   }
 
   isFirstPage(): boolean {
-    return this.people ? this.first === 0 : true;
+    return this.filteredPeople ? this.first === 0 : true;
   }
 
   clearFilters() {
     this.searchValue = '';
+    this.selectedProfiles = [];
     this.dt.reset();
   }
 
