@@ -12,24 +12,7 @@
 
 <div class="card w-100 hv-100 mt-2">
   <div class="card-header">
-    <ul class="nav nav-tabs card-header-tabs">
-      <li class="nav-item">
-        <a class="nav-link active" aria-current="true" href="#">Pessoa</a>
-      </li>
-      @if((relationships$ | async)?.isStudent){
-      <li class="nav-item">
-        <a class="nav-link" href="#">Formando</a>
-      </li>
-      } @if((relationships$ | async)?.isTeacher){
-      <li class="nav-item">
-        <a class="nav-link" href="#">Formador</a>
-      </li>
-      } @if((relationships$ | async)?.isColaborator){
-      <li class="nav-item">
-        <a class="nav-link" href="#">Colaborador</a>
-      </li>
-      }
-    </ul>
+    <app-nav-header [person]="person" [activePage]="'person'" />
   </div>
   <div class="card-body">
     <div class="container-fluid px-0 my-4">

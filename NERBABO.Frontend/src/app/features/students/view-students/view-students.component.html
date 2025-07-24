@@ -1,0 +1,172 @@
+@if (person$ | async; as person) {
+<div class="row align-items-center">
+  <div class="col-10">
+    <h3 class="text-truncate">
+      {{ person.fullName }}
+    </h3>
+  </div>
+  <div class="col-2 d-flex justify-content-end">
+    <app-dropdown-menu [menuItems]="menuItems" />
+  </div>
+</div>
+<div class="card w-100 hv-100 mt-2">
+  <div class="card-header">
+    <app-nav-header [person]="person" [activePage]="'student'" />
+  </div>
+  <div class="card-body">
+    <div class="container-fluid px-0 my-4">
+      @if (student$ | async; as student) {
+      <div class="accordion" id="general-info-accordion">
+        <!-- GENERAL INFO ACCORDION-->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-general-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#general-info-content"
+              aria-expanded="false"
+              aria-controls="general-info-content"
+            >
+              <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+              <h5>Informações do Formando</h5>
+            </button>
+          </h2>
+          <div
+            id="general-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-general-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                <div class="row">
+                  <!-- Job Center -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>Centro de Emprego</strong>
+                      <p class="text-break mb-0">
+                        {{ student.jobCenter || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Employeed -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>Empregado</strong>
+                      <p class="text-break mb-0">
+                        {{ student.employeed || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Company Role -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>Cargo Desempenhado</strong>
+                      <p class="text-break mb-0">
+                        {{ student.companyRole || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @if (company$ | async; as company) {
+        <!-- COMPANY INFO ACCORDION-->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-company-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#company-info-content"
+              aria-expanded="false"
+              aria-controls="company-info-content"
+            >
+              <i class="bi bi-buildings fs-4 me-3"></i>
+              <h5>Empresa - {{ company.name | truncate : 41 }}</h5>
+            </button>
+          </h2>
+          <div
+            id="company-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-company-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                  <div class="col">
+                    <div class="property">
+                      <strong>Designação</strong>
+                      <p class="text-break mb-0">
+                        {{ company.name || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Localidade</strong>
+                      <p class="text-break mb-0">
+                        {{ company.locality || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Código Postal</strong>
+                      <p class="text-break mb-0">
+                        {{ company.zipCode || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Email</strong>
+                      <p class="text-break mb-0">
+                        {{ company.email || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Tel.</strong>
+                      <p class="text-break mb-0">
+                        {{ company.phoneNumber || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Dimensão</strong>
+                      <p class="text-break mb-0">
+                        {{ company.size || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="property">
+                      <strong>Setor de Atividade</strong>
+                      <p class="text-break mb-0">
+                        {{ company.ativitySector || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END COMPANY INFO ACCORDION -->
+        }
+      </div>
+      } @else {
+      <h5 class="text-muted text-center">
+        Erro ao obter informações do formador...
+      </h5>
+      }
+    </div>
+  </div>
+</div>
+}

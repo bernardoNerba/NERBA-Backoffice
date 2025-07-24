@@ -39,8 +39,10 @@ import { Person } from '../../../core/models/person';
 export class UpsertAccComponent implements IUpsert, OnInit {
   @Input({ required: true }) id!: string | number;
   currentUser?: UserInfo | null;
+  currentPerson?: Person | null;
   people: Person[] = [];
   displayPeople: Person[] = [];
+  personId?: number | null;
 
   submitted: boolean = false;
   loading: boolean = false;
@@ -67,13 +69,27 @@ export class UpsertAccComponent implements IUpsert, OnInit {
           this.patchFormValues();
         },
         error: (error) => {
-          console.log(error);
           this.sharedService.showError('Utilizador não encontrado.');
           this.bsModalRef.hide();
         },
       });
       this.patchFormValues();
     } else {
+      // create
+      if (this.personId !== null) {
+        this.peopleService.getSinglePerson(this.personId!).subscribe({
+          next: (person) => {
+            this.currentPerson = person;
+            this.form.patchValue({
+              personId: {
+                ...person,
+                displayName: `${person.fullName} - ${person.nif}`,
+                id: person.id,
+              },
+            });
+          },
+        });
+      }
       this.loadPeople();
     }
   }

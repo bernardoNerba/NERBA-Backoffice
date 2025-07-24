@@ -33,17 +33,22 @@ namespace NERBABO.ApiService.Core.People.Controllers
         }
 
         /// <summary>
-        /// Gets all the people that are not associated with a user.
+        /// Retrieves a list of people who do not have the specified profile (e.g., Colaborator, Student, or Teacher).
         /// </summary>
-        /// <response code="200">There are people that are not associated with a user on the system. Returns a List of RetrievePersonDto.</response>
-        /// <response code="404">There are no people that are not associated with a user on the system.</response>
-        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-        /// <response code="500">Unexpected error occurred.</response>
-        [HttpGet("not-user")]
+        /// <param name="profile">The profile to exclude (e.g., "Colaborador", "Formando", "Formador").</param>
+        /// <returns>
+        /// A list of people without the specified profile, or an error if none are found or the request is invalid.
+        /// </returns>
+        /// <response code="200">Returns a list of people without the specified profile as RetrievePersonDto objects.</response>
+        /// <response code="400">Invalid profile provided.</response>
+        /// <response code="404">No people found without the specified profile.</response>
+        /// <response code="401">Unauthorized access due to invalid or inactive user JWT.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
+        [HttpGet("not-{profile}")]
         [Authorize(Policy = "ActiveUser")]
-        public async Task<IActionResult> GetPeopleWithoutUserAsync()
+        public async Task<IActionResult> GetPeopleWithoutProfileAsync(string profile)
         {
-            Result<IEnumerable<RetrievePersonDto>> result = await _peopleService.GetAllWithoutUserAsync();
+            Result<IEnumerable<RetrievePersonDto>> result = await _peopleService.GetAllWithoutProfileAsync(profile);
             return _responseHandler.HandleResult(result);
         }
 

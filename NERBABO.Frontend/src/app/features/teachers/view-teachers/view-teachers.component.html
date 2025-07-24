@@ -1,0 +1,118 @@
+@if (person$ | async; as person) {
+<div class="row align-items-center">
+  <div class="col-10">
+    <h3 class="text-truncate">
+      {{ person.fullName }}
+    </h3>
+  </div>
+  <div class="col-2 d-flex justify-content-end">
+    <app-dropdown-menu [menuItems]="menuItems" />
+  </div>
+</div>
+
+<div class="card w-100 hv-100 mt-2">
+  <div class="card-header">
+    <app-nav-header [person]="person" [activePage]="'teacher'" />
+  </div>
+  <div class="card-body">
+    <div class="container-fluid px-0 my-4">
+      @if (teacher$ | async; as teacher) {
+      <div class="accordion" id="general-info-accordion">
+        <!-- GENERAL INFO ACCORDION-->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-general-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#general-info-content"
+              aria-expanded="false"
+              aria-controls="general-info-content"
+            >
+              <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+              <h5>Informações do Formador</h5>
+            </button>
+          </h2>
+          <div
+            id="general-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-general-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                <div class="row">
+                  <!-- CCP -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>CCP</strong>
+                      <p class="text-break mb-0">
+                        {{ teacher.ccp || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <!-- IVA -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>Regime de IVA</strong>
+                      <p class="text-break mb-0">
+                        {{ teacher.ivaRegime || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <!-- IRS -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>Regime de IRS</strong>
+                      <p class="text-break mb-0">
+                        {{ teacher.irsRegime || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="property">
+                      <strong>Competências</strong>
+                      <p class="text-break mb-0">
+                        {{ teacher.competences || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>Avaliação Média</strong>
+                      <p class="text-break mb-0">
+                        {{ teacher.avarageRating || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>Leciona Formação Modular</strong>
+                      <p class="text-break mb-0">
+                        {{ teacher.isLecturingFM ? "Sim" : "Não" }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <strong>Leciona Centro Qualifica</strong>
+                      <p class="text-break mb-0">
+                        {{ teacher.isLecturingCQ ? "Sim" : "Não" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END GENERAL INFO ACCORDION -->
+      } @else {
+      <h5 class="text-muted text-center">
+        Erro ao obter informações do formador...
+      </h5>
+      }
+    </div>
+  </div>
+</div>
+}

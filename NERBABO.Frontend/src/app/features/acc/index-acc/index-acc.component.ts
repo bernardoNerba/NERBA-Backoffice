@@ -45,7 +45,7 @@ export class IndexAccComponent implements IIndex, OnInit {
   onCreateModal(): void {
     this.modalService.show(UpsertAccComponent, {
       class: 'modal-md',
-      initialState: { id: 0 },
+      initialState: { id: 0, personId: null },
     });
   }
 

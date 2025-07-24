@@ -7,7 +7,7 @@ export const API_ENDPOINTS = {
 
   // people
   all_people: `${environment.appUrl}/api/people/`,
-  people_not_user: `${environment.appUrl}/api/people/not-user/`,
+  people_not_user: `${environment.appUrl}/api/people/not-`,
 
   // account
   all_accs: `${environment.appUrl}/api/account/users/`,
@@ -30,6 +30,7 @@ export const API_ENDPOINTS = {
 
   // students
   studentsByCompany: `${environment.appUrl}/api/students/company/`,
+  students: `${environment.appUrl}/api/students/`,
 
   // modules
   modules: `${environment.appUrl}/api/module/`,
@@ -46,4 +47,8 @@ export const API_ENDPOINTS = {
 
   // frames
   frames: `${environment.appUrl}/api/frame/`,
+
+  // teacher
+  teachers: `${environment.appUrl}/api/teacher/`,
+  teacherByPerson: `${environment.appUrl}/api/teacher/person/`,
 };

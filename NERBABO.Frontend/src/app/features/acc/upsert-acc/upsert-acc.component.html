@@ -14,15 +14,24 @@
   <!-- resgistration form -->
   <form [formGroup]="form">
     <!-- person -->
-    @if(isUpdate){
-    <div class="property">
-      <strong>Nome da Pessoa</strong>
-      <p class="text-break text-muted mb-0">
-        {{ currentUser?.fullName }}
-      </p>
-    </div>
-    } @else {
     <div class="mb-3">
+      @if(isUpdate){
+      <div class="property">
+        <strong>Nome da Pessoa</strong>
+        <p class="text-break text-muted mb-0">
+          {{ currentUser?.fullName }}
+        </p>
+      </div>
+      } @else if (personId !== null) {
+      <label for="personInfo">Colaborador</label>
+      <input
+        type="text"
+        pInputText
+        [value]="currentPerson?.firstName + ' ' + currentPerson?.lastName"
+        disabled
+        class="w-100"
+      />
+      }@else {
       <label for="personId"
         >Pessoa
         <span class="text-danger">*</span>
@@ -42,9 +51,8 @@
       />
       @if (submitted && form.get('personId')?.hasError("required")) {
       <span class="text-danger"> Pessoa é um campo obrigatório. </span>
-      }
+      } }
     </div>
-    }
     <!-- end person -->
 
     <!-- email -->

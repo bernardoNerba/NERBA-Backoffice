@@ -7,6 +7,6 @@ namespace NERBABO.ApiService.Core.People.Services;
 public interface IPeopleService
     : IGenericService<RetrievePersonDto, CreatePersonDto, UpdatePersonDto, long>
 {
-    Task<Result<IEnumerable<RetrievePersonDto>>> GetAllWithoutUserAsync();
+    Task<Result<IEnumerable<RetrievePersonDto>>> GetAllWithoutProfileAsync(string profile);
     Task<Result<RelationshipPersonDto>> GetPersonRelationshipsAsync(long personId);
 }

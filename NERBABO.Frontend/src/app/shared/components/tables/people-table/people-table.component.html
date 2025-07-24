@@ -10,9 +10,9 @@
 <p-table
   #dt
   stripedRows
-  [value]="people"
+  [value]="filteredPeople"
   size="small"
-  [tableStyle]="{ 'min-width': '80rem' }"
+  [tableStyle]="{ 'min-width': '90rem' }"
   [globalFilterFields]="['fullName', 'nif']"
   [paginator]="true"
   [rows]="10"
@@ -20,9 +20,23 @@
   (onPage)="pageChange($event)"
   [rowsPerPageOptions]="[10, 25, 50]"
 >
-  <!-- Table caption with Search and clear filter  -->
+  <!-- Table caption with Search, Profile Filter and clear filter  -->
   <ng-template #caption>
-    <div class="d-flex justify-content-end gap-2">
+    <div class="d-flex justify-content-end gap-2 align-items-center">
+      <!-- Profile MultiSelect Filter -->
+      <p-multiselect
+        [(ngModel)]="selectedProfiles"
+        [options]="profileOptions"
+        optionLabel="label"
+        placeholder="Filtrar por perfil"
+        [showClear]="true"
+        [maxSelectedLabels]="2"
+        selectedItemsLabel="{0} perfis selecionados"
+        (onChange)="onProfileFilterChange()"
+        [style]="{ 'min-width': '200px' }"
+      />
+
+      <!-- Search Input -->
       <p-iconfield iconPosition="left">
         <p-inputicon>
           <i class="pi pi-search"></i>
@@ -35,13 +49,17 @@
           placeholder="Procurar..."
         />
       </p-iconfield>
+
+      <!-- Clear Filters Button -->
       <p-button
         icon="pi pi-filter-slash"
         [outlined]="true"
         (click)="clearFilters()"
+        pTooltip="Limpar filtros"
       />
     </div>
   </ng-template>
+
   <ng-template #header>
     <tr>
       <th [width]="20">#</th>
@@ -75,7 +93,9 @@
           <p-sortIcon field="phoneNumber" />
         </div>
       </th>
-
+      <th style="width: 15%">
+        <div class="flex items-center gap-2">Perfis</div>
+      </th>
       <th pSortableColumn="age" style="width: 10%">
         <div class="flex items-center gap-2">
           Idade
@@ -84,6 +104,7 @@
       </th>
     </tr>
   </ng-template>
+
   <ng-template #body let-person>
     <tr>
       <!-- DROPDOWN MENU -->
@@ -128,14 +149,52 @@
       </td>
       <!-- PHONE NUMBER -->
       <td>{{ person.phoneNumber?.trim() || "N/A" }}</td>
+      <!-- PROFILES -->
+      <td>
+        <div class="d-flex gap-1 flex-wrap">
+          @if (person.isTeacher) {
+          <p-button
+            label="Formador"
+            icon="pi pi-user"
+            severity="contrast"
+            size="small"
+            [routerLink]="[person.id + '/teacher']"
+            outlined
+          />
+          } @if (person.isStudent) {
+          <p-button
+            label="Formando"
+            icon="pi pi-user"
+            severity="contrast"
+            size="small"
+            [routerLink]="[person.id + '/student']"
+            outlined
+          />
+          } @if (person.isColaborator) {
+          <!-- TODO: update link when user detail implementation -->
+          <p-button
+            label="Colaborador"
+            icon="pi pi-user"
+            severity="contrast"
+            size="small"
+            [routerLink]="[person.id]"
+            outlined
+          />
+          } @if (!person.isTeacher && !person.isStudent &&
+          !person.isColaborator) {
+          <span class="text-muted">N/A</span>
+          }
+        </div>
+      </td>
       <!-- AGE -->
       <td>{{ person.age || "N/A" }}</td>
     </tr>
   </ng-template>
+
   <!-- EMPTY STATE -->
   <ng-template #emptymessage>
     <tr>
-      <td colspan="7">Não foram encontradas pessoas com essas diretrizes.</td>
+      <td colspan="8">Não foram encontradas pessoas com essas diretrizes.</td>
     </tr>
   </ng-template>
 </p-table>

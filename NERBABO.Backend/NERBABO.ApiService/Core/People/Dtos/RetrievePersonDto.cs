@@ -26,4 +26,9 @@ public class RetrievePersonDto
 
     public int Age =>
         BirthDate.HasValue ? DateTime.UtcNow.Year - BirthDate.Value.Year : 0;
+
+    public bool IsTeacher { get; set; }
+    public bool IsStudent { get; set; }
+    public bool IsColaborator { get; set; }
+
 }

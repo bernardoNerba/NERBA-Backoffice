@@ -28,7 +28,12 @@ public class Person : Entity<long>
     public HabilitationEnum Habilitation { get; set; } = HabilitationEnum.WithoutProof;
     public IdentificationTypeEnum IdentificationType { get; set; } = IdentificationTypeEnum.Unknown;
 
+    // Calculated properties
+    public bool IsTeacher => Teacher != null;
+    public bool IsStudent => Student != null;
+    public bool IsColaborator => User != null;
 
+    // Navigation properties
     public User? User { get; set; }
     public Teacher? Teacher { get; set; }
     public Student? Student { get; set; }
@@ -85,6 +90,9 @@ public class Person : Entity<long>
             Gender = person.Gender.Humanize().Transform(To.TitleCase),
             Habilitation = person.Habilitation.Humanize().Transform(To.TitleCase),
             IdentificationType = person.IdentificationType.Humanize().Transform(To.TitleCase),
+            IsTeacher = person.IsTeacher,
+            IsStudent = person.IsStudent,
+            IsColaborator = person.IsColaborator,
         };
     }
 
