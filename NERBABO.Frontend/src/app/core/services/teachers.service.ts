@@ -18,7 +18,7 @@ export class TeachersService {
   updatedSource$ = this.updatedSource.asObservable();
   deletedSource$ = this.deletedSource.asObservable();
 
-  constructor(private http: HttpClient, private sharedService: SharedService) {}
+  constructor(private http: HttpClient) {}
 
   getTeacherById(id: number): Observable<Teacher> {
     return this.http.get<Teacher>(API_ENDPOINTS.teachers + id);

@@ -14,6 +14,8 @@ import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-he
 import { Company } from '../../../core/models/company';
 import { CompaniesService } from '../../../core/services/companies.service';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { UpsertStudentsComponent } from '../upsert-students/upsert-students.component';
 
 @Component({
   selector: 'app-view-students',
@@ -38,6 +40,7 @@ export class ViewStudentsComponent implements IView, OnInit {
   subscriptions: Subscription = new Subscription();
 
   constructor(
+    private modalService: BsModalService,
     private route: ActivatedRoute,
     private router: Router,
     private studentsService: StudentsService,
@@ -58,6 +61,8 @@ export class ViewStudentsComponent implements IView, OnInit {
     this.initializeEntity();
     this.initializePerson();
     this.populateMenu();
+    this.updateSourceSubscription();
+    this.deleteSourceSubscription();
   }
 
   initializeEntity(): void {
@@ -122,11 +127,24 @@ export class ViewStudentsComponent implements IView, OnInit {
   }
 
   onUpdateModal(): void {
-    throw new Error('Method not implemented.');
+    this.modalService.show(UpsertStudentsComponent, {
+      initialState: {
+        id: this.studentId,
+        personId: this.id,
+      },
+      class: 'modal-lg',
+    });
   }
 
   updateSourceSubscription(): void {
-    throw new Error('Method not implemented.');
+    this.subscriptions.add(
+      this.studentsService.updatedSource$.subscribe((updatedId: number) => {
+        if (this.studentId === updatedId) {
+          this.initializeEntity();
+          this.initializePerson();
+        }
+      })
+    );
   }
 
   onDeleteModal(): void {
@@ -134,7 +152,13 @@ export class ViewStudentsComponent implements IView, OnInit {
   }
 
   deleteSourceSubscription(): void {
-    throw new Error('Method not implemented.');
+    this.subscriptions.add(
+      this.studentsService.deletedSource$.subscribe((deletedId: number) => {
+        if (this.studentId === deletedId) {
+          this.router.navigateByUrl('/people/' + this.id);
+        }
+      })
+    );
   }
 
   updateBreadcrumbs(): void {

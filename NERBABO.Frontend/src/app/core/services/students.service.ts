@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { OkResponse } from '../models/okResponse';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { Student, StudentForm } from '../models/student';
@@ -9,6 +9,14 @@ import { Student, StudentForm } from '../models/student';
   providedIn: 'root',
 })
 export class StudentsService {
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private updatedSource = new Subject<number>();
+  private deletedSource = new Subject<number>();
+
+  loading$ = this.loadingSubject.asObservable();
+  updatedSource$ = this.updatedSource.asObservable();
+  deletedSource$ = this.deletedSource.asObservable();
+
   constructor(private http: HttpClient) {}
 
   getByPersonId(personId: number): Observable<Student> {
@@ -27,14 +35,28 @@ export class StudentsService {
   }
 
   delete(id: number): Observable<OkResponse> {
-    return this.http.delete<OkResponse>(API_ENDPOINTS.students + id);
+    return this.http
+      .delete<OkResponse>(API_ENDPOINTS.students + id)
+      .pipe(tap(() => this.notifyStudentDelete(id)));
   }
 
   private create(model: Omit<StudentForm, 'id'>): Observable<OkResponse> {
-    return this.http.post<OkResponse>(API_ENDPOINTS.students, model);
+    return this.http
+      .post<OkResponse>(API_ENDPOINTS.students, model)
+      .pipe(tap(() => this.notifyStudentUpdate(0)));
   }
 
   private update(model: StudentForm): Observable<OkResponse> {
-    return this.http.put<OkResponse>(API_ENDPOINTS.students + model.id, model);
+    return this.http
+      .put<OkResponse>(API_ENDPOINTS.students + model.id, model)
+      .pipe(tap(() => this.notifyStudentUpdate(model.id)));
+  }
+
+  notifyStudentUpdate(id: number) {
+    this.updatedSource.next(id);
+  }
+
+  notifyStudentDelete(id: number) {
+    this.deletedSource.next(id);
   }
 }
