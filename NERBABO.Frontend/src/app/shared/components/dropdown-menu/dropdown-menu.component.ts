@@ -11,7 +11,6 @@ import { MenuItem } from 'primeng/api';
     <p-button
       icon="pi pi-ellipsis-v"
       [rounded]="true"
-      severity="contrast"
       (click)="menu.toggle($event)"
     />
   `,

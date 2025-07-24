@@ -18,7 +18,9 @@
       </li>
       @if(person.isStudent){
       <li class="nav-item">
-        <a class="nav-link" href="#">Formando</a>
+        <a class="nav-link" [routerLink]="['/people', person.id, 'student']"
+          >Formando</a
+        >
       </li>
       } @if(person.isTeacher){
       <li class="nav-item">
