@@ -1,1 +1,54 @@
-<p>view-students works!</p>
+@if (person$ | async; as person) {
+<div class="row align-items-center">
+  <div class="col-10">
+    <h3 class="text-truncate">
+      {{ person.fullName }}
+    </h3>
+  </div>
+  <div class="col-2 d-flex justify-content-end">
+    <app-dropdown-menu [menuItems]="menuItems" />
+  </div>
+</div>
+<div class="card w-100 hv-100 mt-2">
+  <div class="card-header">
+    <app-nav-header [person]="person" [activePage]="'student'" />
+  </div>
+  <div class="card-body">
+    <div class="container-fluid px-0 my-4">
+      @if (student$ | async; as student) {
+      <div class="accordion" id="general-info-accordion">
+        <!-- GENERAL INFO ACCORDION-->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-general-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#general-info-content"
+              aria-expanded="false"
+              aria-controls="general-info-content"
+            >
+              <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+              <h5>Informações do Formando</h5>
+            </button>
+          </h2>
+          <div
+            id="general-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-general-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      } @else {
+      <h5 class="text-muted text-center">
+        Erro ao obter informações do formador...
+      </h5>
+      }
+    </div>
+  </div>
+</div>
+}

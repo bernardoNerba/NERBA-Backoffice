@@ -14,10 +14,11 @@ import { PeopleService } from '../../../core/services/people.service';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { UpsertTeachersComponent } from '../upsert-teachers/upsert-teachers.component';
 import { DeleteTeachersComponent } from '../delete-teachers/delete-teachers.component';
+import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-header.component';
 
 @Component({
   selector: 'app-view-teachers',
-  imports: [CommonModule, RouterLink, DropdownMenuComponent],
+  imports: [CommonModule, DropdownMenuComponent, NavHeaderComponent],
   templateUrl: './view-teachers.component.html',
 })
 export class ViewTeachersComponent implements IView, OnInit {
@@ -67,7 +68,7 @@ export class ViewTeachersComponent implements IView, OnInit {
         if (error.status === 401 || error.status === 403) {
           this.sharedService.redirectUser();
         } else {
-          this.router.navigate(['/people']);
+          this.router.navigate(['/people', this.id]);
           this.sharedService.showWarning('Informação não foi encontrada.');
         }
         return of(null);

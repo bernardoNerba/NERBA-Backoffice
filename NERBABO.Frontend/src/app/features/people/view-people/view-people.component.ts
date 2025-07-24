@@ -16,11 +16,17 @@ import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component'
 import { UpsertTeachersComponent } from '../../teachers/upsert-teachers/upsert-teachers.component';
 import { UpsertAccComponent } from '../../acc/upsert-acc/upsert-acc.component';
 import { UpsertStudentsComponent } from '../../students/upsert-students/upsert-students.component';
+import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-header.component';
 
 @Component({
   selector: 'app-detail-person',
   standalone: true,
-  imports: [CommonModule, DropdownMenuComponent, RouterModule],
+  imports: [
+    CommonModule,
+    DropdownMenuComponent,
+    RouterModule,
+    NavHeaderComponent,
+  ],
   templateUrl: './view-people.component.html',
 })
 export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
