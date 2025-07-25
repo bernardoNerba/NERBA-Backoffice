@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
+using NERBABO.ApiService.Core.Actions.Cache;
+using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Actions.Services;
 using NERBABO.ApiService.Core.Authentication.Models;
 using NERBABO.ApiService.Core.Authentication.Services;
@@ -75,6 +77,8 @@ builder.Services.AddScoped<ICacheKeyFabric<Course>, CacheKeyFabirc<Course>>();
 builder.Services.AddScoped<ICacheCourseRepository, CacheCourseRepository>();
 builder.Services.AddScoped<ICacheKeyFabric<NERBABO.ApiService.Core.Modules.Models.Module>, CacheKeyFabirc<NERBABO.ApiService.Core.Modules.Models.Module>>();
 builder.Services.AddScoped<ICacheModuleRepository, CacheModuleRepository>();
+builder.Services.AddScoped<ICacheKeyFabric<CourseAction>, CacheKeyFabirc<CourseAction>>();
+builder.Services.AddScoped<ICacheActionRepository, CacheActionRepository>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
