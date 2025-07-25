@@ -1,26 +1,32 @@
 using System;
+using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Shared.Cache;
 
-public class CacheKeyFabirc : ICacheKeyFabric
+public class CacheKeyFabirc<T> : ICacheKeyFabric<T>
 {
-    public string GenerateCacheKey(Type type, string id)
+    public string GenerateCacheKey(string id)
     {
-        return $"{type.Name}:{id}";
+        return $"{typeof(T)}:{id}";
     }
 
-    public string GenerateCacheKeyList(Type type)
+    public string GenerateCacheKeyList()
     {
-        return $"{type.Name}:list";
+        return $"{typeof(T)}:list";
     }
 
-    public string GenerateCacheKeyList(Type type, string filter)
+    public string GenerateCacheKeyList(string filter)
     {
-        return $"{type.Name}:list:{filter}";
+        return $"{typeof(T)}:list:{filter}";
     }
 
-    public string GenerateCacheKeyManyToOne(Type many, string id, Type one)
+    public string GenerateCacheKeyManyToOne(string id, Type one)
     {
-        return $"{many.Name}:list:{one.Name}:{id}";
+        return $"{typeof(T)}:list:{one.Name}:{id}";
+    }
+
+    public string GenerateCacheKeyManyToOnePattern(Type one)
+    {
+        return $"{typeof(T)}:list:{one.Name}:*";
     }
 }

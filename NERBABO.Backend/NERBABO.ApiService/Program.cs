@@ -15,6 +15,8 @@ using NERBABO.ApiService.Core.Actions.Services;
 using NERBABO.ApiService.Core.Authentication.Models;
 using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Companies.Services;
+using NERBABO.ApiService.Core.Courses.Cache;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Courses.Services;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
@@ -24,6 +26,7 @@ using NERBABO.ApiService.Core.Students.Services;
 using NERBABO.ApiService.Core.Teachers.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
+using NERBABO.ApiService.Shared.Cache;
 using NERBABO.ApiService.Shared.Middleware;
 using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;
@@ -65,6 +68,10 @@ builder.Services.AddScoped<ICourseActionService, CourseActionService>();
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 builder.Services.AddTransient<IResponseHandler, ResponseHandler>();
 builder.Services.AddTransient<IAuthorizationHandler, ActiveUserHandler>();
+
+// Regist Cache Services
+builder.Services.AddScoped<ICacheKeyFabric<Course>, CacheKeyFabirc<Course>>();
+builder.Services.AddScoped<ICacheCourseRepository, CacheCourseRepository>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
@@ -122,9 +129,9 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy.SetIsOriginAllowed(origin => true) // Allow any origin
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 

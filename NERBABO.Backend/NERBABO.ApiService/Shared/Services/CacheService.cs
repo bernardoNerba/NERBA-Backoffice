@@ -44,6 +44,7 @@ public class CacheService(
     {
         try
         {
+            expiry ??= TimeSpan.FromMinutes(60); // Default expiry time if not provided
             var serializedValue = JsonSerializer.Serialize(value);
             await _database.StringSetAsync(key, serializedValue, expiry);
         }
