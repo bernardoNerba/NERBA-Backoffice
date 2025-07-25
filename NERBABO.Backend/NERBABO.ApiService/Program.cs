@@ -20,6 +20,7 @@ using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Courses.Services;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
+using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Modules.Services;
 using NERBABO.ApiService.Core.People.Services;
 using NERBABO.ApiService.Core.Students.Services;
@@ -72,6 +73,8 @@ builder.Services.AddTransient<IAuthorizationHandler, ActiveUserHandler>();
 // Regist Cache Services
 builder.Services.AddScoped<ICacheKeyFabric<Course>, CacheKeyFabirc<Course>>();
 builder.Services.AddScoped<ICacheCourseRepository, CacheCourseRepository>();
+builder.Services.AddScoped<ICacheKeyFabric<NERBABO.ApiService.Core.Modules.Models.Module>, CacheKeyFabirc<NERBABO.ApiService.Core.Modules.Models.Module>>();
+builder.Services.AddScoped<ICacheModuleRepository, CacheModuleRepository>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>

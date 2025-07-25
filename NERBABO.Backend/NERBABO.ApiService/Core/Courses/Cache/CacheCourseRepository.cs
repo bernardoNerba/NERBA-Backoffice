@@ -1,4 +1,3 @@
-using System;
 using System.Reflection;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
@@ -41,9 +40,9 @@ public class CacheCourseRepository(
     }
 
     // Manage all courses cache
-    public Task<IEnumerable<RetrieveCourseDto>?> GetCacheAllCoursesAsync()
+    public async Task<IEnumerable<RetrieveCourseDto>?> GetCacheAllCoursesAsync()
     {
-        return _cacheService.GetAsync<IEnumerable<RetrieveCourseDto>>(
+        return await _cacheService.GetAsync<IEnumerable<RetrieveCourseDto>>(
             _cacheKeyFabric.GenerateCacheKeyList());
     }
 
@@ -53,27 +52,27 @@ public class CacheCourseRepository(
     }
 
     // Manage courses with given frame cache
-    public Task<IEnumerable<RetrieveCourseDto>?> GetCacheCoursesByFrameAsync(long frameId)
+    public async Task<IEnumerable<RetrieveCourseDto>?> GetCacheCoursesByFrameAsync(long frameId)
     {
-        return _cacheService.GetAsync<IEnumerable<RetrieveCourseDto>>(
+        return await _cacheService.GetAsync<IEnumerable<RetrieveCourseDto>>(
             _cacheKeyFabric.GenerateCacheKeyManyToOne($"{frameId}", typeof(Frame)));
     }
 
-    public Task SetCoursesByFrameCacheAsync(long frameId, IEnumerable<RetrieveCourseDto> courses)
+    public async Task SetCoursesByFrameCacheAsync(long frameId, IEnumerable<RetrieveCourseDto> courses)
     {
-        return _cacheService.SetAsync(
+        await _cacheService.SetAsync(
             _cacheKeyFabric.GenerateCacheKeyManyToOne($"{frameId}", typeof(Frame)), courses);
     }
 
-    public Task<IEnumerable<RetrieveCourseDto>?> GetCacheCoursesByModuleAsync(long moduleId)
+    public async Task<IEnumerable<RetrieveCourseDto>?> GetCacheCoursesByModuleAsync(long moduleId)
     {
-        return _cacheService.GetAsync<IEnumerable<RetrieveCourseDto>>(
+        return await _cacheService.GetAsync<IEnumerable<RetrieveCourseDto>>(
             _cacheKeyFabric.GenerateCacheKeyManyToOne($"{moduleId}", typeof(Module)));
     }
 
-    public Task SetCoursesByModuleCacheAsync(long moduleId, IEnumerable<RetrieveCourseDto> courses)
+    public async Task SetCoursesByModuleCacheAsync(long moduleId, IEnumerable<RetrieveCourseDto> courses)
     {
-        return _cacheService.SetAsync(
+        await _cacheService.SetAsync(
             _cacheKeyFabric.GenerateCacheKeyManyToOne($"{moduleId}", typeof(Module)), courses);
     }
 

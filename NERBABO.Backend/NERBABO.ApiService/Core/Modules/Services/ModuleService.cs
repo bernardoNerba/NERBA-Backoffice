@@ -1,29 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
-using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Modules.Services
 {
     public class ModuleService(
         AppDbContext context,
-        ICacheService cacheService,
+        ICacheModuleRepository cache,
         ILogger<ModuleService> logger
         ) : IModuleService
     {
         private readonly AppDbContext _context = context;
-        private readonly ICacheService _cacheService = cacheService;
+        private readonly ICacheModuleRepository _cache = cache;
         private readonly ILogger<ModuleService> _logger = logger;
 
         public async Task<Result<RetrieveModuleDto>> CreateAsync(CreateModuleDto entityDto)
         {
             // Unique constrains check
             if (await _context.Modules.AnyAsync(m =>
-                m.Name.ToLower()
-                .Equals(entityDto.Name.ToLower()))
-            )
+                m.Name.ToLower().Equals(entityDto.Name.ToLower())))
             {
                 _logger.LogWarning("Duplicated Module Name detected");
                 return Result<RetrieveModuleDto>
@@ -35,9 +33,9 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             var moduleToRetrieve = Module.ConvertEntityToRetrieveDto(createdModule.Entity);
 
-            var cache_key = $"modules:{moduleToRetrieve.Id}";
-            await _cacheService.SetAsync(cache_key, moduleToRetrieve, TimeSpan.FromMinutes(30));
-            await DeleteModuleCacheAsync();
+            // Update cache
+            await _cache.RemoveModuleCacheAsync(moduleToRetrieve.Id);
+            await _cache.SetSingleModuleCacheAsync(moduleToRetrieve);
 
             return Result<RetrieveModuleDto>
                 .Ok(moduleToRetrieve, "Módulo criado com sucesso.",
@@ -48,9 +46,8 @@ namespace NERBABO.ApiService.Core.Modules.Services
         public async Task<Result<IEnumerable<RetrieveModuleDto>>> GetActiveModulesAsync()
         {
             // Check if entry exists in cache
-            var cacheKey = "modules:list:active";
-            var cachedModules = await _cacheService.GetAsync<List<RetrieveModuleDto>>(cacheKey);
-            if (cachedModules is not null && cachedModules.Count > 0)
+            var cachedModules = await _cache.GetCacheActiveModulesAsync();
+            if (cachedModules is not null && cachedModules.ToList().Count > 0)
                 return Result<IEnumerable<RetrieveModuleDto>>
                     .Ok(cachedModules);
 
@@ -72,7 +69,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
             }
 
             // Cache the result for future requests
-            await _cacheService.SetAsync(cacheKey, existingModules, TimeSpan.FromMinutes(30));
+            await _cache.SetActiveModulesCacheAsync(existingModules);
 
             return Result<IEnumerable<RetrieveModuleDto>>
                 .Ok(existingModules);
@@ -81,9 +78,8 @@ namespace NERBABO.ApiService.Core.Modules.Services
         public async Task<Result<IEnumerable<RetrieveModuleDto>>> GetAllAsync()
         {
             // Check if entry exists in cache
-            var cacheKey = "modules:list";
-            var cachedModules = await _cacheService.GetAsync<List<RetrieveModuleDto>>(cacheKey);
-            if (cachedModules is not null && cachedModules.Count > 0)
+            var cachedModules = await _cache.GetCacheAllModulesAsync();
+            if (cachedModules is not null && cachedModules.ToList().Count > 0)
                 return Result<IEnumerable<RetrieveModuleDto>>
                     .Ok(cachedModules);
 
@@ -102,8 +98,8 @@ namespace NERBABO.ApiService.Core.Modules.Services
                     StatusCodes.Status404NotFound);
             }
 
-            // Cache the result for future requests
-            await _cacheService.SetAsync(cacheKey, existingModules, TimeSpan.FromMinutes(30));
+            // Update cache
+            await _cache.SetAllModulesCacheAsync(existingModules);
 
             return Result<IEnumerable<RetrieveModuleDto>>
                 .Ok(existingModules);
@@ -112,8 +108,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
         public async Task<Result<RetrieveModuleDto>> GetByIdAsync(long id)
         {
             // Check if entry exists in cache
-            var cacheKey = $"modules:{id}";
-            var cachedModule = await _cacheService.GetAsync<RetrieveModuleDto>(cacheKey);
+            var cachedModule = await _cache.GetSingleModuleCacheAsync(id);
             if (cachedModule is not null)
                 return Result<RetrieveModuleDto>
                     .Ok(cachedModule);
@@ -130,7 +125,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
                     StatusCodes.Status404NotFound);
 
             // Cache the result for future requests
-            await _cacheService.SetAsync(cacheKey, existingModule, TimeSpan.FromMinutes(30));
+            await _cache.SetSingleModuleCacheAsync(existingModule);
             return Result<RetrieveModuleDto>
                 .Ok(existingModule);
         }
@@ -159,8 +154,8 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // Update cache
             var cacheKey = $"modules:{existingModule.Id}";
-            await _cacheService.SetAsync(cacheKey, Module.ConvertEntityToRetrieveDto(existingModule), TimeSpan.FromMinutes(30));
-            await DeleteModuleCacheAsync();
+            await _cache.RemoveModuleCacheAsync(existingModule.Id);
+            await _cache.SetSingleModuleCacheAsync(Module.ConvertEntityToRetrieveDto(existingModule));
 
             return Result<RetrieveModuleDto>
                 .Ok(Module.ConvertEntityToRetrieveDto(existingModule),
@@ -194,8 +189,8 @@ namespace NERBABO.ApiService.Core.Modules.Services
             _context.Modules.Remove(existingModule);
             await _context.SaveChangesAsync();
 
-            // Remove from cache
-            await DeleteModuleCacheAsync(id);
+            // Update cache
+            await _cache.RemoveModuleCacheAsync(id);
 
             return Result
                 .Ok("Módulo Eliminado", "Módulo eliminado com sucesso.");
@@ -213,22 +208,13 @@ namespace NERBABO.ApiService.Core.Modules.Services
             await _context.SaveChangesAsync();
 
             // Update cache
-            await DeleteModuleCacheAsync(id);
-            await _cacheService.SetAsync($"modules:{id}", Module.ConvertEntityToRetrieveDto(existingModule), TimeSpan.FromMinutes(30));
+            await _cache.RemoveModuleCacheAsync(id);
+            await _cache.SetSingleModuleCacheAsync(Module.ConvertEntityToRetrieveDto(existingModule));
 
             var status = existingModule.IsActive ? "Ativado" : "Desativado";
 
             return Result
                 .Ok("Módulo atualizado.", $"Módulo {status} com sucesso.");
-        }
-
-        private async Task DeleteModuleCacheAsync(long? id = null)
-        {
-            if (id is not null)
-                await _cacheService.RemoveAsync($"modules:{id}");
-
-            await _cacheService.RemoveAsync("modules:list");
-            await _cacheService.RemoveAsync("modules:list:active");
         }
     }
 }
