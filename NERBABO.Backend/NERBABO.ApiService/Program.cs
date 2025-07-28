@@ -24,6 +24,8 @@ using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
 using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Modules.Services;
+using NERBABO.ApiService.Core.People.Cache;
+using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.People.Services;
 using NERBABO.ApiService.Core.Students.Services;
 using NERBABO.ApiService.Core.Teachers.Services;
@@ -79,6 +81,8 @@ builder.Services.AddScoped<ICacheKeyFabric<NERBABO.ApiService.Core.Modules.Model
 builder.Services.AddScoped<ICacheModuleRepository, CacheModuleRepository>();
 builder.Services.AddScoped<ICacheKeyFabric<CourseAction>, CacheKeyFabirc<CourseAction>>();
 builder.Services.AddScoped<ICacheActionRepository, CacheActionRepository>();
+builder.Services.AddScoped<ICacheKeyFabric<Person>, CacheKeyFabirc<Person>>();
+builder.Services.AddScoped<ICachePeopleRepository, CachePeopleRepository>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
@@ -130,12 +134,12 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("ActiveUser", policy =>
     policy.Requirements.Add(new ActiveUserRequirement()));
 
-// Cors
+// Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.SetIsOriginAllowed(origin => true) // Allow any origin
+        policy.WithOrigins("http://localhost:4200")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -242,8 +246,8 @@ using (var scope = app.Services.CreateScope())
 
     await seeder.InitializeAsync();
 }
-app.UseCors();
 
+app.UseCors("AllowAngularApp");
 
 if (app.Environment.IsDevelopment())
 {
@@ -280,7 +284,6 @@ else
 {
     app.UseHttpsRedirection();
 }
-
 
 app.UseAuthentication();
 app.UseAuthorization();

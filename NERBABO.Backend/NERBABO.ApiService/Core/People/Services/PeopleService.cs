@@ -3,13 +3,13 @@ using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using NERBABO.ApiService.Shared.Services;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.People.Services;
@@ -18,13 +18,13 @@ public class PeopleService(
         ILogger<PeopleService> logger,
         AppDbContext context,
         UserManager<User> userManager,
-        ICacheService cacheService
+        ICachePeopleRepository cache
     ) : IPeopleService
 {
     private readonly ILogger<PeopleService> _logger = logger;
     private readonly AppDbContext _context = context;
     private readonly UserManager<User> _userManager = userManager;
-    private readonly ICacheService _cacheService = cacheService;
+    private readonly ICachePeopleRepository _cache = cache;
 
     public async Task<Result<RetrievePersonDto>> CreateAsync(CreatePersonDto entityDto)
     {
@@ -96,10 +96,11 @@ public class PeopleService(
         await _context.SaveChangesAsync();
 
         var personToRetrieve = Person.ConvertEntityToRetrieveDto(createdPerson.Entity);
-        // update cache
-        var cache_key = $"person:{createdPerson.Entity.Id}";
-        await _cacheService.SetAsync(cache_key, personToRetrieve, TimeSpan.FromMinutes(30));
-        await DeletePeopleCacheAsync();
+
+        // Update cache
+        await _cache.RemovePeopleCacheAsync();
+        await _cache.SetSinglePersonCacheAsync(personToRetrieve);
+        
 
         return Result<RetrievePersonDto>
             .Ok(personToRetrieve,
@@ -153,8 +154,8 @@ public class PeopleService(
             await transaction.CommitAsync();
         }
 
-        // Remove from cache
-        await DeletePeopleCacheAsync(id);
+        // Update cache
+        await _cache.RemovePeopleCacheAsync(id);
 
         return Result
             .Ok("Pessoa Eliminada.", "Pessoa eliminada com sucesso.");
@@ -163,9 +164,8 @@ public class PeopleService(
     public async Task<Result<IEnumerable<RetrievePersonDto>>> GetAllAsync()
     {
         // Check if entry exists in cache
-        var cacheKey = "person:list";
-        var cachedPeople = await _cacheService.GetAsync<List<RetrievePersonDto>>(cacheKey);
-        if (cachedPeople is not null && cachedPeople.Count > 0)
+        var cachedPeople = await _cache.GetCacheAllPeopleAsync();
+        if (cachedPeople is not null && cachedPeople.ToList().Count > 0)
             return Result<IEnumerable<RetrievePersonDto>>
                 .Ok(cachedPeople);
 
@@ -186,7 +186,7 @@ public class PeopleService(
                 StatusCodes.Status404NotFound);
 
         // update cache
-        await _cacheService.SetAsync(cacheKey, existingPeople, TimeSpan.FromMinutes(30));
+        await _cache.SetAllPeopleCacheAsync(existingPeople);
 
         return Result<IEnumerable<RetrievePersonDto>>
             .Ok(existingPeople);
@@ -202,9 +202,8 @@ public class PeopleService(
         }
 
         // Check if data entries exist in cache
-        var cacheKey = $"person:without:{profile}";
-        var cachedPeople = await _cacheService.GetAsync<List<RetrievePersonDto>>(cacheKey);
-        if (cachedPeople is not null && cachedPeople.Any())
+        var cachedPeople = await _cache.GetCachePeopleWithoutProfileAsync(profile);
+        if (cachedPeople is not null && cachedPeople.ToList().Count > 0)
         {
             return Result<IEnumerable<RetrievePersonDto>>
                 .Ok(cachedPeople);
@@ -234,14 +233,14 @@ public class PeopleService(
             .ToList();
 
         // Check if data exists
-        if (!peopleWithoutProfile.Any())
+        if (peopleWithoutProfile.Count == 0)
         {
             return Result<IEnumerable<RetrievePersonDto>>
                 .Fail("Não encontrado.", $"Não foram encontradas pessoas sem o perfil {profile}.", StatusCodes.Status404NotFound);
         }
 
         // Update cache
-        await _cacheService.SetAsync(cacheKey, peopleWithoutProfile, TimeSpan.FromMinutes(30));
+        await _cache.SetPeopleWithoutProfileCacheAsync(peopleWithoutProfile, profile);
 
         return Result<IEnumerable<RetrievePersonDto>>.Ok(peopleWithoutProfile);
     }
@@ -249,8 +248,7 @@ public class PeopleService(
     public async Task<Result<RetrievePersonDto>> GetByIdAsync(long id)
     {
         // Check if entry exists in cache
-        var cacheKey = $"person:{id}";
-        var cachedPerson = await _cacheService.GetAsync<RetrievePersonDto>(cacheKey);
+        var cachedPerson = await _cache.GetSinglePersonCacheAsync(id);
         if (cachedPerson is not null)
             return Result<RetrievePersonDto>.Ok(cachedPerson);
 
@@ -266,10 +264,13 @@ public class PeopleService(
                 .Fail("Não encontrado.", "Pessoa não encontrada.",
                 StatusCodes.Status404NotFound);
 
-        // update cache
-        await _cacheService.SetAsync(cacheKey, Person.ConvertEntityToRetrieveDto(existingPerson), TimeSpan.FromMinutes(30));
+        var retrievePerson = Person.ConvertEntityToRetrieveDto(existingPerson);
 
-        return Result<RetrievePersonDto>.Ok(Person.ConvertEntityToRetrieveDto(existingPerson));
+        // update cache
+        await _cache.SetSinglePersonCacheAsync(retrievePerson);
+
+        return Result<RetrievePersonDto>
+            .Ok(Person.ConvertEntityToRetrieveDto(existingPerson));
     }
 
     public async Task<Result<RelationshipPersonDto>> GetPersonRelationshipsAsync(long personId)
@@ -369,23 +370,16 @@ public class PeopleService(
         _context.Entry(existingPerson).CurrentValues.SetValues(Person.ConvertUpdateDtoToEntity(entityDto));
         await _context.SaveChangesAsync();
 
+        var retrievePerson = Person.ConvertEntityToRetrieveDto(existingPerson);
+
         // Update cache
-        var cacheKey = $"person:{existingPerson.Id}";
-        await _cacheService.SetAsync(cacheKey, Person.ConvertEntityToRetrieveDto(existingPerson), TimeSpan.FromMinutes(30));
-        await DeletePeopleCacheAsync();
+        await _cache.RemovePeopleCacheAsync(retrievePerson.Id);
+        await _cache.SetSinglePersonCacheAsync(retrievePerson);
+        
 
         return Result<RetrievePersonDto>
-            .Ok(Person.ConvertEntityToRetrieveDto(existingPerson),
+            .Ok(retrievePerson,
                 "Pessoa Atualizada.",
                 $"Foi atualizada a pessoa com o nome {existingPerson.FirstName} {existingPerson.LastName}.");
-    }
-
-    private async Task DeletePeopleCacheAsync(long? id = null)
-    {
-        if (id is not null)
-            await _cacheService.RemoveAsync($"person:{id}");
-
-        await _cacheService.RemoveAsync("person:list");
-        await _cacheService.RemovePatternAsync("person:without:*");
     }
 }
