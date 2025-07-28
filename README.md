@@ -180,6 +180,7 @@ If you're interested in contributing, please feel free to open a pull request or
 - [ ] Document, with comments, critical methods and classes
 - [ ] Write the frontend code for Teachers, Students features
 - [ ] Frontend data filtering for user-friendly and efficient interaction
+- [ ] Write docker prod environment workflow documentation
 
 ## Code of Conduct
 
