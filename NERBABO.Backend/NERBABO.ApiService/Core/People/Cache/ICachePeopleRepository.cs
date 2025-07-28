@@ -18,7 +18,7 @@ public interface ICachePeopleRepository
     /// <summary>
     /// Gets the single person data associated with the cache key `People:{id}`
     /// </summary>
-    /// <param name="id">The id of the person desired person.</param>
+    /// <param name="id">The id of the desired person.</param>
     Task<RetrievePersonDto?> GetSinglePersonCacheAsync(long id);
 
     // Manage people cache

@@ -131,8 +131,8 @@ export class ViewTeachersComponent implements IView, OnInit {
 
   updateSourceSubscription(): void {
     this.subscriptions.add(
-      this.teacherService.updatedSource$.subscribe((updatedId: number) => {
-        if (this.teacherId === updatedId) {
+      this.teacherService.updatedSource$.subscribe((teacher) => {
+        if (this.teacherId === teacher?.id) {
           this.initializeEntity();
           this.initializePerson();
         }

@@ -11,7 +11,7 @@ import { OkResponse } from '../models/okResponse';
 })
 export class TeachersService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
-  private updatedSource = new Subject<number>();
+  private updatedSource = new Subject<TeacherForm | null>();
   private deletedSource = new Subject<number>();
 
   loading$ = this.loadingSubject.asObservable();
@@ -38,13 +38,13 @@ export class TeachersService {
   ): Observable<OkResponse> {
     return this.http
       .post<OkResponse>(API_ENDPOINTS.teachers, model)
-      .pipe(tap(() => this.notifyTeacherUpdate(0)));
+      .pipe(tap(() => this.notifyTeacherUpdate(null)));
   }
 
   private update(model: TeacherForm): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(API_ENDPOINTS.teachers + 'update/' + model.id, model)
-      .pipe(tap(() => this.notifyTeacherUpdate(model.id)));
+      .pipe(tap(() => this.notifyTeacherUpdate(model)));
   }
 
   delete(id: number): Observable<OkResponse> {
@@ -53,8 +53,8 @@ export class TeachersService {
       .pipe(tap(() => this.notifyTeacherDelete(id)));
   }
 
-  notifyTeacherUpdate(id: number) {
-    this.updatedSource.next(id);
+  notifyTeacherUpdate(teacher: TeacherForm | null) {
+    this.updatedSource.next(teacher);
   }
 
   notifyTeacherDelete(id: number) {

@@ -17,6 +17,7 @@ import { UpsertTeachersComponent } from '../../teachers/upsert-teachers/upsert-t
 import { UpsertAccComponent } from '../../acc/upsert-acc/upsert-acc.component';
 import { UpsertStudentsComponent } from '../../students/upsert-students/upsert-students.component';
 import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-header.component';
+import { TeachersService } from '../../../core/services/teachers.service';
 
 @Component({
   selector: 'app-detail-person',
@@ -46,6 +47,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private peopleService: PeopleService,
+    private teacherService: TeachersService,
     private router: Router,
     private sharedService: SharedService,
     private bsModalService: BsModalService
@@ -63,6 +65,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     this.initializeEntity();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
+    this.updateSourceTeacherSubscription();
   }
 
   onUpdateModal() {
@@ -225,6 +228,14 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         if (this.id === deletedId) {
           this.router.navigateByUrl('/people');
         }
+      })
+    );
+  }
+
+  updateSourceTeacherSubscription() {
+    this.subscriptions.add(
+      this.teacherService.updatedSource$.subscribe(() => {
+        this.initializeEntity();
       })
     );
   }
