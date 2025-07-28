@@ -117,16 +117,18 @@ export class UpsertCompaniesComponent implements IUpsert, OnInit {
     }
     this.loading = true;
 
-    this.companiesService.updateCompany(this.form.value, this.id).subscribe({
-      next: (value: OkResponse) => {
-        this.bsModalRef.hide();
-        this.companiesService.triggerFetch();
-        this.sharedService.showSuccess(value.message);
-      },
-      error: (error) => {
-        this.errorMessages = this.sharedService.handleErrorResponse(error);
-        this.loading = false;
-      },
-    });
+    this.companiesService
+      .upsert({ id: this.id, ...this.form.value }, this.isUpdate)
+      .subscribe({
+        next: (value: OkResponse) => {
+          this.bsModalRef.hide();
+          this.companiesService.triggerFetch();
+          this.sharedService.showSuccess(value.message);
+        },
+        error: (error) => {
+          this.errorMessages = this.sharedService.handleErrorResponse(error);
+          this.loading = false;
+        },
+      });
   }
 }

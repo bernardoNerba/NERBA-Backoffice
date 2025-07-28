@@ -51,6 +51,11 @@ export class CompaniesService {
     this.loadCompanies();
   }
 
+  upsert(model: Company, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.updateCompany(model, model.id);
+    return this.createCompany(model);
+  }
+
   createCompany(model: Omit<Company, 'id'>): Observable<OkResponse> {
     return this.http
       .post<OkResponse>(`${API_ENDPOINTS.companies}`, model)
