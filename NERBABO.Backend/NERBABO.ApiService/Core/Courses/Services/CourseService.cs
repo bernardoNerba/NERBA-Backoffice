@@ -1,5 +1,6 @@
 ﻿using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.Courses.Cache;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -15,12 +16,12 @@ namespace NERBABO.ApiService.Core.Courses.Services
     public class CourseService(
         AppDbContext context,
         ILogger<CourseService> logger,
-        ICacheService cache
+        ICacheCourseRepository cache
         ) : ICourseService
     {
         private readonly AppDbContext _context = context;
         private readonly ILogger<CourseService> _logger = logger;
-        private readonly ICacheService _cache = cache;
+        private readonly ICacheCourseRepository _cache = cache;
 
         public async Task<Result<RetrieveCourseDto>> UpdateCourseModulesAsync(List<long> moduleIds, long courseId)
         {
@@ -81,8 +82,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var retrieveCourse = Course.ConvertEntityToRetrieveDto(existingCourse);
 
             // update cache
-            await DeleteCacheAsync(existingCourse.Id);
-            await _cache.SetAsync($"course:{existingCourse.Id}", retrieveCourse, TimeSpan.FromMinutes(30));
+            await _cache.RemoveCourseCacheAsync(existingCourse.Id);
+            await _cache.SetSingleCourseCacheAsync(retrieveCourse);
 
             return Result<RetrieveCourseDto>
                 .Ok(retrieveCourse, "Curso Atualizado.", "Módulos do Curso atualizados com sucesso.");
@@ -146,8 +147,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
             await _context.SaveChangesAsync();
 
             // Update cache
-            await DeleteCacheAsync(existingCourse.Id);
-
+            // TODO: Invalidate cache from module id
+            await _cache.RemoveCourseCacheAsync(existingCourse.Id);
 
             return Result<RetrieveCourseDto>
                 .Ok(Course.ConvertEntityToRetrieveDto(existingCourse),
@@ -189,13 +190,13 @@ namespace NERBABO.ApiService.Core.Courses.Services
             existingCourse.Status = s;
             await _context.SaveChangesAsync();
 
-
             // Update cache
-            await DeleteCacheAsync(id);
+            await _cache.RemoveCourseCacheAsync(id);
 
             return Result
                 .Ok("Curso Atualizado", "Estado do Curso atualizado com sucesso.");
         }
+
         public async Task<Result<RetrieveCourseDto>> CreateAsync(CreateCourseDto entityDto)
         {
             // Check title uniqueness
@@ -286,8 +287,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var course = Course.ConvertEntityToRetrieveDto(createdCourse.Entity);
 
             // Update Cache
-            await _cache.SetAsync($"course:{course.Id}", course, TimeSpan.FromMinutes(30));
-            await DeleteCacheAsync();
+            await _cache.RemoveCourseCacheAsync(course.Id);
+            await _cache.SetSingleCourseCacheAsync(course);
 
             _logger.LogInformation("Course created successfully with ID: {CourseId}", createdCourse.Entity.Id);
             return Result<RetrieveCourseDto>
@@ -331,7 +332,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             await _context.SaveChangesAsync();
 
             // Update Cache
-            await DeleteCacheAsync(id);
+            await _cache.RemoveCourseCacheAsync(existingCourse.Id);
 
             _logger.LogInformation("Course deleted successfully with ID: {CourseId}", id);
             return Result
@@ -340,15 +341,13 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
         public async Task<Result<IEnumerable<RetrieveCourseDto>>> GetAllActiveAsync()
         {
-            var cacheKey = "course:list:active";
-            var cachedCourses = await _cache.GetAsync<IEnumerable<RetrieveCourseDto>>(cacheKey);
+            // try return from cache
+            var cachedCourses = await _cache.GetCacheActiveCoursesAsync();
             if (cachedCourses is not null)
-            {
-                _logger.LogInformation("Retrieved active courses from cache.");
                 return Result<IEnumerable<RetrieveCourseDto>>
                     .Ok(cachedCourses);
-            }
 
+            // retrieve from database
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
                 .Include(c => c.Modules)
@@ -362,7 +361,6 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 .OrderByDescending(c => c.CreatedAt)
                 .Select(Course.ConvertEntityToRetrieveDto)
                 .ToList();
-
             if (activeCourses is null || activeCourses.Count == 0)
             {
                 _logger.LogWarning("There are no courses available.");
@@ -372,7 +370,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
             // update cache
-            await _cache.SetAsync(cacheKey, activeCourses, TimeSpan.FromMinutes(30));
+            await _cache.SetActiveCoursesCacheAsync(activeCourses);
 
             _logger.LogInformation("Retrieved {CourseCount} active courses.", activeCourses.Count);
             return Result<IEnumerable<RetrieveCourseDto>>
@@ -381,8 +379,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
         public async Task<Result<IEnumerable<RetrieveCourseDto>>> GetAllAsync()
         {
-            var cacheKey = "course:list";
-            var cachedCourses = await _cache.GetAsync<IEnumerable<RetrieveCourseDto>>(cacheKey);
+            var cachedCourses = await _cache.GetCacheAllCoursesAsync();
             if (cachedCourses is not null)
             {
                 _logger.LogInformation("Retrieved active courses from cache.");
@@ -407,7 +404,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
             // update cache
-            await _cache.SetAsync(cacheKey, existingCourses, TimeSpan.FromMinutes(30));
+            await _cache.SetAllCoursesCacheAsync(existingCourses);
 
             _logger.LogInformation("Retrieved {CourseCount} courses.", existingCourses.Count);
             return Result<IEnumerable<RetrieveCourseDto>>
@@ -416,8 +413,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
         public async Task<Result<IEnumerable<RetrieveCourseDto>>> GetAllByFrameIdAsync(long frameId)
         {
-            var cacheKey = $"course:list:frame:{frameId}";
-            var cachedCourses = await _cache.GetAsync<IEnumerable<RetrieveCourseDto>>(cacheKey);
+            var cachedCourses = await _cache.GetCacheCoursesByFrameAsync(frameId);
             if (cachedCourses is not null)
             {
                 _logger.LogInformation("Retrieved active courses from cache.");
@@ -453,7 +449,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
             // update cache
-            await _cache.SetAsync(cacheKey, existingCourses, TimeSpan.FromMinutes(30));
+            await _cache.SetCoursesByFrameCacheAsync(frameId, existingCourses);
 
             _logger.LogInformation("Retrieved {CourseCount} active courses.", existingCourses.Count);
             return Result<IEnumerable<RetrieveCourseDto>>
@@ -463,8 +459,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
         public async Task<Result<RetrieveCourseDto>> GetByIdAsync(long id)
         {
             // try return from cache
-            var cacheKey = $"course:{id}";
-            var cachedCourse = await _cache.GetAsync<RetrieveCourseDto>(cacheKey);
+            var cachedCourse = await _cache.GetSingleCourseCacheAsync(id);
             if (cachedCourse is not null)
             {
                 _logger.LogInformation("Retrieved course with ID {CourseId} from cache.", id);
@@ -480,7 +475,6 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 .Where(c => c.Id == id)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
                 .FirstOrDefaultAsync();
-
             if (existingCourse is null)
             {
                 _logger.LogWarning("Course not found for the given ID: {CourseId}", id);
@@ -490,19 +484,17 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
             // update cache
-            await _cache.SetAsync(cacheKey, existingCourse, TimeSpan.FromMinutes(30));
+            await _cache.SetSingleCourseCacheAsync(existingCourse);
             _logger.LogInformation("Retrieved course with ID {CourseId} from database.", id);
             return Result<RetrieveCourseDto>
                 .Ok(existingCourse);
-
         }
 
         public async Task<Result<IEnumerable<RetrieveCourseDto>>> GetCoursesByModuleIdAsync(long moduleId)
         {
             // try return from cache
-            var cacheKey = $"courses:list:module:{moduleId}";
-            var cachedCourses = await _cache.GetAsync<List<RetrieveCourseDto>>(cacheKey);
-            if (cachedCourses is not null && cachedCourses.Count != 0)
+            var cachedCourses = await _cache.GetCacheCoursesByModuleAsync(moduleId);
+            if (cachedCourses is not null && cachedCourses.ToList().Count != 0)
                 return Result<IEnumerable<RetrieveCourseDto>>
                     .Ok(cachedCourses);
 
@@ -538,7 +530,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 .ToList();
 
             // Update cache
-            await _cache.SetAsync(cacheKey, courseDtos, TimeSpan.FromMinutes(30));
+            await _cache.SetCoursesByModuleCacheAsync(moduleId, courseDtos);
 
             return Result<IEnumerable<RetrieveCourseDto>>
                 .Ok(courseDtos);
@@ -583,7 +575,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
             await _context.SaveChangesAsync();
 
             // Update cache
-            await DeleteCacheAsync(existingCourse.Id);
+            // TODO: Invalidate cache from module id
+            await _cache.RemoveCourseCacheAsync(existingCourse.Id);
 
             return Result<RetrieveCourseDto>
                 .Fail("Módulo Removido.", "Módulo removido com sucesso do curso.");
@@ -694,23 +687,12 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var updatedCourse = Course.ConvertEntityToRetrieveDto(existingCourse);
 
             // update cache
-            await _cache.SetAsync($"course:{existingCourse.Id}", updatedCourse, TimeSpan.FromMinutes(30));
-            await DeleteCacheAsync();
+            await _cache.RemoveCourseCacheAsync(existingCourse.Id);
+            await _cache.SetSingleCourseCacheAsync(updatedCourse);
 
             _logger.LogInformation("Course updated successfully with ID: {CourseId}", existingCourse.Id);
             return Result<RetrieveCourseDto>
                 .Ok(updatedCourse, "Curso Atualizado", "Curso atualizado com sucesso.");
-        }
-
-        private async Task DeleteCacheAsync(long? id = null)
-        {
-            if (id is not null)
-                await _cache.RemoveAsync($"course:{id}");
-
-            await _cache.RemoveAsync("course:list");
-            await _cache.RemoveAsync("course:list:active");
-            await _cache.RemovePatternAsync("course:list:frame:*");
-            await _cache.RemovePatternAsync("courses:list:module:*");
         }
     }
 }

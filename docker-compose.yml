@@ -1,0 +1,124 @@
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: nerbabo-postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=scram-sha-256
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_dev_password_123}
+      POSTGRES_DB: nerbabo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nerbabo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7.4
+    container_name: nerbabo-redis
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "redis-server --requirepass $$REDIS_PASSWORD --save 60 1",
+      ]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_dev_password_123}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - nerbabo-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  api:
+    build:
+      context: .
+      dockerfile: NERBABO.Backend/NERBABO.ApiService/Dockerfile
+    container_name: nerbabo-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__postgres: Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD:-postgres_dev_password_123};Database=nerbabo_db
+      ConnectionStrings__redis: redis:6379,password=${REDIS_PASSWORD:-redis_dev_password_123}
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: in_memory
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+    ports:
+      - "5001:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nerbabo-network
+
+  angular:
+    build:
+      context: ./NERBABO.Frontend
+      dockerfile: Dockerfile
+    container_name: nerbabo-angular
+    environment:
+      NODE_ENV: production
+      API_URL: http://api:8080
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+    networks:
+      - nerbabo-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nerbabo-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - nerbabo-network
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: nerbabo-redis-insight
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+    volumes:
+      - redisinsight_data:/data
+    networks:
+      - nerbabo-network
+
+volumes:
+  postgres_data:
+    name: nerbabo-postgres-data
+  redis_data:
+    name: nerbabo-redis-data
+  pgadmin_data:
+    name: nerbabo-pgadmin-data
+  redisinsight_data:
+    name: nerbabo-redisinsight-data
+
+networks:
+  nerbabo-network:
+    driver: bridge

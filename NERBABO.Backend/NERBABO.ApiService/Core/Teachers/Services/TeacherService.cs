@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.People.Cache;
+using NERBABO.ApiService.Core.Teachers.Cache;
 using NERBABO.ApiService.Core.Teachers.Dtos;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Data;
@@ -11,12 +13,14 @@ namespace NERBABO.ApiService.Core.Teachers.Services;
 public class TeacherService(
     AppDbContext context,
     ILogger<TeacherService> logger,
-    ICacheService cacheService
+    ICacheTeacherRepository cache,
+    ICachePeopleRepository cachePeople
     ) : ITeacherService
 {
     private readonly AppDbContext _context = context;
     private readonly ILogger<TeacherService> _logger = logger;
-    private readonly ICacheService _cacheService = cacheService;
+    private readonly ICacheTeacherRepository _cache = cache;
+    private readonly ICachePeopleRepository _cachePeople = cachePeople;
 
     public async Task<Result<RetrieveTeacherDto>> CreateAsync(CreateTeacherDto entityDto)
     {
@@ -76,8 +80,9 @@ public class TeacherService(
         var retrieveTeacher = Teacher.ConvertEntityToRetrieveDto(result.Entity);
 
         // update cache
-        await DeleteTeacherCacheAsync();
-        await _cacheService.SetAsync($"teacher:{retrieveTeacher.Id}", retrieveTeacher, TimeSpan.FromMinutes(30));
+        await _cache.RemoveTeacherCacheAsync(retrieveTeacher.Id);
+        await _cachePeople.RemovePeopleCacheAsync(retrieveTeacher.PersonId);
+        await _cache.SetSingleTeacherCacheAsync(retrieveTeacher);
 
         _logger.LogInformation("Teacher created successfully with ID: {Id}", teacher.Id);
         return Result<RetrieveTeacherDto>
@@ -102,7 +107,8 @@ public class TeacherService(
         await _context.SaveChangesAsync();
 
         // update cache
-        await DeleteTeacherCacheAsync(teacherId);
+        await _cache.RemoveTeacherCacheAsync(teacherId);
+        await _cachePeople.RemovePeopleCacheAsync(existingTeacher.PersonId);
 
         return Result
             .Ok("Formador Eliminado.", "Foi eliminado um formador com sucesso.");
@@ -110,9 +116,8 @@ public class TeacherService(
 
     public async Task<Result<IEnumerable<RetrieveTeacherDto>>> GetAllAsync()
     {
-        var cacheKey = "teacher:list";
-        var cachedTeachers = await _cacheService.GetAsync<List<RetrieveTeacherDto>>(cacheKey);
-        if (cachedTeachers is not null && cachedTeachers.Count != 0)
+        var cachedTeachers = await _cache.GetCacheAllTeacherAsync();
+        if (cachedTeachers is not null && cachedTeachers.ToList().Count != 0)
             return Result<IEnumerable<RetrieveTeacherDto>>
                 .Ok(cachedTeachers);
 
@@ -128,7 +133,7 @@ public class TeacherService(
                 .Fail("Não encontrado", "Não existem formadores.",
                 StatusCodes.Status404NotFound);
 
-        await _cacheService.SetAsync(cacheKey, existingTeachers, TimeSpan.FromMinutes(30));
+        await _cache.SetAllTeacherCacheAsync(existingTeachers);
 
         return Result<IEnumerable<RetrieveTeacherDto>>
             .Ok(existingTeachers);
@@ -136,8 +141,7 @@ public class TeacherService(
 
     public async Task<Result<RetrieveTeacherDto>> GetByIdAsync(long id)
     {
-        var cacheKey = $"teacher:{id}";
-        var cacheTeacher = await _cacheService.GetAsync<RetrieveTeacherDto>(cacheKey);
+        var cacheTeacher = await _cache.GetSingleTeacherCacheAsync(id);
         if (cacheTeacher is not null)
             return Result<RetrieveTeacherDto>
                 .Ok(cacheTeacher);
@@ -156,7 +160,7 @@ public class TeacherService(
                 StatusCodes.Status404NotFound);
 
         // update cache
-        await _cacheService.SetAsync(cacheKey, existingTeacher, TimeSpan.FromMinutes(30));
+        await _cache.SetSingleTeacherCacheAsync(existingTeacher);
 
         return Result<RetrieveTeacherDto>
             .Ok(existingTeacher);
@@ -164,32 +168,39 @@ public class TeacherService(
 
     public async Task<Result<RetrieveTeacherDto>> GetByPersonIdAsync(long personId)
     {
-        var cacheKey = $"teacher:person:{personId}";
-        var cachedTeacher = await _cacheService.GetAsync<RetrieveTeacherDto>(cacheKey);
-        if (cachedTeacher is not null)
-            return Result<RetrieveTeacherDto>
-                .Ok(cachedTeacher);
-        
-        var person = await _context.People.FindAsync(personId);
-        if (person is null)
+        // Check if the person exists
+        var existingPerson = await _context.People
+            .Include(p => p.Teacher)
+            .FirstOrDefaultAsync(p => p.Id == personId);
+        if (existingPerson is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado", "Pessoa não encontrada.",
                 StatusCodes.Status404NotFound);
 
+        // Check if the person is a teacher
+        if (existingPerson.Teacher is null)
+            return Result<RetrieveTeacherDto>
+                .Fail("Não encontrado", "Esta pessoa ainda não é um formador.",
+                StatusCodes.Status404NotFound);
+
+        // Check cache for teacher
+        var cachedTeacher = await _cache.GetSingleTeacherCacheAsync(existingPerson.Teacher.Id);
+        if (cachedTeacher is not null)
+            return Result<RetrieveTeacherDto>
+                .Ok(cachedTeacher);
+
+        // not in cache so get the teacher data
         var teacher = await _context.Teachers
             .Include(t => t.IvaRegime)
             .Include(t => t.IrsRegime)
             .Include(t => t.Person)
             .FirstOrDefaultAsync(t => t.PersonId == personId);
 
-        if (teacher is null)
-            return Result<RetrieveTeacherDto>
-                .Fail("Não encontrado", "Esta pessoa ainda não é um formador.",
-                StatusCodes.Status404NotFound);
+        // checked above and this person id has indead a teacher associated
+        var retrieveTeacher = Teacher.ConvertEntityToRetrieveDto(teacher!);
 
-        var retrieveTeacher = Teacher.ConvertEntityToRetrieveDto(teacher);
-
-        await _cacheService.SetAsync(cacheKey, retrieveTeacher, TimeSpan.FromMinutes(30));
+        // update cache
+        await _cache.SetSingleTeacherCacheAsync(retrieveTeacher);
 
         return Result<RetrieveTeacherDto>
             .Ok(retrieveTeacher);
@@ -262,22 +273,13 @@ public class TeacherService(
         var retrieveTeacher = Teacher.ConvertEntityToRetrieveDto(existingTeacher);
 
         // update cache
-        await _cacheService.SetAsync($"teacher:{entityDto.Id}", retrieveTeacher, TimeSpan.FromMinutes(30));
-        await DeleteTeacherCacheAsync();
+        await _cache.RemoveTeacherCacheAsync(retrieveTeacher.Id);
+        await _cachePeople.RemovePeopleCacheAsync(retrieveTeacher.PersonId);
+        await _cache.SetSingleTeacherCacheAsync(retrieveTeacher);
 
         _logger.LogInformation("Teacher updated successfully with ID: {Id}", existingTeacher.Id);
         return Result<RetrieveTeacherDto>
             .Ok(retrieveTeacher,
             "Formador Atualizado.", "Foi atualizado o formador com sucesso.");
-
-    }
-
-    private async Task DeleteTeacherCacheAsync(long? id = null)
-    {
-        if (id is not null)
-            await _cacheService.RemoveAsync($"teacher:{id}");
-
-        await _cacheService.RemoveAsync("teacher:list");
-        await _cacheService.RemovePatternAsync("teacher:person:*");
     }
 }

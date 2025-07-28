@@ -1,6 +1,14 @@
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 export const API_ENDPOINTS = {
+  // Add this for debugging
+  init: (() => {
+    console.log('🔧 Environment loaded:', environment);
+    console.log('🌍 App URL:', environment.appUrl);
+    console.log('🏭 Is Production:', environment.production);
+    return true;
+  })(),
+
   // auth
   login: `${environment.appUrl}/api/auth/login/`,
   set_role: `${environment.appUrl}/api/auth/set-role/`,

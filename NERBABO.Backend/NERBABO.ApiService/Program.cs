@@ -11,19 +11,29 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
+using NERBABO.ApiService.Core.Actions.Cache;
+using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Actions.Services;
 using NERBABO.ApiService.Core.Authentication.Models;
 using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Companies.Services;
+using NERBABO.ApiService.Core.Courses.Cache;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Courses.Services;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
+using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Modules.Services;
+using NERBABO.ApiService.Core.People.Cache;
+using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.People.Services;
 using NERBABO.ApiService.Core.Students.Services;
+using NERBABO.ApiService.Core.Teachers.Cache;
+using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Core.Teachers.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
+using NERBABO.ApiService.Shared.Cache;
 using NERBABO.ApiService.Shared.Middleware;
 using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;
@@ -65,6 +75,18 @@ builder.Services.AddScoped<ICourseActionService, CourseActionService>();
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 builder.Services.AddTransient<IResponseHandler, ResponseHandler>();
 builder.Services.AddTransient<IAuthorizationHandler, ActiveUserHandler>();
+
+// Regist Cache Services
+builder.Services.AddScoped<ICacheKeyFabric<Course>, CacheKeyFabirc<Course>>();
+builder.Services.AddScoped<ICacheCourseRepository, CacheCourseRepository>();
+builder.Services.AddScoped<ICacheKeyFabric<NERBABO.ApiService.Core.Modules.Models.Module>, CacheKeyFabirc<NERBABO.ApiService.Core.Modules.Models.Module>>();
+builder.Services.AddScoped<ICacheModuleRepository, CacheModuleRepository>();
+builder.Services.AddScoped<ICacheKeyFabric<CourseAction>, CacheKeyFabirc<CourseAction>>();
+builder.Services.AddScoped<ICacheActionRepository, CacheActionRepository>();
+builder.Services.AddScoped<ICacheKeyFabric<Person>, CacheKeyFabirc<Person>>();
+builder.Services.AddScoped<ICachePeopleRepository, CachePeopleRepository>();
+builder.Services.AddScoped<ICacheKeyFabric<Teacher>, CacheKeyFabirc<Teacher>>();
+builder.Services.AddScoped<ICacheTeacherRepository, CacheTeacherRepository>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
@@ -116,15 +138,15 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("ActiveUser", policy =>
     policy.Requirements.Add(new ActiveUserRequirement()));
 
-// Cors
+// Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.SetIsOriginAllowed(origin => true) // Allow any origin
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -228,8 +250,8 @@ using (var scope = app.Services.CreateScope())
 
     await seeder.InitializeAsync();
 }
-app.UseCors();
 
+app.UseCors("AllowAngularApp");
 
 if (app.Environment.IsDevelopment())
 {
@@ -266,7 +288,6 @@ else
 {
     app.UseHttpsRedirection();
 }
-
 
 app.UseAuthentication();
 app.UseAuthorization();

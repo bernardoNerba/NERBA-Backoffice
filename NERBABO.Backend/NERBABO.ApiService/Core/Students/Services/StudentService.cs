@@ -177,28 +177,34 @@ namespace NERBABO.ApiService.Core.Students.Services
 
         public async Task<Result<RetrieveStudentDto>> GetByPersonIdAsync(long personId)
         {
-            var cacheKey = $"student:person:{personId}";
+            // Check if the person exists
+            var existingPerson = await _context.People
+                .Include(p => p.Student)
+                .FirstOrDefaultAsync(p => p.Id == personId);
+            if (existingPerson is null)
+                return Result<RetrieveStudentDto>
+                    .Fail("Não encontraod.", "Pessoa associada não encontrada.",
+                    StatusCodes.Status404NotFound);
+            
+            // Check if the person is a student
+            if (existingPerson.Student is null)
+                return Result<RetrieveStudentDto>
+                    .Fail("Não encontrado.", "Não encontrado um formando com a pessoa fornecida.",
+                    StatusCodes.Status404NotFound);
+
+            // Check cache for student
+            var cacheKey = $"student:{existingPerson.Student.Id}";
             var cachedStudent = await _cacheService.GetAsync<RetrieveStudentDto>(cacheKey);
             if (cachedStudent is not null)
                 return Result<RetrieveStudentDto>
                     .Ok(cachedStudent);
 
-            var existingPerson = await _context.People.FindAsync(personId);
-            if (existingPerson is null)
-                return Result<RetrieveStudentDto>
-                    .Fail("Não encontraod.", "Pessoa associada não encontrada.");
+            var company = await _context.Companies.FindAsync(existingPerson.Student.CompanyId);
 
-            var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.PersonId == personId);
-            if (existingStudent is null)
-                return Result<RetrieveStudentDto>
-                    .Fail("Não encontrado.", "Não encontrado um formando com a pessoa fornecida.",
-                    StatusCodes.Status404NotFound);
+            var retrieveStudent = Student.ConvertEntityToRetrieveDto(existingPerson.Student, existingPerson, company);
 
-            var company = await _context.Companies.FindAsync(existingStudent.CompanyId);
-
-            var retrieveStudent = Student.ConvertEntityToRetrieveDto(existingStudent, existingPerson, company);
-
-            await _cacheService.SetAsync(cacheKey, retrieveStudent);
+            // Update cache
+            await _cacheService.SetAsync(cacheKey, retrieveStudent, TimeSpan.FromMinutes(30));
 
             return Result<RetrieveStudentDto>
                 .Ok(retrieveStudent);
@@ -270,8 +276,6 @@ namespace NERBABO.ApiService.Core.Students.Services
 
             await _cacheService.RemoveAsync("sudent:list");
             await _cacheService.RemovePatternAsync("student:company:*");
-            await _cacheService.RemovePatternAsync("student:person:*");
-
         }
 
     }

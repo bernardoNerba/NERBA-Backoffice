@@ -72,12 +72,12 @@ public class SeedDataHelp
 
             var personAdmin = new Person
             {
-                Id = 1,
                 FirstName = "Admin",
                 LastName = "Admin",
+                NIF = "000000000"
             };
 
-            _context.People.Add(personAdmin);
+            var entity = _context.People.Add(personAdmin);
             await _context.SaveChangesAsync();
 
             var admin = new User
@@ -86,7 +86,7 @@ public class SeedDataHelp
                 Email = email,
                 EmailConfirmed = true,
                 PhoneNumberConfirmed = true,
-                PersonId = personAdmin.Id,
+                PersonId = entity.Entity.Id,
                 Person = personAdmin,
             };
 
@@ -147,13 +147,13 @@ public class SeedDataHelp
 
         var taxes = new List<Tax>
             {
-                new (1, "Regime de Isenção", 0, true, TaxEnum.IVA),
-                new (2, "Sujeto à taxa de 23%", 23, true, TaxEnum.IVA),
-                new (3, "Rentenção na Fonte de IRS à taxa de 25%", 25, true, TaxEnum.IRS),
-                new (4, "Rentenção na Fonte de IRS à taxa de 23%", 23, true, TaxEnum.IRS),
-                new (5, "Rentenção na Fonte de IRS à taxa de 11,5%", 12, true, TaxEnum.IRS),
-                new (6, "Rentenção na Fonte de IRS à taxa de 16,5%", 17, true, TaxEnum.IRS),
-                new (7, "Rentenção na Fonte de IRS à taxa de 20%", 20, true, TaxEnum.IRS)
+                new ("Regime de Isenção", 0, true, TaxEnum.IVA),
+                new ("Sujeto à taxa de 23%", 23, true, TaxEnum.IVA),
+                new ("Rentenção na Fonte de IRS à taxa de 25%", 25, true, TaxEnum.IRS),
+                new ("Rentenção na Fonte de IRS à taxa de 23%", 23, true, TaxEnum.IRS),
+                new ("Rentenção na Fonte de IRS à taxa de 11,5%", 12, true, TaxEnum.IRS),
+                new ("Rentenção na Fonte de IRS à taxa de 16,5%", 17, true, TaxEnum.IRS),
+                new ("Rentenção na Fonte de IRS à taxa de 20%", 20, true, TaxEnum.IRS)
             };
 
         _context.Taxes.AddRange(taxes);
