@@ -3,25 +3,6 @@
 .gitignore
 .gitattributes
 
-# Docker
-Dockerfile*
-docker-compose*
-.dockerignore
-
-# Documentation
-README.md
-*.md
-docs/
-documentation/
-
-# Build outputs and binaries
-**/bin/
-**/obj/
-**/out/
-**/publish/
-**/Debug/
-**/Release/
-
 # Visual Studio / VS Code
 .vs/
 .vscode/
@@ -45,7 +26,6 @@ ehthumbs.db
 Thumbs.db
 
 # Node.js (for Angular frontend - excluded from backend build)
-NERBABO.Frontend/
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -84,9 +64,6 @@ packages/
 *.nuget.props
 *.nuget.targets
 
-# Entity Framework
-**/Migrations/
-
 # User-specific files
 *.rsuser
 *.suo
@@ -102,20 +79,6 @@ UpgradeLog*.htm
 ServiceFabricBackup/
 *.rptproj.bak
 
-# SQL Server files
-*.mdf
-*.ldf
-*.ndf
-
-# Business Intelligence projects
-*.rdl.data
-*.bim.layout
-*.bim_*.settings
-*.rptproj.rsuser
-*- [Bb]ackup.rdl
-*- [Bb]ackup ([0-9]).rdl
-*- [Bb]ackup ([0-9][0-9]).rdl
-
 # Environment files
 .env
 .env.local
@@ -128,8 +91,6 @@ ServiceFabricBackup/
 *~
 
 # Application specific
-appsettings.Development.json
-appsettings.*.json
 !appsettings.json
 secrets.json
 

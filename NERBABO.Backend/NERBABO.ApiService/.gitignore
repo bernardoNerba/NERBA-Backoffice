@@ -486,3 +486,5 @@ $RECYCLE.BIN/
 appsettings.Development.json
 appsettings.Local.json
 secrets.json
+
+Data/Migrations/

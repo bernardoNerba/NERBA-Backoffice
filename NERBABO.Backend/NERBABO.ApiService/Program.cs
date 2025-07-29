@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -143,10 +144,75 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        var isDevelopment = builder.Environment.IsDevelopment();
+        var allowedOrigins = DnsHelper.GenerateCorsOrigins(builder.Configuration, isDevelopment);
+        
+        if (isDevelopment)
+        {
+            // In development, be more permissive
+            policy.SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrEmpty(origin)) return false;
+                
+                var uri = new Uri(origin);
+                
+                // Allow localhost with any port
+                if (uri.Host == "localhost" || uri.Host == "127.0.0.1")
+                    return true;
+                
+                // Allow local network IPs with Angular port
+                var localIPs = DnsHelper.GetAllLocalIPAddresses();
+                return localIPs.Contains(uri.Host) && (uri.Port == 4200 || uri.Port == 80 || uri.Port == 443);
+            })
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
+        }
+        else
+        {
+            // In production, use strict origin checking
+            if (allowedOrigins.Any())
+            {
+                policy.WithOrigins(allowedOrigins.ToArray());
+            }
+            else
+            {
+                // If no origins configured, allow same-network access
+                policy.SetIsOriginAllowed(origin =>
+                {
+                    if (string.IsNullOrEmpty(origin)) return false;
+                    
+                    var uri = new Uri(origin);
+                    var localIPs = DnsHelper.GetAllLocalIPAddresses();
+                    
+                    // Allow requests from same network
+                    return localIPs.Any(ip => uri.Host.StartsWith(ip.Substring(0, ip.LastIndexOf('.'))));
+                });
+            }
+            
+            policy.AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+    });
+    
+    // Add a more restrictive policy for production APIs
+    options.AddPolicy("ProductionApi", policy =>
+    {
+        var configuredOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
+        if (configuredOrigins != null && configuredOrigins.Length > 0)
+        {
+            policy.WithOrigins(configuredOrigins)
+                .WithHeaders("Content-Type", "Authorization")
+                .WithMethods("GET", "POST", "PUT", "DELETE")
+                .AllowCredentials();
+        }
+        else
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
     });
 });
 
