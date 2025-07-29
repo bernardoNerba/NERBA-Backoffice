@@ -1,6 +1,5 @@
 # Sensitive files
 .env
-.env.*
 .vs
 .vs.*
 

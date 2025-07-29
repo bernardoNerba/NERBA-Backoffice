@@ -1,62 +1,103 @@
 import { environment } from '../../../environments/environment';
 
+// Dynamic API URL getter
+const getApiUrl = (): string => {
+  // Use the dynamic method if available in environment
+  if (typeof environment.getApiUrl === 'function') {
+    return environment.getApiUrl();
+  }
+
+  // Fallback to static appUrl
+  if (environment.appUrl && environment.appUrl !== '') {
+    return environment.appUrl;
+  }
+
+  // Final fallback - construct dynamically
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+
+  if (environment.production) {
+    return `${protocol}//${hostname}:5001`;
+  } else {
+    return `http://${hostname}:8080`;
+  }
+};
+
+// Initialize base URL
+const BASE_URL = getApiUrl();
+
 export const API_ENDPOINTS = {
-  // Add this for debugging
+  // Debug info (remove in production)
   init: (() => {
     console.log('🔧 Environment loaded:', environment);
-    console.log('🌍 App URL:', environment.appUrl);
+    console.log('🌍 Base URL:', BASE_URL);
     console.log('🏭 Is Production:', environment.production);
+    console.log('🖥️ Current Host:', window.location.hostname);
     return true;
   })(),
 
-  // auth
-  login: `${environment.appUrl}/api/auth/login/`,
-  set_role: `${environment.appUrl}/api/auth/set-role/`,
+  // Base URL getter for dynamic updates
+  getBaseUrl: () => BASE_URL,
 
-  // people
-  all_people: `${environment.appUrl}/api/people/`,
-  people_not_user: `${environment.appUrl}/api/people/not-`,
+  // Update base URL if needed (for reconnection scenarios)
+  updateBaseUrl: (newUrl: string) => {
+    // This would require refactoring to make BASE_URL mutable
+    // For now, recommend page reload after IP change
+    console.warn('Base URL change detected. Consider reloading the page.');
+    window.location.reload();
+  },
 
-  // account
-  all_accs: `${environment.appUrl}/api/account/users/`,
-  single_acc: `${environment.appUrl}/api/account/user/`,
-  create_acc: `${environment.appUrl}/api/account/register/`,
-  update_acc: `${environment.appUrl}/api/account/user/update/`,
-  block_acc: `${environment.appUrl}/api/account/block-user/`,
+  // Auth endpoints
+  login: `${BASE_URL}/api/auth/login/`,
+  set_role: `${BASE_URL}/api/auth/set-role/`,
 
-  // config
-  get_general_conf: `${environment.appUrl}/api/generalinfo/`,
-  update_general_conf: `${environment.appUrl}/api/generalinfo/update/`,
-  get_taxes: `${environment.appUrl}/api/tax/`,
-  get_taxes_by_type: `${environment.appUrl}/api/tax/type/`,
-  create_tax: `${environment.appUrl}/api/tax/create/`,
-  update_tax: `${environment.appUrl}/api/tax/update/`,
-  delete_tax: `${environment.appUrl}/api/tax/delete/`,
+  // People endpoints
+  all_people: `${BASE_URL}/api/people/`,
+  people_not_user: `${BASE_URL}/api/people/not-`,
 
-  // companies
-  companies: `${environment.appUrl}/api/companies/`,
+  // Account endpoints
+  all_accs: `${BASE_URL}/api/account/users/`,
+  single_acc: `${BASE_URL}/api/account/user/`,
+  create_acc: `${BASE_URL}/api/account/register/`,
+  update_acc: `${BASE_URL}/api/account/user/update/`,
+  block_acc: `${BASE_URL}/api/account/block-user/`,
 
-  // students
-  studentsByCompany: `${environment.appUrl}/api/students/company/`,
-  students: `${environment.appUrl}/api/students/`,
+  // Config endpoints
+  get_general_conf: `${BASE_URL}/api/generalinfo/`,
+  update_general_conf: `${BASE_URL}/api/generalinfo/update/`,
+  get_taxes: `${BASE_URL}/api/tax/`,
+  get_taxes_by_type: `${BASE_URL}/api/tax/type/`,
+  create_tax: `${BASE_URL}/api/tax/create/`,
+  update_tax: `${BASE_URL}/api/tax/update/`,
+  delete_tax: `${BASE_URL}/api/tax/delete/`,
 
-  // modules
-  modules: `${environment.appUrl}/api/module/`,
-  modules_active: `${environment.appUrl}/api/module/active/`,
+  // Companies endpoints
+  companies: `${BASE_URL}/api/companies/`,
 
-  // courses
-  courses: `${environment.appUrl}/api/courses/`,
-  courses_active: `${environment.appUrl}/api/courses/active/`,
+  // Students endpoints
+  studentsByCompany: `${BASE_URL}/api/students/company/`,
+  students: `${BASE_URL}/api/students/`,
 
-  // actions
-  actions: `${environment.appUrl}/api/actions/`,
-  actionsByModule: `${environment.appUrl}/api/actions/module/`,
-  actionsByCourse: `${environment.appUrl}/api/actions/course/`,
+  // Modules endpoints
+  modules: `${BASE_URL}/api/module/`,
+  modules_active: `${BASE_URL}/api/module/active/`,
 
-  // frames
-  frames: `${environment.appUrl}/api/frame/`,
+  // Courses endpoints
+  courses: `${BASE_URL}/api/courses/`,
+  courses_active: `${BASE_URL}/api/courses/active/`,
 
-  // teacher
-  teachers: `${environment.appUrl}/api/teacher/`,
-  teacherByPerson: `${environment.appUrl}/api/teacher/person/`,
+  // Actions endpoints
+  actions: `${BASE_URL}/api/actions/`,
+  actionsByModule: `${BASE_URL}/api/actions/module/`,
+  actionsByCourse: `${BASE_URL}/api/actions/course/`,
+
+  // Frames endpoints
+  frames: `${BASE_URL}/api/frame/`,
+
+  // Teacher endpoints
+  teachers: `${BASE_URL}/api/teacher/`,
+  teacherByPerson: `${BASE_URL}/api/teacher/person/`,
+
+  // Health check endpoint
+  health: `${BASE_URL}/health`,
 };

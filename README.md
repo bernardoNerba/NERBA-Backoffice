@@ -16,9 +16,11 @@ This project uses .NET Aspire as an orchestrator, so in order to run it you will
 
 - [.NET SDK 9.0](https://dotnet.microsoft.com/pt-br/download)
 - .NET Aspire Workload
+- [Entity Framework Core tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet)
 
 ```bash
 dotnet workload install aspire
+dotnet tool install --global dotnet-ef
 ```
 
 - [Docker](https://www.docker.com/products/docker-desktop/) - for containerized volumes and services like PostgreSQL, pgAdmin and Redis.
@@ -44,69 +46,24 @@ cd NERBA-Backoffice
 cd NERBABO.Backend
 ```
 
-3. Create `appsettings.Development.json` on the root of `NERBABO.ApiService`
-
-```bash
-nano appsettings.Development.json
-```
-
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "Admin": {
-    "username": "admin",
-    "email": "admin@example.com",
-    "password": "AsecurePassword123!"
-  },
-  "JWT": {
-    "Key": "j+X!w*Ky4n:HRxJSfc#Zr2KknShQLZ2A@YPd+=w)NJGDbBirk?4ZN8",
-    "ExpiresInDays": 15,
-    "Issuer": "http://localhost:8080",
-    "ClientUrl": "http://localhost:4200"
-  }
-}
-```
-
-4. If this is the first time you are running a asp.net core web api project you may need to run:
+3. If this is the first time you are running a asp.net core web api project you may need to run:
 
 ```bash
 dotnet dev-certs https --trust
 ```
 
-5. Install npm dependencies
+4. Install npm dependencies
 
 ```bash
-cd NERBABO.Frontend
+cd ../NERBABO.Frontend
 npm install
 ```
 
-6. Create environment files
-   Create: `src/environments/environment.development.ts`
+5. Build, run migrations and Start the Application, use the .NET Aspire orchestrator to run all services:
 
 ```bash
-mkdir src/environments
-nano src/environments/environment.development.ts
-```
-
-- `environment.development.ts` example:
-
-```ts
-export const environment = {
-  production: false,
-  appUrl: "http://localhost:8080",
-  userKey: "NerbaBackofficeUser",
-  roles: ["Admin", "User", "CQ", "FM"],
-};
-```
-
-7. Start the Application, use the .NET Aspire orchestrator to run all services:
-
-```bash
+dotnet build --project NERBABO.Backend/NERBABO.AppHost
+dotnet ef migrations add "InitialMigration" -o Data/Migrations --project NERBABO.Backend/NERBABO.ApiService
 dotnet run --project NERBABO.Backend/NERBABO.AppHost
 ```
 
@@ -115,11 +72,13 @@ This will:
 - Spin up the ASP.NET Core Web API
 - Launch the Angular frontend
 - Start PostgreSQL, pgAdmin, and Redis containers
+- Open Swagger UI
 
-8. Access the Applications, once running, you can access:
+6. Access the Applications, once running, you can access:
 
 - **Frontend(Angular)**: [http://localhost:4200](http://localhost:4200)
 - **Backend (Web API)**: [http://localhost:8080](http://localhost:8080)
+- **Swagger (Web API Documentation)**: [http://localhost:8080/swagger](http://localhost:8080/swagger/index.html)
 - **Postgres** with **PgAdmin**
 - **Redis** with **RedisInsight**
 
@@ -152,7 +111,7 @@ Swagger allows us to build a documentation page that can also be used to test en
 5. Go to the top of the page and click on the "Authorize" button.
 6. You will be prompted to the jwt, use the Bearer format. "Bearer <token_goes_here>".
 
-### Working on Angular Separately
+## Working on Angular Separately
 
 ```bash
 ng serve #starts the application
@@ -160,11 +119,26 @@ ng g c features/<feature_name>/<feature_component> #generates component
 ng g s core/services/<feature_name> #generates service bootstrap file
 ```
 
-### Apply EF Core migrations
+## Working on a Linux machine
+
+When running the project on a Linux distribution, you may encounter a warning similar to the following:
 
 ```bash
-dotnet ef migrations add <MigrationName>
+warn: Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer[8]
+      The ASP.NET Core developer certificate is not trusted. For guidance on trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert
 ```
+
+This is a common issue when running HTTPS services on Linux. To resolve it, you can:
+
+- Follow the instructions at the provided link to trust the developer certificate and try to find a solution;
+- Develop using HTTP mode.
+- Run the application in production mode.
+
+Choose the approach that best suits your development or deployment needs.
+
+## Run Production
+
+[Production Setup Guide](PROD.md)
 
 ## Contributions
 
