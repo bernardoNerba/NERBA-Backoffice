@@ -138,6 +138,8 @@ Choose the approach that best suits your development or deployment needs.
 
 ## Run Production
 
+[Production Setup Guide](PROD.md)
+
 ## Contributions
 
 We welcome and appreciate contributions of all kinds — whether it's developing _new features, writing integration tests, improving documentation, finding security vulnerabilities or anything else that helps the project grow_.
