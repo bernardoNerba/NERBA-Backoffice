@@ -1,4 +1,7 @@
-# NERBA - Backoffice
+<p align="center">
+  <img src="NERBABO.Frontend/public/images/logo_grande.png" alt="NERBA Logo" width="200"/>
+</p>
+<h1 align="center">NERBA - Backoffice</h1>
 
 ## About NERBA
 
