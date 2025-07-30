@@ -8,7 +8,6 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using NERBABO.ApiService.Shared.Services;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Courses.Services
@@ -73,7 +72,11 @@ namespace NERBABO.ApiService.Core.Courses.Services
                         .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours} quando {existingCourse.CurrentDuration}/{existingCourse.TotalDuration}");
                 }
                 if (!modules.Contains(m))
+                {
                     modules.Add(m);
+                    currentDuration += m.Hours;
+                }
+
             }
 
             existingCourse.Modules = modules;
@@ -677,6 +680,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 }
 
                 modules.Add(m);
+                currentDuration += m.Hours;
             }
 
             var newValues = Course.ConvertUpdateDtoToEntity(entityDto, existingFrame);
