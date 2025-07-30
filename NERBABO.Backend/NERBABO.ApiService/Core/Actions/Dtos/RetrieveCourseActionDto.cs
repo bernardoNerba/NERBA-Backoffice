@@ -21,6 +21,7 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
 
         // Action Information
         public string Title { get; set; } = string.Empty;
+        public int ActionNumber { get; set; }
         public string AdministrationCode { get; set; } = string.Empty;
         public string? Address { get; set; } = string.Empty;
         public string Locality { get; set; } = string.Empty;

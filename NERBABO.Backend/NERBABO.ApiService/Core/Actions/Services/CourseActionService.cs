@@ -24,7 +24,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
         public async Task<Result<RetrieveCourseActionDto>> CreateAsync(CreateCourseActionDto entityDto)
         {
             var existingCourse = await _context.Courses
-                .FindAsync(entityDto.CourseId);
+                .Include(c => c.Actions)
+                .FirstOrDefaultAsync(c => c.Id == entityDto.CourseId);
             if (existingCourse is null)
             {
                 _logger.LogWarning("Course not found for given CourseId: {id}", entityDto.CourseId);
@@ -41,17 +42,6 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 return Result<RetrieveCourseActionDto>
                     .Fail("Não encontrado.", "Coordenador não encontrado.",
                     StatusCodes.Status404NotFound);
-            }
-
-            // validate unique constraint
-            if (!string.IsNullOrEmpty(entityDto.Title)
-                && await _context.Actions.AnyAsync(a =>
-                a.Title.ToLower()
-                .Equals(entityDto.Title.ToLower())))
-            {
-                _logger.LogWarning("Action with title '{title}' already exists.", entityDto.Title);
-                return Result<RetrieveCourseActionDto>
-                    .Fail("Erro de Validação", "Já existe uma ação com o mesmo título.");
             }
 
             if (!string.IsNullOrEmpty(entityDto.AdministrationCode)
@@ -309,17 +299,6 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 return Result<RetrieveCourseActionDto>
                 .Fail("Não encontrado.", "Curso não encontrado.",
                 StatusCodes.Status404NotFound);
-            }
-
-            // validate unique constraint
-            if (!string.IsNullOrEmpty(entityDto.Title)
-                && !entityDto.Title.ToLower().Equals(existingCourseAction.Title.ToLower())
-                && await _context.Actions
-                .AnyAsync(a => a.Title.ToLower().Equals(entityDto.Title.ToLower())))
-            {
-                _logger.LogWarning("Action with title '{title}' already exists.", entityDto.Title);
-                return Result<RetrieveCourseActionDto>
-                    .Fail("Erro de Validação", "Já existe uma ação com o mesmo título.");
             }
 
             if (!string.IsNullOrEmpty(entityDto.AdministrationCode)

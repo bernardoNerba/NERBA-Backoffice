@@ -89,14 +89,6 @@ export class UpsertActionsComponent implements IUpsert, OnInit {
     this.form = this.formBuilder.group({
       courseId: [this.courseId || null, [Validators.required]],
       rangeDates: [null, [Validators.required]],
-      title: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(255),
-        ],
-      ],
       administrationCode: [
         '',
         [
@@ -134,7 +126,6 @@ export class UpsertActionsComponent implements IUpsert, OnInit {
             ? new Date(this.currentAction.endDate)
             : null,
         ],
-        title: this.currentAction.title,
         administrationCode: this.currentAction.administrationCode,
         address: this.currentAction.address || '',
         locality: this.currentAction.locality,

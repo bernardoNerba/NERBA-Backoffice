@@ -1,7 +1,6 @@
 export interface ActionForm {
   id: number;
   courseId: number;
-  title: string;
   administrationCode: string;
   address?: string;
   locality: string;

@@ -50,31 +50,6 @@
         </div>
         }
 
-        <!-- Title -->
-        <div class="col-sm-12">
-          <div class="mb-3">
-            <label for="title">
-              Título
-              <span class="text-danger">*</span>
-            </label>
-            <input
-              formControlName="title"
-              type="text"
-              class="form-control"
-              [class.is-invalid]="submitted && form.get('title')?.errors"
-            />
-            @if (submitted && form.get('title')?.hasError("required")) {
-            <span class="text-danger"> Título é um campo obrigatório. </span>
-            } @else if (submitted && form.get('title')?.hasError("minlength") ||
-            form.get('title')?.hasError("maxlength")) {
-            <span class="text-danger">
-              Título deve conter pelo menos 3 caracteres e um máximo de 255
-              caracteres.
-            </span>
-            }
-          </div>
-        </div>
-
         <!-- Administration Code -->
         <div class="col-md-6">
           <div class="mb-3">

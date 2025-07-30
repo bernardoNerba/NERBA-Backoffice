@@ -17,6 +17,7 @@
   [rows]="10"
   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
   (onPage)="pageChange($event)"
+  (onSort)="onSort($event)"
   [rowsPerPageOptions]="[10, 25, 50]"
 >
   <!-- Table caption with Search and clear filter  -->
@@ -56,10 +57,22 @@
   <ng-template #header>
     <tr>
       <th [width]="20">#</th>
-      <th pSortableColumn="title">
+      <th style="width: 9%">
+        <div class="flex items-center gap-2" pSortableColumn="actionNumber">
+          Numero
+          <p-sortIcon field="actionNumber" />
+        </div>
+      </th>
+      <th pSortableColumn="locality">
         <div class="flex items-center gap-2">
-          Título
-          <p-sortIcon field="title" />
+          Localidade
+          <p-sortIcon field="locality" />
+        </div>
+      </th>
+      <th pSortableColumn="courseTitle">
+        <div class="flex items-center gap-2">
+          Curso
+          <p-sortIcon field="courseTitle" />
         </div>
       </th>
       <th pSortableColumn="startDate" style="width: 25%">
@@ -95,15 +108,28 @@
           (click)="menu.toggle($event); selectedAction = action"
         />
       </td>
-      <!-- ACTION TITLE -->
+      <!-- ACTION NUMBER -->
       <td>
-        <p-button
-          class="text-truncate"
-          icon="bi bi-link"
-          variant="text"
-          [routerLink]="['/actions', action.id]"
-          label="{{ action.title | truncate : 40 }}"
-          severity="secondary"
+        <app-icon-anchor
+          [display]="action.actionNumber"
+          [field]="action.title"
+          [icon]="'bi bi-link'"
+          [link]="'/actions/' + action.id"
+        />
+      </td>
+      <!-- LOCALITY -->
+      <td>
+        <span class="text-truncate">
+          {{ action.locality | truncate : 20 }}
+        </span>
+      </td>
+      <!-- COURSE TITLE -->
+      <td>
+        <app-icon-anchor
+          [display]="action.courseTitle | truncate : 20"
+          [field]="action.courseTitle"
+          [icon]="'bi bi-link'"
+          [link]="'/courses/' + action.courseId"
         />
       </td>
       <!-- DATES RANGE -->
@@ -132,7 +158,7 @@
   <!-- EMPTY STATE -->
   <ng-template #emptymessage>
     <tr>
-      <td colspan="5">
+      <td colspan="7">
         Não foram encontradas ações formação com essas diretrizes.
       </td>
     </tr>

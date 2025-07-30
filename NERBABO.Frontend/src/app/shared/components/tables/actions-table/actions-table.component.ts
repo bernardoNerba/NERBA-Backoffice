@@ -24,6 +24,7 @@ import { UpsertActionsComponent } from '../../../../features/actions/upsert-acti
 import { DeleteActionsComponent } from '../../../../features/actions/delete-actions/delete-actions.component';
 import { DatePicker } from 'primeng/datepicker';
 import { ChangeStatusActionsComponent } from '../../../../features/actions/change-status-actions/change-status-actions.component';
+import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 
 @Component({
   selector: 'app-actions-table',
@@ -35,13 +36,13 @@ import { ChangeStatusActionsComponent } from '../../../../features/actions/chang
     Menu,
     CommonModule,
     FormsModule,
-    RouterLink,
     TruncatePipe,
     SpinnerComponent,
     InputTextModule,
     FormatDateRangePipe,
     TagModule,
     DatePicker,
+    IconAnchorComponent,
   ],
   templateUrl: './actions-table.component.html',
 })
@@ -152,8 +153,12 @@ export class ActionsTableComponent implements OnInit {
       filtered = filtered.filter(
         (action) =>
           action.title?.toLowerCase().includes(term) ||
+          action.courseTitle?.toLowerCase().includes(term) ||
+          action.locality?.toLowerCase().includes(term) ||
           action.status?.toLowerCase().includes(term) ||
-          action.regiment?.toLowerCase().includes(term)
+          action.regiment?.toLowerCase().includes(term) ||
+          action.actionNumber?.toString().includes(term) ||
+          action.startDate?.toString().includes(term)
       );
     }
 
@@ -163,6 +168,33 @@ export class ActionsTableComponent implements OnInit {
   // Handle date range change
   filterByDateRange(): void {
     this.applyFilters();
+  }
+
+  // Sort table
+  onSort(event: any) {
+    this.filteredActions.sort((a, b) => {
+      const valueA = this.getProperty(a, event.field);
+      const valueB = this.getProperty(b, event.field);
+      let result = 0;
+
+      if (valueA != null && valueB != null) {
+        if (typeof valueA === 'string' && typeof valueB === 'string') {
+          result = valueA.localeCompare(valueB);
+        } else {
+          result = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+        }
+      } else if (valueA != null) {
+        result = -1;
+      } else if (valueB != null) {
+        result = 1;
+      }
+
+      return result * event.order;
+    });
+  }
+
+  private getProperty(obj: any, path: string): any {
+    return path.split('.').reduce((o, key) => (o && o[key]) || null, obj);
   }
 
   refreshAction(id: number): void {
