@@ -11,7 +11,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
     {
         public long CourseId { get; set; }
         public string CoordenatorId { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
+        public int ActionNumber { get; set; }
         public string AdministrationCode { get; set; } = string.Empty;
         public string? Address { get; set; } = string.Empty;
         public string Locality { get; set; } = string.Empty;
@@ -28,6 +28,8 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public bool AllModulesOfActionHaveTeacher
             => Course.Modules.All(m =>
                 TeacherModuleActions.Any(tma => tma.ModuleId == m.Id));
+
+        public string Title => $"{ActionNumber} {Locality}";
 
         // Navigation properties
         public required Course Course { get; set; }
@@ -53,6 +55,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 CoordenatorId = u.Id,
                 CoordenatorName = u.UserName ?? "",
 
+                ActionNumber = ca.ActionNumber,
                 Title = ca.Title,
                 AdministrationCode = ca.AdministrationCode,
                 Address = ca.Address,
@@ -70,8 +73,8 @@ namespace NERBABO.ApiService.Core.Actions.Models
             return new CourseAction
             {
                 CourseId = c.Id,
+                ActionNumber = c.Actions.Count + 1,
                 CoordenatorId = u.Id,
-                Title = ca.Title,
                 AdministrationCode = ca.AdministrationCode,
                 Address = ca.Address,
                 Locality = ca.Locality,
@@ -94,7 +97,6 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 Id = ca.Id,
                 CourseId = c.Id,
                 CoordenatorId = u.Id,
-                Title = ca.Title,
                 AdministrationCode = ca.AdministrationCode,
                 Address = ca.Address,
                 Locality = ca.Locality,
@@ -108,7 +110,5 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 Course = c
             };
         }
-    
-    
     }
 }

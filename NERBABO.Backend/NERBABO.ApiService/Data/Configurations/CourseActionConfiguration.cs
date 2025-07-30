@@ -31,10 +31,6 @@ namespace NERBABO.ApiService.Data.Configurations
                 .HasForeignKey(tma => tma.ActionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(a => a.Title)
-                .HasColumnType("varchar(255)")
-                .IsRequired(true);
-
             builder.Property(a => a.AdministrationCode)
                 .HasColumnType("varchar(10)")
                 .IsRequired(true);

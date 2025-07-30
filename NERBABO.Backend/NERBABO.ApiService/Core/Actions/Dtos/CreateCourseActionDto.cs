@@ -11,11 +11,6 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         [Required(ErrorMessage = "Curso é um campo obrigatório.")]
         public long CourseId { get; set; }
 
-        [Required(ErrorMessage = "Coordenador é um campo obrigatório.")]
-        [ValidateLengthIfNotEmpty(255, MinimumLength = 3,
-        ErrorMessage = "Título deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
-        public string Title { get; set; } = string.Empty;
-
         [Required(ErrorMessage = "Código Administrativo é um campo obrigatório.")]
         [ValidateLengthIfNotEmpty(10, MinimumLength = 5, ErrorMessage = "Código Administrativo deve conter entre {1} a {2} números.")]
         [AllNumbers(ErrorMessage = "Código Administrativo todos os caractéres devem ser números")]

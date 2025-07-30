@@ -10,6 +10,7 @@ export interface Action {
   coordenatorId: string;
   coordenatorName: string;
   title: string;
+  actionNumber: number;
   administrationCode: string;
   address?: string;
   locality: string;

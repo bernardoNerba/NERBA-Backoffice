@@ -5,16 +5,14 @@
   </ng-container>
   } @else {
   <ng-container>
-    <div class="d-flex w-100">
+    <div class="d-flex">
       @if (user$ | async;) {
       <app-sidebar />
       }
-      <main class="wrapper w-100">
+      <main class="wrapper w-100" style="height: 100vh; overflow-y: auto;">
         <app-navbar />
-        <div class="page-container">
-          <div class="container-md pt-4">
-            <router-outlet></router-outlet>
-          </div>
+        <div class="container-fluid pt-4">
+          <router-outlet></router-outlet>
         </div>
       </main>
     </div>

@@ -1,24 +1,41 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { SharedService } from '../../../core/services/shared.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { MenuModule, Menu } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
+
+import { ButtonModule } from 'primeng/button';
+import { Observable } from 'rxjs';
+import { User } from '../../../core/models/user';
+import { CommonModule } from '@angular/common';
+import { TruncatePipe } from '../../pipes/truncate.pipe';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [],
+  imports: [MenuModule, ButtonModule, CommonModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })
 export class SidebarComponent implements OnInit {
+  @ViewChild('menu') menu!: Menu;
   activePage: string = 'Dashboard';
   isAdmin!: boolean;
+  profileMenuItems!: MenuItem[];
+  user$?: Observable<User | null>;
+  userRoles!: string[];
+  displayRole!: string;
 
   mainMenuItems = [
     { name: 'Dashboard', icon: 'pi pi-chart-line', route: '/dashboard' },
     { name: 'Pessoas', icon: 'pi pi-users', route: '/people' },
     { name: 'Modulos', icon: 'pi pi-objects-column', route: '/modules' },
     { name: 'Cursos', icon: 'pi pi-graduation-cap', route: '/courses' },
-    { name: 'Ações Formativas', icon: 'pi pi-bookmark-fill', route: '/actions' },
+    {
+      name: 'Ações Formativas',
+      icon: 'pi pi-bookmark-fill',
+      route: '/actions',
+    },
     { name: 'Empresas', icon: 'pi pi-building', route: '/companies' },
   ];
 
@@ -26,19 +43,6 @@ export class SidebarComponent implements OnInit {
     { name: 'Configurações', icon: 'pi pi-cog', route: '/config' },
     { name: 'Enquadramentos', icon: 'pi pi-expand', route: '/frames' },
     { name: 'Contas', icon: 'pi pi-users', route: '/accs' },
-  ];
-
-  bottomMenuItems = [
-    {
-      name: 'Notificações',
-      icon: 'pi pi-bell',
-      route: '/notifications',
-    },
-    {
-      name: 'Logout',
-      icon: 'pi pi-sign-out',
-      route: '/logout',
-    },
   ];
 
   constructor(
@@ -49,11 +53,7 @@ export class SidebarComponent implements OnInit {
     this.router.events.subscribe(() => {
       const currentUrl = this.router.url;
 
-      const allItems = [
-        ...this.mainMenuItems,
-        ...this.adminMenuItems,
-        ...this.bottomMenuItems,
-      ];
+      const allItems = [...this.mainMenuItems, ...this.adminMenuItems];
 
       const currentItem = allItems.find((item) =>
         currentUrl.startsWith(item.route)
@@ -63,11 +63,33 @@ export class SidebarComponent implements OnInit {
         this.activePage = currentItem.name;
       }
     });
+
+    this.user$ = this.authService.user$;
+    this.userRoles = this.authService.userRoles;
+    console.log(this.userRoles);
   }
 
   ngOnInit(): void {
     this.isAdmin = this.authService.isUserAdmin;
     this.loadUserPreference();
+    this.setDisplayRole();
+
+    this.profileMenuItems = [
+      {
+        label: 'Notificações',
+        icon: 'pi pi-bell',
+        command: () => {
+          this.router.navigate(['/notifications']);
+        },
+      },
+      {
+        label: 'Logout',
+        icon: 'pi pi-sign-out',
+        command: () => {
+          this.router.navigate(['/logout']);
+        },
+      },
+    ];
   }
 
   setActivePage(route: string, pageName: string): void {
@@ -93,6 +115,12 @@ export class SidebarComponent implements OnInit {
     this.checkScreenSize();
   }
 
+  toggleMenu(event: Event) {
+    if (this.isCollapsed) {
+      this.menu.toggle(event);
+    }
+  }
+
   private checkScreenSize() {
     // Only auto-collapse on very small screens (mobile phones)
     // Never auto-expand - only auto-collapse when screen is very small
@@ -100,6 +128,28 @@ export class SidebarComponent implements OnInit {
 
     if (isVerySmallScreen) {
       this.sharedService.isCollapsed = true;
+    }
+  }
+
+  setDisplayRole(): void {
+    const roles = this.userRoles;
+
+    if (roles.includes('Admin')) {
+      this.displayRole = 'Admin';
+      return;
+    }
+
+    const isFM = roles.includes('FM');
+    const isCQ = roles.includes('CQ');
+
+    if (isFM && isCQ) {
+      this.displayRole = 'FM / CQ';
+    } else if (isFM) {
+      this.displayRole = 'FM';
+    } else if (isCQ) {
+      this.displayRole = 'CQ';
+    } else if (roles.includes('User')) {
+      this.displayRole = 'User';
     }
   }
 }

@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
-import { tap } from 'rxjs/operators';
+import { tap, finalize } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -28,9 +28,7 @@ export class FrameService {
   loadFrames(): void {
     this.loadingSubject.next(true);
     this.fetchFrames()
-      .pipe(
-        tap(() => this.loadingSubject.next(false)) // Set loading to false after request completes
-      )
+      .pipe(finalize(() => this.loadingSubject.next(false)))
       .subscribe({
         next: (data: Frame[]) => {
           this.framesSubject.next(data);

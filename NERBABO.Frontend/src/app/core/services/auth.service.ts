@@ -89,6 +89,17 @@ export class AuthService {
     }
   }
 
+  get userRoles(): string[] {
+    const claims = this.getUserClaims;
+    let roles = [];
+    if (!Array.isArray(claims?.role)) {
+      roles.push(claims?.role);
+    } else {
+      roles = claims?.role;
+    }
+    return roles;
+  }
+
   get isUserAdmin(): boolean {
     const claims = this.getUserClaims;
     return Array.isArray(claims?.role) && claims.role.includes('Admin');
