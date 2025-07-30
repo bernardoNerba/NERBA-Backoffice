@@ -5,48 +5,71 @@ namespace NERBABO.ApiService.Core.People.Cache;
 
 public interface ICachePeopleRepository
 {
+    /// <summary>
+    /// Removes person entries from the cache.
+    /// </summary>
+    /// <param name="id">The ID of the person to remove. If null, removes all related cache entries.</param>
+    /// <example>
+    /// Cache key for a single person: "Person:1"
+    /// Cache key for a list of people: "Person:list"
+    /// Cache key for a list of people without a profile: "Person:list:without:Student"
+    /// </example>
     Task RemovePeopleCacheAsync(long? id = null);
 
-    // Manage single person cache
-
     /// <summary>
-    /// Sets a single person data with the cache key `Person:{id}`
+    /// Sets a single person in the cache.
     /// </summary>
-    /// <param name="person">The person data to be stored.</param>
+    /// <param name="person">The retrieve person DTO to cache.</param>
+    /// <example>
+    /// Cache key: "Person:1"
+    /// </example>
     Task SetSinglePersonCacheAsync(RetrievePersonDto person);
 
     /// <summary>
-    /// Gets the single person data associated with the cache key `People:{id}`
+    /// Retrieves a single person from the cache based on their ID.
     /// </summary>
-    /// <param name="id">The id of the desired person.</param>
+    /// <param name="id">The ID of the person.</param>
+    /// <returns>A retrieve person DTO, or null if not found.</returns>
+    /// <example>
+    /// Cache key: "Person:1"
+    /// </example>
     Task<RetrievePersonDto?> GetSinglePersonCacheAsync(long id);
 
-    // Manage people cache
-
     /// <summary>
-    /// Gets the data associated with the cache key `People:list` 
+    /// Retrieves all people from the cache.
     /// </summary>
+    /// <returns>A collection of retrieve person DTOs, or null if not found.</returns>
+    /// <example>
+    /// Cache key: "Person:list"
+    /// </example>
     Task<IEnumerable<RetrievePersonDto>?> GetCacheAllPeopleAsync();
 
     /// <summary>
-    /// Sets the data of all the people with the cache key `People:list`
+    /// Sets all people in the cache.
     /// </summary>
-    /// <param name="people">The data to store on the cache.</param>
+    /// <param name="people">The collection of retrieve person DTOs to cache.</param>
+    /// <example>
+    /// Cache key: "Person:list"
+    /// </example>
     Task SetAllPeopleCacheAsync(IEnumerable<RetrievePersonDto> people);
 
-    // Manage active people cache
-
     /// <summary>
-    /// Gets the data associated with the cache key `People:list:without:{profile}` 
+    /// Retrieves a collection of people from the cache that do not have a specific profile.
     /// </summary>
-    /// <param name="profile">The profile string which the people where filtered on.</param>
-    /// <returns>People with a given profile</returns>
+    /// <param name="profile">The profile to exclude.</param>
+    /// <returns>A collection of retrieve person DTOs, or null if not found.</returns>
+    /// <example>
+    /// Cache key: "Person:list:without:Student"
+    /// </example>
     Task<IEnumerable<RetrievePersonDto>?> GetCachePeopleWithoutProfileAsync(string profile);
 
     /// <summary>
-    /// Sets the people data filtered by a given profile on the cache with key `People:list:without:{profile}`
+    /// Sets a collection of people in the cache that do not have a specific profile.
     /// </summary>
-    /// <param name="people">The people without the given profile.</param>
-    /// <param name="profile">The profile string which the people where filtered on.</param>
+    /// <param name="people">The collection of retrieve person DTOs to cache.</param>
+    /// <param name="profile">The profile to exclude.</param>
+    /// <example>
+    /// Cache key: "Person:list:without:Student"
+    /// </example>
     Task SetPeopleWithoutProfileCacheAsync(IEnumerable<RetrievePersonDto> people, string profile);
 }
