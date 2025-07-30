@@ -6,56 +6,60 @@
   </div>
   <!-- END NERBA LOGO -->
 
-  <!-- MAIN MENU OPTIONS - FOR ALL USERS -->
-  <div class="menu-section">
-    <ul class="menu-list">
-      @for (item of mainMenuItems; track item.name;){
-      <li
-        [class.active]="activePage === item.name"
-        (click)="setActivePage(item.route, item.name)"
-        [title]="isCollapsed ? item.name : ''"
-      >
-        <i class="{{ item.icon }} me-3"></i>
-        <span class="menu-text">{{ item.name }}</span>
-      </li>
-      }
-    </ul>
+  <div class="scrollable-menu">
+    <!-- MAIN MENU OPTIONS - FOR ALL USERS -->
+    <div class="menu-section">
+      <ul class="menu-list">
+        @for (item of mainMenuItems; track item.name;){
+        <li
+          [class.active]="activePage === item.name"
+          (click)="setActivePage(item.route, item.name)"
+          [title]="isCollapsed ? item.name : ''"
+        >
+          <i class="{{ item.icon }} me-3"></i>
+          <span class="menu-text">{{ item.name }}</span>
+        </li>
+        }
+      </ul>
+    </div>
+
+    @if(isAdmin){
+    <!-- ADMIN MENU OPTIONS -->
+    <div class="menu-section">
+      <h2 class="section-title">Painel de Admin</h2>
+      <ul class="menu-list">
+        @for (item of adminMenuItems; track item.name;) {
+        <li
+          [class.active]="activePage === item.name"
+          (click)="setActivePage(item.route, item.name)"
+          [title]="isCollapsed ? item.name : ''"
+        >
+          <i class="{{ item.icon }} me-3"></i>
+          <span class="menu-text">{{ item.name }}</span>
+        </li>
+        }
+      </ul>
+    </div>
+    <!-- END MENU OPTIONS -->
+    }
   </div>
 
-  @if(isAdmin){
-  <!-- ADMIN MENU OPTIONS -->
-  <div class="menu-section">
-    <h2 class="section-title">Painel de Admin</h2>
-    <ul class="menu-list">
-      @for (item of adminMenuItems; track item.name;) {
-      <li
-        [class.active]="activePage === item.name"
-        (click)="setActivePage(item.route, item.name)"
-        [title]="isCollapsed ? item.name : ''"
-      >
-        <i class="{{ item.icon }} me-3"></i>
-        <span class="menu-text">{{ item.name }}</span>
-      </li>
-      }
-    </ul>
+  <!-- USER PROFILE -->
+  <div class="user-profile" (click)="toggleMenu($event)">
+    <i class="pi pi-user user-icon"></i>
+    @if (user$ | async; as user) {
+    <div class="user-details">
+      <span class="user-name">{{ user.firstName.split(" ")[0] }}</span>
+      <span class="user-role">{{ displayRole }}</span>
+    </div>
+    }
+    <p-menu #menu [model]="profileMenuItems" [popup]="true"></p-menu>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-cog"
+      (click)="menu.toggle($event)"
+      class="p-button-rounded p-button-text ms-auto"
+    ></button>
   </div>
-  <!-- END MENU OPTIONS -->
-  }
-
-  <!-- NOTIFICATIONS | LOGOUT -->
-  <div class="menu-section bottom-menu">
-    <ul class="menu-list">
-      @for(item of bottomMenuItems; track item.name){
-      <li
-        [class.active]="activePage === item.name"
-        (click)="setActivePage(item.route, item.name)"
-        [title]="isCollapsed ? item.name : ''"
-      >
-        <i class="{{ item.icon }} me-3"></i>
-        <span class="menu-text">{{ item.name }}</span>
-      </li>
-      }
-    </ul>
-  </div>
-  <!-- END NOTIFICATION | LOGOUT -->
 </div>

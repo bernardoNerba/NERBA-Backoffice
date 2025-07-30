@@ -1,14 +1,27 @@
 .sidebar {
   width: 200px;
-  height: 100vh;
+  height: 100vh; /* Set the sidebar to be full height */
   background-color: var(--gray-1);
   color: var(--gray-3);
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   transition: width 0.3s ease;
   position: relative;
+}
+
+.logo-container {
+  flex-shrink: 0; /* Prevent logo from shrinking */
+}
+
+.scrollable-menu {
+  flex-grow: 1; /* Allow this section to grow and fill available space */
+  overflow-y: auto; /* Add scrollbar only when needed */
+  overflow-x: hidden;
+}
+
+.user-profile {
+  flex-shrink: 0; /* Prevent user profile from shrinking */
 }
 
 .sidebar.collapsed {
@@ -133,4 +146,43 @@ li .material-icons {
 
 .bottom-menu {
   margin-top: auto;
+}
+
+.sidebar.collapsed .user-profile {
+  cursor: pointer;
+}
+
+.sidebar.collapsed .user-details {
+  display: none;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-top: 1px solid var(--primary-green);
+}
+
+.user-icon {
+  font-size: 24px;
+  margin-right: 10px;
+  border: 2px solid var(--primary-green);
+  border-radius: 50%;
+  padding: 5px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: -5px;
+}
+
+.user-role {
+  font-size: 11px;
+  color: var(--primary-green);
 }
