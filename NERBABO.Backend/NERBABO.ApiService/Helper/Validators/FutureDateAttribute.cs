@@ -37,11 +37,14 @@ namespace NERBABO.ApiService.Helper.Validators
                 {
                     return ValidationResult.Success;
                 }
+
+                 // "The date must be in the future."
+                return new ValidationResult(ErrorMessage
+                ?? "A data deve ser posterior à atual.");
             }
 
-            // Return validation error if the date is invalid or not in the future
-            return new ValidationResult(ErrorMessage
-                ?? "A data deve ser posterior à atual."); // "The date must be in the future."
+            // Return validation error if the date is invalid
+            return new ValidationResult("Formato da Data Invalido");
         }
     }
 }

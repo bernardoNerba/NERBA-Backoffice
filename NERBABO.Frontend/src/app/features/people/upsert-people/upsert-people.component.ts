@@ -26,7 +26,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { IUpsert } from '../../../core/interfaces/IUpsert';
 import { Person } from '../../../core/models/person';
-import { convertDateOnlyToPtDate } from '../../../shared/utils';
+import { convertDateOnlyToPtDate, matchDateOnly } from '../../../shared/utils';
 
 @Component({
   selector: 'app-upsert-people',
@@ -162,6 +162,12 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
     this.submitted = true;
     this.errorMessages = [];
 
+    // convert date values to match DateOnly fields
+    this.form.value.birthDate = matchDateOnly(this.form.value.birthDate);
+    this.form.value.identificationValidationDate = matchDateOnly(
+      this.form.value.identificationValidationDate
+    );
+    console.log(this.form.value);
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.sharedService.showError(

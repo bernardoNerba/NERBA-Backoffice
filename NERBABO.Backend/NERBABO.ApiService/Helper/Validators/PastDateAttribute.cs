@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace NerbaApp.Api.Validators
 {
@@ -29,22 +30,25 @@ namespace NerbaApp.Api.Validators
             {
                 return ValidationResult.Success;
             }
-            else
+
+            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+            // Try to parse the string as a DateOnly object
+            if (DateOnly.TryParse(stringValue, out DateOnly date))
             {
-                // Try to parse the string as a DateOnly object
-                if (DateOnly.TryParse(stringValue, out DateOnly date))
+                // Check if the date is in the past
+                if (date < today)
                 {
-                    // Check if the date is in the past
-                    if (date < DateOnly.FromDateTime(DateTime.Today))
-                    {
-                        return ValidationResult.Success;
-                    }
+                    return ValidationResult.Success;
                 }
+
+                // Validation failed invalid date
+                return new ValidationResult(ErrorMessage
+                    ?? "A data deve ser anterior à atual.");
             }
 
-            // Validation failed: not a past date or invalid format
-            return new ValidationResult(ErrorMessage
-                ?? "A data deve ser anterior à atual.");
+            // Validation failed invalid format
+            return new ValidationResult("Formato da Data Invalido");
         }
     }
 }
