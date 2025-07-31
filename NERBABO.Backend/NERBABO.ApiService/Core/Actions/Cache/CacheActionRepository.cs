@@ -41,21 +41,27 @@ public class CacheActionRepository(
 
     public async Task RemoveActionCacheAsync(long? id = null)
     {
-        // remove "ActionCourse:id" cache entry
         if (id is not null)
+        {
+            // remove "ActionCourse:id" cache entry
             await _cacheService.RemoveAsync(
                 _cacheKeyFabric.GenerateCacheKey($"{id}"));
 
-        // remove "ActionCourse:list" cache entry
-        await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList());
+            // remove "ActionCourse:list" cache entry
+            await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList());
 
-        // remove "ActionCourse:list:Module:*" cache entries
-        await _cacheService.RemovePatternAsync(
-            _cacheKeyFabric.GenerateCacheKeyManyToOnePattern(typeof(Module)));
+            // remove "ActionCourse:list:Module:*" cache entries
+            await _cacheService.RemovePatternAsync(
+                _cacheKeyFabric.GenerateCacheKeyManyToOnePattern(typeof(Module)));
 
-        // remove "ActionCourse:list:Course:*" cache entries
-        await _cacheService.RemovePatternAsync(
-            _cacheKeyFabric.GenerateCacheKeyManyToOnePattern(typeof(Course)));
+            // remove "ActionCourse:list:Course:*" cache entries
+            await _cacheService.RemovePatternAsync(
+                _cacheKeyFabric.GenerateCacheKeyManyToOnePattern(typeof(Course)));
+        }
+        else // remove all action related cache
+        {
+            await _cacheService.RemovePatternAsync($"{typeof(CourseAction).Name}:*");
+        }
     }
 
     public async Task SetActionsByCourseCacheAsync(long courseId, IEnumerable<RetrieveCourseActionDto> actions)

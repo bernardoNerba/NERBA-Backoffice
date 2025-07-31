@@ -7,11 +7,13 @@ public interface ICacheTeacherRepository
 {
     /// <summary>
     /// Removes teacher entries from the cache.
+    /// If an ID is provided, it removes the single teacher entry and all list entries.
+    /// If no ID is provided, it removes all cache entries associated with teachers.
     /// </summary>
-    /// <param name="id">The ID of the teacher to remove. If null, removes all related cache entries.</param>
+    /// <param name="id">The ID of the teacher to remove. If null, removes all teacher-related cache entries.</param>
     /// <example>
-    /// Cache key for a single teacher: "Teacher:1"
-    /// Cache key for a list of teachers: "Teacher:list"
+    /// To remove a single teacher and all list caches: RemoveTeacherCacheAsync(1)
+    /// To remove all teacher caches: RemoveTeacherCacheAsync()
     /// </example>
     Task RemoveTeacherCacheAsync(long? id = null);
 

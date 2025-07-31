@@ -1,4 +1,5 @@
 using System;
+using NERBABO.ApiService.Core.Courses.Cache;
 using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Shared.Cache;
@@ -53,10 +54,16 @@ public class CacheModuleRepository(
     public async Task RemoveModuleCacheAsync(long? id = null)
     {
         if (id is not null)
+        {
             await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKey($"{id}"));
-        
-        await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList());
-        await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList("active"));
+
+            await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList());
+            await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList("active"));
+        }
+        else
+        {
+            await _cacheService.RemovePatternAsync($"{typeof(Module).Name}:*");
+        }
     }
 
 }

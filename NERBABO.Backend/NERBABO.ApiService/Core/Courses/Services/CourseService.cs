@@ -1,8 +1,10 @@
 ﻿using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.Actions.Cache;
 using NERBABO.ApiService.Core.Courses.Cache;
 using NERBABO.ApiService.Core.Courses.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
+using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
@@ -15,12 +17,16 @@ namespace NERBABO.ApiService.Core.Courses.Services
     public class CourseService(
         AppDbContext context,
         ILogger<CourseService> logger,
-        ICacheCourseRepository cache
+        ICacheCourseRepository cache,
+        ICacheModuleRepository cacheModule,
+        ICacheActionRepository cacheAction
         ) : ICourseService
     {
         private readonly AppDbContext _context = context;
         private readonly ILogger<CourseService> _logger = logger;
         private readonly ICacheCourseRepository _cache = cache;
+        private readonly ICacheModuleRepository _cacheModule = cacheModule;
+        private readonly ICacheActionRepository _cacheAction = cacheAction;
 
         public async Task<Result<RetrieveCourseDto>> UpdateCourseModulesAsync(List<long> moduleIds, long courseId)
         {
@@ -86,6 +92,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             // update cache
             await _cache.RemoveCourseCacheAsync(existingCourse.Id);
+            await _cacheModule.RemoveModuleCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
             await _cache.SetSingleCourseCacheAsync(retrieveCourse);
 
             return Result<RetrieveCourseDto>
@@ -150,8 +158,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
             await _context.SaveChangesAsync();
 
             // Update cache
-            // TODO: Invalidate cache from module id
             await _cache.RemoveCourseCacheAsync(existingCourse.Id);
+            await _cacheModule.RemoveModuleCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
 
             return Result<RetrieveCourseDto>
                 .Ok(Course.ConvertEntityToRetrieveDto(existingCourse),
@@ -195,6 +204,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             // Update cache
             await _cache.RemoveCourseCacheAsync(id);
+            await _cacheModule.RemoveModuleCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
 
             return Result
                 .Ok("Curso Atualizado", "Estado do Curso atualizado com sucesso.");
@@ -291,6 +302,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             // Update Cache
             await _cache.RemoveCourseCacheAsync(course.Id);
+            await _cacheModule.RemoveModuleCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
             await _cache.SetSingleCourseCacheAsync(course);
 
             _logger.LogInformation("Course created successfully with ID: {CourseId}", createdCourse.Entity.Id);
@@ -336,6 +349,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             // Update Cache
             await _cache.RemoveCourseCacheAsync(existingCourse.Id);
+            await _cacheModule.RemoveModuleCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
 
             _logger.LogInformation("Course deleted successfully with ID: {CourseId}", id);
             return Result
@@ -578,8 +593,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
             await _context.SaveChangesAsync();
 
             // Update cache
-            // TODO: Invalidate cache from module id
             await _cache.RemoveCourseCacheAsync(existingCourse.Id);
+            await _cacheModule.RemoveModuleCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
 
             return Result<RetrieveCourseDto>
                 .Fail("Módulo Removido.", "Módulo removido com sucesso do curso.");
@@ -692,6 +708,8 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             // update cache
             await _cache.RemoveCourseCacheAsync(existingCourse.Id);
+            await _cacheModule.RemoveModuleCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
             await _cache.SetSingleCourseCacheAsync(updatedCourse);
 
             _logger.LogInformation("Course updated successfully with ID: {CourseId}", existingCourse.Id);

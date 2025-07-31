@@ -7,12 +7,13 @@ public interface ICacheModuleRepository
 {
     /// <summary>
     /// Removes module entries from the cache.
+    /// If an ID is provided, it removes the single module entry and all list entries.
+    /// If no ID is provided, it removes all cache entries associated with modules.
     /// </summary>
-    /// <param name="id">The ID of the module to remove. If null, removes all related cache entries.</param>
+    /// <param name="id">The ID of the module to remove. If null, removes all module-related cache entries.</param>
     /// <example>
-    /// Cache key for a single module: "Module:1"
-    /// Cache key for a list of modules: "Module:list"
-    /// Cache key for a list of active modules: "Module:list:active"
+    /// To remove a single module and all list caches: RemoveModuleCacheAsync(1)
+    /// To remove all module caches: RemoveModuleCacheAsync()
     /// </example>
     Task RemoveModuleCacheAsync(long? id = null);
 

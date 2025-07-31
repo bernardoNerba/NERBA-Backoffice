@@ -6,13 +6,14 @@ namespace NERBABO.ApiService.Core.People.Cache;
 public interface ICachePeopleRepository
 {
     /// <summary>
-    /// Removes person entries from the cache.
+    /// Removes people entries from the cache.
+    /// If an ID is provided, it removes the single person entry and all list entries.
+    /// If no ID is provided, it removes all cache entries associated with people.
     /// </summary>
-    /// <param name="id">The ID of the person to remove. If null, removes all related cache entries.</param>
+    /// <param name="id">The ID of the person to remove. If null, removes all people-related cache entries.</param>
     /// <example>
-    /// Cache key for a single person: "Person:1"
-    /// Cache key for a list of people: "Person:list"
-    /// Cache key for a list of people without a profile: "Person:list:without:Student"
+    /// To remove a single person and all list caches: RemovePeopleCacheAsync(1)
+    /// To remove all people caches: RemovePeopleCacheAsync()
     /// </example>
     Task RemovePeopleCacheAsync(long? id = null);
 
@@ -59,7 +60,7 @@ public interface ICachePeopleRepository
     /// <param name="profile">The profile to exclude.</param>
     /// <returns>A collection of retrieve person DTOs, or null if not found.</returns>
     /// <example>
-    /// Cache key: "Person:list:without:Student"
+    /// Cache key: "Person:list:without:{profile}"
     /// </example>
     Task<IEnumerable<RetrievePersonDto>?> GetCachePeopleWithoutProfileAsync(string profile);
 
@@ -69,7 +70,7 @@ public interface ICachePeopleRepository
     /// <param name="people">The collection of retrieve person DTOs to cache.</param>
     /// <param name="profile">The profile to exclude.</param>
     /// <example>
-    /// Cache key: "Person:list:without:Student"
+    /// Cache key: "Person:list:without:{profile}"
     /// </example>
     Task SetPeopleWithoutProfileCacheAsync(IEnumerable<RetrievePersonDto> people, string profile);
 }

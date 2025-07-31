@@ -7,14 +7,13 @@ public interface ICacheCourseRepository
 {
     /// <summary>
     /// Removes course entries from the cache.
+    /// If an ID is provided, it removes the single course entry and all list entries.
+    /// If no ID is provided, it removes all cache entries associated with courses.
     /// </summary>
-    /// <param name="id">The ID of the course to remove. If null, removes all related cache entries.</param>
+    /// <param name="id">The ID of the course to remove. If null, removes all course-related cache entries.</param>
     /// <example>
-    /// Cache key for a single course: "Course:1"
-    /// Cache key for a list of courses: "Course:list"
-    /// Cache key for a list of active courses: "Course:list:active"
-    /// Cache key for a list of courses by frame: "Course:list:Frame:1"
-    /// Cache key for a list of courses by module: "Course:list:Module:1"
+    /// To remove a single course and all list caches: RemoveCourseCacheAsync(1)
+    /// To remove all course caches: RemoveCourseCacheAsync()
     /// </example>
     Task RemoveCourseCacheAsync(long? id = null);
 

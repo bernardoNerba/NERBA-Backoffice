@@ -7,13 +7,13 @@ public interface ICacheActionRepository
 {
     /// <summary>
     /// Removes course action entries from the cache.
+    /// If an ID is provided, it removes the single action entry and all list entries.
+    /// If no ID is provided, it removes all cache entries associated with actions.
     /// </summary>
-    /// <param name="id">The ID of the course action to remove. If null, removes all related cache entries.</param>
+    /// <param name="id">The ID of the action to remove. If null, removes all action-related cache entries.</param>
     /// <example>
-    /// Cache key for a single action: "CourseAction:1"
-    /// Cache key for a list of actions: "CourseAction:list"
-    /// Cache key for a list of actions by course: "CourseAction:list:Course:1"
-    /// Cache key for a list of actions by module: "CourseAction:list:Module:1"
+    /// To remove a single action and all list caches: RemoveActionCacheAsync(1)
+    /// To remove all action caches: RemoveActionCacheAsync()
     /// </example>
     Task RemoveActionCacheAsync(long? id = null);
 

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -28,6 +27,8 @@ using NERBABO.ApiService.Core.Modules.Services;
 using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.People.Services;
+using NERBABO.ApiService.Core.Students.Cache;
+using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Core.Students.Services;
 using NERBABO.ApiService.Core.Teachers.Cache;
 using NERBABO.ApiService.Core.Teachers.Models;
@@ -88,6 +89,8 @@ builder.Services.AddScoped<ICacheKeyFabric<Person>, CacheKeyFabirc<Person>>();
 builder.Services.AddScoped<ICachePeopleRepository, CachePeopleRepository>();
 builder.Services.AddScoped<ICacheKeyFabric<Teacher>, CacheKeyFabirc<Teacher>>();
 builder.Services.AddScoped<ICacheTeacherRepository, CacheTeacherRepository>();
+builder.Services.AddScoped<ICacheKeyFabric<Student>, CacheKeyFabirc<Student>>();
+builder.Services.AddScoped<ICacheStudentsRepository, CacheStudentsRepository>();
 
 // Connect to the database using Aspire injection from AppHost
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
