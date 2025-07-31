@@ -16,10 +16,16 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
 import { CoursesService } from '../../../core/services/courses.service';
 import { ICONS } from '../../../core/objects/icons';
+import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 
 @Component({
   selector: 'app-view-actions',
-  imports: [CommonModule, DropdownMenuComponent, IconComponent],
+  imports: [
+    CommonModule,
+    DropdownMenuComponent,
+    IconComponent,
+    ModulesTableComponent,
+  ],
   templateUrl: './view-actions.component.html',
 })
 export class ViewActionsComponent implements IView, OnInit {

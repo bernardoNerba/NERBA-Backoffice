@@ -9,9 +9,12 @@
       @if (user$ | async;) {
       <app-sidebar />
       }
-      <main class="wrapper w-100" style="height: 100vh; overflow-y: auto;">
+      <main class="wrapper w-100">
         <app-navbar />
-        <div class="container-fluid pt-4">
+        <div
+          class="container-fluid pt-4"
+          style="height: 100vh; overflow-y: auto"
+        >
           <router-outlet></router-outlet>
         </div>
       </main>
