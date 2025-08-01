@@ -1,14 +1,6 @@
 @if (company$ | async; as company){
-<!-- TITLE + DROPDOWN MENU -->
-<div class="row align-items-center">
-  <div class="col-10">
-    <h3 class="text-truncate">{{ company.name }}</h3>
-  </div>
-  <!-- ACTION MENU -->
-  <div class="col-2 d-flex justify-content-end">
-    <app-dropdown-menu [menuItems]="menuItems" />
-  </div>
-</div>
+<app-title [title]="company.name" [isDropdown]="true" [menuItems]="menuItems" />
+
 <!-- END TITLE + DROPDOWN MENU -->
 
 <div class="container-fluid px-0 my-4">

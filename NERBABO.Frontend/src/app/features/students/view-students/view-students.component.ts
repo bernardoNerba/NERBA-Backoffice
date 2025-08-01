@@ -17,14 +17,15 @@ import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpsertStudentsComponent } from '../upsert-students/upsert-students.component';
 import { DeleteStudentsComponent } from '../delete-students/delete-students.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-view-students',
   imports: [
     CommonModule,
-    DropdownMenuComponent,
     NavHeaderComponent,
     TruncatePipe,
+    TitleComponent,
   ],
   templateUrl: './view-students.component.html',
 })

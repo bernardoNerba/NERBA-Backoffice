@@ -11,6 +11,7 @@ import { ICONS } from '../../../core/objects/icons';
 import { PeopleTableComponent } from '../../../shared/components/tables/people-table/people-table.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-index-people',
@@ -19,6 +20,7 @@ import { IIndex } from '../../../core/interfaces/IIndex';
     ReactiveFormsModule,
     PeopleTableComponent,
     IconComponent,
+    TitleComponent,
   ],
   templateUrl: './index-people.component.html',
 })

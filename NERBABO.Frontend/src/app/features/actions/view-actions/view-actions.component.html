@@ -1,15 +1,5 @@
 @if (action$ | async; as action) {
-<!-- TITLE + DROPDOWN MENU -->
-<div class="row align-items-center">
-  <div class="col-10">
-    <h3 class="text-truncate">{{ action.title }}</h3>
-  </div>
-  <!-- ACTION MENU -->
-  <div class="col-2 d-flex justify-content-end">
-    <app-dropdown-menu [menuItems]="menuItems" />
-  </div>
-</div>
-<!-- END TITLE + DROPDOWN MENU -->
+<app-title [title]="action.title" [isDropdown]="true" [menuItems]="menuItems" />
 
 <div class="container-fluid px-0 my-4">
   <div class="accordion" id="general-info-accordion">

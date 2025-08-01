@@ -10,10 +10,11 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpsertActionsComponent } from '../upsert-actions/upsert-actions.component';
 import { SharedService } from '../../../core/services/shared.service';
 import { CommonModule } from '@angular/common';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-index-actions',
-  imports: [ActionsTableComponent, IconComponent, CommonModule],
+  imports: [ActionsTableComponent, IconComponent, CommonModule, TitleComponent],
   templateUrl: './index-actions.component.html',
 })
 export class IndexActionsComponent implements IIndex, OnInit {

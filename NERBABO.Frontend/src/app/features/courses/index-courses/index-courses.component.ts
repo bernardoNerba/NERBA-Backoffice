@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-index-courses',
@@ -19,6 +20,7 @@ import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.compone
     IconComponent,
     CommonModule,
     CoursesTableComponent,
+    TitleComponent,
   ],
   templateUrl: './index-courses.component.html',
 })

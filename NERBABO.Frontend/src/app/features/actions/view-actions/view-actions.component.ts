@@ -17,14 +17,15 @@ import { Course } from '../../../core/models/course';
 import { CoursesService } from '../../../core/services/courses.service';
 import { ICONS } from '../../../core/objects/icons';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-view-actions',
   imports: [
     CommonModule,
-    DropdownMenuComponent,
     IconComponent,
     ModulesTableComponent,
+    TitleComponent,
   ],
   templateUrl: './view-actions.component.html',
 })

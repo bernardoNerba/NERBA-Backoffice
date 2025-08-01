@@ -1,23 +1,10 @@
 <div class="card-table">
-  <!-- TITLE AND REGISTER BUTTON -->
-  <div class="card-header">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-12 col-sm-8">
-          <h3 class="text-center text-md-start mb-3 mb-md-0">
-            Gestão de Empresas
-          </h3>
-        </div>
-        <div class="col-12 col-sm-4 text-center text-md-end">
-          <button type="button" class="btn-main" (click)="onCreateModal()">
-            <app-icon [icon]="ICONS.add" [marginEnd]="1" />
-            Registar Empresa
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- END TITLE AND REGISTER BUTTON -->
+  <app-title
+    title="Gestão de Empresas"
+    buttonText="Registar Empresa"
+    [buttonIcon]="ICONS.add"
+    (buttonClick)="onCreateModal()"
+  ></app-title>
 
   <div class="card-body">
     <app-companies-table

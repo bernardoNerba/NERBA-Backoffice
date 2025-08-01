@@ -18,15 +18,16 @@ import { UpsertAccComponent } from '../../acc/upsert-acc/upsert-acc.component';
 import { UpsertStudentsComponent } from '../../students/upsert-students/upsert-students.component';
 import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-header.component';
 import { TeachersService } from '../../../core/services/teachers.service';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-detail-person',
   standalone: true,
   imports: [
     CommonModule,
-    DropdownMenuComponent,
     RouterModule,
     NavHeaderComponent,
+    TitleComponent,
   ],
   templateUrl: './view-people.component.html',
 })

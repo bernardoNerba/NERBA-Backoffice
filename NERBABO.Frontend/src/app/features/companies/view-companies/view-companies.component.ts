@@ -11,13 +11,13 @@ import { Student } from '../../../core/models/student';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
 import { MenuItem } from 'primeng/api';
-import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
-import { IView } from '../../../core/interfaces/IView';
 import { UpsertCompaniesComponent } from '../upsert-companies/upsert-companies.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
+import { IView } from '../../../core/interfaces/IView';
 
 @Component({
   selector: 'app-view-companies',
-  imports: [CommonModule, IconComponent, RouterLink, DropdownMenuComponent],
+  imports: [CommonModule, IconComponent, RouterLink, TitleComponent],
   templateUrl: './view-companies.component.html',
 })
 export class ViewCompaniesComponent implements IView, OnInit, OnDestroy {
