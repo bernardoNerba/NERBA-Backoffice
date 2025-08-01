@@ -154,6 +154,7 @@ export class ViewTeachersComponent implements IView, OnInit {
     this.subscriptions.add(
       this.teacherService.deletedSource$.subscribe((deletedId: number) => {
         if (this.teacherId === deletedId) {
+          this.peopleService.triggerFetchPeople();
           this.router.navigateByUrl('/people/' + this.id);
         }
       })

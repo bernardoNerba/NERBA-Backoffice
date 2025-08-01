@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { Student, StudentForm } from '../models/student';
+import { PeopleService } from './people.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,7 @@ export class StudentsService {
   updatedSource$ = this.updatedSource.asObservable();
   deletedSource$ = this.deletedSource.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private peopleService: PeopleService) {}
 
   getByPersonId(personId: number): Observable<Student> {
     return this.http.get<Student>(
@@ -41,15 +42,23 @@ export class StudentsService {
   }
 
   private create(model: Omit<StudentForm, 'id'>): Observable<OkResponse> {
-    return this.http
-      .post<OkResponse>(API_ENDPOINTS.students, model)
-      .pipe(tap(() => this.notifyStudentUpdate(0)));
+    return this.http.post<OkResponse>(API_ENDPOINTS.students, model).pipe(
+      tap(() => {
+        this.notifyStudentUpdate(0);
+        this.peopleService.notifyPersonUpdate(model.personId);
+      })
+    );
   }
 
   private update(model: StudentForm): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(API_ENDPOINTS.students + model.id, model)
-      .pipe(tap(() => this.notifyStudentUpdate(model.id)));
+      .pipe(
+        tap(() => {
+          this.notifyStudentUpdate(model.id);
+          this.peopleService.notifyPersonUpdate(model.personId);
+        })
+      );
   }
 
   notifyStudentUpdate(id: number) {

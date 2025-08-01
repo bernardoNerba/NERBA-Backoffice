@@ -19,16 +19,13 @@ import { UpsertStudentsComponent } from '../../students/upsert-students/upsert-s
 import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-header.component';
 import { TeachersService } from '../../../core/services/teachers.service';
 import { TitleComponent } from '../../../shared/components/title/title.component';
+import { StudentsService } from '../../../core/services/students.service';
+import { AccService } from '../../../core/services/acc.service';
 
 @Component({
   selector: 'app-detail-person',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    NavHeaderComponent,
-    TitleComponent,
-  ],
+  imports: [CommonModule, RouterModule, NavHeaderComponent, TitleComponent],
   templateUrl: './view-people.component.html',
 })
 export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
@@ -36,6 +33,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   selectedId!: number;
   fullName!: string;
   id!: number;
+  personId!: number;
   ICONS = ICONS;
   menuItems: MenuItem[] | undefined;
 
@@ -49,6 +47,8 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     private route: ActivatedRoute,
     private peopleService: PeopleService,
     private teacherService: TeachersService,
+    private studentsService: StudentsService,
+    private accService: AccService,
     private router: Router,
     private sharedService: SharedService,
     private bsModalService: BsModalService
@@ -66,7 +66,8 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     this.initializeEntity();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
-    this.updateSourceTeacherSubscription();
+    this.updateSourceProfilesSubscription();
+    this.deleteSourceProfilesSubscription();
   }
 
   onUpdateModal() {
@@ -117,6 +118,18 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     });
   }
 
+  onDeleteColaborator() {
+    this.accService.blockUser(this.personId.toString()).subscribe();
+  }
+
+  onDeleteStudent() {
+    this.studentsService.delete(this.personId).subscribe();
+  }
+
+  onDeleteTeacher() {
+    this.teacherService.delete(this.personId).subscribe();
+  }
+
   updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
@@ -153,9 +166,9 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       }),
       tap((person) => {
         if (person) {
-          console.log(person);
           this.fullName = person.fullName;
           this.id = person.id;
+          this.personId = person.id;
           this.isColaborator = person.isColaborator ?? false;
           this.isStudent = person.isStudent ?? false;
           this.isTeacher = person.isTeacher ?? false;
@@ -180,12 +193,17 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
     ];
 
-    // Conditionally add "Criar como ..." options based on person properties
-    if (!this.isColaborator) {
+    if (!this.isTeacher) {
       items.push({
-        label: 'Criar como Colaborador',
+        label: 'Criar como Formador',
         icon: 'pi pi-plus',
-        command: () => this.onCreateColaborator(),
+        command: () => this.onCreateTeacher(),
+      });
+    } else {
+      items.push({
+        label: 'Eliminar Formador',
+        icon: 'pi pi-trash',
+        command: () => this.onDeleteTeacher(),
       });
     }
 
@@ -195,13 +213,25 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         icon: 'pi pi-plus',
         command: () => this.onCreateStudent(),
       });
+    } else {
+      items.push({
+        label: 'Eliminar Formando',
+        icon: 'pi pi-trash',
+        command: () => this.onDeleteStudent(),
+      });
     }
 
-    if (!this.isTeacher) {
+    if (!this.isColaborator) {
       items.push({
-        label: 'Criar como Formador',
+        label: 'Criar como Colaborador',
         icon: 'pi pi-plus',
-        command: () => this.onCreateTeacher(),
+        command: () => this.onCreateColaborator(),
+      });
+    } else {
+      items.push({
+        label: 'Eliminar Colaborador',
+        icon: 'pi pi-trash',
+        command: () => this.onDeleteColaborator(),
       });
     }
 
@@ -233,9 +263,43 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     );
   }
 
-  updateSourceTeacherSubscription() {
+  deleteSourceProfilesSubscription() {
+    this.subscriptions.add(
+      this.teacherService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+    this.subscriptions.add(
+      this.studentsService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+    this.subscriptions.add(
+      this.accService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+  }
+
+  updateSourceProfilesSubscription() {
     this.subscriptions.add(
       this.teacherService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+    this.subscriptions.add(
+      this.studentsService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+    this.subscriptions.add(
+      this.accService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
         this.initializeEntity();
       })
     );

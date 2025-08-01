@@ -21,12 +21,7 @@ import { TitleComponent } from '../../../shared/components/title/title.component
 
 @Component({
   selector: 'app-view-students',
-  imports: [
-    CommonModule,
-    NavHeaderComponent,
-    TruncatePipe,
-    TitleComponent,
-  ],
+  imports: [CommonModule, NavHeaderComponent, TruncatePipe, TitleComponent],
   templateUrl: './view-students.component.html',
 })
 export class ViewStudentsComponent implements IView, OnInit {
@@ -162,6 +157,7 @@ export class ViewStudentsComponent implements IView, OnInit {
     this.subscriptions.add(
       this.studentsService.deletedSource$.subscribe((deletedId: number) => {
         if (this.studentId === deletedId) {
+          this.peopleService.triggerFetchPeople();
           this.router.navigateByUrl('/people/' + this.id);
         }
       })
