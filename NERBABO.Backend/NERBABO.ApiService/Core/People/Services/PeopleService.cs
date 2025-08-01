@@ -6,6 +6,8 @@ using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.People.Models;
+using NERBABO.ApiService.Core.Students.Cache;
+using NERBABO.ApiService.Core.Teachers.Cache;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
@@ -18,13 +20,18 @@ public class PeopleService(
         ILogger<PeopleService> logger,
         AppDbContext context,
         UserManager<User> userManager,
-        ICachePeopleRepository cache
+        ICachePeopleRepository cache,
+        ICacheStudentsRepository cacheStudents,
+        ICacheTeacherRepository cacheTeacher
+
     ) : IPeopleService
 {
     private readonly ILogger<PeopleService> _logger = logger;
     private readonly AppDbContext _context = context;
     private readonly UserManager<User> _userManager = userManager;
     private readonly ICachePeopleRepository _cache = cache;
+    private readonly ICacheStudentsRepository _cacheStudents = cacheStudents;
+    private readonly ICacheTeacherRepository _cacheTeacher = cacheTeacher;
 
     public async Task<Result<RetrievePersonDto>> CreateAsync(CreatePersonDto entityDto)
     {
@@ -98,9 +105,9 @@ public class PeopleService(
         var personToRetrieve = Person.ConvertEntityToRetrieveDto(createdPerson.Entity);
 
         // Update cache
-        await _cache.RemovePeopleCacheAsync();
+        await RemoveRelatedCache();
         await _cache.SetSinglePersonCacheAsync(personToRetrieve);
-        
+
 
         return Result<RetrievePersonDto>
             .Ok(personToRetrieve,
@@ -155,7 +162,7 @@ public class PeopleService(
         }
 
         // Update cache
-        await _cache.RemovePeopleCacheAsync(id);
+        await RemoveRelatedCache(id);
 
         return Result
             .Ok("Pessoa Eliminada.", "Pessoa eliminada com sucesso.");
@@ -373,13 +380,20 @@ public class PeopleService(
         var retrievePerson = Person.ConvertEntityToRetrieveDto(existingPerson);
 
         // Update cache
-        await _cache.RemovePeopleCacheAsync(retrievePerson.Id);
+        await RemoveRelatedCache(retrievePerson.Id);
         await _cache.SetSinglePersonCacheAsync(retrievePerson);
-        
+
 
         return Result<RetrievePersonDto>
             .Ok(retrievePerson,
                 "Pessoa Atualizada.",
                 $"Foi atualizada a pessoa com o nome {existingPerson.FirstName} {existingPerson.LastName}.");
+    }
+
+    private async Task RemoveRelatedCache(long? id = null)
+    {
+        await _cache.RemovePeopleCacheAsync(id);
+        await _cacheStudents.RemoveStudentsCacheAsync();
+        await _cacheTeacher.RemoveTeacherCacheAsync();
     }
 }

@@ -63,8 +63,7 @@ namespace NERBABO.ApiService.Core.Students.Services
             var retrieveStudent = Student.ConvertEntityToRetrieveDto(student, person, company);
 
             // update cache
-            await _cache.RemoveStudentsCacheAsync(retrieveStudent.Id);
-            await _cachePeople.RemovePeopleCacheAsync(retrieveStudent.PersonId);
+            await RemoveRelatedCache(retrieveStudent.Id, retrieveStudent.PersonId);
             await _cache.SetSingleStudentsCacheAsync(retrieveStudent);
 
             return Result<RetrieveStudentDto>
@@ -86,8 +85,7 @@ namespace NERBABO.ApiService.Core.Students.Services
             await _context.SaveChangesAsync();
 
             // update cache
-            await _cache.RemoveStudentsCacheAsync(existingStudent.Id);
-            await _cache.RemoveStudentsCacheAsync(existingStudent.PersonId);
+            await RemoveRelatedCache(existingStudent.Id, existingStudent.PersonId);
 
             return Result
                 .Ok("Formando eliminado.",
@@ -143,7 +141,7 @@ namespace NERBABO.ApiService.Core.Students.Services
                 .Where(s => s.CompanyId == companyId)
                 .Include(s => s.Company)
                 .Include(s => s.Person)
-                .Select(s => Student.ConvertEntityToRetrieveDto(s,s.Person, s.Company))
+                .Select(s => Student.ConvertEntityToRetrieveDto(s, s.Person, s.Company))
                 .ToListAsync();
             if (existingStudents is null || existingStudents.Count == 0)
             {
@@ -199,7 +197,7 @@ namespace NERBABO.ApiService.Core.Students.Services
                 return Result<RetrieveStudentDto>
                     .Fail("Não encontraod.", "Pessoa associada não encontrada.",
                     StatusCodes.Status404NotFound);
-            
+
             // Check if the person is a student
             if (existingPerson.Student is null)
                 return Result<RetrieveStudentDto>
@@ -274,13 +272,18 @@ namespace NERBABO.ApiService.Core.Students.Services
             var retrieveStudent = Student.ConvertEntityToRetrieveDto(student, person, company);
 
             // Update cache
-            await _cache.RemoveStudentsCacheAsync(retrieveStudent.Id);
-            await _cache.RemoveStudentsCacheAsync(retrieveStudent.PersonId);
+            await RemoveRelatedCache(retrieveStudent.Id, retrieveStudent.PersonId);
             await _cache.SetSingleStudentsCacheAsync(retrieveStudent);
 
             return Result<RetrieveStudentDto>
                 .Ok(retrieveStudent,
                 "Formando Atualizado.", "Formando atualizado com sucesso.");
+        }
+
+        private async Task RemoveRelatedCache(long? id = null, long? personId = null)
+        {
+            await _cache.RemoveStudentsCacheAsync(id);
+            await _cachePeople.RemovePeopleCacheAsync(personId);
         }
     }
 }
