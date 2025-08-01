@@ -10,7 +10,6 @@ import { SharedService } from '../../../core/services/shared.service';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { ICONS } from '../../../core/objects/icons';
 import { MenuItem } from 'primeng/api';
-import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 import { UpsertTeachersComponent } from '../../teachers/upsert-teachers/upsert-teachers.component';
@@ -118,18 +117,6 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     });
   }
 
-  onDeleteColaborator() {
-    this.accService.blockUser(this.personId.toString()).subscribe();
-  }
-
-  onDeleteStudent() {
-    this.studentsService.delete(this.personId).subscribe();
-  }
-
-  onDeleteTeacher() {
-    this.teacherService.delete(this.personId).subscribe();
-  }
-
   updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
@@ -199,12 +186,6 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         icon: 'pi pi-plus',
         command: () => this.onCreateTeacher(),
       });
-    } else {
-      items.push({
-        label: 'Eliminar Formador',
-        icon: 'pi pi-trash',
-        command: () => this.onDeleteTeacher(),
-      });
     }
 
     if (!this.isStudent) {
@@ -213,12 +194,6 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         icon: 'pi pi-plus',
         command: () => this.onCreateStudent(),
       });
-    } else {
-      items.push({
-        label: 'Eliminar Formando',
-        icon: 'pi pi-trash',
-        command: () => this.onDeleteStudent(),
-      });
     }
 
     if (!this.isColaborator) {
@@ -226,12 +201,6 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         label: 'Criar como Colaborador',
         icon: 'pi pi-plus',
         command: () => this.onCreateColaborator(),
-      });
-    } else {
-      items.push({
-        label: 'Eliminar Colaborador',
-        icon: 'pi pi-trash',
-        command: () => this.onDeleteColaborator(),
       });
     }
 
