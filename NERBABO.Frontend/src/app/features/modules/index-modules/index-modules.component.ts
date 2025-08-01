@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertModulesComponent } from '../upsert-modules/upsert-modules.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-index-modules',
@@ -19,6 +20,7 @@ import { UpsertModulesComponent } from '../upsert-modules/upsert-modules.compone
     ReactiveFormsModule,
     CommonModule,
     ModulesTableComponent,
+    TitleComponent,
   ],
   templateUrl: './index-modules.component.html',
 })

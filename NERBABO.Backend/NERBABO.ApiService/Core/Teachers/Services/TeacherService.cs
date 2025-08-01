@@ -80,8 +80,7 @@ public class TeacherService(
         var retrieveTeacher = Teacher.ConvertEntityToRetrieveDto(result.Entity);
 
         // update cache
-        await _cache.RemoveTeacherCacheAsync(retrieveTeacher.Id);
-        await _cachePeople.RemovePeopleCacheAsync(retrieveTeacher.PersonId);
+        await RemoveRelatedCache(retrieveTeacher.Id, retrieveTeacher.PersonId);
         await _cache.SetSingleTeacherCacheAsync(retrieveTeacher);
 
         _logger.LogInformation("Teacher created successfully with ID: {Id}", teacher.Id);
@@ -107,8 +106,7 @@ public class TeacherService(
         await _context.SaveChangesAsync();
 
         // update cache
-        await _cache.RemoveTeacherCacheAsync(teacherId);
-        await _cachePeople.RemovePeopleCacheAsync(existingTeacher.PersonId);
+        await RemoveRelatedCache(teacherId, existingTeacher.PersonId);
 
         return Result
             .Ok("Formador Eliminado.", "Foi eliminado um formador com sucesso.");
@@ -273,8 +271,7 @@ public class TeacherService(
         var retrieveTeacher = Teacher.ConvertEntityToRetrieveDto(existingTeacher);
 
         // update cache
-        await _cache.RemoveTeacherCacheAsync(retrieveTeacher.Id);
-        await _cachePeople.RemovePeopleCacheAsync(retrieveTeacher.PersonId);
+        await RemoveRelatedCache(retrieveTeacher.Id, retrieveTeacher.PersonId);
         await _cache.SetSingleTeacherCacheAsync(retrieveTeacher);
 
         _logger.LogInformation("Teacher updated successfully with ID: {Id}", existingTeacher.Id);
@@ -282,4 +279,10 @@ public class TeacherService(
             .Ok(retrieveTeacher,
             "Formador Atualizado.", "Foi atualizado o formador com sucesso.");
     }
+
+    private async Task RemoveRelatedCache(long? id = null, long? personId = null)
+        {
+            await _cache.RemoveTeacherCacheAsync(id);
+            await _cachePeople.RemovePeopleCacheAsync(personId);
+        }
 }

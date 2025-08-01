@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.Actions.Cache;
+using NERBABO.ApiService.Core.Courses.Cache;
 using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -10,11 +12,15 @@ namespace NERBABO.ApiService.Core.Modules.Services
     public class ModuleService(
         AppDbContext context,
         ICacheModuleRepository cache,
+        ICacheCourseRepository cacheCourse,
+        ICacheActionRepository cacheAction,
         ILogger<ModuleService> logger
         ) : IModuleService
     {
         private readonly AppDbContext _context = context;
         private readonly ICacheModuleRepository _cache = cache;
+        private readonly ICacheCourseRepository _cacheCourse = cacheCourse;
+        private readonly ICacheActionRepository _cacheAction = cacheAction;
         private readonly ILogger<ModuleService> _logger = logger;
 
         public async Task<Result<RetrieveModuleDto>> CreateAsync(CreateModuleDto entityDto)
@@ -34,7 +40,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
             var moduleToRetrieve = Module.ConvertEntityToRetrieveDto(createdModule.Entity);
 
             // Update cache
-            await _cache.RemoveModuleCacheAsync(moduleToRetrieve.Id);
+            await _cache.RemoveModuleCacheAsync();
             await _cache.SetSingleModuleCacheAsync(moduleToRetrieve);
 
             return Result<RetrieveModuleDto>
@@ -155,6 +161,8 @@ namespace NERBABO.ApiService.Core.Modules.Services
             // Update cache
             var cacheKey = $"modules:{existingModule.Id}";
             await _cache.RemoveModuleCacheAsync(existingModule.Id);
+            await _cacheCourse.RemoveCourseCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
             await _cache.SetSingleModuleCacheAsync(Module.ConvertEntityToRetrieveDto(existingModule));
 
             return Result<RetrieveModuleDto>
@@ -191,6 +199,8 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // Update cache
             await _cache.RemoveModuleCacheAsync(id);
+            await _cacheCourse.RemoveCourseCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
 
             return Result
                 .Ok("Módulo Eliminado", "Módulo eliminado com sucesso.");
@@ -209,6 +219,8 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // Update cache
             await _cache.RemoveModuleCacheAsync(id);
+            await _cacheCourse.RemoveCourseCacheAsync();
+            await _cacheAction.RemoveActionCacheAsync();
             await _cache.SetSingleModuleCacheAsync(Module.ConvertEntityToRetrieveDto(existingModule));
 
             var status = existingModule.IsActive ? "Ativado" : "Desativado";

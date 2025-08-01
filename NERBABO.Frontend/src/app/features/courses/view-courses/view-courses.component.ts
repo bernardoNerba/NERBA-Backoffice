@@ -25,6 +25,7 @@ import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
 import { UpsertActionsComponent } from '../../actions/upsert-actions/upsert-actions.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -34,7 +35,7 @@ import { UpsertActionsComponent } from '../../actions/upsert-actions/upsert-acti
     MessageModule,
     ModulesTableComponent,
     ActionsTableComponent,
-    DropdownMenuComponent,
+    TitleComponent,
   ],
   templateUrl: './view-courses.component.html',
 })

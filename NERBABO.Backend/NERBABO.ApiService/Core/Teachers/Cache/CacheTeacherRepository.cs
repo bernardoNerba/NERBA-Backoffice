@@ -7,7 +7,7 @@ using NERBABO.ApiService.Shared.Services;
 namespace NERBABO.ApiService.Core.Teachers.Cache;
 
 public class CacheTeacherRepository(
-        ICacheKeyFabric<Teacher> cacheKeyFabric,
+    ICacheKeyFabric<Teacher> cacheKeyFabric,
     ICacheService cacheService
 ) : ICacheTeacherRepository
 {
@@ -29,15 +29,21 @@ public class CacheTeacherRepository(
 
     public async Task RemoveTeacherCacheAsync(long? id = null)
     {
-        // remove "Teacher:id" cache entry
         if (id is not null)
+        {
+            // remove "Teacher:id" cache entry
             await _cacheService.RemoveAsync(
                 _cacheKeyFabric.GenerateCacheKey($"{id}")
             );
 
-        // remove "Teacher:list" cache entry
-        await _cacheService.RemoveAsync(
-            _cacheKeyFabric.GenerateCacheKeyList());
+            // remove "Teacher:list" cache entry
+            await _cacheService.RemoveAsync(
+                _cacheKeyFabric.GenerateCacheKeyList());
+        }
+        else
+        {
+            await _cacheService.RemovePatternAsync($"{typeof(Teacher).Name}:*");
+        }
     }
 
     public async Task SetAllTeacherCacheAsync(IEnumerable<RetrieveTeacherDto> teacher)

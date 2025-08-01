@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Actions.Cache;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Courses.Cache;
+using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
@@ -14,12 +16,16 @@ namespace NERBABO.ApiService.Core.Actions.Services
     public class CourseActionService(
         AppDbContext context,
         ILogger<CourseActionService> logger,
-        ICacheActionRepository cache
+        ICacheActionRepository cache,
+        ICacheCourseRepository cacheCourse,
+        ICacheModuleRepository cacheModule
         ) : ICourseActionService
     {
         private readonly AppDbContext _context = context;
         private readonly ILogger<CourseActionService> _logger = logger;
         private readonly ICacheActionRepository _cache = cache;
+        private readonly ICacheCourseRepository _cacheCourse = cacheCourse;
+        private readonly ICacheModuleRepository _cacheModule = cacheModule;
 
         public async Task<Result<RetrieveCourseActionDto>> CreateAsync(CreateCourseActionDto entityDto)
         {
@@ -112,6 +118,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             // Update Cache
             await _cache.RemoveActionCacheAsync();
+            await _cacheCourse.RemoveCourseCacheAsync();
+            await _cacheModule.RemoveModuleCacheAsync();
             await _cache.SetSingleActionCacheAsync(retrieveCourseAction);
 
             return Result<RetrieveCourseActionDto>
@@ -144,6 +152,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             // update cache
             await _cache.RemoveActionCacheAsync(id);
+            await _cacheCourse.RemoveCourseCacheAsync();
+            await _cacheModule.RemoveModuleCacheAsync();
 
             return Result
                 .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
@@ -167,6 +177,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             // update cache
             await _cache.RemoveActionCacheAsync(id);
+            await _cacheCourse.RemoveCourseCacheAsync();
+            await _cacheModule.RemoveModuleCacheAsync();
 
             return Result
             .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
@@ -384,6 +396,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             // update cache
             await _cache.RemoveActionCacheAsync(entityDto.Id);
+            await _cacheCourse.RemoveCourseCacheAsync();
+            await _cacheModule.RemoveModuleCacheAsync();
             await _cache.SetSingleActionCacheAsync(retrieveAction);
 
             return Result<RetrieveCourseActionDto>
@@ -482,6 +496,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             // Update cache
             await _cache.RemoveActionCacheAsync(id);
+            await _cacheCourse.RemoveCourseCacheAsync();
+            await _cacheModule.RemoveModuleCacheAsync();
             await _cache.SetSingleActionCacheAsync(retrieveAction);
 
             return Result

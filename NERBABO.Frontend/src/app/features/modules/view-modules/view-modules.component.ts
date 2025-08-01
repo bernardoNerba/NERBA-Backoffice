@@ -20,6 +20,7 @@ import { MenuItem } from 'primeng/api';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertModulesComponent } from '../upsert-modules/upsert-modules.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-view-modules',
@@ -29,7 +30,7 @@ import { UpsertModulesComponent } from '../upsert-modules/upsert-modules.compone
     ActiveBadgeComponent,
     CoursesTableComponent,
     ActionsTableComponent,
-    DropdownMenuComponent,
+    TitleComponent,
   ],
   templateUrl: './view-modules.component.html',
 })

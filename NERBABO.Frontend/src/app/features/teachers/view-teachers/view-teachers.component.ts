@@ -15,10 +15,11 @@ import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/
 import { UpsertTeachersComponent } from '../upsert-teachers/upsert-teachers.component';
 import { DeleteTeachersComponent } from '../delete-teachers/delete-teachers.component';
 import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-header.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-view-teachers',
-  imports: [CommonModule, DropdownMenuComponent, NavHeaderComponent],
+  imports: [CommonModule, NavHeaderComponent, TitleComponent],
   templateUrl: './view-teachers.component.html',
 })
 export class ViewTeachersComponent implements IView, OnInit {
@@ -153,6 +154,7 @@ export class ViewTeachersComponent implements IView, OnInit {
     this.subscriptions.add(
       this.teacherService.deletedSource$.subscribe((deletedId: number) => {
         if (this.teacherId === deletedId) {
+          this.peopleService.triggerFetchPeople();
           this.router.navigateByUrl('/people/' + this.id);
         }
       })

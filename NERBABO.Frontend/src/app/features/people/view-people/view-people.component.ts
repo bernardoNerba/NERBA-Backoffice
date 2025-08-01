@@ -10,7 +10,6 @@ import { SharedService } from '../../../core/services/shared.service';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { ICONS } from '../../../core/objects/icons';
 import { MenuItem } from 'primeng/api';
-import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 import { UpsertTeachersComponent } from '../../teachers/upsert-teachers/upsert-teachers.component';
@@ -18,16 +17,14 @@ import { UpsertAccComponent } from '../../acc/upsert-acc/upsert-acc.component';
 import { UpsertStudentsComponent } from '../../students/upsert-students/upsert-students.component';
 import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-header.component';
 import { TeachersService } from '../../../core/services/teachers.service';
+import { TitleComponent } from '../../../shared/components/title/title.component';
+import { StudentsService } from '../../../core/services/students.service';
+import { AccService } from '../../../core/services/acc.service';
 
 @Component({
   selector: 'app-detail-person',
   standalone: true,
-  imports: [
-    CommonModule,
-    DropdownMenuComponent,
-    RouterModule,
-    NavHeaderComponent,
-  ],
+  imports: [CommonModule, RouterModule, NavHeaderComponent, TitleComponent],
   templateUrl: './view-people.component.html',
 })
 export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
@@ -35,6 +32,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   selectedId!: number;
   fullName!: string;
   id!: number;
+  personId!: number;
   ICONS = ICONS;
   menuItems: MenuItem[] | undefined;
 
@@ -48,6 +46,8 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     private route: ActivatedRoute,
     private peopleService: PeopleService,
     private teacherService: TeachersService,
+    private studentsService: StudentsService,
+    private accService: AccService,
     private router: Router,
     private sharedService: SharedService,
     private bsModalService: BsModalService
@@ -65,7 +65,8 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     this.initializeEntity();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
-    this.updateSourceTeacherSubscription();
+    this.updateSourceProfilesSubscription();
+    this.deleteSourceProfilesSubscription();
   }
 
   onUpdateModal() {
@@ -152,9 +153,9 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       }),
       tap((person) => {
         if (person) {
-          console.log(person);
           this.fullName = person.fullName;
           this.id = person.id;
+          this.personId = person.id;
           this.isColaborator = person.isColaborator ?? false;
           this.isStudent = person.isStudent ?? false;
           this.isTeacher = person.isTeacher ?? false;
@@ -179,12 +180,11 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
     ];
 
-    // Conditionally add "Criar como ..." options based on person properties
-    if (!this.isColaborator) {
+    if (!this.isTeacher) {
       items.push({
-        label: 'Criar como Colaborador',
+        label: 'Criar como Formador',
         icon: 'pi pi-plus',
-        command: () => this.onCreateColaborator(),
+        command: () => this.onCreateTeacher(),
       });
     }
 
@@ -196,11 +196,11 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       });
     }
 
-    if (!this.isTeacher) {
+    if (!this.isColaborator) {
       items.push({
-        label: 'Criar como Formador',
+        label: 'Criar como Colaborador',
         icon: 'pi pi-plus',
-        command: () => this.onCreateTeacher(),
+        command: () => this.onCreateColaborator(),
       });
     }
 
@@ -232,9 +232,43 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     );
   }
 
-  updateSourceTeacherSubscription() {
+  deleteSourceProfilesSubscription() {
+    this.subscriptions.add(
+      this.teacherService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+    this.subscriptions.add(
+      this.studentsService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+    this.subscriptions.add(
+      this.accService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+  }
+
+  updateSourceProfilesSubscription() {
     this.subscriptions.add(
       this.teacherService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+    this.subscriptions.add(
+      this.studentsService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+        this.initializeEntity();
+      })
+    );
+    this.subscriptions.add(
+      this.accService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
         this.initializeEntity();
       })
     );

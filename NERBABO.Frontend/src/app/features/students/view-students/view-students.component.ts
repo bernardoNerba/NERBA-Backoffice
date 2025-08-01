@@ -17,15 +17,11 @@ import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpsertStudentsComponent } from '../upsert-students/upsert-students.component';
 import { DeleteStudentsComponent } from '../delete-students/delete-students.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-view-students',
-  imports: [
-    CommonModule,
-    DropdownMenuComponent,
-    NavHeaderComponent,
-    TruncatePipe,
-  ],
+  imports: [CommonModule, NavHeaderComponent, TruncatePipe, TitleComponent],
   templateUrl: './view-students.component.html',
 })
 export class ViewStudentsComponent implements IView, OnInit {
@@ -161,6 +157,7 @@ export class ViewStudentsComponent implements IView, OnInit {
     this.subscriptions.add(
       this.studentsService.deletedSource$.subscribe((deletedId: number) => {
         if (this.studentId === deletedId) {
+          this.peopleService.triggerFetchPeople();
           this.router.navigateByUrl('/people/' + this.id);
         }
       })

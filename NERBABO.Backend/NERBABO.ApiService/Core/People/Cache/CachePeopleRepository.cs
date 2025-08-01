@@ -35,15 +35,21 @@ public class CachePeopleRepository(
 
     public async Task RemovePeopleCacheAsync(long? id = null)
     {
-        // remove "Person:id" cache entry
         if (id is not null)
+        {
+            // remove "Person:id" cache entry
             await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKey($"{id}"));
-        
-        // remove "Person:list" cache entry
-        await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList());
 
-        // remove "Person:list:without:*" cache entries
-        await _cacheService.RemovePatternAsync(_cacheKeyFabric.GenerateCacheKeyList("without:*"));
+            // remove "Person:list" cache entry
+            await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList());
+
+            // remove "Person:list:without:*" cache entries
+            await _cacheService.RemovePatternAsync(_cacheKeyFabric.GenerateCacheKeyList("without:*"));
+        }
+        else
+        {
+            await _cacheService.RemovePatternAsync($"{typeof(Person).Name}:*");
+        }
     }
 
     public async Task SetAllPeopleCacheAsync(IEnumerable<RetrievePersonDto> people)

@@ -78,21 +78,27 @@ public class CacheCourseRepository(
 
     public async Task RemoveCourseCacheAsync(long? id = null)
     {
-        // remove "Course:id" cache entry
         if (id is not null)
+        {
+            // remove "Course:id" cache entry
             await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKey($"{id}"));
 
-        // remove "Course:list" cache entry
-        await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList());
+            // remove "Course:list" cache entry
+            await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList());
 
-        // remove "Course:list:active" cache entry
-        await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList("active"));
+            // remove "Course:list:active" cache entry
+            await _cacheService.RemoveAsync(_cacheKeyFabric.GenerateCacheKeyList("active"));
 
-        // remove patern "Course:list:Frame:*"
-        await _cacheService.RemovePatternAsync(_cacheKeyFabric.GenerateCacheKeyManyToOnePattern(typeof(Frame)));
+            // remove patern "Course:list:Frame:*"
+            await _cacheService.RemovePatternAsync(_cacheKeyFabric.GenerateCacheKeyManyToOnePattern(typeof(Frame)));
 
-        // remove patern "Course:list:Module:*"
-        await _cacheService.RemovePatternAsync(_cacheKeyFabric.GenerateCacheKeyManyToOnePattern(typeof(Module)));
+            // remove patern "Course:list:Module:*"
+            await _cacheService.RemovePatternAsync(_cacheKeyFabric.GenerateCacheKeyManyToOnePattern(typeof(Module)));
+        }
+        else // remove all course related cache
+        {
+            await _cacheService.RemovePatternAsync($"{typeof(Course).Name}:*");
+        }
     }
 
 }

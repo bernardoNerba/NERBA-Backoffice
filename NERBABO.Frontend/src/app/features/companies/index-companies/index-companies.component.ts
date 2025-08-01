@@ -11,6 +11,7 @@ import { CompaniesTableComponent } from '../../../shared/components/tables/compa
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertCompaniesComponent } from '../upsert-companies/upsert-companies.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-index-companies',
@@ -19,6 +20,7 @@ import { UpsertCompaniesComponent } from '../upsert-companies/upsert-companies.c
     ReactiveFormsModule,
     CompaniesTableComponent,
     IconComponent,
+    TitleComponent,
   ],
   templateUrl: './index-companies.component.html',
 })

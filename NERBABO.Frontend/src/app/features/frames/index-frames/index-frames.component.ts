@@ -12,6 +12,7 @@ import { ICONS } from '../../../core/objects/icons';
 import { FramesTableComponent } from '../../../shared/components/tables/frames-table/frames-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertFramesComponent } from '../upsert-frames/upsert-frames.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-index-frame',
@@ -21,6 +22,7 @@ import { UpsertFramesComponent } from '../upsert-frames/upsert-frames.component'
     ReactiveFormsModule,
     IconComponent,
     FramesTableComponent,
+    TitleComponent,
   ],
 })
 export class IndexFramesComponent implements OnInit, IIndex {

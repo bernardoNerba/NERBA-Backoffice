@@ -12,6 +12,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { AccsTableComponent } from '../../../shared/components/tables/accs-table/accs-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertAccComponent } from '../upsert-acc/upsert-acc.component';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-index-acc',
@@ -20,6 +21,7 @@ import { UpsertAccComponent } from '../upsert-acc/upsert-acc.component';
     ReactiveFormsModule,
     AccsTableComponent,
     IconComponent,
+    TitleComponent,
   ],
   templateUrl: './index-acc.component.html',
 })

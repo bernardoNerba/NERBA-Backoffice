@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { Person } from '../../../core/models/person';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
@@ -9,8 +9,8 @@ import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component'
 import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { PeopleTableComponent } from '../../../shared/components/tables/people-table/people-table.component';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
+import { TitleComponent } from '../../../shared/components/title/title.component';
 
 @Component({
   selector: 'app-index-people',
@@ -18,14 +18,16 @@ import { IIndex } from '../../../core/interfaces/IIndex';
     CommonModule,
     ReactiveFormsModule,
     PeopleTableComponent,
-    IconComponent,
+    TitleComponent,
   ],
   templateUrl: './index-people.component.html',
 })
-export class IndexPeopleComponent implements IIndex, OnInit {
+export class IndexPeopleComponent implements IIndex, OnInit, OnDestroy {
   people$!: Observable<Person[]>;
   loading$!: Observable<boolean>;
   ICONS = ICONS;
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     private peopleService: PeopleService,
@@ -62,5 +64,9 @@ export class IndexPeopleComponent implements IIndex, OnInit {
         className: 'inactive',
       },
     ]);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

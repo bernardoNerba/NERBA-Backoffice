@@ -182,7 +182,7 @@ export class PeopleTableComponent implements OnInit, AfterViewInit {
     );
 
     return this.people.filter((person) => {
-      return selectedValues.some((profileType) => {
+      return selectedValues.every((profileType) => {
         switch (profileType) {
           case 'Teacher':
             return person.isTeacher;
