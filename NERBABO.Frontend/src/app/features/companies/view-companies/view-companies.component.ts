@@ -13,11 +13,12 @@ import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.c
 import { MenuItem } from 'primeng/api';
 import { UpsertCompaniesComponent } from '../upsert-companies/upsert-companies.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
+import { StudentsTableComponent } from '../../../shared/components/tables/students-table/students-table.component';
 import { IView } from '../../../core/interfaces/IView';
 
 @Component({
   selector: 'app-view-companies',
-  imports: [CommonModule, IconComponent, RouterLink, TitleComponent],
+  imports: [CommonModule, TitleComponent, StudentsTableComponent],
   templateUrl: './view-companies.component.html',
 })
 export class ViewCompaniesComponent implements IView, OnInit, OnDestroy {

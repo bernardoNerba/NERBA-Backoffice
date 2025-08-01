@@ -18,13 +18,13 @@ public class CacheActionRepository(
     public async Task<IEnumerable<RetrieveCourseActionDto>?> GetCacheActionsByCourseAsync(long courseId)
     {
         return await _cacheService.GetAsync<IEnumerable<RetrieveCourseActionDto>>(
-            _cacheKeyFabric.GenerateCacheKeyManyToOne(courseId.ToString(), typeof(CourseAction)));
+            _cacheKeyFabric.GenerateCacheKeyManyToOne(courseId.ToString(), typeof(Course)));
     }
 
     public async Task<IEnumerable<RetrieveCourseActionDto>?> GetCacheActionsByModuleAsync(long moduleId)
     {
         return await _cacheService.GetAsync<IEnumerable<RetrieveCourseActionDto>>(
-            _cacheKeyFabric.GenerateCacheKeyManyToOne(moduleId.ToString(), typeof(CourseAction)));
+            _cacheKeyFabric.GenerateCacheKeyManyToOne(moduleId.ToString(), typeof(Module)));
     }
 
     public async Task<IEnumerable<RetrieveCourseActionDto>?> GetCacheAllActionsAsync()
@@ -67,14 +67,14 @@ public class CacheActionRepository(
     public async Task SetActionsByCourseCacheAsync(long courseId, IEnumerable<RetrieveCourseActionDto> actions)
     {
         await _cacheService.SetAsync(
-            _cacheKeyFabric.GenerateCacheKeyManyToOne(courseId.ToString(), typeof(CourseAction)),
+            _cacheKeyFabric.GenerateCacheKeyManyToOne(courseId.ToString(), typeof(Course)),
             actions);
     }
 
     public async Task SetActionsByModuleCacheAsync(long moduleId, IEnumerable<RetrieveCourseActionDto> actions)
     {
         await _cacheService.SetAsync(
-            _cacheKeyFabric.GenerateCacheKeyManyToOne(moduleId.ToString(), typeof(CourseAction)),
+            _cacheKeyFabric.GenerateCacheKeyManyToOne(moduleId.ToString(), typeof(Module)),
             actions);
     }
 

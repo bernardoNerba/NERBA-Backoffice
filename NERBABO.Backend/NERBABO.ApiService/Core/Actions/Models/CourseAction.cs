@@ -52,7 +52,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 CourseDestinators = [.. c.Destinators.Select(x => x.Humanize().Transform(To.TitleCase))],
                 CourseModules = c.FormattedModuleNames,
 
-                CoordenatorId = u.Id,
+                CoordenatorId = u.PersonId,
                 CoordenatorName = u.UserName ?? "",
 
                 ActionNumber = ca.ActionNumber,

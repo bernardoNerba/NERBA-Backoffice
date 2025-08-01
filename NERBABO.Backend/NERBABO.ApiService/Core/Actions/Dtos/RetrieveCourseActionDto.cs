@@ -16,7 +16,7 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         public List<string> CourseModules { get; set; } = [];
 
         // Coordenator Information
-        public string CoordenatorId { get; set; } = string.Empty;
+        public long CoordenatorId { get; set; } // person Id 
         public string CoordenatorName { get; set; } = string.Empty;
 
         // Action Information
