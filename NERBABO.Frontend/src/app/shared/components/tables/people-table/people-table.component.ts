@@ -25,6 +25,7 @@ import { SpinnerComponent } from '../../spinner/spinner.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { BadgeModule } from 'primeng/badge';
 import { Tag } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { UpsertPeopleComponent } from '../../../../features/people/upsert-people/upsert-people.component';
 
@@ -49,10 +50,11 @@ interface ProfileOption {
     InputTextModule,
     BadgeModule,
     Tag,
+    TooltipModule,
     IconAnchorComponent,
     RouterLink,
   ],
-  templateUrl: './people-table.component.html',
+  templateUrl: './people-table.component.html'
 })
 export class PeopleTableComponent implements OnInit, AfterViewInit {
   @Input({ required: true }) people!: Person[];
