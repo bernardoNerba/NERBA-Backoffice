@@ -3,6 +3,7 @@ using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using System;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Frames.Services;
@@ -120,9 +121,57 @@ public class FrameService(
                 .Fail("Operação duplicado.", "O Operação deve ser único. Já existe no sistema.");
         }
 
-        _context.Entry(existingFrame).CurrentValues.SetValues(Frame.ConvertUpdateDtoToEntity(entityDto));
+        // Selective field updates - only update fields that have changed
+        bool hasChanges = false;
 
+        // Update Program if changed
+        if (!string.Equals(existingFrame.Program, entityDto.Program))
+        {
+            existingFrame.Program = entityDto.Program;
+            hasChanges = true;
+        }
+
+        // Update Intervention if changed
+        if (!string.Equals(existingFrame.Intervention, entityDto.Intervention))
+        {
+            existingFrame.Intervention = entityDto.Intervention;
+            hasChanges = true;
+        }
+
+        // Update InterventionType if changed
+        if (!string.Equals(existingFrame.InterventionType, entityDto.InterventionType))
+        {
+            existingFrame.InterventionType = entityDto.InterventionType;
+            hasChanges = true;
+        }
+
+        // Update Operation if changed
+        if (!string.Equals(existingFrame.Operation, entityDto.Operation))
+        {
+            existingFrame.Operation = entityDto.Operation;
+            hasChanges = true;
+        }
+
+        // Update OperationType if changed
+        if (!string.Equals(existingFrame.OperationType, entityDto.OperationType))
+        {
+            existingFrame.OperationType = entityDto.OperationType;
+            hasChanges = true;
+        }
+
+        // Return fail result if no changes were detected
+        if (!hasChanges)
+        {
+            _logger.LogInformation("No changes detected for Frame with ID {id}. No update performed.", entityDto.Id);
+            return Result<RetrieveFrameDto>
+                .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
+                StatusCodes.Status400BadRequest);
+        }
+
+        // Update UpdatedAt and save changes
+        existingFrame.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
+
         return Result<RetrieveFrameDto>
             .Ok(Frame.ConvertEntityToRetrieveDto(existingFrame), "Enquadramento Atualizado.",
             $"Foi atualizada o enquadramento com o programa {existingFrame.Program}.");

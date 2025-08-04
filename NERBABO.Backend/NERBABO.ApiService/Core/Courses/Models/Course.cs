@@ -111,27 +111,6 @@ namespace NERBABO.ApiService.Core.Courses.Models
             };
         }
 
-        public static Course ConvertUpdateDtoToEntity(UpdateCourseDto c, Frame f)
-        {
-            return new Course
-            (
-                c.FrameId,
-                c.Title,
-                c.Objectives ?? "",
-                [.. c.Destinators?.Select(d => d.DehumanizeTo<DestinatorTypeEnum>()) ?? []],
-                c.TotalDuration,
-                c.Status.DehumanizeTo<StatusEnum>(),
-                c.Area ?? "",
-                f,
-                c.MinHabilitationLevel?.DehumanizeTo<HabilitationEnum>()
-                    ?? HabilitationEnum.WithoutProof
-            )
-            {
-                Id = c.Id,
-                UpdatedAt = DateTime.UtcNow
-            };
-        }
-
         public bool CanAddModule(float moduleHours)
         {
             // Check if adding the module would exceed the total duration

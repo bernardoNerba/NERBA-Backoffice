@@ -12,4 +12,5 @@ public class RetrieveUserDto
     public string FullName => $"{FirstName} {LastName}";
     public List<string> Roles { get; set; } = [];
     public bool IsActive { get; set; }
+    public string LastLogin { get; set; } = string.Empty;
 }

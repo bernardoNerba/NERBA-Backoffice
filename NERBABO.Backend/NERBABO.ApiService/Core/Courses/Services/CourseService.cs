@@ -10,6 +10,8 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
+using System;
+using System.Linq;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Courses.Services
@@ -627,9 +629,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     StatusCodes.Status404NotFound);
             }
 
-            // Check if the title is being changed and if it is unique
+            // Check if the title is unique
             if (!string.IsNullOrEmpty(entityDto.Title)
-                && !existingCourse.Title.Equals(entityDto.Title, StringComparison.OrdinalIgnoreCase)
+            && !existingCourse.Title.Equals(entityDto.Title, StringComparison.OrdinalIgnoreCase)
                 && await _context.Courses.AnyAsync(c => EF.Functions.Like(c.Title, entityDto.Title)))
             {
                 _logger.LogWarning("Duplicated Title detected for course ID: {CourseId}", entityDto.Id);
@@ -656,6 +658,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             }
 
             // check if Destinator is valid
+            List<DestinatorTypeEnum> newDestinators = [];
             foreach (var destinator in entityDto.Destinators ?? [])
             {
                 if (!EnumHelp.IsValidEnum<DestinatorTypeEnum>(destinator))
@@ -664,6 +667,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     return Result<RetrieveCourseDto>
                         .Fail("Destinatário inválido.", $"O destinatário do curso '{destinator}' não é válido.");
                 }
+                newDestinators.Add(destinator.DehumanizeTo<DestinatorTypeEnum>());
             }
 
             // check and convert modules
@@ -699,9 +703,88 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 currentDuration += m.Hours;
             }
 
-            var newValues = Course.ConvertUpdateDtoToEntity(entityDto, existingFrame);
-            _context.Entry(existingCourse).CurrentValues.SetValues(newValues);
-            existingCourse.Modules = modules;
+            // Selective field updates - only update fields that have changed
+            bool hasChanges = false;
+
+            // Update FrameId if changed
+            if (existingCourse.FrameId != entityDto.FrameId)
+            {
+                existingCourse.FrameId = entityDto.FrameId;
+                existingCourse.Frame = existingFrame;
+                hasChanges = true;
+            }
+
+            // Update Title if changed
+            if (!string.Equals(existingCourse.Title, entityDto.Title))
+            {
+                existingCourse.Title = entityDto.Title;
+                hasChanges = true;
+            }
+
+            // Update Objectives if changed
+            if (!string.Equals(existingCourse.Objectives, entityDto.Objectives))
+            {
+                existingCourse.Objectives = entityDto.Objectives ?? "";
+                hasChanges = true;
+            }
+
+            // Update TotalDuration if changed
+            if (Math.Abs(existingCourse.TotalDuration - entityDto.TotalDuration) > 0.01f)
+            {
+                existingCourse.TotalDuration = entityDto.TotalDuration;
+                hasChanges = true;
+            }
+
+            // Update Status if changed
+            var newStatus = entityDto.Status.DehumanizeTo<StatusEnum>();
+            if (existingCourse.Status != newStatus)
+            {
+                existingCourse.Status = newStatus;
+                hasChanges = true;
+            }
+
+            // Update Area if changed
+            if (!string.Equals(existingCourse.Area, entityDto.Area))
+            {
+                existingCourse.Area = entityDto.Area ?? string.Empty;
+                hasChanges = true;
+            }
+
+            // Update MinHabilitationLevel if changed
+            var newHabilitationLevel = entityDto.MinHabilitationLevel.DehumanizeTo<HabilitationEnum>();
+            if (existingCourse.MinHabilitationLevel != newHabilitationLevel)
+            {
+                existingCourse.MinHabilitationLevel = newHabilitationLevel;
+                hasChanges = true;
+            }
+
+            // Update Destinators if changed
+            if (!existingCourse.Destinators.SequenceEqual(newDestinators))
+            {
+                existingCourse.Destinators = newDestinators;
+                hasChanges = true;
+            }
+
+            // Update Modules if changed
+            var existingModuleIds = existingCourse.Modules.Select(m => m.Id).OrderBy(id => id).ToList();
+            var newModuleIds = entityDto.Modules.OrderBy(id => id).ToList();
+            if (!existingModuleIds.SequenceEqual(newModuleIds))
+            {
+                existingCourse.Modules = modules;
+                hasChanges = true;
+            }
+
+            // Return fail result if no changes were detected
+            if (!hasChanges)
+            {
+                _logger.LogInformation("No changes detected for Course with ID {id}. No update performed.", entityDto.Id);
+                return Result<RetrieveCourseDto>
+                    .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
+                    StatusCodes.Status400BadRequest);
+            }
+
+            // Update UpdatedAt and save changes
+            existingCourse.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             var updatedCourse = Course.ConvertEntityToRetrieveDto(existingCourse);

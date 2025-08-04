@@ -95,30 +95,4 @@ public class Person : Entity<long>
             IsColaborator = person.IsColaborator,
         };
     }
-
-    public static Person ConvertUpdateDtoToEntity(UpdatePersonDto personDto)
-    {
-        return new Person
-        {
-            Id = personDto.Id,
-            FirstName = personDto.FirstName,
-            LastName = personDto.LastName,
-            NIF = personDto.NIF,
-            IdentificationNumber = personDto.IdentificationNumber,
-            IdentificationValidationDate = Helper.StringDateOnlyConverter.ConvertToDateOnly(personDto.IdentificationValidationDate),
-            NISS = personDto.NISS,
-            IBAN = personDto.IBAN,
-            BirthDate = Helper.StringDateOnlyConverter.ConvertToDateOnly(personDto.BirthDate),
-            Address = personDto.Address,
-            ZipCode = personDto.ZipCode,
-            PhoneNumber = personDto.PhoneNumber,
-            Email = personDto.Email,
-            Naturality = personDto.Naturality,
-            Nationality = personDto.Nationality,
-            Gender = personDto.Gender?.DehumanizeTo<GenderEnum>() ?? GenderEnum.Unknown,
-            Habilitation = personDto.Habilitation?.DehumanizeTo<HabilitationEnum>() ?? HabilitationEnum.WithoutProof,
-            IdentificationType = personDto.IdentificationType?.DehumanizeTo<IdentificationTypeEnum>() ?? IdentificationTypeEnum.Unknown,
-            UpdatedAt = DateTime.UtcNow
-        };
-    }
 }

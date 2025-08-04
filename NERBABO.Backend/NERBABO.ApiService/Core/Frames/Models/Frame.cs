@@ -33,20 +33,6 @@ public class Frame : Entity<long>
         };
     }
 
-    public static Frame ConvertUpdateDtoToEntity(UpdateFrameDto frameDto)
-    {
-        return new Frame
-        {
-            Id = frameDto.Id,
-            Program = frameDto.Program,
-            Intervention = frameDto.Intervention,
-            InterventionType = frameDto.InterventionType,
-            Operation = frameDto.Operation,
-            OperationType = frameDto.OperationType,
-            UpdatedAt = DateTime.UtcNow
-        };
-    }
-
     public static RetrieveFrameDto ConvertEntityToRetrieveDto(Frame frame)
     {
         return new RetrieveFrameDto

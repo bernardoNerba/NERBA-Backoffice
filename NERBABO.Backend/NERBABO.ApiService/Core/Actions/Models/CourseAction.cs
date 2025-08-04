@@ -89,26 +89,5 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 Course = c
             };
         }
-
-        public static CourseAction ConvertUpdateDtoToEntity(UpdateCourseActionDto ca, User u, Course c)
-        {
-            return new CourseAction
-            {
-                Id = ca.Id,
-                CourseId = c.Id,
-                CoordenatorId = u.Id,
-                AdministrationCode = ca.AdministrationCode,
-                Address = ca.Address,
-                Locality = ca.Locality,
-                WeekDays = [.. ca.WeekDays.Select(x => x.DehumanizeTo<WeekDaysEnum>())],
-                StartDate = Helper.StringDateOnlyConverter.ConvertToDateOnly(ca.StartDate) ?? new DateOnly(),
-                EndDate = Helper.StringDateOnlyConverter.ConvertToDateOnly(ca.EndDate) ?? new DateOnly(),
-                Status = ca.Status.DehumanizeTo<StatusEnum>(),
-                Regiment = ca.Regiment.DehumanizeTo<RegimentTypeEnum>(),
-                UpdatedAt = DateTime.UtcNow,
-                Coordenator = u,
-                Course = c
-            };
-        }
     }
 }

@@ -73,22 +73,5 @@ namespace NERBABO.ApiService.Core.Students.Models
                 UpdatedAt = DateTime.UtcNow
             };
         }
-
-        public static Student ConvertCreateDtoToEntity(UpdateStudentDto s, Person p, Company? c)
-        {
-            return new Student(
-                s.Id,
-                p.Id,
-                c?.Id,
-                s.IsEmployeed,
-                s.IsRegisteredWithJobCenter,
-                s.CompanyRole
-                )
-            {
-                Person = p,
-                Company = c,
-                UpdatedAt = DateTime.UtcNow
-            };
-        }
     }
 }

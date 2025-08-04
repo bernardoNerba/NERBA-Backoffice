@@ -6,6 +6,7 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
+using System;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
@@ -105,7 +106,49 @@ public class TaxService(
                 .Fail("Erro de Validação", "Já existe uma taxa com estas caracteristicas");
         }
 
-        _context.Entry(existingTax).CurrentValues.SetValues(Tax.ConvertUpdateDtoToEntity(entityDto));
+        // Selective field updates - only update fields that have changed
+        bool hasChanges = false;
+
+        // Update Name if changed
+        if (!string.Equals(existingTax.Name, entityDto.Name))
+        {
+            existingTax.Name = entityDto.Name;
+            hasChanges = true;
+        }
+
+        // Update ValuePercent if changed
+        if (Math.Abs(existingTax.ValuePercent - entityDto.ValuePercent) > 0.01f)
+        {
+            existingTax.ValuePercent = entityDto.ValuePercent;
+            hasChanges = true;
+        }
+
+        // Update IsActive if changed
+        if (existingTax.IsActive != entityDto.IsActive)
+        {
+            existingTax.IsActive = entityDto.IsActive;
+            hasChanges = true;
+        }
+
+        // Update Type if changed
+        var newType = entityDto.Type.DehumanizeTo<TaxEnum>();
+        if (existingTax.Type != newType)
+        {
+            existingTax.Type = newType;
+            hasChanges = true;
+        }
+
+        // Return fail result if no changes were detected
+        if (!hasChanges)
+        {
+            _logger.LogInformation("No changes detected for Tax with ID {id}. No update performed.", entityDto.Id);
+            return Result<RetrieveTaxDto>
+                .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
+                StatusCodes.Status400BadRequest);
+        }
+
+        // Update UpdatedAt and save changes
+        existingTax.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
         return Result<RetrieveTaxDto>
