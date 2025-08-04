@@ -20,7 +20,6 @@ public class UpdateTeacherDto : EntityDto<long>
         ErrorMessage = "CCP deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public string Ccp { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Competências é um campo obrigatório.")]
     [ValidateLengthIfNotEmpty(55, MinimumLength = 3,
         ErrorMessage = "Competências deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public string Competences { get; set; } = string.Empty;

@@ -33,6 +33,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'frames/:id',
+    loadComponent: () =>
+      import('./features/frames/view-frames/view-frames.component').then(
+        (m) => m.ViewFramesComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'actions',
     loadComponent: () =>
       import('./features/actions/index-actions/index-actions.component').then(

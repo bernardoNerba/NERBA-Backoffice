@@ -16,20 +16,29 @@ import { TitleComponent } from '../../../shared/components/title/title.component
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
 import { Action } from '../../../core/models/action';
 import { ActionsService } from '../../../core/services/actions.service';
-import { IconComponent } from "../../../shared/components/icon/icon.component";
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { UpsertAccComponent } from '../upsert-acc/upsert-acc.component';
+import { BlockAccComponent } from '../block-acc/block-acc.component';
 
 @Component({
   selector: 'app-view-acc',
-  imports: [CommonModule, NavHeaderComponent, TitleComponent, ActionsTableComponent, IconComponent],
+  imports: [
+    CommonModule,
+    NavHeaderComponent,
+    TitleComponent,
+    ActionsTableComponent,
+    IconComponent,
+  ],
   templateUrl: './view-acc.component.html',
 })
-export class ViewAccComponent implements IView, OnInit, OnDestroy {
+export class ViewAccComponent implements OnInit, OnDestroy {
   user$?: Observable<UserInfo | null>;
   person$?: Observable<Person | null>;
   coordinatorActions$?: Observable<Action[]>;
   personId!: number; // person id from route
   userId!: string; // user id for coordinator actions
   fullName: string = '';
+  isUserActive: boolean = false;
   menuItems: MenuItem[] | undefined;
   coordinatorActions: Action[] = [];
   actionsLoading: boolean = true;
@@ -48,13 +57,6 @@ export class ViewAccComponent implements IView, OnInit, OnDestroy {
     private actionsService: ActionsService
   ) {}
 
-  initializeEntity(): void {
-    throw new Error('Method not implemented.');
-  }
-  onDeleteModal(): void {
-    throw new Error('Method not implemented.');
-  }
-
   ngOnInit(): void {
     const personId = this.route.snapshot.paramMap.get('id');
     this.personId = Number.parseInt(personId ?? '');
@@ -65,7 +67,7 @@ export class ViewAccComponent implements IView, OnInit, OnDestroy {
     }
 
     this.initializePerson();
-    this.initializeUser();
+    this.initializeEntity();
     this.populateMenu();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
@@ -94,7 +96,7 @@ export class ViewAccComponent implements IView, OnInit, OnDestroy {
     );
   }
 
-  initializeUser(): void {
+  initializeEntity(): void {
     // First, make sure we have users data loaded
     if (!this.accService.hasUsersData) {
       this.accService.triggerFetchUsers();
@@ -115,12 +117,16 @@ export class ViewAccComponent implements IView, OnInit, OnDestroy {
     const user = this.accService.getUserByPersonId(this.personId);
     if (user) {
       this.userId = user.id;
-      this.user$ = of(user);
+      this.isUserActive = user.isActive;
+      // Create a new Observable to trigger change detection
+      this.user$ = of({ ...user });
       this.initializeCoordinatorActions();
     } else {
       this.user$ = of(null);
       this.router.navigate(['/people', this.personId]);
-      this.sharedService.showWarning('Utilizador não encontrado para esta pessoa.');
+      this.sharedService.showWarning(
+        'Utilizador não encontrado para esta pessoa.'
+      );
     }
   }
 
@@ -132,17 +138,19 @@ export class ViewAccComponent implements IView, OnInit, OnDestroy {
     }
 
     this.actionsLoading = true;
-    this.coordinatorActions$ = this.actionsService.getActionsByCoordinatorId(this.userId).pipe(
-      catchError((error) => {
-        console.warn('No actions found for coordinator:', error);
-        this.actionsLoading = false;
-        return of([]);
-      }),
-      tap((actions) => {
-        this.coordinatorActions = actions;
-        this.actionsLoading = false;
-      })
-    );
+    this.coordinatorActions$ = this.actionsService
+      .getActionsByCoordinatorId(this.userId)
+      .pipe(
+        catchError((error) => {
+          console.warn('No actions found for coordinator:', error);
+          this.actionsLoading = false;
+          return of([]);
+        }),
+        tap((actions) => {
+          this.coordinatorActions = actions;
+          this.actionsLoading = false;
+        })
+      );
   }
 
   populateMenu(): void {
@@ -163,21 +171,33 @@ export class ViewAccComponent implements IView, OnInit, OnDestroy {
   }
 
   onUpdateModal(): void {
-    // This would need to be implemented based on your UpsertAccComponent
-    console.log('Update modal for user:', this.userId);
+    this.bsModalService.show(UpsertAccComponent, {
+      initialState: {
+        id: this.userId,
+        personId: this.personId,
+      },
+    });
   }
 
   onBlockModal(): void {
-    // This would need to be implemented based on your BlockAccComponent
-    console.log('Block modal for user:', this.userId);
+    this.bsModalService.show(BlockAccComponent, {
+      initialState: {
+        id: this.userId,
+        active: this.isUserActive,
+        fullName: this.fullName,
+      },
+    });
   }
 
   updateSourceSubscription(): void {
     this.subscriptions.add(
       this.accService.updatedSource$.subscribe((userId: string) => {
         if (this.userId === userId) {
-          this.initializeUser();
-          this.initializeCoordinatorActions();
+          // Add a small delay to ensure the AccService has finished refreshing
+          setTimeout(() => {
+            this.initializeEntity();
+            this.initializeCoordinatorActions();
+          }, 100);
         }
       })
     );
