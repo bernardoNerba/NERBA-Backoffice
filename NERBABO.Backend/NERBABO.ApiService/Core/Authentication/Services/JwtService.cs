@@ -5,7 +5,6 @@ using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
-using OpenTelemetry.Trace;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -89,6 +88,11 @@ public class JwtService : IJwtService
         // generate and return the token
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwt = tokenHandler.CreateToken(tokenDescriptor);
+
+        // update LastLogin
+        user.LastLogin = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
         return tokenHandler.WriteToken(jwt);
     }
 
