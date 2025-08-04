@@ -309,3 +309,140 @@ a.nav-link:hover {
 .modal-body {
   background-color: var(--gray-1);
 }
+
+/* Shared icon styles for profiles and roles */
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  transition: all 0.15s ease-in-out;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.icon-badge:hover {
+  transform: scale(1.1);
+  text-decoration: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.icon-badge:active {
+  transform: scale(0.95);
+}
+
+/* Profile icon variants */
+.icon-badge.teacher {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.icon-badge.teacher:hover {
+  background-color: #1565c0;
+  color: white;
+  border-color: #0d47a1;
+}
+
+.icon-badge.student {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.icon-badge.student:hover {
+  background-color: #7b1fa2;
+  color: white;
+  border-color: #4a148c;
+}
+
+.icon-badge.collaborator {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.icon-badge.collaborator:hover {
+  background-color: #2e7d32;
+  color: white;
+  border-color: #1b5e20;
+}
+
+/* Role icon variants */
+.icon-badge.admin {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.icon-badge.admin:hover {
+  background-color: #c62828;
+  color: white;
+  border-color: #b71c1c;
+}
+
+.icon-badge.cq {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.icon-badge.cq:hover {
+  background-color: #2e7d32;
+  color: white;
+  border-color: #1b5e20;
+}
+
+.icon-badge.user {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.icon-badge.user:hover {
+  background-color: #1565c0;
+  color: white;
+  border-color: #0d47a1;
+}
+
+.icon-badge.fm {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.icon-badge.fm:hover {
+  background-color: #ef6c00;
+  color: white;
+  border-color: #e65100;
+}
+
+.icon-badge.default {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.icon-badge.default:hover {
+  background-color: #7b1fa2;
+  color: white;
+  border-color: #4a148c;
+}
+
+/* Smaller size for role icons */
+.icon-badge.small {
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
+}
+
+/* Mobile responsive sizes */
+@media (max-width: 576px) {
+  .icon-badge {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .icon-badge.small {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+}

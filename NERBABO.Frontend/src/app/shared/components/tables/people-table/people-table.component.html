@@ -7,195 +7,237 @@
 }
 <!-- START table -->
 @else {
-<p-table
-  #dt
-  stripedRows
-  [value]="filteredPeople"
-  size="small"
-  [tableStyle]="{ 'min-width': '90rem' }"
-  [globalFilterFields]="['fullName', 'nif']"
-  [paginator]="true"
-  [rows]="10"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-  (onPage)="pageChange($event)"
-  [rowsPerPageOptions]="[10, 25, 50]"
->
-  <!-- Table caption with Search, Profile Filter and clear filter  -->
-  <ng-template #caption>
-    <div class="d-flex justify-content-end gap-2 align-items-center">
-      <!-- Profile MultiSelect Filter -->
-      <p-multiselect
-        [(ngModel)]="selectedProfiles"
-        [options]="profileOptions"
-        optionLabel="label"
-        placeholder="Filtrar por perfil"
-        [showClear]="true"
-        [maxSelectedLabels]="2"
-        selectedItemsLabel="{0} perfis selecionados"
-        (onChange)="onProfileFilterChange()"
-        [style]="{ 'min-width': '200px' }"
-      />
+<div class="table-responsive">
+  <p-table
+    #dt
+    stripedRows
+    [value]="filteredPeople"
+    size="small"
+    [tableStyle]="{ 'min-width': '90rem' }"
+    [globalFilterFields]="['fullName', 'nif']"
+    [paginator]="true"
+    [rows]="10"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    (onPage)="pageChange($event)"
+    [rowsPerPageOptions]="[10, 25, 50]"
+  >
+    <!-- Table caption with Search, Profile Filter and clear filter  -->
+    <ng-template #caption>
+      <div
+        class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center"
+      >
+        <!-- Filter Controls Section -->
+        <div
+          class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1"
+        >
+          <!-- Profile Filter -->
+          <div class="w-100 w-sm-auto">
+            <p-multiselect
+              [(ngModel)]="selectedProfiles"
+              [options]="profileOptions"
+              optionLabel="label"
+              placeholder="Filtrar por perfil"
+              [showClear]="true"
+              [maxSelectedLabels]="2"
+              selectedItemsLabel="{0} perfis selecionados"
+              (onChange)="onProfileFilterChange()"
+              [style]="{ 'min-width': '200px', width: '100%' }"
+              class="w-100"
+            />
+          </div>
 
-      <!-- Search Input -->
-      <p-iconfield iconPosition="left">
-        <p-inputicon>
-          <i class="pi pi-search"></i>
-        </p-inputicon>
-        <input
-          [(ngModel)]="searchValue"
-          (ngModelChange)="dt.filterGlobal($event, 'contains')"
-          pInputText
-          type="text"
-          placeholder="Procurar..."
-        />
-      </p-iconfield>
+          <!-- Search Section -->
+          <div
+            class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0"
+          >
+            <div class="flex-grow-1">
+              <p-iconfield iconPosition="left" class="w-100">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input
+                  [(ngModel)]="searchValue"
+                  (ngModelChange)="dt.filterGlobal($event, 'contains')"
+                  pInputText
+                  type="text"
+                  placeholder="Procurar..."
+                  class="w-100"
+                  style="min-width: 200px"
+                />
+              </p-iconfield>
+            </div>
+            <p-button
+              icon="pi pi-filter-slash"
+              [outlined]="true"
+              (click)="clearFilters()"
+              pTooltip="Limpar filtros"
+              class="flex-shrink-0"
+            />
+          </div>
+        </div>
+      </div>
+    </ng-template>
 
-      <!-- Clear Filters Button -->
-      <p-button
-        icon="pi pi-filter-slash"
-        [outlined]="true"
-        (click)="clearFilters()"
-        pTooltip="Limpar filtros"
-      />
-    </div>
-  </ng-template>
+    <ng-template #header>
+      <tr>
+        <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+        <th pSortableColumn="fullName" style="min-width: 180px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-md-inline">Nome Completo</span>
+            <span class="d-inline d-md-none">Nome</span>
+            <p-sortIcon field="fullName" />
+          </div>
+        </th>
+        <th pSortableColumn="nif" style="width: 120px; min-width: 120px">
+          <div class="d-flex align-items-center gap-2">
+            NIF
+            <p-sortIcon field="nif" />
+          </div>
+        </th>
+        <th
+          pSortableColumn="habilitation"
+          style="width: 170px; min-width: 170px"
+        >
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-lg-inline">Habilitações</span>
+            <span class="d-inline d-lg-none">Hab.</span>
+            <p-sortIcon field="habilitation" />
+          </div>
+        </th>
+        <th style="min-width: 150px">
+          <div class="d-flex align-items-center gap-2">Perfis</div>
+        </th>
+        <th pSortableColumn="email" style="min-width: 160px">
+          <div class="d-flex align-items-center gap-2">
+            Email
+            <p-sortIcon field="email" />
+          </div>
+        </th>
+        <th
+          pSortableColumn="phoneNumber"
+          style="width: 130px; min-width: 130px"
+        >
+          <div class="d-flex align-items-center gap-2">
+            Tel.
+            <p-sortIcon field="phoneNumber" />
+          </div>
+        </th>
+        <th pSortableColumn="age" style="width: 80px; min-width: 80px">
+          <div class="d-flex align-items-center gap-2">
+            Idade
+            <p-sortIcon field="age" />
+          </div>
+        </th>
+      </tr>
+    </ng-template>
 
-  <ng-template #header>
-    <tr>
-      <th [width]="20">#</th>
-      <th pSortableColumn="fullName">
-        <div class="flex items-center gap-2">
-          Nome
-          <p-sortIcon field="fullName" />
-        </div>
-      </th>
-      <th pSortableColumn="nif" style="width: 15%">
-        <div class="flex items-center gap-2">
-          NIF
-          <p-sortIcon field="nif" />
-        </div>
-      </th>
-      <th pSortableColumn="habilitation" style="width: 15%">
-        <div class="flex items-center gap-2">
-          Habilitações
-          <p-sortIcon field="habilitation" />
-        </div>
-      </th>
-      <th pSortableColumn="email" style="width: 20%">
-        <div class="flex items-center gap-2">
-          Email
-          <p-sortIcon field="email" />
-        </div>
-      </th>
-      <th pSortableColumn="phoneNumber" style="width: 15%">
-        <div class="flex items-center gap-2">
-          Tel.
-          <p-sortIcon field="phoneNumber" />
-        </div>
-      </th>
-      <th style="width: 15%">
-        <div class="flex items-center gap-2">Perfis</div>
-      </th>
-      <th pSortableColumn="age" style="width: 10%">
-        <div class="flex items-center gap-2">
-          Idade
-          <p-sortIcon field="age" />
-        </div>
-      </th>
-    </tr>
-  </ng-template>
-
-  <ng-template #body let-person>
-    <tr>
-      <!-- DROPDOWN MENU -->
-      <td>
-        <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
-        <p-button
-          icon="pi pi-ellipsis-v"
-          [rounded]="true"
-          severity="secondary"
-          [outlined]="true"
-          (click)="menu.toggle($event); selectedPerson = person"
-        />
-      </td>
-      <!-- PERSON FULLNAME -->
-      <td>
-        <app-icon-anchor
-          [field]="person.fullName"
-          [display]="person.fullName | truncate : 30"
-          [link]="'/people/' + person.id"
-          [icon]="'bi bi-link'"
-        />
-      </td>
-      <!-- NIF -->
-      <td>{{ person.nif?.trim() || "N/A" }}</td>
-      <!-- HABILITATION -->
-      <td>
-        <p-tag
-          [value]="person.habilitation"
-          [severity]="
-            person.habilitation === 'Sem Comprovativo' ? 'warn' : 'secondary'
-          "
-        />
-      </td>
-      <!-- EMAIL -->
-      <td>
-        <app-icon-anchor
-          [field]="person.email"
-          [display]="person.email.split('@')[0]"
-          [link]="'mailto:' + person.email"
-          [icon]="'pi pi-envelope'"
-        />
-      </td>
-      <!-- PHONE NUMBER -->
-      <td>{{ person.phoneNumber?.trim() || "N/A" }}</td>
-      <!-- PROFILES -->
-      <td>
-        <div class="d-flex gap-1 flex-wrap">
-          @if (person.isTeacher) {
-          <p-button
-            label="Formador"
-            icon="pi pi-user"
-            severity="contrast"
-            size="small"
-            [routerLink]="[person.id + '/teacher']"
-            outlined
+    <ng-template #body let-person>
+      <tr>
+        <!-- DROPDOWN MENU -->
+        <td class="text-center">
+          <p-menu
+            #menu
+            [model]="menuItems"
+            [popup]="true"
+            [appendTo]="'body'"
           />
-          } @if (person.isStudent) {
           <p-button
-            label="Formando"
-            icon="pi pi-user"
-            severity="contrast"
+            icon="pi pi-ellipsis-v"
+            [rounded]="true"
+            severity="secondary"
+            [outlined]="true"
             size="small"
-            [routerLink]="[person.id + '/student']"
-            outlined
+            (click)="menu.toggle($event); selectedPerson = person"
           />
-          } @if (person.isColaborator) {
-          <!-- TODO: update link when user detail implementation -->
-          <p-button
-            label="Colaborador"
-            icon="pi pi-user"
-            severity="contrast"
-            size="small"
-            [routerLink]="[person.id]"
-            outlined
+        </td>
+        <!-- PERSON FULLNAME -->
+        <td class="text-break">
+          <app-icon-anchor
+            [field]="person.fullName"
+            [display]="person.fullName | truncate : 25"
+            [link]="'/people/' + person.id"
+            [icon]="'bi bi-link'"
           />
-          } @if (!person.isTeacher && !person.isStudent &&
-          !person.isColaborator) {
-          <span class="text-muted">N/A</span>
-          }
-        </div>
-      </td>
-      <!-- AGE -->
-      <td>{{ person.age || "N/A" }}</td>
-    </tr>
-  </ng-template>
+        </td>
+        <!-- NIF -->
+        <td class="text-break">
+          <span class="fw-medium">{{ person.nif?.trim() || "N/A" }}</span>
+        </td>
+        <!-- HABILITATION -->
+        <td>
+          <p-tag
+            [value]="person.habilitation"
+            [severity]="
+              person.habilitation === 'Sem Comprovativo' ? 'warn' : 'secondary'
+            "
+          />
+        </td>
+        <!-- PROFILES -->
+        <td>
+          <div class="d-flex gap-1 align-items-center justify-content-start">
+            @if (person.isTeacher) {
+            <a
+              [routerLink]="[person.id + '/teacher']"
+              class="icon-badge teacher"
+              pTooltip="Ver Formador"
+              tooltipPosition="top"
+            >
+              <i class="pi pi-book"></i>
+            </a>
+            } @if (person.isStudent) {
+            <a
+              [routerLink]="[person.id + '/student']"
+              class="icon-badge student"
+              pTooltip="Ver Formando"
+              tooltipPosition="top"
+            >
+              <i class="pi pi-graduation-cap"></i>
+            </a>
+            } @if (person.isColaborator) {
+            <a
+              [routerLink]="[person.id + '/acc']"
+              class="icon-badge collaborator"
+              pTooltip="Ver Colaborador"
+              tooltipPosition="top"
+            >
+              <i class="bi bi-person-badge"></i>
+            </a>
+            } @if (!person.isTeacher && !person.isStudent &&
+            !person.isColaborator) {
+            <span class="text-muted" title="Sem perfil atribuído">
+              <i class="bi bi-person text-muted"></i>
+            </span>
+            }
+          </div>
+        </td>
+        <!-- EMAIL -->
+        <td class="text-break">
+          <app-icon-anchor
+            [field]="person.email"
+            [display]="person.email.split('@')[0]"
+            [link]="'mailto:' + person.email"
+            [icon]="'pi pi-envelope'"
+          />
+        </td>
+        <!-- PHONE NUMBER -->
+        <td class="text-break">
+          <span class="fw-medium">{{
+            person.phoneNumber?.trim() || "N/A"
+          }}</span>
+        </td>
+        <!-- AGE -->
+        <td>
+          <span class="fw-medium">{{ person.age || "N/A" }}</span>
+        </td>
+      </tr>
+    </ng-template>
 
-  <!-- EMPTY STATE -->
-  <ng-template #emptymessage>
-    <tr>
-      <td colspan="8">Não foram encontradas pessoas com essas diretrizes.</td>
-    </tr>
-  </ng-template>
-</p-table>
+    <!-- EMPTY STATE -->
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="8">Não foram encontradas pessoas com essas diretrizes.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
 }

@@ -25,6 +25,7 @@ export class SidebarComponent implements OnInit {
   user$?: Observable<User | null>;
   userRoles!: string[];
   displayRole!: string;
+  userId!: string;
 
   mainMenuItems = [
     { name: 'Dashboard', icon: 'pi pi-chart-line', route: '/dashboard' },
@@ -66,7 +67,6 @@ export class SidebarComponent implements OnInit {
 
     this.user$ = this.authService.user$;
     this.userRoles = this.authService.userRoles;
-    console.log(this.userRoles);
   }
 
   ngOnInit(): void {
@@ -75,6 +75,13 @@ export class SidebarComponent implements OnInit {
     this.setDisplayRole();
 
     this.profileMenuItems = [
+      {
+        label: 'Notificações',
+        icon: 'pi pi-bell',
+        command: () => {
+          this.router.navigate(['/notifications']);
+        },
+      },
       {
         label: 'Notificações',
         icon: 'pi pi-bell',

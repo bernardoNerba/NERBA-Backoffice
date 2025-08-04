@@ -21,6 +21,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconComponent } from '../../icon/icon.component';
 import { ICONS } from '../../../../core/objects/icons';
 import { Tag } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { UpsertAccComponent } from '../../../../features/acc/upsert-acc/upsert-acc.component';
 
@@ -38,8 +39,8 @@ import { UpsertAccComponent } from '../../../../features/acc/upsert-acc/upsert-a
     TruncatePipe,
     SpinnerComponent,
     InputTextModule,
-    IconComponent,
     Tag,
+    TooltipModule,
     IconAnchorComponent,
   ],
   templateUrl: './accs-table.component.html',
@@ -212,6 +213,36 @@ export class AccsTableComponent implements OnInit {
 
   getStatusIcon(status: boolean) {
     return status ? 'pi pi-check' : 'pi pi-times';
+  }
+
+  getRoleClass(role: string): string {
+    const roleMap: { [key: string]: string } = {
+      admin: 'admin',
+      cq: 'cq',
+      user: 'user',
+      fm: 'fm',
+    };
+    return roleMap[role.toLowerCase()] || 'default';
+  }
+
+  getRoleIcon(role: string): string {
+    const iconMap: { [key: string]: string } = {
+      admin: 'pi pi-shield',
+      cq: 'pi pi-user-edit',
+      user: 'pi pi-user',
+      fm: 'pi pi-graduation-cap',
+    };
+    return iconMap[role.toLowerCase()] || 'bi bi-person-circle';
+  }
+
+  getRoleTooltip(role: string): string {
+    const tooltipMap: { [key: string]: string } = {
+      admin: 'Administrador',
+      cq: 'Centro Qualifica',
+      user: 'Utilizador',
+      fm: 'Formação Modular',
+    };
+    return tooltipMap[role.toLowerCase()] || role;
   }
 
   ngOnDestroy(): void {

@@ -17,7 +17,6 @@ import { TitleComponent } from '../../../shared/components/title/title.component
   selector: 'app-index-courses',
   imports: [
     ReactiveFormsModule,
-    IconComponent,
     CommonModule,
     CoursesTableComponent,
     TitleComponent,

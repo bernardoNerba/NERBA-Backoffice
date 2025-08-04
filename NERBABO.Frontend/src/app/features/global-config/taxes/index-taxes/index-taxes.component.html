@@ -5,123 +5,163 @@
     <p class="mt-2">Loading taxas...</p>
   </div>
   } @else {
-  <p-table
-    #dt
-    stripedRows
-    [value]="filteredTaxes"
-    size="small"
-    [tableStyle]="{ 'min-width': '50rem' }"
-    [paginator]="true"
-    [rows]="10"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-    (onPage)="pageChange($event)"
-    [rowsPerPageOptions]="[10, 25, 50]"
-  >
-    <ng-template #caption>
-      <div class="d-flex justify-content-between gap-2 align-items-center">
-        <div class="d-flex gap-2 align-items-center">
-          <p-dropdown
-            [(ngModel)]="taxTypeFilter"
-            (ngModelChange)="applyFilters()"
-            [options]="taxTypeOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Filtrar por tipo"
-            [style]="{ 'min-width': '150px' }"
-            title="Filtrar taxas por tipo (IVA, IRS ou Todas)"
-          />
-          <p-button
-            icon="pi pi-filter-slash"
-            [outlined]="true"
-            (click)="clearFilters()"
-          />
-        </div>
-        <div class="d-flex gap-2">
-          <p-iconfield iconPosition="left">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input
-              [(ngModel)]="searchValue"
-              (ngModelChange)="applyFilters()"
-              pInputText
-              type="text"
-              placeholder="Procurar..."
+  <div class="table-responsive">
+    <p-table
+      #dt
+      stripedRows
+      [value]="filteredTaxes"
+      size="small"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      (onPage)="pageChange($event)"
+      [rowsPerPageOptions]="[10, 25, 50]"
+    >
+      <ng-template #caption>
+        <div
+          class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center"
+        >
+          <!-- Filter Controls Section -->
+          <div
+            class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1"
+          >
+            <!-- Type Filter -->
+            <div class="w-100 w-sm-auto">
+              <p-dropdown
+                [(ngModel)]="taxTypeFilter"
+                (ngModelChange)="applyFilters()"
+                [options]="taxTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Filtrar por tipo"
+                [style]="{ 'min-width': '200px' }"
+                title="Filtrar taxas por tipo (IVA, IRS ou Todas)"
+                class="w-100"
+              />
+            </div>
+
+            <!-- Search Section -->
+            <div
+              class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0"
+            >
+              <div class="flex-grow-1">
+                <p-iconfield iconPosition="left" class="w-100">
+                  <p-inputicon>
+                    <i class="pi pi-search"></i>
+                  </p-inputicon>
+                  <input
+                    [(ngModel)]="searchValue"
+                    (ngModelChange)="applyFilters()"
+                    pInputText
+                    type="text"
+                    placeholder="Procurar..."
+                    class="w-100"
+                    style="min-width: 200px"
+                  />
+                </p-iconfield>
+              </div>
+              <p-button
+                icon="pi pi-filter-slash"
+                [outlined]="true"
+                (click)="clearFilters()"
+                pTooltip="Limpar filtros"
+                class="flex-shrink-0"
+              />
+            </div>
+          </div>
+          <!-- Create Button Section -->
+          <div class="w-100 w-lg-auto">
+            <p-button
+              label="Adicionar Taxa"
+              icon="pi pi-plus"
+              (click)="onCreateModal()"
+              class="w-100 w-lg-auto"
+              [style]="{ 'min-width': '150px' }"
             />
-          </p-iconfield>
-          <p-button
-            label="Adicionar Taxa"
-            icon="pi pi-plus"
-            (click)="onCreateModal()"
-          />
+          </div>
         </div>
-      </div>
-    </ng-template>
-    <ng-template #header>
-      <tr>
-        <th [width]="20">#</th>
-        <th pSortableColumn="name">
-          <div class="flex items-center gap-2">
-            Nome
-            <p-sortIcon field="name" />
-          </div>
-        </th>
-        <th pSortableColumn="valuePercent" style="width: 15%">
-          <div class="flex items-center gap-2">
-            Valor (%)
-            <p-sortIcon field="valuePercent" />
-          </div>
-        </th>
-        <th pSortableColumn="type" style="width: 15%">
-          <div class="flex items-center gap-2">
-            Tipo
-            <p-sortIcon field="type" />
-          </div>
-        </th>
-        <th pSortableColumn="isActive" style="width: 15%">
-          <div class="flex items-center gap-2">
-            Estado
-            <p-sortIcon field="isActive" />
-          </div>
-        </th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-tax>
-      <tr>
-        <td>
-          <p-menu
-            #menu
-            [model]="menuItems"
-            [popup]="true"
-            [appendTo]="'body'"
-          />
-          <p-button
-            icon="pi pi-ellipsis-v"
-            [rounded]="true"
-            severity="secondary"
-            [outlined]="true"
-            (click)="menu.toggle($event); selectedTax = tax"
-          />
-        </td>
-        <td>{{ tax.name }}</td>
-        <td>{{ tax.valuePercent }} %</td>
-        <td>
-          <p-tag [value]="tax.type" [severity]="getTypeColor(tax.type)" />
-        </td>
-        <td>
-          <p-tag
-            [value]="tax.isActive ? 'Ativo' : 'Inativo'"
-            [severity]="getStatusSeverity(tax.isActive)"
-            [icon]="getStatusIcon(tax.isActive)"
-          />
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="5">Não foram encontradas taxas com essas diretrizes.</td>
-      </tr>
-    </ng-template>
-  </p-table>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+          <th pSortableColumn="name" style="min-width: 150px">
+            <div class="d-flex align-items-center gap-2">
+              Nome
+              <p-sortIcon field="name" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="valuePercent"
+            style="width: 120px; min-width: 120px"
+          >
+            <div class="d-flex align-items-center gap-2">
+              <span class="d-none d-sm-inline">Valor (%)</span>
+              <span class="d-inline d-sm-none">%</span>
+              <p-sortIcon field="valuePercent" />
+            </div>
+          </th>
+          <th pSortableColumn="type" style="width: 100px; min-width: 100px">
+            <div class="d-flex align-items-center gap-2">
+              Tipo
+              <p-sortIcon field="type" />
+            </div>
+          </th>
+          <th pSortableColumn="isActive" style="width: 100px; min-width: 100px">
+            <div class="d-flex align-items-center gap-2">
+              Estado
+              <p-sortIcon field="isActive" />
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-tax>
+        <tr>
+          <td class="text-center">
+            <p-menu
+              #menu
+              [model]="menuItems"
+              [popup]="true"
+              [appendTo]="'body'"
+            />
+            <p-button
+              icon="pi pi-ellipsis-v"
+              [rounded]="true"
+              severity="secondary"
+              [outlined]="true"
+              size="small"
+              (click)="menu.toggle($event); selectedTax = tax"
+            />
+          </td>
+          <td class="text-break">
+            <div class="fw-medium">{{ tax.name }}</div>
+          </td>
+          <td class="text-center">
+            <span class="fw-medium">{{ tax.valuePercent }}%</span>
+          </td>
+          <td>
+            <p-tag
+              [value]="tax.type"
+              [severity]="getTypeColor(tax.type)"
+              class="w-100 d-flex justify-content-center"
+            />
+          </td>
+          <td>
+            <p-tag
+              [value]="tax.isActive ? 'Ativo' : 'Inativo'"
+              [severity]="getStatusSeverity(tax.isActive)"
+              [icon]="getStatusIcon(tax.isActive)"
+              class="w-100 d-flex justify-content-center"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">Não foram encontradas taxas com essas diretrizes.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
   }
 </div>

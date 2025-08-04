@@ -6,6 +6,7 @@ using NERBABO.ApiService.Core.Students.Dtos;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using System;
 
 namespace NERBABO.ApiService.Core.Students.Services
 {
@@ -240,9 +241,8 @@ namespace NERBABO.ApiService.Core.Students.Services
                     .Fail("Não encontrado", "Pessoa associada não encontrada.",
                     StatusCodes.Status404NotFound);
 
-
-            if (entityDto.CompanyId is not null
-                && entityDto.CompanyId != 0)
+            // check if company exists when companyId has value
+            if (entityDto.CompanyId is not null)
             {
                 company = await _context.Companies
                     .FindAsync(entityDto.CompanyId);
@@ -254,6 +254,7 @@ namespace NERBABO.ApiService.Core.Students.Services
                 }
             }
 
+            // check unique constraint with person
             if (await _context.Students.AnyAsync(s =>
                 s.PersonId == entityDto.PersonId
                 && s.Id != entityDto.Id))
@@ -264,14 +265,62 @@ namespace NERBABO.ApiService.Core.Students.Services
                     StatusCodes.Status404NotFound);
             }
 
-            var student = Student.ConvertCreateDtoToEntity(entityDto, person, company);
+            // Selective field updates - only update fields that have changed
+            bool hasChanges = false;
 
-            _context.Entry(existingStudent).CurrentValues.SetValues(student);
+            // Update PersonId if changed
+            if (existingStudent.PersonId != entityDto.PersonId)
+            {
+                existingStudent.PersonId = entityDto.PersonId;
+                existingStudent.Person = person;
+                hasChanges = true;
+            }
+
+            // Update CompanyId if changed
+            if (existingStudent.CompanyId != entityDto.CompanyId)
+            {
+                existingStudent.CompanyId = entityDto.CompanyId;
+                existingStudent.Company = company;
+                hasChanges = true;
+            }
+
+            // Update IsEmployeed if changed
+            if (existingStudent.IsEmployeed != entityDto.IsEmployeed)
+            {
+                existingStudent.IsEmployeed = entityDto.IsEmployeed;
+                hasChanges = true;
+            }
+
+            // Update IsRegisteredWithJobCenter if changed
+            if (existingStudent.IsRegisteredWithJobCenter != entityDto.IsRegisteredWithJobCenter)
+            {
+                existingStudent.IsRegisteredWithJobCenter = entityDto.IsRegisteredWithJobCenter;
+                hasChanges = true;
+            }
+
+            // Update CompanyRole if changed
+            if (!string.Equals(existingStudent.CompanyRole, entityDto.CompanyRole))
+            {
+                existingStudent.CompanyRole = entityDto.CompanyRole;
+                hasChanges = true;
+            }
+
+            // Return fail result if no changes were detected
+            if (!hasChanges)
+            {
+                _logger.LogInformation("No changes detected for Student with ID {id}. No update performed.", entityDto.Id);
+                return Result<RetrieveStudentDto>
+                    .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
+                    StatusCodes.Status400BadRequest);
+            }
+
+            // Update UpdatedAt and save changes
+            existingStudent.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            var retrieveStudent = Student.ConvertEntityToRetrieveDto(student, person, company);
+            var retrieveStudent = Student.ConvertEntityToRetrieveDto(existingStudent, person, company);
 
-            // Update cache
+            // Update cache only if changes were made
             await RemoveRelatedCache(retrieveStudent.Id, retrieveStudent.PersonId);
             await _cache.SetSingleStudentsCacheAsync(retrieveStudent);
 

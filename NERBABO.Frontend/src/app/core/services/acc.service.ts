@@ -35,19 +35,34 @@ export class AccService {
   register(model: Register): Observable<OkResponse> {
     return this.http
       .post<OkResponse>(API_ENDPOINTS.create_acc, model)
-      .pipe(tap(() => this.notifyUpdate('0'))); // Notify full refresh after create
+      .pipe(
+        tap(() => {
+          this.fetchUsers(); // Refresh user data after create
+          this.notifyUpdate('0');
+        })
+      );
   }
 
   blockUser(userId: string): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.block_acc}${userId}`, {})
-      .pipe(tap(() => this.notifyDelete(userId))); // Treat block/unblock as delete for refresh
+      .pipe(
+        tap(() => {
+          this.fetchUsers(); // Refresh user data after block/unblock
+          this.notifyUpdate(userId);
+        })
+      );
   }
 
   updateUser(model: UserUpdate): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.update_acc}${model.id}`, model)
-      .pipe(tap(() => this.notifyUpdate(model.id))); // Notify update after success
+      .pipe(
+        tap(() => {
+          this.fetchUsers(); // Refresh user data after update
+          this.notifyUpdate(model.id);
+        })
+      );
   }
 
   getUserById(id: string): Observable<UserInfo> {
@@ -79,6 +94,12 @@ export class AccService {
 
   getuserById(id: string): UserInfo | undefined {
     return this.usersSubject.getValue()?.find((user) => user.id === id);
+  }
+
+  getUserByPersonId(personId: number): UserInfo | undefined {
+    return this.usersSubject
+      .getValue()
+      ?.find((user) => user.personId === personId);
   }
 
   triggerFetchUsers() {

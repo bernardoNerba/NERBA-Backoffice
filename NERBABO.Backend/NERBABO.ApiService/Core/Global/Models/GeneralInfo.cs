@@ -34,23 +34,4 @@ public class GeneralInfo : Entity<long>
             IvaPercent = generalInfo.IvaTax?.ValuePercent ?? 0
         };
     }
-
-    public static GeneralInfo ConvertUpdateDtoToEntity(UpdateGeneralInfoDto updateGeneralInfo)
-    {
-        return new GeneralInfo
-        {
-            Id = 1,
-            Designation = updateGeneralInfo.Designation,
-            Site = updateGeneralInfo.Site,
-            HourValueTeacher = updateGeneralInfo.HourValueTeacher,
-            HourValueAlimentation = updateGeneralInfo.HourValueAlimentation,
-            BankEntity = updateGeneralInfo.BankEntity,
-            Iban = updateGeneralInfo.Iban,
-            Nipc = updateGeneralInfo.Nipc,
-            LogoFinancing = updateGeneralInfo.LogoFinancing,
-            IvaId = updateGeneralInfo.IvaId,
-            UpdatedAt = DateTime.UtcNow
-        };
-    }
-
 }

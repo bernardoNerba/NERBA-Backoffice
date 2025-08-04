@@ -26,7 +26,6 @@ export class PeopleService {
 
   constructor(private http: HttpClient, private sharedService: SharedService) {
     this.fetchPeople();
-    this.fetchPeopleWithoutUser();
   }
 
   upsertPerson(model: Person, isUpdate: boolean): Observable<OkResponse> {
@@ -108,21 +107,7 @@ export class PeopleService {
       });
   }
 
-  private fetchPeopleWithoutUser(): void {
-    this.http
-      .get<Person[]>(API_ENDPOINTS.people_not_user + 'colaborator/')
-      .pipe(finalize(() => this.loadingSubject.next(false)))
-      .subscribe({
-        next: (data: Person[]) => {
-          this.peopleWithoutUserSubject.next(data);
-        },
-        error: (err) => {
-          console.error('Failed to fetch people without user:', err);
-          this.peopleWithoutUserSubject.next([]);
-          if (err.status === 403 || err.status === 401) {
-            this.sharedService.redirectUser();
-          }
-        },
-      });
+  fetchPeopleWithoutUser(): void {
+    this.http.get<Person[]>(API_ENDPOINTS.people_not_user + 'colaborator/');
   }
 }
