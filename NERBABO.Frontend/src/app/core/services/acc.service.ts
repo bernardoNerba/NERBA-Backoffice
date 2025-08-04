@@ -81,6 +81,10 @@ export class AccService {
     return this.usersSubject.getValue()?.find((user) => user.id === id);
   }
 
+  getUserByPersonId(personId: number): UserInfo | undefined {
+    return this.usersSubject.getValue()?.find((user) => user.personId === personId);
+  }
+
   triggerFetchUsers() {
     this.fetchUsers();
   }

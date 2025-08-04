@@ -161,6 +161,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'people/:id/acc',
+    loadComponent: () =>
+      import('./features/acc/view-acc/view-acc.component').then(
+        (m) => m.ViewAccComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'not-found',
     loadComponent: () =>
       import('./shared/not-found/not-found.component').then(

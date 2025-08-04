@@ -171,5 +171,21 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
             var result = await _courseActionService.ChangeActionStatusAsync(id, status);
             return _responseHandler.HandleResult(result);
         }
+
+        /// <summary>
+        /// Gets all the actions associated with a given collaborator (coordenator) ordered by creation date descending.
+        /// </summary>
+        /// <param name="coordenatorId">The ID of the collaborator (coordenator) to perform the query on.</param>
+        /// <response code="200">There are actions on the system associated with the given collaborator. Returns a List of RetrieveCourseActionDto.</response>
+        /// <response code="404">Collaborator with given ID not found or there are no actions on the system associated with the given collaborator.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("coordenator/{coordenatorId}")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> GetAllActionsByCoordenatorId(string coordenatorId)
+        {
+            var result = await _courseActionService.GetAllByCoordenatorAsync(coordenatorId);
+            return _responseHandler.HandleResult(result);
+        }
     }
 }
