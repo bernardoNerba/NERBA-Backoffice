@@ -1,0 +1,62 @@
+﻿using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Modules.Models;
+using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
+using NERBABO.ApiService.Core.Teachers.Models;
+using NERBABO.ApiService.Shared.Models;
+
+namespace NERBABO.ApiService.Core.ModuleTeachings.Models
+{
+    public class ModuleTeaching : Entity<long>
+    {
+        public long TeacherId { get; set; }
+        public long ActionId { get; set; }
+        public long ModuleId { get; set; }
+        public float AvaliationCoordenator { get; set; }
+        public float AvaliationStudents { get; set; }
+        public double PaymentTotal { get; set; }
+        public DateOnly? PaymentDate { get; set; }
+
+        // Navigation properties
+        public required Teacher Teacher { get; set; }
+        public required CourseAction Action { get; set; }
+        public required Module Module { get; set; }
+
+        // Calculated properties
+        public float AvaliationAvg =>
+            (AvaliationCoordenator + AvaliationStudents) / 2;
+        public bool PaymentProcessed =>
+            PaymentDate.HasValue;
+
+
+        public static RetrieveModuleTeachingDto ConvertEntityToRetrieveDto(ModuleTeaching mt)
+        {
+            return new RetrieveModuleTeachingDto
+            {
+                Id = mt.Id,
+                ActionId = mt.ActionId,
+                ModuleId = mt.ModuleId,
+                TeacherId = mt.TeacherId,
+                AvaliationCoordenator = mt.AvaliationCoordenator,
+                AvaliationStudents = mt.AvaliationStudents,
+                AvaliationAvg = mt.AvaliationAvg,
+                PaymentTotal = mt.PaymentTotal,
+                PaymentDate = mt.PaymentDate.ToString() ?? "",
+                PaymentProcessed = mt.PaymentProcessed
+            };
+        }
+
+        public static ModuleTeaching ConvertCreateDtoToEntity(CreateModuleTeachingDto mt,
+            Teacher teacher, Module module, CourseAction action)
+        {
+            return new ModuleTeaching
+            {
+                TeacherId = mt.TeacherId,
+                ModuleId = mt.ModuleId,
+                ActionId = mt.ActionId,
+                Teacher = teacher,
+                Action = action,
+                Module = module
+            };
+        }
+    }
+}

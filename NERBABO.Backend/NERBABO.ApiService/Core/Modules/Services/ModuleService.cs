@@ -70,7 +70,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
             {
                 _logger.LogInformation("No modules found in the database.");
                 return Result<IEnumerable<RetrieveModuleDto>>
-                    .Fail("Nenhum módulo encontrado.", "Não existem módulos ativos no sistema.",
+                    .Fail("Não encontrado.", "Não existem módulos ativos no sistema.",
                     StatusCodes.Status404NotFound);
             }
 
