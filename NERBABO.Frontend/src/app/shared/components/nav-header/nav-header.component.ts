@@ -32,7 +32,9 @@ import { RouterLink } from '@angular/router';
     </li>
     } @if(person.isColaborator){
     <li class="nav-item">
-      <a class="nav-link {{ activePage === 'user' ? 'active' : '' }}" href="#"
+      <a
+        class="nav-link {{ activePage === 'collaborator' ? 'active' : '' }}"
+        [routerLink]="['/people', person.id, 'acc']"
         >Colaborador</a
       >
     </li>

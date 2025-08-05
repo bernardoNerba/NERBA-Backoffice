@@ -1,5 +1,6 @@
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Actions.Cache;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
@@ -9,6 +10,8 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
+using System;
+using System.Linq;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Actions.Services
@@ -387,21 +390,100 @@ namespace NERBABO.ApiService.Core.Actions.Services
             }
 
 
-            var actionEntity = CourseAction.ConvertUpdateDtoToEntity(entityDto, existingCourseAction.Coordenator, existingCourse);
-            _context.Entry(existingCourseAction).CurrentValues.SetValues(actionEntity);
+            // Selective field updates - only update fields that have changed
+            bool hasChanges = false;
+
+            // Update CourseId if changed
+            if (existingCourseAction.CourseId != entityDto.CourseId)
+            {
+                existingCourseAction.CourseId = entityDto.CourseId;
+                existingCourseAction.Course = existingCourse;
+                hasChanges = true;
+            }
+
+            // Update AdministrationCode if changed
+            if (!string.Equals(existingCourseAction.AdministrationCode, entityDto.AdministrationCode, StringComparison.OrdinalIgnoreCase))
+            {
+                existingCourseAction.AdministrationCode = entityDto.AdministrationCode;
+                hasChanges = true;
+            }
+
+            // Update Address if changed
+            if (!string.Equals(existingCourseAction.Address, entityDto.Address))
+            {
+                existingCourseAction.Address = entityDto.Address;
+                hasChanges = true;
+            }
+
+            // Update Locality if changed
+            if (!string.Equals(existingCourseAction.Locality, entityDto.Locality))
+            {
+                existingCourseAction.Locality = entityDto.Locality;
+                hasChanges = true;
+            }
+
+            // Update WeekDays if changed
+            var newWeekDays = entityDto.WeekDays.Select(x => x.DehumanizeTo<WeekDaysEnum>()).ToList();
+            if (!existingCourseAction.WeekDays.SequenceEqual(newWeekDays))
+            {
+                existingCourseAction.WeekDays = newWeekDays;
+                hasChanges = true;
+            }
+
+            // Update StartDate if changed
+            if (existingCourseAction.StartDate != startDate)
+            {
+                existingCourseAction.StartDate = startDate;
+                hasChanges = true;
+            }
+
+            // Update EndDate if changed
+            if (existingCourseAction.EndDate != endDate)
+            {
+                existingCourseAction.EndDate = endDate;
+                hasChanges = true;
+            }
+
+            // Update Status if changed
+            var newStatus = entityDto.Status.DehumanizeTo<StatusEnum>();
+            if (existingCourseAction.Status != newStatus)
+            {
+                existingCourseAction.Status = newStatus;
+                hasChanges = true;
+            }
+
+            // Update Regiment if changed
+            var newRegiment = entityDto.Regiment.DehumanizeTo<RegimentTypeEnum>();
+            if (existingCourseAction.Regiment != newRegiment)
+            {
+                existingCourseAction.Regiment = newRegiment;
+                hasChanges = true;
+            }
+
+            // Return fail result if no changes were detected
+            if (!hasChanges)
+            {
+                _logger.LogInformation("No changes detected for CourseAction with ID {id}. No update performed.", entityDto.Id);
+                return Result<RetrieveCourseActionDto>
+                    .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
+                    StatusCodes.Status400BadRequest);
+            }
+
+            // Update UpdatedAt and save changes
+            existingCourseAction.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             var retrieveAction = CourseAction.ConvertEntityToRetrieveDto(
-                actionEntity, actionEntity.Coordenator, actionEntity.Course);
+                existingCourseAction, existingCourseAction.Coordenator, existingCourseAction.Course);
 
-            // update cache
+            // Update cache
             await _cache.RemoveActionCacheAsync(entityDto.Id);
             await _cacheCourse.RemoveCourseCacheAsync();
             await _cacheModule.RemoveModuleCacheAsync();
             await _cache.SetSingleActionCacheAsync(retrieveAction);
 
             return Result<RetrieveCourseActionDto>
-            .Ok(retrieveAction,
+                .Ok(retrieveAction,
                 "Ação de Formação Atualizada.", "Ação de formação atualizada com sucesso.");
 
         }
@@ -504,5 +586,36 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .Ok("Estado da Ação Formativa alterado.", "Estado da Ação Formativa alterado com sucesso.");
         }
 
+        public async Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllByCoordenatorAsync(string coordenatorId)
+        {
+            var existingCoordenator = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == coordenatorId);
+            if (existingCoordenator is null)
+            {
+                _logger.LogWarning("User with ID {id} not found.", coordenatorId);
+                return Result<IEnumerable<RetrieveCourseActionDto>>
+                    .Fail("Não encontrado", "Coordenador não encontrado.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            var existingActions = await _context.Actions
+                .AsNoTracking()
+                .Include(a => a.Coordenator)
+                .Include(a => a.Course)
+                .Where(a => a.CoordenatorId == existingCoordenator.Id)
+                .OrderByDescending(a => a.CreatedAt)
+                .Select(a => CourseAction.ConvertEntityToRetrieveDto(a, a.Coordenator, a.Course))
+                .ToListAsync();
+            if (existingActions is null || existingActions.Count == 0)
+            {
+                _logger.LogInformation("There is no actions related to the user");
+                return Result<IEnumerable<RetrieveCourseActionDto>>
+                    .Fail("Não encontrado", "Não é coordenador de nenhuma ação.",
+                    StatusCodes.Status404NotFound);                
+            }
+
+            return Result<IEnumerable<RetrieveCourseActionDto>>
+                .Ok(existingActions);
+        }
     }
 }

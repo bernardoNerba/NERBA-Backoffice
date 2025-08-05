@@ -36,9 +36,11 @@ export class StudentsService {
   }
 
   delete(id: number): Observable<OkResponse> {
-    return this.http
-      .delete<OkResponse>(API_ENDPOINTS.students + id)
-      .pipe(tap(() => this.notifyStudentDelete(id)));
+    return this.http.delete<OkResponse>(API_ENDPOINTS.students + id).pipe(
+      tap(() => {
+        this.notifyStudentDelete(id);
+      })
+    );
   }
 
   private create(model: Omit<StudentForm, 'id'>): Observable<OkResponse> {

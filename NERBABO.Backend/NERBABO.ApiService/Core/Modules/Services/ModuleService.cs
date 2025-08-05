@@ -6,6 +6,7 @@ using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using System;
 
 namespace NERBABO.ApiService.Core.Modules.Services
 {
@@ -60,7 +61,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
             // If not in cache, retrieve from database
             var existingModules = await _context.Modules
                 .Where(m => m.IsActive)
-                .OrderByDescending(m => m.CreatedAt)
+                .OrderByDescending(m => m.UpdatedAt)
                 .ThenBy(m => m.Name)
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .ToListAsync();
@@ -91,7 +92,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // If not in cache, retrieve from database
             var existingModules = await _context.Modules
-                .OrderByDescending(m => m.IsActive) // true (1) first
+                .OrderByDescending(m => m.UpdatedAt)
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .ToListAsync();
 
@@ -155,11 +156,44 @@ namespace NERBABO.ApiService.Core.Modules.Services
                     .Fail("Erro de Validação.", "O nome do módulo deve ser único. Já existe no sistema.");
             }
 
-            _context.Entry(existingModule).CurrentValues.SetValues(Module.ConvertUpdateDtoToEntity(entityDto));
+            // Selective field updates - only update fields that have changed
+            bool hasChanges = false;
+
+            // Update Name if changed
+            if (!string.Equals(existingModule.Name, entityDto.Name))
+            {
+                existingModule.Name = entityDto.Name;
+                hasChanges = true;
+            }
+
+            // Update Hours if changed
+            if (Math.Abs(existingModule.Hours - entityDto.Hours) > 0.01f)
+            {
+                existingModule.Hours = entityDto.Hours;
+                hasChanges = true;
+            }
+
+            // Update IsActive if changed
+            if (existingModule.IsActive != entityDto.IsActive)
+            {
+                existingModule.IsActive = entityDto.IsActive;
+                hasChanges = true;
+            }
+
+            // Return fail result if no changes were detected
+            if (!hasChanges)
+            {
+                _logger.LogInformation("No changes detected for Module with ID {id}. No update performed.", entityDto.Id);
+                return Result<RetrieveModuleDto>
+                    .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
+                    StatusCodes.Status400BadRequest);
+            }
+
+            // Update UpdatedAt and save changes
+            existingModule.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             // Update cache
-            var cacheKey = $"modules:{existingModule.Id}";
             await _cache.RemoveModuleCacheAsync(existingModule.Id);
             await _cacheCourse.RemoveCourseCacheAsync();
             await _cacheAction.RemoveActionCacheAsync();

@@ -23,7 +23,6 @@ export class BlockAccComponent {
       next: (response) => {
         this.sharedService.showSuccess(response.title);
         this.bsModalRef.hide();
-        this.accountService.triggerFetchUsers();
       },
       error: (err) => {
         this.sharedService.handleErrorResponse(err);

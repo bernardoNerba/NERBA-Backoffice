@@ -64,11 +64,6 @@ public class Tax : Entity<int>
         return new Tax(tax.Name, tax.ValuePercent, true, tax.Type.DehumanizeTo<TaxEnum>());
     }
 
-    public static Tax ConvertUpdateDtoToEntity(UpdateTaxDto tax)
-    {
-        return new Tax(tax.Id, tax.Name, tax.ValuePercent, tax.IsActive, tax.Type.DehumanizeTo<TaxEnum>());
-    }
-
     public static bool IsValidTaxType(string type)
     {
         return type.Equals(TaxEnum.IVA.Humanize(), StringComparison.OrdinalIgnoreCase) ||

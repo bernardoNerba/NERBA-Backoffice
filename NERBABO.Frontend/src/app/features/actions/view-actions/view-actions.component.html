@@ -101,7 +101,12 @@
                 <div class="property">
                   <strong>Coordenador</strong>
                   <p class="text-break mb-0">
-                    {{ action.coordenatorName }}
+                    <app-icon-anchor
+                      [icon]="'bi bi-link'"
+                      [display]="action.coordenatorName"
+                      [field]="action.coordenatorName"
+                      [link]="'/people/' + action.coordenatorId"
+                    />
                   </p>
                 </div>
               </div>

@@ -178,12 +178,12 @@ public class PeopleService(
 
         // Not in cache so fetch from database
         var existingPeople = _context.People
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.Teacher)
             .Include(p => p.Student)
+            .OrderByDescending(p => p.UpdatedAt)
             .Select(p => Person.ConvertEntityToRetrieveDto(p))
-            .AsValueEnumerable()
-            .OrderByDescending(p => p.FullName)
             .ToList();
 
         // Check if data
@@ -218,6 +218,7 @@ public class PeopleService(
 
         // Fetch from database
         var existingPeople = await _context.People
+            .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.Teacher)
             .Include(p => p.Student)
@@ -235,7 +236,7 @@ public class PeopleService(
         var peopleWithoutProfile = existingPeople
             .AsValueEnumerable()
             .Where(filter.Compile())
-            .OrderByDescending(p => p.CreatedAt)
+            .OrderByDescending(p => p.UpdatedAt)
             .Select(Person.ConvertEntityToRetrieveDto)
             .ToList();
 
@@ -261,6 +262,7 @@ public class PeopleService(
 
         // Not in cache so fetch from database
         var existingPerson = await _context.People
+                .AsNoTracking()
                 .Include(p => p.User)
                 .Include(p => p.Teacher)
                 .Include(p => p.Student)
@@ -283,6 +285,7 @@ public class PeopleService(
     public async Task<Result<RelationshipPersonDto>> GetPersonRelationshipsAsync(long personId)
     {
         var existingPerson = await _context.People
+            .AsNoTracking()
             .Include(p => p.Teacher)
             .Include(p => p.User)
             .Include(p => p.Student)
@@ -309,7 +312,7 @@ public class PeopleService(
                 .Fail("Não encontrado.", "Pessoa não encontrada.",
                 StatusCodes.Status404NotFound);
 
-        // Check for unique constraints
+        // Check if NIF is unique
         if (await _context.People.AnyAsync(p => p.NIF == entityDto.NIF
             && p.Id != existingPerson.Id))
         {
@@ -318,6 +321,7 @@ public class PeopleService(
                 .Fail("Erro de Validação.", "O NIF da pessoa deve ser único. Já existe no sistema.");
         }
 
+        // Check if NISS is unique
         if (!string.IsNullOrEmpty(entityDto.NISS)
             && await _context.People.AnyAsync(p => p.NISS == entityDto.NISS
             && p.Id != existingPerson.Id))
@@ -327,6 +331,7 @@ public class PeopleService(
                 .Fail("Erro de Validação.", "O NISS da pessoa deve ser único. Já existe no sistema.");
         }
 
+        // Check if IdentificationNumber is unique
         if (!string.IsNullOrEmpty(entityDto.IdentificationNumber)
             && await _context.People.AnyAsync(p =>
             (p.IdentificationNumber ?? "").ToLower()
@@ -338,6 +343,7 @@ public class PeopleService(
                 .Fail("Erro de Validação.", "O Numero de Identificação da pessoa deve ser único. Já existe no sistema.");
         }
 
+        // Check if Email is unique
         if (!string.IsNullOrEmpty(entityDto.Email)
             && await _context.People.AnyAsync(p =>
             (p.Email ?? "").ToLower()
@@ -349,7 +355,7 @@ public class PeopleService(
                 .Fail("Erro de Validação.", "O Email da pessoa deve ser único. Já existe no sistema.");
         }
 
-        // enum checks
+        // check if Gender is a valid GenderEnum
         if (!string.IsNullOrEmpty(entityDto.Gender)
             && !EnumHelp.IsValidEnum<GenderEnum>(entityDto.Gender))
         {
@@ -358,6 +364,7 @@ public class PeopleService(
                 StatusCodes.Status404NotFound);
         }
 
+        // Check if Habilitation is a valid HabilitationEnum
         if (!string.IsNullOrEmpty(entityDto.Habilitation)
             && !EnumHelp.IsValidEnum<HabilitationEnum>(entityDto.Habilitation))
         {
@@ -366,6 +373,7 @@ public class PeopleService(
                 StatusCodes.Status404NotFound);
         }
 
+        // Check if IdentificationType is a valid IdentificationTypeEnum
         if (!string.IsNullOrEmpty(entityDto.IdentificationType)
             && !EnumHelp.IsValidEnum<IdentificationTypeEnum>(entityDto.IdentificationType))
         {
@@ -374,7 +382,144 @@ public class PeopleService(
                 StatusCodes.Status404NotFound);
         }
 
-        _context.Entry(existingPerson).CurrentValues.SetValues(Person.ConvertUpdateDtoToEntity(entityDto));
+        // Selective field updates - only update fields that have changed
+        bool hasChanges = false;
+
+        // Update FirstName if changed
+        if (!string.Equals(existingPerson.FirstName, entityDto.FirstName))
+        {
+            existingPerson.FirstName = entityDto.FirstName;
+            hasChanges = true;
+        }
+
+        // Update LastName if changed
+        if (!string.Equals(existingPerson.LastName, entityDto.LastName))
+        {
+            existingPerson.LastName = entityDto.LastName;
+            hasChanges = true;
+        }
+
+        // Update NIF if changed
+        if (!string.Equals(existingPerson.NIF, entityDto.NIF))
+        {
+            existingPerson.NIF = entityDto.NIF;
+            hasChanges = true;
+        }
+
+        // Update IdentificationNumber if changed
+        if (!string.Equals(existingPerson.IdentificationNumber, entityDto.IdentificationNumber))
+        {
+            existingPerson.IdentificationNumber = entityDto.IdentificationNumber;
+            hasChanges = true;
+        }
+
+        // Update IdentificationValidationDate if changed
+        var newIdentificationValidationDate = Helper.StringDateOnlyConverter.ConvertToDateOnly(entityDto.IdentificationValidationDate);
+        if (existingPerson.IdentificationValidationDate != newIdentificationValidationDate)
+        {
+            existingPerson.IdentificationValidationDate = newIdentificationValidationDate;
+            hasChanges = true;
+        }
+
+        // Update NISS if changed
+        if (!string.Equals(existingPerson.NISS, entityDto.NISS))
+        {
+            existingPerson.NISS = entityDto.NISS;
+            hasChanges = true;
+        }
+
+        // Update IBAN if changed
+        if (!string.Equals(existingPerson.IBAN, entityDto.IBAN))
+        {
+            existingPerson.IBAN = entityDto.IBAN;
+            hasChanges = true;
+        }
+
+        // Update BirthDate if changed
+        var newBirthDate = Helper.StringDateOnlyConverter.ConvertToDateOnly(entityDto.BirthDate);
+        if (existingPerson.BirthDate != newBirthDate)
+        {
+            existingPerson.BirthDate = newBirthDate;
+            hasChanges = true;
+        }
+
+        // Update Address if changed
+        if (!string.Equals(existingPerson.Address, entityDto.Address))
+        {
+            existingPerson.Address = entityDto.Address;
+            hasChanges = true;
+        }
+
+        // Update ZipCode if changed
+        if (!string.Equals(existingPerson.ZipCode, entityDto.ZipCode))
+        {
+            existingPerson.ZipCode = entityDto.ZipCode;
+            hasChanges = true;
+        }
+
+        // Update PhoneNumber if changed
+        if (!string.Equals(existingPerson.PhoneNumber, entityDto.PhoneNumber))
+        {
+            existingPerson.PhoneNumber = entityDto.PhoneNumber;
+            hasChanges = true;
+        }
+
+        // Update Email if changed
+        if (!string.Equals(existingPerson.Email, entityDto.Email))
+        {
+            existingPerson.Email = entityDto.Email;
+            hasChanges = true;
+        }
+
+        // Update Naturality if changed
+        if (!string.Equals(existingPerson.Naturality, entityDto.Naturality))
+        {
+            existingPerson.Naturality = entityDto.Naturality;
+            hasChanges = true;
+        }
+
+        // Update Nationality if changed
+        if (!string.Equals(existingPerson.Nationality, entityDto.Nationality))
+        {
+            existingPerson.Nationality = entityDto.Nationality;
+            hasChanges = true;
+        }
+
+        // Update Gender if changed
+        var newGender = entityDto.Gender.DehumanizeTo<GenderEnum>();
+        if (existingPerson.Gender != newGender)
+        {
+            existingPerson.Gender = newGender;
+            hasChanges = true;
+        }
+
+        // Update Habilitation if changed
+        var newHabilitation = entityDto.Habilitation.DehumanizeTo<HabilitationEnum>();
+        if (existingPerson.Habilitation != newHabilitation)
+        {
+            existingPerson.Habilitation = newHabilitation;
+            hasChanges = true;
+        }
+
+        // Update IdentificationType if changed
+        var newIdentificationType = entityDto.IdentificationType.DehumanizeTo<IdentificationTypeEnum>();
+        if (existingPerson.IdentificationType != newIdentificationType)
+        {
+            existingPerson.IdentificationType = newIdentificationType;
+            hasChanges = true;
+        }
+
+        // Return fail result if no changes were detected
+        if (!hasChanges)
+        {
+            _logger.LogInformation("No changes detected for Person with ID {id}. No update performed.", entityDto.Id);
+            return Result<RetrievePersonDto>
+                .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
+                StatusCodes.Status400BadRequest);
+        }
+
+        // Update UpdatedAt and save changes
+        existingPerson.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
         var retrievePerson = Person.ConvertEntityToRetrieveDto(existingPerson);
@@ -382,7 +527,6 @@ public class PeopleService(
         // Update cache
         await RemoveRelatedCache(retrievePerson.Id);
         await _cache.SetSinglePersonCacheAsync(retrievePerson);
-
 
         return Result<RetrievePersonDto>
             .Ok(retrievePerson,

@@ -2,7 +2,7 @@
 @if (loading) {
 <div class="text-center py-5">
   <app-spinner />
-  <p class="mt-2">Loading enquadramentos...</p>
+  <p class="mt-2">Loading estudantes...</p>
 </div>
 }
 <!-- START table -->
@@ -11,18 +11,17 @@
   <p-table
     #dt
     stripedRows
-    [value]="courses"
+    [value]="students"
     size="small"
-    [tableStyle]="{ 'min-width': '60rem' }"
-    [globalFilterFields]="['title', 'minHabilitationLevel']"
+    [tableStyle]="{ 'min-width': '70rem' }"
+    [globalFilterFields]="['studentFullName', 'companyName', 'companyRole']"
     [paginator]="true"
     [rows]="10"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     (onPage)="pageChange($event)"
-    (onSort)="onSort($event)"
     [rowsPerPageOptions]="[10, 25, 50]"
   >
-    >
+    <!-- Table caption with Search -->
     <ng-template #caption>
       <div
         class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center"
@@ -55,51 +54,54 @@
               icon="pi pi-filter-slash"
               [outlined]="true"
               (click)="clearFilters()"
-              title="Limpar filtros"
+              pTooltip="Limpar filtros"
               class="flex-shrink-0"
             />
           </div>
         </div>
       </div>
     </ng-template>
+
     <ng-template #header>
       <tr>
         <th style="width: 60px; min-width: 60px" class="text-center">#</th>
-        <th pSortableColumn="title" style="min-width: 200px">
+        <th pSortableColumn="studentFullName" style="min-width: 180px">
           <div class="d-flex align-items-center gap-2">
-            <span class="d-none d-md-inline">Título</span>
-            <span class="d-inline d-md-none">Curso</span>
-            <p-sortIcon field="title" />
+            <span class="d-none d-md-inline">Nome Completo</span>
+            <span class="d-inline d-md-none">Nome</span>
+            <p-sortIcon field="studentFullName" />
           </div>
         </th>
+        @if (!isCompanyPage) {
+        <th pSortableColumn="companyName" style="min-width: 200px">
+          <div class="d-flex align-items-center gap-2">
+            Empresa
+            <p-sortIcon field="companyName" />
+          </div>
+        </th>
+        }
+        <th pSortableColumn="companyRole" style="min-width: 150px">
+          <div class="d-flex align-items-center gap-2">
+            Cargo
+            <p-sortIcon field="companyRole" />
+          </div>
+        </th>
+        @if(!isCompanyPage) {
         <th
-          pSortableColumn="minHabilitationLevel"
-          style="width: 200px; min-width: 180px"
+          pSortableColumn="isEmployeed"
+          style="width: 120px; min-width: 120px"
         >
           <div class="d-flex align-items-center gap-2">
-            <span class="d-none d-lg-inline">Nível Min. Hab.</span>
-            <span class="d-inline d-lg-none">Nível</span>
-            <p-sortIcon field="minHabilitationLevel" />
+            <span class="d-none d-lg-inline">Empregado</span>
+            <span class="d-inline d-lg-none">Emp.</span>
+            <p-sortIcon field="isEmployeed" />
           </div>
         </th>
-        <th
-          pSortableColumn="progressPercentage"
-          style="width: 200px; min-width: 150px"
-        >
-          <div class="d-flex align-items-center gap-2">
-            Completo
-            <p-sortIcon field="progressPercentage" />
-          </div>
-        </th>
-        <th pSortableColumn="status" style="width: 180px; min-width: 120px">
-          <div class="d-flex align-items-center gap-2">
-            Estado
-            <p-sortIcon field="status" />
-          </div>
-        </th>
+        }
       </tr>
     </ng-template>
-    <ng-template #body let-course>
+
+    <ng-template #body let-student>
       <tr>
         <!-- DROPDOWN MENU -->
         <td class="text-center">
@@ -115,51 +117,56 @@
             severity="secondary"
             [outlined]="true"
             size="small"
-            (click)="menu.toggle($event); selectedCourse = course"
+            (click)="menu.toggle($event); selectedStudent = student"
           />
         </td>
-        <!-- COURSE TITLE -->
+        <!-- STUDENT FULLNAME -->
         <td class="text-break">
           <app-icon-anchor
-            [field]="course.title"
-            [display]="course.title | truncate : 30"
-            [link]="'/courses/' + course.id"
-            [icon]="'pi pi-link'"
+            [field]="student.studentFullName"
+            [display]="student.studentFullName | truncate : 30"
+            [link]="'/people/' + student.personId"
+            [icon]="'bi bi-link'"
           />
         </td>
-        <!-- COURSE MIN HABILITATION LVL -->
+        @if (!isCompanyPage) {
+        <!-- COMPANY NAME -->
+        <td class="text-break">
+          <span class="fw-medium">{{
+            (student.companyName | truncate : 25) || "N/A"
+          }}</span>
+        </td>
+        }
+        <!-- COMPANY ROLE -->
         <td>
+          @if (student.companyRole) {
           <p-tag
-            [value]="course.minHabilitationLevel"
+            [value]="student.companyRole | truncate : 20"
             severity="secondary"
-            class="w-100 d-flex justify-content-center"
+            icon="pi pi-briefcase"
           />
+          } @else { N/A }
         </td>
-        <!-- COURSE MODULE HOURS PROGRESS BAR -->
-        <td>
-          <div class="progress-container">
-            <p-progressBar
-              [value]="getProgressPercentage(course)"
-              [showValue]="true"
-              color="{{ getProgressBarClass(course) }}"
-            />
-          </div>
-        </td>
-        <!-- COURSE STATUS -->
+        <!-- IS EMPLOYEED -->
+        @if(!isCompanyPage) {
         <td>
           <p-tag
-            icon="{{ getStatusIcon(course.status) }}"
-            [value]="course.status"
-            [severity]="getStatusSeverity(course.status)"
+            [value]="student.isEmployeed ? 'Sim' : 'Não'"
+            [severity]="student.isEmployeed ? 'success' : 'danger'"
+            [icon]="student.isEmployeed ? 'pi pi-check' : 'pi pi-times'"
             class="w-100 d-flex justify-content-center"
           />
         </td>
+        }
       </tr>
     </ng-template>
+
     <!-- EMPTY STATE -->
     <ng-template #emptymessage>
       <tr>
-        <td colspan="5">Não foram encontrados cursos com essas diretrizes.</td>
+        <td colspan="5">
+          Não foram encontrados estudantes com essas diretrizes.
+        </td>
       </tr>
     </ng-template>
   </p-table>

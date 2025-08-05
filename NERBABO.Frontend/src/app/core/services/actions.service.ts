@@ -38,6 +38,10 @@ export class ActionsService {
     return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByCourse}${id}`);
   }
 
+  getActionsByCoordinatorId(coordinatorId: string): Observable<Action[]> {
+    return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByCoordinator}${coordinatorId}`);
+  }
+
   private fetchActions(): void {
     this.loadingSubject.next(true);
     this.http

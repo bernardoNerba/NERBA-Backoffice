@@ -86,27 +86,6 @@ public class Teacher : Entity<long>
         };
     }
 
-    public static Teacher ConvertUpdateDtoToEntity(
-        UpdateTeacherDto updateTeacherDto, Person person, Tax regimeIva, Tax regimeIrs)
-    {
-        return new Teacher(
-            updateTeacherDto.Id,
-            updateTeacherDto.IvaRegimeId,
-            updateTeacherDto.IrsRegimeId,
-            person.Id,
-            updateTeacherDto.Ccp,
-            updateTeacherDto.Competences,
-            0.0f,
-            updateTeacherDto.IsLecturingFM,
-            updateTeacherDto.IsLecturingCQ)
-        {
-            Person = person,
-            IvaRegime = regimeIva,
-            IrsRegime = regimeIrs,
-            UpdatedAt = DateTime.UtcNow
-        };
-    }
-
     public static RetrieveTeacherDto ConvertEntityToRetrieveDto(
         Teacher teacher)
     {

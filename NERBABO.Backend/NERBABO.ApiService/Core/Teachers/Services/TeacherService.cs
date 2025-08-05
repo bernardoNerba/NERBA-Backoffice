@@ -7,6 +7,7 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
+using System;
 
 namespace NERBABO.ApiService.Core.Teachers.Services;
 
@@ -217,24 +218,28 @@ public class TeacherService(
                 .Fail("Não encontrado.", "Formador não encontrado.",
                 StatusCodes.Status404NotFound);
 
+        // Check if IVA exists
         var iva = await _context.Taxes.FindAsync(entityDto.IvaRegimeId);
         if (iva is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Regime de IVA não encontrado.",
                 StatusCodes.Status404NotFound);
 
+        // Check if IRS exists
         var irs = await _context.Taxes.FindAsync(entityDto.IrsRegimeId);
         if (irs is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Regime de IRS não encontrado.",
                 StatusCodes.Status404NotFound);
 
+        // Check if related Person exists
         var person = await _context.People.FindAsync(entityDto.PersonId);
         if (person is null)
             return Result<RetrieveTeacherDto>
                 .Fail("Não encontrado.", "Pessoa não encontrado.",
                 StatusCodes.Status404NotFound);
 
+        // Check if iva is a IVA type
         if (iva.Type != TaxEnum.IVA)
         {
             _logger.LogError("Invalid tax types for Teacher creation.");
@@ -242,6 +247,7 @@ public class TeacherService(
                 .Fail("Erro de Validação.", "IVA regime devem ser do tipo correto.");
         }
 
+        // check if irs is a IRS type
         if (irs.Type != TaxEnum.IRS)
         {
             _logger.LogError("Invalid tax types for Teacher creation.");
@@ -249,6 +255,7 @@ public class TeacherService(
                 .Fail("Erro de Validação.", "IRS regime devem ser do tipo correto.");
         }
 
+        // check unique constraint with person
         if (await _context.Teachers.AnyAsync(t => t.PersonId == entityDto.PersonId && t.Id != entityDto.Id))
         {
             _logger.LogWarning("Teacher already exists for Person ID: {PersonId}", entityDto.PersonId);
@@ -256,6 +263,7 @@ public class TeacherService(
                 .Fail("Erro de Validação.", "Já existe um Formador associado a esta pessoa.");
         }
 
+        // check if CCP is unique
         if (await _context.Teachers.AnyAsync(t => t.Ccp == entityDto.Ccp && t.Id != entityDto.Id))
         {
             _logger.LogWarning("Teacher already exists with CCP: {Ccp}", entityDto.Ccp);
@@ -263,10 +271,73 @@ public class TeacherService(
                 .Fail("Erro de Validação.", "Já existe um Formador com este CCP.");
         }
 
-        var teacher = Teacher.ConvertUpdateDtoToEntity(entityDto, person, iva, irs);
+        // Selective field updates - only update fields that have changed
+        bool hasChanges = false;
 
-        _context.Entry(existingTeacher).CurrentValues.SetValues(teacher);
-        _context.SaveChanges();
+        // Update IvaRegimeId if changed
+        if (existingTeacher.IvaRegimeId != entityDto.IvaRegimeId)
+        {
+            existingTeacher.IvaRegimeId = entityDto.IvaRegimeId;
+            existingTeacher.IvaRegime = iva;
+            hasChanges = true;
+        }
+
+        // Update IrsRegimeId if changed
+        if (existingTeacher.IrsRegimeId != entityDto.IrsRegimeId)
+        {
+            existingTeacher.IrsRegimeId = entityDto.IrsRegimeId;
+            existingTeacher.IrsRegime = irs;
+            hasChanges = true;
+        }
+
+        // Update PersonId if changed
+        if (existingTeacher.PersonId != entityDto.PersonId)
+        {
+            existingTeacher.PersonId = entityDto.PersonId;
+            existingTeacher.Person = person;
+            hasChanges = true;
+        }
+
+        // Update Ccp if changed
+        if (!string.Equals(existingTeacher.Ccp, entityDto.Ccp))
+        {
+            existingTeacher.Ccp = entityDto.Ccp;
+            hasChanges = true;
+        }
+
+        // Update Competences if changed
+        if (!string.Equals(existingTeacher.Competences, entityDto.Competences))
+        {
+            existingTeacher.Competences = entityDto.Competences;
+            hasChanges = true;
+        }
+
+        // Update IsLecturingFM if changed
+        if (existingTeacher.IsLecturingFM != entityDto.IsLecturingFM)
+        {
+            existingTeacher.IsLecturingFM = entityDto.IsLecturingFM;
+            hasChanges = true;
+        }
+
+        // Update IsLecturingCQ if changed
+        if (existingTeacher.IsLecturingCQ != entityDto.IsLecturingCQ)
+        {
+            existingTeacher.IsLecturingCQ = entityDto.IsLecturingCQ;
+            hasChanges = true;
+        }
+
+        // Return fail result if no changes were detected
+        if (!hasChanges)
+        {
+            _logger.LogInformation("No changes detected for Teacher with ID {id}. No update performed.", entityDto.Id);
+            return Result<RetrieveTeacherDto>
+                .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
+                StatusCodes.Status400BadRequest);
+        }
+
+        // Update UpdatedAt and save changes
+        existingTeacher.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
 
         var retrieveTeacher = Teacher.ConvertEntityToRetrieveDto(existingTeacher);
 

@@ -1,1 +1,114 @@
-<p>view-frames works!</p>
+@if (frame$ | async; as frame){
+<app-title
+  [title]="frame.program"
+  [isDropdown]="true"
+  [menuItems]="menuItems"
+/>
+
+<!-- END TITLE + DROPDOWN MENU -->
+
+<div class="container-fluid px-0 my-4">
+  <div class="accordion" id="general-info-accordion">
+    <!-- GENERAL INFO ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-general-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#general-info-content"
+          aria-expanded="false"
+          aria-controls="general-info-content"
+        >
+          <i class="bi bi-diagram-3 fs-4 me-3"></i>
+          <h5>Informações Gerais</h5>
+        </button>
+      </h2>
+      <div
+        id="general-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-general-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+              <div class="col">
+                <div class="property">
+                  <strong>Programa</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.program || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Intervenção</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.intervention || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Tipo de Intervenção</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.interventionType || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Operação</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.operation || "N/A" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col">
+                <div class="property">
+                  <strong>Tipo de Operação</strong>
+                  <p class="text-break mb-0">
+                    {{ frame.operationType || "N/A" }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END GENERAL INFO ACCORDION -->
+
+    <!-- COURSES ACCORDION-->
+    @if(courses$ |async; as courses){ @if(courses.length !== 0){
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-courses-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#frame-courses-accordion"
+          aria-expanded="false"
+          aria-controls="frame-courses-accordion"
+        >
+          <i class="bi bi-journal-bookmark fs-4 me-3"></i>
+          <span class="badge bg-success me-2"> {{ courses.length }}x </span>
+          <h5>Cursos</h5>
+        </button>
+      </h2>
+      <div
+        id="frame-courses-accordion"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-courses-info"
+      >
+        <div class="accordion-body">
+          <div class="container-fluid px-0">
+            <app-courses-table [courses]="courses" [loading]="false" />
+          </div>
+        </div>
+      </div>
+    </div>
+    } }
+  </div>
+</div>
+}

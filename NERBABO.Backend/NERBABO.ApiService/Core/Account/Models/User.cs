@@ -1,3 +1,5 @@
+using System.Globalization;
+using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using NERBABO.ApiService.Core.Account.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
@@ -34,7 +36,7 @@ public class User : IdentityUser
     public async static Task<RetrieveUserDto> ConvertEntityToRetrieveDto(User user, UserManager<User> userManager)
     {
         if (user == null || user.Person == null)
-            throw new KeyNotFoundException("Utilizador ou Pessoa Associado ao mesmo não encontrado.");
+            throw new KeyNotFoundException("Utilizador ou Pessoa Associado ao mesmo nï¿½o encontrado.");
 
         var roles = await userManager.GetRolesAsync(user);
 
@@ -49,6 +51,7 @@ public class User : IdentityUser
             UserName = user.UserName ?? "",
             Roles = [.. roles],
             IsActive = user.IsActive,
+            LastLogin = user.LastLogin.Humanize(culture: new CultureInfo("pt-PT"))
         };
     }
 }

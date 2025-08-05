@@ -18,6 +18,7 @@ import { CoursesService } from '../../../core/services/courses.service';
 import { ICONS } from '../../../core/objects/icons';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
+import { IconAnchorComponent } from '../../../shared/components/anchors/icon-anchor.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -26,6 +27,7 @@ import { TitleComponent } from '../../../shared/components/title/title.component
     IconComponent,
     ModulesTableComponent,
     TitleComponent,
+    IconAnchorComponent,
   ],
   templateUrl: './view-actions.component.html',
 })
