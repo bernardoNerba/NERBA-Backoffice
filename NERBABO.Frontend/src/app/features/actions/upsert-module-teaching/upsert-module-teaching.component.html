@@ -1,0 +1,106 @@
+<div class="modal-header">
+  <h4 class="modal-title pull-left">
+    {{ isUpdate ? "Editar" : "Adicionar" }} Formador @if (actionTitle) {
+    <small class="text-muted d-block">{{ actionTitle }}</small>
+    }
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  >
+    <span aria-hidden="true" class="visually-hidden">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Error Messages -->
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+
+    <div class="row g-3">
+      <!-- Teacher Selection -->
+      <div class="col-12">
+        <label for="teacherId" class="form-label">
+          Formador <span class="text-danger">*</span>
+        </label>
+        <p-select
+          id="teacherId"
+          formControlName="teacherId"
+          [options]="(teachersWithNames$ | async) ?? []"
+          optionLabel="fullName"
+          optionValue="id"
+          placeholder="Selecione um formador"
+          [showClear]="true"
+          styleClass="w-100"
+          [class.is-invalid]="submitted && form.get('teacherId')?.invalid"
+        >
+          <ng-template pTemplate="selectedItem" let-selectedTeacher>
+            <div class="flex align-items-center gap-2" *ngIf="selectedTeacher">
+              <div>{{ selectedTeacher.fullName }}</div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-teacher>
+            <div class="flex align-items-center gap-2">
+              <div>{{ teacher.fullName }}</div>
+            </div>
+          </ng-template>
+        </p-select>
+        @if (submitted && form.get('teacherId')?.invalid) {
+        <div class="invalid-feedback d-block">Formador é obrigatório.</div>
+        }
+      </div>
+
+      <!-- Module Selection -->
+      <div class="col-12">
+        <label for="moduleId" class="form-label">
+          Módulo <span class="text-danger">*</span>
+        </label>
+        <p-select
+          id="moduleId"
+          formControlName="moduleId"
+          [options]="(modulesWithoutTeacher$ | async) ?? []"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Selecione um módulo"
+          [showClear]="true"
+          styleClass="w-100"
+          [class.is-invalid]="submitted && form.get('moduleId')?.invalid"
+        >
+          <ng-template pTemplate="selectedItem" let-selectedModule>
+            <div class="flex align-items-center gap-2" *ngIf="selectedModule">
+              <div>{{ getModuleDisplayName(selectedModule) }}</div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-module>
+            <div class="flex align-items-center gap-2">
+              <div>{{ getModuleDisplayName(module) }}</div>
+            </div>
+          </ng-template>
+        </p-select>
+        @if (submitted && form.get('moduleId')?.invalid) {
+        <div class="invalid-feedback d-block">Módulo é obrigatório.</div>
+        }
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <!-- submit button -->
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Save
+    </button>
+  </div>
+</div>

@@ -21,6 +21,10 @@ export class TeachersService {
 
   constructor(private http: HttpClient, private peopleService: PeopleService) {}
 
+  getAllTeachers(): Observable<Teacher[]> {
+    return this.http.get<Teacher[]>(API_ENDPOINTS.teachers);
+  }
+
   getTeacherById(id: number): Observable<Teacher> {
     return this.http.get<Teacher>(API_ENDPOINTS.teachers + id);
   }
