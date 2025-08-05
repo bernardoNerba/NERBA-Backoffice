@@ -40,7 +40,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
                 AvaliationStudents = mt.AvaliationStudents,
                 AvaliationAvg = mt.AvaliationAvg,
                 PaymentTotal = mt.PaymentTotal,
-                PaymentDate = mt.PaymentDate.ToString() ?? "",
+                PaymentDate = mt.PaymentDate?.ToString("yyyy-MM-dd") ?? "",
                 PaymentProcessed = mt.PaymentProcessed
             };
         }

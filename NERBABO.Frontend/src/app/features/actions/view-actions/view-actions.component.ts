@@ -19,6 +19,9 @@ import { ICONS } from '../../../core/objects/icons';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
 import { IconAnchorComponent } from '../../../shared/components/anchors/icon-anchor.component';
+import { ModulesService } from '../../../core/services/modules.service';
+import { Module } from '../../../core/models/module';
+import { Message } from 'primeng/message';
 
 @Component({
   selector: 'app-view-actions',
@@ -28,6 +31,7 @@ import { IconAnchorComponent } from '../../../shared/components/anchors/icon-anc
     ModulesTableComponent,
     TitleComponent,
     IconAnchorComponent,
+    Message,
   ],
   templateUrl: './view-actions.component.html',
 })
@@ -39,6 +43,7 @@ export class ViewActionsComponent implements IView, OnInit {
   course$?: Observable<Course | null>;
   menuItems: MenuItem[] | undefined;
   action?: Action;
+  modulesWithoutTeacher: Module[] = [];
 
   ICONS = ICONS;
 
@@ -50,7 +55,8 @@ export class ViewActionsComponent implements IView, OnInit {
     private router: Router,
     private modalService: BsModalService,
     private route: ActivatedRoute,
-    private courseService: CoursesService
+    private courseService: CoursesService,
+    private modulesService: ModulesService
   ) {}
 
   ngOnInit(): void {
@@ -89,6 +95,7 @@ export class ViewActionsComponent implements IView, OnInit {
           this.updateBreadcrumbs();
           this.populateMenu();
           this.initializeCourse();
+          this.loadModulesWithoutTeacher();
         }
       })
     );
@@ -96,6 +103,20 @@ export class ViewActionsComponent implements IView, OnInit {
 
   private initializeCourse(): void {
     this.course$ = this.courseService.getSingleCourse(this.courseId);
+  }
+
+  loadModulesWithoutTeacher(): void {
+    console.log('Loading modules without teacher for action ID:', this.id);
+    this.modulesService.getModulesWithoutTeacherByAction(this.id).subscribe({
+      next: (modules) => {
+        console.log('Modules without teacher received:', modules);
+        this.modulesWithoutTeacher = modules;
+      },
+      error: (error) => {
+        console.error('Error loading modules without teacher:', error);
+        this.modulesWithoutTeacher = [];
+      },
+    });
   }
 
   populateMenu(): void {

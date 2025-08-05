@@ -30,7 +30,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
             => Course.Modules.All(m =>
                 ModuleTeachings.Any(tma => tma.ModuleId == m.Id));
 
-        public string Title => $"{ActionNumber} {Locality}";
+        public string Title => $"{ActionNumber} - {Locality}";
 
         // Navigation properties
         public required Course Course { get; set; }
@@ -51,7 +51,6 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 CourseMinHabilitationLevel = c.MinHabilitationLevel.Humanize().Transform(To.TitleCase),
                 CourseTotalDuration = c.TotalDuration,
                 CourseDestinators = [.. c.Destinators.Select(x => x.Humanize().Transform(To.TitleCase))],
-                CourseModules = c.FormattedModuleNames,
 
                 CoordenatorId = u.PersonId,
                 CoordenatorName = u.UserName ?? "",

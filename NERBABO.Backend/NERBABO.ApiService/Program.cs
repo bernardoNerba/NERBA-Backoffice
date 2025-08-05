@@ -24,6 +24,7 @@ using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
 using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Modules.Services;
+using NERBABO.ApiService.Core.ModuleTeachings.Services;
 using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.People.Services;
@@ -72,6 +73,7 @@ builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IModuleService, ModuleService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseActionService, CourseActionService>();
+builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 
 // Register Other services and middleware
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();

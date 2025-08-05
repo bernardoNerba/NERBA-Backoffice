@@ -77,6 +77,16 @@ export class ModulesService {
     return this.http.get<Course[]>(`${API_ENDPOINTS.courses}module/${id}`);
   }
 
+  getModulesWithoutTeacherByAction(actionId: number): Observable<Module[]> {
+    return this.http.get<Module[]>(
+      `${API_ENDPOINTS.modulesWithoutTeacher}${actionId}/modules-without-teacher`
+    );
+  }
+
+  getModulesWithoutTeacher(): Observable<Module[]> {
+    return this.http.get<Module[]>(`${API_ENDPOINTS.modulesWithoutTeacher}modules-without-teacher`);
+  }
+
   notifyModuleUpdate(id: number) {
     this.updatedSource.next(id);
   }

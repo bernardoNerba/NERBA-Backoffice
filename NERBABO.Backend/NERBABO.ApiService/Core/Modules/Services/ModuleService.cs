@@ -262,5 +262,48 @@ namespace NERBABO.ApiService.Core.Modules.Services
             return Result
                 .Ok("Módulo atualizado.", $"Módulo {status} com sucesso.");
         }
+
+        public async Task<Result<IEnumerable<RetrieveModuleDto>>> GetModulesWithoutTeacherByActionIdAsync(long actionId)
+        {
+            // Check if Action exists and get its course modules
+            var existingAction = await _context.Actions
+                .Include(a => a.Course)
+                    .ThenInclude(c => c.Modules)
+                .FirstOrDefaultAsync(a => a.Id == actionId);
+
+            if (existingAction is null)
+            {
+                _logger.LogWarning("Action with ID {ActionId} not found.", actionId);
+                return Result<IEnumerable<RetrieveModuleDto>>
+                    .Fail("Não encontrado.", "Ação Formação não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            // Get all modules assigned to teachers in this action
+            var assignedModuleIds = await _context.ModuleTeachings
+                .Where(mt => mt.ActionId == actionId)
+                .Select(mt => mt.ModuleId)
+                .ToListAsync();
+
+            // Find modules in the course that don't have teachers assigned
+            var modulesWithoutTeacher = existingAction.Course.Modules
+                .Where(m => !assignedModuleIds.Contains(m.Id))
+                .Select(Module.ConvertEntityToRetrieveDto)
+                .OrderBy(m => m.Name)
+                .ToList();
+
+            if (!modulesWithoutTeacher.Any())
+            {
+                _logger.LogInformation("All modules in Action {ActionId} have teachers assigned.", actionId);
+                return Result<IEnumerable<RetrieveModuleDto>>
+                    .Fail("Não encontrado.", "Todos os módulos desta Ação já têm formadores associados.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            _logger.LogInformation("Found {Count} modules without teachers in Action {ActionId}.", modulesWithoutTeacher.Count, actionId);
+
+            return Result<IEnumerable<RetrieveModuleDto>>
+                .Ok(modulesWithoutTeacher);
+        }
     }
 }

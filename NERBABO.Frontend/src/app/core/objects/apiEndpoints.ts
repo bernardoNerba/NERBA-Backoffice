@@ -99,6 +99,10 @@ export const API_ENDPOINTS = {
   teachers: `${BASE_URL}/api/teacher/`,
   teacherByPerson: `${BASE_URL}/api/teacher/person/`,
 
+  // ModuleTeachings endpoints
+  moduleTeachings: `${BASE_URL}/api/ModuleTeachings/`,
+  modulesWithoutTeacher: `${BASE_URL}/api/ModuleTeachings/action/`,
+
   // Health check endpoint
   health: `${BASE_URL}/health`,
 };

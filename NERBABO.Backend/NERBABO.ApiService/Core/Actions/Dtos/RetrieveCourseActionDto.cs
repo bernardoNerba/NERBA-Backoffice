@@ -13,7 +13,6 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         public string CourseMinHabilitationLevel { get; set; } = string.Empty;
         public float CourseTotalDuration { get; set; }
         public List<string> CourseDestinators { get; set; } = [];
-        public List<string> CourseModules { get; set; } = [];
 
         // Coordenator Information
         public long CoordenatorId { get; set; } // person Id 
