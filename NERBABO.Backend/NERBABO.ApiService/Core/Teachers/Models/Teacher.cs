@@ -1,5 +1,6 @@
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.Teachers.Dtos;
 using NERBABO.ApiService.Shared.Models;
@@ -26,7 +27,7 @@ public class Teacher : Entity<long>
     public required Tax IrsRegime { get; set; }
     public required Person Person { get; set; }
     public List<CourseAction> Action { get; set; } = [];
-    public List<TeacherModuleAction> TeacherModuleActions { get; set; } = [];
+    public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
 
     // Calculated properties
     public string CommaSeparatedCompetences => 

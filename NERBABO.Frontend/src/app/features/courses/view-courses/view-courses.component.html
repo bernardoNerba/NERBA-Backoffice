@@ -1,21 +1,15 @@
 @if (course$ | async; as course){
-<!-- MESSAGE FOR COURSE NOT COMPLETED-->
-@if (course.remainingDuration !== 0) {
-<div class="mb-3">
-  <p-message
-    severity="error"
-    closable
-    icon="pi pi-exclamation-triangle"
-    size="large"
-  >
-    O curso ainda tem {{ course.remainingDuration }} horas de
-    {{ course.totalDuration }} horas sem serem ocupadas.</p-message
-  >
-</div>
-}
-<!-- END MESSAGE FOR COURSE NOT COMPLETED-->
 
 <app-title [title]="course.title" [isDropdown]="true" [menuItems]="menuItems" />
+
+<!-- MESSAGE FOR COURSE NOT COMPLETED-->
+<app-message
+  [show]="course.remainingDuration !== 0"
+  severity="warn"
+  description="O curso ainda tem {{ course.remainingDuration }} horas de
+      {{ course.totalDuration }} horas sem serem ocupadas."
+/>
+<!-- END MESSAGE FOR COURSE NOT COMPLETED-->
 
 <div class="container-fluid px-0 my-4">
   <div class="accordion" id="general-info-accordion">

@@ -10,6 +10,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { UpsertActionsComponent } from '../upsert-actions/upsert-actions.component';
 import { DeleteActionsComponent } from '../delete-actions/delete-actions.component';
 import { ChangeStatusActionsComponent } from '../change-status-actions/change-status-actions.component';
+import { UpsertModuleTeachingComponent } from '../upsert-module-teaching/upsert-module-teaching.component';
 import { CommonModule } from '@angular/common';
 import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -19,6 +20,11 @@ import { ICONS } from '../../../core/objects/icons';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
 import { IconAnchorComponent } from '../../../shared/components/anchors/icon-anchor.component';
+import { ModulesService } from '../../../core/services/modules.service';
+import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
+import { Module, ModuleTeacher } from '../../../core/models/module';
+import { Message } from 'primeng/message';
+import { MessageComponent } from '../../../shared/components/message/message.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -28,6 +34,7 @@ import { IconAnchorComponent } from '../../../shared/components/anchors/icon-anc
     ModulesTableComponent,
     TitleComponent,
     IconAnchorComponent,
+    MessageComponent,
   ],
   templateUrl: './view-actions.component.html',
 })
@@ -39,6 +46,8 @@ export class ViewActionsComponent implements IView, OnInit {
   course$?: Observable<Course | null>;
   menuItems: MenuItem[] | undefined;
   action?: Action;
+  modulesWithoutTeacher: Module[] = [];
+  modulesWithTeacher: ModuleTeacher[] = [];
 
   ICONS = ICONS;
 
@@ -50,7 +59,9 @@ export class ViewActionsComponent implements IView, OnInit {
     private router: Router,
     private modalService: BsModalService,
     private route: ActivatedRoute,
-    private courseService: CoursesService
+    private courseService: CoursesService,
+    private modulesService: ModulesService,
+    private moduleTeachingService: ModuleTeachingService
   ) {}
 
   ngOnInit(): void {
@@ -64,6 +75,8 @@ export class ViewActionsComponent implements IView, OnInit {
 
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
+    this.moduleTeachingCreatedSubscription();
+    this.moduleChangesSubscription();
   }
 
   initializeEntity(): void {
@@ -87,59 +100,98 @@ export class ViewActionsComponent implements IView, OnInit {
           this.courseId = action.courseId;
 
           this.updateBreadcrumbs();
-          this.populateMenu();
           this.initializeCourse();
+          this.loadModulesWithoutTeacher();
+          this.loadModulesWithTeacher();
         }
       })
     );
   }
-
+  getModulesWithoutTeacherNames(): string[] {
+    return this.modulesWithoutTeacher.map(
+      (module) => `${module.name} - ${module.hours} horas`
+    );
+  }
   private initializeCourse(): void {
     this.course$ = this.courseService.getSingleCourse(this.courseId);
   }
 
+  loadModulesWithoutTeacher(): void {
+    this.modulesService.getModulesWithoutTeacherByAction(this.id).subscribe({
+      next: (modules) => {
+        this.modulesWithoutTeacher = modules;
+        // Repopulate menu after loading modules to conditionally show/hide "Adicionar Formador"
+        this.populateMenu();
+      },
+      error: (error) => {
+        console.error('Error loading modules without teacher:', error);
+        this.modulesWithoutTeacher = [];
+        // Repopulate menu even on error to ensure consistency
+        this.populateMenu();
+      },
+    });
+  }
+
+  loadModulesWithTeacher(): void {
+    this.modulesService.getModulesWithTeacherByAction(this.id).subscribe({
+      next: (modules) => {
+        this.modulesWithTeacher = modules;
+      },
+      error: (error) => {
+        console.error('Error loading modules with teacher:', error);
+        this.modulesWithTeacher = [];
+      },
+    });
+  }
+
   populateMenu(): void {
+    const baseMenuItems = [
+      {
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        command: () => this.onUpdateModal(),
+      },
+      {
+        label: 'Eliminar',
+        icon: 'pi pi-exclamation-triangle',
+        command: () => this.onDeleteModal(),
+      },
+      {
+        label: 'Atualizar Estado',
+        icon: 'pi pi-refresh',
+        command: () => this.onChangeStatusModal(),
+      },
+      {
+        label: 'Ver Curso',
+        icon: 'pi pi-exclamation-circle',
+        command: () => this.router.navigateByUrl(`/courses/${this.courseId}`),
+      },
+      {
+        label: 'Adicionar Formando',
+        icon: 'pi pi-plus',
+        command: () => {}, // TODO: Implement add student to action
+      },
+    ];
+
+    // Add "Adicionar Formador" only if there are modules without teachers
+    if (this.modulesWithoutTeacher.length > 0) {
+      baseMenuItems.push({
+        label: 'Adicionar Formador',
+        icon: 'pi pi-plus',
+        command: () => this.onAddTeacherModal(),
+      });
+    }
+
+    baseMenuItems.push({
+      label: 'Concluir Ação',
+      icon: 'pi pi-plus',
+      command: () => {}, // TODO: Implement complete action only available for coordenator
+    });
+
     this.menuItems = [
       {
         label: 'Opções',
-        items: [
-          {
-            label: 'Editar',
-            icon: 'pi pi-pencil',
-            command: () => this.onUpdateModal(),
-          },
-          {
-            label: 'Eliminar',
-            icon: 'pi pi-exclamation-triangle',
-            command: () => this.onDeleteModal(),
-          },
-          {
-            label: 'Atualizar Estado',
-            icon: 'pi pi-refresh',
-            command: () => this.onChangeStatusModal(),
-          },
-          {
-            label: 'Ver Curso',
-            icon: 'pi pi-exclamation-circle',
-            command: () =>
-              this.router.navigateByUrl(`/courses/${this.courseId}`),
-          },
-          {
-            label: 'Adicionar Formando',
-            icon: 'pi pi-plus',
-            command: () => {}, // TODO: Implement add student to action
-          },
-          {
-            label: 'Adicionar Formador',
-            icon: 'pi pi-plus',
-            command: () => {}, // TODO: Implement add teacher to action
-          },
-          {
-            label: 'Concluir Ação',
-            icon: 'pi pi-plus',
-            command: () => {}, // TODO: Implement complete action only available for coordenator
-          },
-        ],
+        items: baseMenuItems,
       },
     ];
   }
@@ -186,6 +238,42 @@ export class ViewActionsComponent implements IView, OnInit {
     );
   }
 
+  moduleTeachingCreatedSubscription(): void {
+    this.subscriptions.add(
+      this.moduleTeachingService.createdSource$.subscribe(() => {
+        // Reload both module lists when a new module teaching is created
+        this.loadModulesWithoutTeacher();
+        this.loadModulesWithTeacher();
+      })
+    );
+
+    // Also listen for updates to module teachings
+    this.subscriptions.add(
+      this.moduleTeachingService.updatedSource$.subscribe(() => {
+        // Reload both module lists when a module teaching is updated
+        this.loadModulesWithoutTeacher();
+        this.loadModulesWithTeacher();
+      })
+    );
+  }
+
+  moduleChangesSubscription(): void {
+    this.subscriptions.add(
+      this.modulesService.toggleSource$.subscribe(() => {
+        // Reload modules with teacher data when a module is toggled
+        this.loadModulesWithTeacher();
+      })
+    );
+
+    // Also listen for module updates to reload teacher data
+    this.subscriptions.add(
+      this.modulesService.updatedSource$.subscribe(() => {
+        // Reload modules with teacher data when a module is updated
+        this.loadModulesWithTeacher();
+      })
+    );
+  }
+
   updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
@@ -214,6 +302,16 @@ export class ViewActionsComponent implements IView, OnInit {
       class: 'modal-md',
       initialState: {
         action: this.action,
+      },
+    });
+  }
+
+  onAddTeacherModal(): void {
+    this.modalService.show(UpsertModuleTeachingComponent, {
+      class: 'modal-lg',
+      initialState: {
+        actionId: this.id,
+        actionTitle: this.title,
       },
     });
   }

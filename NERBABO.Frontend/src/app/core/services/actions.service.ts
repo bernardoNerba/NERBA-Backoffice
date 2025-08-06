@@ -123,4 +123,8 @@ export class ActionsService {
   triggerFetchActions() {
     this.fetchActions();
   }
+
+  getActiveActions(): Observable<Action[]> {
+    return this.http.get<Action[]>(API_ENDPOINTS.actions);
+  }
 }

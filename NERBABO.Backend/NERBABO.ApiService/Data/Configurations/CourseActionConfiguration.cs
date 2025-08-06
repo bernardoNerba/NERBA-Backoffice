@@ -26,7 +26,7 @@ namespace NERBABO.ApiService.Data.Configurations
                 .HasForeignKey(a => a.CoordenatorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(a => a.TeacherModuleActions)
+            builder.HasMany(a => a.ModuleTeachings)
                 .WithOne(tma => tma.Action)
                 .HasForeignKey(tma => tma.ActionId)
                 .OnDelete(DeleteBehavior.Cascade);

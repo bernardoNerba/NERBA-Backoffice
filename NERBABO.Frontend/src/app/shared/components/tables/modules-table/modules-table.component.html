@@ -9,120 +9,154 @@
 @else {
 <div class="table-responsive">
   <p-table
-  #dt
-  stripedRows
-  [value]="modules"
-  size="small"
-  [tableStyle]="{ 'min-width': '60rem' }"
-  [globalFilterFields]="['name']"
-  [paginator]="true"
-  [rows]="10"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-  (onPage)="pageChange($event)"
-  [rowsPerPageOptions]="[10, 25, 50]"
->
-  <!-- Table caption with Search and clear filter  -->
-  <ng-template #caption>
-    <div class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center">
-      <!-- Filter Controls Section -->
-      <div class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1">
-        <!-- Search Section -->
-        <div class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0">
-          <div class="flex-grow-1">
-            <p-iconfield iconPosition="left" class="w-100">
-              <p-inputicon>
-                <i class="pi pi-search"></i>
-              </p-inputicon>
-              <input
-                [(ngModel)]="searchValue"
-                (ngModelChange)="dt.filterGlobal($event, 'contains')"
-                pInputText
-                type="text"
-                placeholder="Procurar..."
-                class="w-100"
-                style="min-width: 200px;"
-              />
-            </p-iconfield>
+    #dt
+    stripedRows
+    [value]="modules"
+    size="small"
+    [tableStyle]="{ 'min-width': '60rem' }"
+    [globalFilterFields]="['name']"
+    [paginator]="true"
+    [rows]="10"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    (onPage)="pageChange($event)"
+    [rowsPerPageOptions]="[10, 25, 50]"
+  >
+    <!-- Table caption with Search and clear filter  -->
+    <ng-template #caption>
+      <div
+        class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center"
+      >
+        <!-- Filter Controls Section -->
+        <div
+          class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1"
+        >
+          <!-- Search Section -->
+          <div
+            class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0"
+          >
+            <div class="flex-grow-1">
+              <p-iconfield iconPosition="left" class="w-100">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input
+                  [(ngModel)]="searchValue"
+                  (ngModelChange)="dt.filterGlobal($event, 'contains')"
+                  pInputText
+                  type="text"
+                  placeholder="Procurar..."
+                  class="w-100"
+                  style="min-width: 200px"
+                />
+              </p-iconfield>
+            </div>
+            <p-button
+              icon="pi pi-filter-slash"
+              [outlined]="true"
+              (click)="clearFilters()"
+              title="Limpar filtros"
+              class="flex-shrink-0"
+            />
           </div>
-          <p-button
-            icon="pi pi-filter-slash"
-            [outlined]="true"
-            (click)="clearFilters()"
-            title="Limpar filtros"
-            class="flex-shrink-0"
-          />
         </div>
       </div>
-    </div>
-  </ng-template>
-  <ng-template #header>
-    <tr>
-      <th style="width: 60px; min-width: 60px;" class="text-center">#</th>
-      <th pSortableColumn="name" style="min-width: 250px;">
-        <div class="d-flex align-items-center gap-2">
-          <span class="d-none d-md-inline">UFCD</span>
-          <span class="d-inline d-md-none">Módulo</span>
-          <p-sortIcon field="name" />
-        </div>
-      </th>
-      <th pSortableColumn="hours" style="width: 120px; min-width: 120px;">
-        <div class="d-flex align-items-center gap-2">
-          Horas
-          <p-sortIcon field="hours" />
-        </div>
-      </th>
-      <th pSortableColumn="isActive" style="width: 120px; min-width: 120px;">
-        <div class="d-flex align-items-center gap-2">
-          Estado
-          <p-sortIcon field="isActive" />
-        </div>
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template #body let-module>
-    <tr>
-      <!-- DROPDOWN MENU -->
-      <td class="text-center">
-        <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
-        <p-button
-          icon="pi pi-ellipsis-v"
-          [rounded]="true"
-          severity="secondary"
-          [outlined]="true"
-          size="small"
-          (click)="menu.toggle($event); selectedModule = module"
-        />
-      </td>
-      <!-- MODULE NAME -->
-      <td class="text-break">
-        <app-icon-anchor
-          [field]="module.name"
-          [display]="module.name | truncate : 40"
-          [link]="'/modules/' + module.id"
-          [icon]="'pi pi-link'"
-        />
-      </td>
-      <!-- MODULE HOURS -->
-      <td>
-        <span class="fw-medium">{{ module.hours }} h</span>
-      </td>
-      <!-- MODULE IS ACTIVE -->
-      <td>
-        <p-tag
-          icon="{{ getStatusIcon(module.isActive) }}"
-          [value]="module.isActive ? 'Ativo' : 'Inativo'"
-          [severity]="getStatusSeverity(module.isActive)"
-          class="w-100 d-flex justify-content-center"
-        />
-      </td>
-    </tr>
-  </ng-template>
-  <!-- EMPTY STATE -->
-  <ng-template #emptymessage>
-    <tr>
-      <td colspan="5">Não foram encontrados módulos com essas diretrizes.</td>
-    </tr>
-  </ng-template>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+        <th pSortableColumn="name" style="min-width: 250px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-md-inline">UFCD</span>
+            <span class="d-inline d-md-none">Módulo</span>
+            <p-sortIcon field="name" />
+          </div>
+        </th>
+        @if (showTeacherColumn) {
+        <th style="width: 200px; min-width: 200px">
+          <div class="d-flex align-items-center gap-2">Formador</div>
+        </th>
+        }
+        <th pSortableColumn="hours" style="width: 120px; min-width: 120px">
+          <div class="d-flex align-items-center gap-2">
+            Horas
+            <p-sortIcon field="hours" />
+          </div>
+        </th>
+        <th pSortableColumn="isActive" style="width: 120px; min-width: 120px">
+          <div class="d-flex align-items-center gap-2">
+            Estado
+            <p-sortIcon field="isActive" />
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-module>
+      <tr>
+        <!-- DROPDOWN MENU -->
+        <td class="text-center">
+          <p-menu
+            #menu
+            [model]="menuItems"
+            [popup]="true"
+            [appendTo]="'body'"
+          />
+          <p-button
+            icon="pi pi-ellipsis-v"
+            [rounded]="true"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            (click)="menu.toggle($event); selectedModule = module"
+          />
+        </td>
+        <!-- MODULE NAME -->
+        <td class="text-break">
+          <app-icon-anchor
+            [field]="module.name"
+            [display]="module.name | truncate : 40"
+            [link]="'/modules/' + module.id"
+            [icon]="'pi pi-link'"
+          />
+        </td>
+        <!-- TEACHER -->
+        @if (showTeacherColumn) {
+        <td>
+          @if (isModuleTeacher(module) && module.teacherName &&
+          module.teacherId) {
+          <app-icon-anchor
+            [field]="module.teacherName"
+            [display]="module.teacherName | truncate : 30"
+            [link]="'/people/' + module.personId + '/teacher'"
+            [icon]="'pi pi-user'"
+          />
+          } @else {
+          <p-tag severity="warn" value="Sem Formador" class="w-100" />
+          }
+        </td>
+        }
+        <!-- MODULE HOURS -->
+        <td>
+          <span class="fw-medium">{{ module.hours }} h</span>
+        </td>
+        <!-- MODULE IS ACTIVE -->
+        <td>
+          <p-tag
+            icon="{{ getStatusIcon(module.isActive) }}"
+            [value]="module.isActive ? 'Ativo' : 'Inativo'"
+            [severity]="getStatusSeverity(module.isActive)"
+            class="w-100 d-flex justify-content-center"
+          />
+        </td>
+      </tr>
+    </ng-template>
+    <!-- EMPTY STATE -->
+    <ng-template #emptymessage>
+      <tr>
+        <td [attr.colspan]="showTeacherColumn ? 6 : 5">
+          Não foram encontrados módulos com essas diretrizes.
+        </td>
+      </tr>
+    </ng-template>
   </p-table>
 </div>
 }

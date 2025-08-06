@@ -9,5 +9,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
     {
         Task<Result<IEnumerable<RetrieveModuleDto>>> GetActiveModulesAsync();
         Task<Result> ToggleModuleIsActiveAsync(long id);
+        Task<Result<IEnumerable<RetrieveModuleDto>>> GetModulesWithoutTeacherByActionIdAsync(long actionId);
+        Task<Result<IEnumerable<RetrieveModuleTeacherDto>>> GetModulesWithTeacherByActionIdAsync(long actionId);
     }
 }

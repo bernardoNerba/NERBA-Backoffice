@@ -2,6 +2,7 @@
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
+using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 
@@ -23,19 +24,19 @@ namespace NERBABO.ApiService.Core.Actions.Models
 
         // Calculated properties
         public bool AllPaymentsProcessed
-            => TeacherModuleActions.All(a => a.PaymentProcessed);
+            => ModuleTeachings.All(a => a.PaymentProcessed);
 
         public bool AllModulesOfActionHaveTeacher
             => Course.Modules.All(m =>
-                TeacherModuleActions.Any(tma => tma.ModuleId == m.Id));
+                ModuleTeachings.Any(tma => tma.ModuleId == m.Id));
 
-        public string Title => $"{ActionNumber} {Locality}";
+        public string Title => $"{ActionNumber} - {Locality}";
 
         // Navigation properties
         public required Course Course { get; set; }
         public required User Coordenator { get; set; }
         //public List<Student> Students { get; set; } = [];
-        public List<TeacherModuleAction> TeacherModuleActions { get; set; } = [];
+        public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
 
 
         public static RetrieveCourseActionDto ConvertEntityToRetrieveDto(CourseAction ca, User u, Course c)
@@ -50,7 +51,6 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 CourseMinHabilitationLevel = c.MinHabilitationLevel.Humanize().Transform(To.TitleCase),
                 CourseTotalDuration = c.TotalDuration,
                 CourseDestinators = [.. c.Destinators.Select(x => x.Humanize().Transform(To.TitleCase))],
-                CourseModules = c.FormattedModuleNames,
 
                 CoordenatorId = u.PersonId,
                 CoordenatorName = u.UserName ?? "",

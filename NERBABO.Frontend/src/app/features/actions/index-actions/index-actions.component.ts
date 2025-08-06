@@ -14,7 +14,7 @@ import { TitleComponent } from '../../../shared/components/title/title.component
 
 @Component({
   selector: 'app-index-actions',
-  imports: [ActionsTableComponent, IconComponent, CommonModule, TitleComponent],
+  imports: [ActionsTableComponent, CommonModule, TitleComponent],
   templateUrl: './index-actions.component.html',
 })
 export class IndexActionsComponent implements IIndex, OnInit {

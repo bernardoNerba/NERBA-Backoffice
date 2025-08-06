@@ -140,5 +140,23 @@ namespace NERBABO.ApiService.Core.Modules.Controllers
             Result result = await _moduleService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
         }
+
+        /// <summary>
+        /// Retrieves all modules with teacher information for a given action.
+        /// </summary>
+        /// <param name="actionId">The action ID.</param>
+        /// <response code="200">There are modules in the action. Returns the list of
+        /// RetrieveModuleTeacherDto.</response>
+        /// <response code="404">The action was not found or there are no modules in the action.</response>
+        /// <response code="401">The user is not authorized, invalid jwt, user is
+        /// not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("action/{actionId:long}/teacher")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> GetModulesWithTeacherByActionIdAsync(long actionId)
+        {
+            Result<IEnumerable<RetrieveModuleTeacherDto>> result = await _moduleService.GetModulesWithTeacherByActionIdAsync(actionId);
+            return _responseHandler.HandleResult(result);
+        }
     }
 }
