@@ -1,36 +1,15 @@
 @if (action$ | async; as action) {
 <app-title [title]="action.title" [isDropdown]="true" [menuItems]="menuItems" />
 
-@if (modulesWithoutTeacher.length > 0) {
-<div class="alert-container my-3">
-  <p-message severity="warn" closable>
-    <div>
-      <!-- First line: Warning icon + "Cuidado!" -->
-      <div class="d-flex align-items-center mb-2">
-        <i class="pi pi-exclamation-triangle me-2"></i>
-        <span class="fw-bold">Cuidado!</span>
-      </div>
-
-      <!-- Description -->
-      <div class="mb-2">
-        <strong
-          >{{ modulesWithoutTeacher.length }} módulo{{
-            modulesWithoutTeacher.length > 1 ? "s" : ""
-          }}
-          sem professor atribuído:</strong
-        >
-      </div>
-
-      <!-- List of modules -->
-      <ul class="mb-0">
-        @for (module of modulesWithoutTeacher; track module.id) {
-        <li>{{ module.name }}</li>
-        }
-      </ul>
-    </div>
-  </p-message>
-</div>
-}
+<!-- Alert with modules that dont have teacher assigned -->
+<app-message
+  [severity]="'warn'"
+  [show]="modulesWithoutTeacher.length > 0"
+  description="{{ modulesWithoutTeacher.length }} módulo{{
+    modulesWithoutTeacher.length > 1 ? 's' : ''
+  }} sem formador atribuído:"
+  [items]="getModulesWithoutTeacherNames()"
+/>
 
 <div class="container-fluid px-0 my-4">
   <div class="accordion" id="general-info-accordion">
@@ -256,8 +235,9 @@
       </div>
     </div>
     <!-- END GENERAL COURSE INFO ACCORDION -->
+
     <!-- MODULES TABLE ACCORDION-->
-    @if (course.modulesQnt !== 0) {
+    @if (course.modulesQnt !== 0 && modulesWithTeacher.length > 0) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-module-info">
         <button
@@ -270,7 +250,9 @@
         >
           <app-icon [icon]="ICONS.modules" [marginEnd]="3" />
           <h5>Módulos</h5>
-          <span class="badge bg-success"> {{ course.modulesQnt }}x </span>
+          <span class="badge bg-success">
+            {{ modulesWithTeacher.length }}x
+          </span>
         </button>
       </h2>
       <div
@@ -280,8 +262,11 @@
       >
         <div class="accordion-body">
           <app-modules-table
-            [modules]="(course$ | async)?.modules ?? []"
+            [modules]="modulesWithTeacher"
             [loading]="false"
+            [showTeacherColumn]="true"
+            [actionId]="id"
+            [actionTitle]="title"
           />
         </div>
       </div>

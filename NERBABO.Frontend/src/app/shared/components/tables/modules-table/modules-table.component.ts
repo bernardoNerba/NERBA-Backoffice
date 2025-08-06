@@ -10,7 +10,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Module } from '../../../../core/models/module';
+import { Module, ModuleTeacher } from '../../../../core/models/module';
 import { MenuItem } from 'primeng/api';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { DeleteModulesComponent } from '../../../../features/modules/delete-modules/delete-modules.component';
@@ -19,6 +19,7 @@ import { Subscription } from 'rxjs';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { UpsertModulesComponent } from '../../../../features/modules/upsert-modules/upsert-modules.component';
+import { UpsertModuleTeachingComponent } from '../../../../features/actions/upsert-module-teaching/upsert-module-teaching.component';
 
 @Component({
   selector: 'app-modules-table',
@@ -43,8 +44,11 @@ export class ModulesTableComponent implements OnInit {
   menuItems: MenuItem[] | undefined;
   searchValue: string = '';
   selectedModule: Module | undefined;
-  @Input({ required: true }) modules!: Module[];
+  @Input({ required: true }) modules!: (Module | ModuleTeacher)[];
   @Input({ required: true }) loading!: boolean;
+  @Input() showTeacherColumn: boolean = false;
+  @Input() actionId?: number;
+  @Input() actionTitle?: string;
   first = 0;
   rows = 10;
 
@@ -57,38 +61,7 @@ export class ModulesTableComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.menuItems = [
-      {
-        label: 'Opções',
-        items: [
-          {
-            label: 'Editar',
-            icon: 'pi pi-pencil',
-            command: () => this.onUpdateModal(this.selectedModule!),
-          },
-          {
-            label: 'Eliminar',
-            icon: 'pi pi-exclamation-triangle',
-            command: () =>
-              this.onDeleteModal(
-                this.selectedModule!.id,
-                this.selectedModule!.name
-              ),
-          },
-          {
-            label: 'Detalhes',
-            icon: 'pi pi-exclamation-circle',
-            command: () =>
-              this.router.navigateByUrl(`/modules/${this.selectedModule!.id}`),
-          },
-          {
-            label: 'Atualizar Estado',
-            icon: 'pi pi-refresh',
-            command: () => this.onToggleModule(this.selectedModule!.id),
-          },
-        ],
-      },
-    ];
+    this.setupMenuItems();
 
     // Subscribe to module updates to refresh only the specific module
     this.subscriptions.add(
@@ -121,6 +94,14 @@ export class ModulesTableComponent implements OnInit {
   private refreshModule(moduleId: number): void {
     if (moduleId === 0) {
       // If moduleId is 0, it indicates a full refresh is needed (e.g., after create)
+      this.modulesService.triggerFetch();
+      return;
+    }
+
+    // If we're in action context (showing teacher column), don't refresh individual modules
+    // The parent component (view-actions) should handle the refresh to maintain teacher data
+    if (this.actionId && this.showTeacherColumn) {
+      // Trigger a general refresh that the parent component can listen to
       this.modulesService.triggerFetch();
       return;
     }
@@ -205,6 +186,76 @@ export class ModulesTableComponent implements OnInit {
 
   isFirstPage(): boolean {
     return this.modules ? this.first === 0 : true;
+  }
+
+  isModuleTeacher(module: Module | ModuleTeacher): module is ModuleTeacher {
+    return 'teacherId' in module;
+  }
+
+  private setupMenuItems(): void {
+    const baseItems = [
+      {
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        command: () => this.onUpdateModal(this.selectedModule!),
+      },
+      {
+        label: 'Eliminar',
+        icon: 'pi pi-exclamation-triangle',
+        command: () =>
+          this.onDeleteModal(
+            this.selectedModule!.id,
+            this.selectedModule!.name
+          ),
+      },
+      {
+        label: 'Detalhes',
+        icon: 'pi pi-exclamation-circle',
+        command: () =>
+          this.router.navigateByUrl(`/modules/${this.selectedModule!.id}`),
+      },
+      {
+        label: 'Atualizar Estado',
+        icon: 'pi pi-refresh',
+        command: () => this.onToggleModule(this.selectedModule!.id),
+      },
+    ];
+
+    // Add action-specific menu items when in action context
+    if (this.actionId && this.showTeacherColumn) {
+      baseItems.splice(1, 0, {
+        label: 'Atualizar Formador',
+        icon: 'pi pi-user-edit',
+        command: () => this.onUpdateTeacherModal(),
+      });
+    }
+
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: baseItems,
+      },
+    ];
+  }
+
+  private onUpdateTeacherModal(): void {
+    if (!this.actionId || !this.selectedModule) return;
+
+    const moduleTeacher = this.isModuleTeacher(this.selectedModule)
+      ? this.selectedModule
+      : null;
+
+    this.modalService.show(UpsertModuleTeachingComponent, {
+      class: 'modal-lg',
+      initialState: {
+        actionId: this.actionId,
+        actionTitle: this.actionTitle,
+        moduleId: this.selectedModule.id,
+        moduleName: this.selectedModule.name,
+        teacherId: moduleTeacher?.teacherId || null,
+        isUpdate: true,
+      },
+    });
   }
 
   ngOnDestroy(): void {

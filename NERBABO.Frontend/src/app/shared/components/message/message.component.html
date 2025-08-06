@@ -1,0 +1,27 @@
+@if (show){
+<div class="alert-container my-3">
+  <p-message severity="warn" closable>
+    <div>
+      <!-- First line: Warning icon + "Cuidado!" -->
+      <div class="d-flex align-items-center mb-2">
+        <i class="pi pi-exclamation-triangle me-2"></i>
+        <span class="fw-bold">Cuidado!</span>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-2">
+        <strong>{{ description }}</strong>
+      </div>
+
+      @if (items.length > 0){
+      <ul class="mb-0">
+        @for (item of items; track item) {
+        <li>{{ item }}</li>
+        }
+      </ul>
+      }
+    </div>
+  </p-message>
+</div>
+
+}

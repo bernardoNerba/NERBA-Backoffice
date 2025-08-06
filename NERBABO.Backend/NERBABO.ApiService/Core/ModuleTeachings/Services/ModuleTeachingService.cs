@@ -300,4 +300,26 @@ public class ModuleTeachingService(
             .Ok(retrieveModuleTeaching, "Associação atualizada.",
             $"A associação foi atualizada com sucesso para a Ação Formação {actionToValidate.ActionNumber} - {actionToValidate.Locality}.");
     }
+
+    public async Task<Result<RetrieveModuleTeachingDto>> GetByActionAndModuleAsync(long actionId, long moduleId)
+    {
+        var moduleTeaching = await _context.ModuleTeachings
+            .Include(mt => mt.Teacher)
+                .ThenInclude(t => t.Person)
+            .Include(mt => mt.Module)
+            .Include(mt => mt.Action)
+            .FirstOrDefaultAsync(mt => mt.ActionId == actionId && mt.ModuleId == moduleId);
+
+        if (moduleTeaching is null)
+        {
+            _logger.LogWarning("ModuleTeaching not found for Action {ActionId} and Module {ModuleId}.", actionId, moduleId);
+            return Result<RetrieveModuleTeachingDto>
+                .Fail("Não encontrado.", "Associação de módulo e formador não encontrada para esta ação.",
+                StatusCodes.Status404NotFound);
+        }
+
+        var retrieveModuleTeaching = ModuleTeaching.ConvertEntityToRetrieveDto(moduleTeaching);
+
+        return Result<RetrieveModuleTeachingDto>.Ok(retrieveModuleTeaching);
+    }
 }

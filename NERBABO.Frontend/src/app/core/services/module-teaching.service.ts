@@ -3,7 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
-import { ModuleTeaching, CreateModuleTeaching, UpdateModuleTeaching } from '../models/moduleTeaching';
+import {
+  ModuleTeaching,
+  CreateModuleTeaching,
+  UpdateModuleTeaching,
+} from '../models/moduleTeaching';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +28,9 @@ export class ModuleTeachingService {
   }
 
   getModuleTeachingById(id: number): Observable<ModuleTeaching> {
-    return this.http.get<ModuleTeaching>(`${API_ENDPOINTS.moduleTeachings}${id}`);
+    return this.http.get<ModuleTeaching>(
+      `${API_ENDPOINTS.moduleTeachings}${id}`
+    );
   }
 
   createModuleTeaching(model: CreateModuleTeaching): Observable<OkResponse> {
@@ -39,7 +45,10 @@ export class ModuleTeachingService {
 
   updateModuleTeaching(model: UpdateModuleTeaching): Observable<OkResponse> {
     return this.http
-      .put<OkResponse>(`${API_ENDPOINTS.moduleTeachings}update/${model.id}`, model)
+      .put<OkResponse>(
+        `${API_ENDPOINTS.moduleTeachings}update/${model.id}`,
+        model
+      )
       .pipe(
         tap(() => {
           this.notifyModuleTeachingUpdate(model.id);
@@ -57,11 +66,23 @@ export class ModuleTeachingService {
       );
   }
 
-  upsert(model: CreateModuleTeaching | UpdateModuleTeaching, isUpdate: boolean): Observable<OkResponse> {
+  upsert(
+    model: CreateModuleTeaching | UpdateModuleTeaching,
+    isUpdate: boolean
+  ): Observable<OkResponse> {
     if (isUpdate) {
       return this.updateModuleTeaching(model as UpdateModuleTeaching);
     }
     return this.createModuleTeaching(model as CreateModuleTeaching);
+  }
+
+  getModuleTeachingByActionAndModule(
+    actionId: number,
+    moduleId: number
+  ): Observable<ModuleTeaching> {
+    return this.http.get<ModuleTeaching>(
+      `${API_ENDPOINTS.moduleTeachings}action/${actionId}/module/${moduleId}`
+    );
   }
 
   notifyModuleTeachingCreated() {

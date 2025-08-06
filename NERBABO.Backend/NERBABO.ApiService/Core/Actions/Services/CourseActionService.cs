@@ -545,7 +545,10 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
         public async Task<Result> ChangeActionStatusAsync(long id, string status)
         {
-            var existingAction = await _context.Actions.FindAsync(id);
+            var existingAction = await _context.Actions
+                .Include(a => a.Coordenator)
+                .Include(a => a.Course)
+                .FirstOrDefaultAsync(a => a.Id == id);
             if (existingAction is null)
             {
                 _logger.LogWarning("Action with ID {id} not found.", id);

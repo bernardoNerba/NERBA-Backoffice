@@ -22,8 +22,9 @@ import { TitleComponent } from '../../../shared/components/title/title.component
 import { IconAnchorComponent } from '../../../shared/components/anchors/icon-anchor.component';
 import { ModulesService } from '../../../core/services/modules.service';
 import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
-import { Module } from '../../../core/models/module';
+import { Module, ModuleTeacher } from '../../../core/models/module';
 import { Message } from 'primeng/message';
+import { MessageComponent } from '../../../shared/components/message/message.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -33,7 +34,7 @@ import { Message } from 'primeng/message';
     ModulesTableComponent,
     TitleComponent,
     IconAnchorComponent,
-    Message,
+    MessageComponent,
   ],
   templateUrl: './view-actions.component.html',
 })
@@ -46,6 +47,7 @@ export class ViewActionsComponent implements IView, OnInit {
   menuItems: MenuItem[] | undefined;
   action?: Action;
   modulesWithoutTeacher: Module[] = [];
+  modulesWithTeacher: ModuleTeacher[] = [];
 
   ICONS = ICONS;
 
@@ -74,6 +76,7 @@ export class ViewActionsComponent implements IView, OnInit {
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
     this.moduleTeachingCreatedSubscription();
+    this.moduleChangesSubscription();
   }
 
   initializeEntity(): void {
@@ -99,11 +102,16 @@ export class ViewActionsComponent implements IView, OnInit {
           this.updateBreadcrumbs();
           this.initializeCourse();
           this.loadModulesWithoutTeacher();
+          this.loadModulesWithTeacher();
         }
       })
     );
   }
-
+  getModulesWithoutTeacherNames(): string[] {
+    return this.modulesWithoutTeacher.map(
+      (module) => `${module.name} - ${module.hours} horas`
+    );
+  }
   private initializeCourse(): void {
     this.course$ = this.courseService.getSingleCourse(this.courseId);
   }
@@ -120,6 +128,18 @@ export class ViewActionsComponent implements IView, OnInit {
         this.modulesWithoutTeacher = [];
         // Repopulate menu even on error to ensure consistency
         this.populateMenu();
+      },
+    });
+  }
+
+  loadModulesWithTeacher(): void {
+    this.modulesService.getModulesWithTeacherByAction(this.id).subscribe({
+      next: (modules) => {
+        this.modulesWithTeacher = modules;
+      },
+      error: (error) => {
+        console.error('Error loading modules with teacher:', error);
+        this.modulesWithTeacher = [];
       },
     });
   }
@@ -144,8 +164,7 @@ export class ViewActionsComponent implements IView, OnInit {
       {
         label: 'Ver Curso',
         icon: 'pi pi-exclamation-circle',
-        command: () =>
-          this.router.navigateByUrl(`/courses/${this.courseId}`),
+        command: () => this.router.navigateByUrl(`/courses/${this.courseId}`),
       },
       {
         label: 'Adicionar Formando',
@@ -222,8 +241,35 @@ export class ViewActionsComponent implements IView, OnInit {
   moduleTeachingCreatedSubscription(): void {
     this.subscriptions.add(
       this.moduleTeachingService.createdSource$.subscribe(() => {
-        // Reload modules without teacher when a new module teaching is created
+        // Reload both module lists when a new module teaching is created
         this.loadModulesWithoutTeacher();
+        this.loadModulesWithTeacher();
+      })
+    );
+
+    // Also listen for updates to module teachings
+    this.subscriptions.add(
+      this.moduleTeachingService.updatedSource$.subscribe(() => {
+        // Reload both module lists when a module teaching is updated
+        this.loadModulesWithoutTeacher();
+        this.loadModulesWithTeacher();
+      })
+    );
+  }
+
+  moduleChangesSubscription(): void {
+    this.subscriptions.add(
+      this.modulesService.toggleSource$.subscribe(() => {
+        // Reload modules with teacher data when a module is toggled
+        this.loadModulesWithTeacher();
+      })
+    );
+
+    // Also listen for module updates to reload teacher data
+    this.subscriptions.add(
+      this.modulesService.updatedSource$.subscribe(() => {
+        // Reload modules with teacher data when a module is updated
+        this.loadModulesWithTeacher();
       })
     );
   }

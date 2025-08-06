@@ -1,8 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title pull-left">
-    {{ isUpdate ? "Editar" : "Adicionar" }} Formador @if (actionTitle) {
-    <small class="text-muted d-block">{{ actionTitle }}</small>
-    }
+    {{ isUpdate ? "Editar" : "Adicionar" }} Formador @if (actionTitle) { }
   </h4>
   <button
     type="button"
@@ -20,6 +18,82 @@
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
 
     <div class="row g-3">
+      <!-- Action Selection -->
+      <div class="col-12">
+        <label for="actionId" class="form-label">
+          Ação Formação <span class="text-danger">*</span>
+        </label>
+        @if (actionId && actionTitle) {
+        <div class="form-control-plaintext bg-light p-2 rounded border">
+          <strong>{{ actionTitle }}</strong>
+        </div>
+        } @else {
+        <p-select
+          id="actionId"
+          formControlName="actionId"
+          [options]="(actions$ | async) ?? []"
+          optionLabel="title"
+          optionValue="id"
+          placeholder="Selecione uma ação formação"
+          [showClear]="true"
+          styleClass="w-100"
+          [class.is-invalid]="submitted && form.get('actionId')?.invalid"
+          (onChange)="onActionChange($event.value)"
+        >
+          <ng-template pTemplate="selectedItem" let-selectedAction>
+            <div class="flex align-items-center gap-2" *ngIf="selectedAction">
+              <div>{{ getActionDisplayName(selectedAction) }}</div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-action>
+            <div class="flex align-items-center gap-2">
+              <div>{{ getActionDisplayName(action) }}</div>
+            </div>
+          </ng-template>
+        </p-select>
+        @if (submitted && form.get('actionId')?.invalid) {
+        <div class="invalid-feedback d-block">Ação Formação é obrigatória.</div>
+        }
+        }
+      </div>
+
+      <!-- Module Selection -->
+      <div class="col-12">
+        <label for="moduleId" class="form-label">
+          Módulo <span class="text-danger">*</span>
+        </label>
+        @if (isUpdate && moduleId && moduleName) {
+        <div class="form-control-plaintext bg-light p-2 rounded border">
+          <strong>{{ moduleName }}</strong>
+        </div>
+        } @else {
+        <p-select
+          id="moduleId"
+          formControlName="moduleId"
+          [options]="(modulesWithoutTeacher$ | async) ?? []"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Selecione um módulo"
+          [showClear]="true"
+          styleClass="w-100"
+          [class.is-invalid]="submitted && form.get('moduleId')?.invalid"
+        >
+          <ng-template pTemplate="selectedItem" let-selectedModule>
+            <div class="flex align-items-center gap-2" *ngIf="selectedModule">
+              <div>{{ getModuleDisplayName(selectedModule) }}</div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-module>
+            <div class="flex align-items-center gap-2">
+              <div>{{ getModuleDisplayName(module) }}</div>
+            </div>
+          </ng-template>
+        </p-select>
+        @if (submitted && form.get('moduleId')?.invalid) {
+        <div class="invalid-feedback d-block">Módulo é obrigatório.</div>
+        } }
+      </div>
+
       <!-- Teacher Selection -->
       <div class="col-12">
         <label for="teacherId" class="form-label">
@@ -49,38 +123,6 @@
         </p-select>
         @if (submitted && form.get('teacherId')?.invalid) {
         <div class="invalid-feedback d-block">Formador é obrigatório.</div>
-        }
-      </div>
-
-      <!-- Module Selection -->
-      <div class="col-12">
-        <label for="moduleId" class="form-label">
-          Módulo <span class="text-danger">*</span>
-        </label>
-        <p-select
-          id="moduleId"
-          formControlName="moduleId"
-          [options]="(modulesWithoutTeacher$ | async) ?? []"
-          optionLabel="name"
-          optionValue="id"
-          placeholder="Selecione um módulo"
-          [showClear]="true"
-          styleClass="w-100"
-          [class.is-invalid]="submitted && form.get('moduleId')?.invalid"
-        >
-          <ng-template pTemplate="selectedItem" let-selectedModule>
-            <div class="flex align-items-center gap-2" *ngIf="selectedModule">
-              <div>{{ getModuleDisplayName(selectedModule) }}</div>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="item" let-module>
-            <div class="flex align-items-center gap-2">
-              <div>{{ getModuleDisplayName(module) }}</div>
-            </div>
-          </ng-template>
-        </p-select>
-        @if (submitted && form.get('moduleId')?.invalid) {
-        <div class="invalid-feedback d-block">Módulo é obrigatório.</div>
         }
       </div>
     </div>

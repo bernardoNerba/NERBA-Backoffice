@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
+import { MessageComponent } from '../message/message.component';
 
 @Component({
   selector: 'app-error-card',
-  imports: [],
+  imports: [MessageComponent],
   templateUrl: './error-card.component.html',
   styleUrl: './error-card.component.css',
 })

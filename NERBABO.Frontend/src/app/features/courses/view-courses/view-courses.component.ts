@@ -26,6 +26,7 @@ import { IView } from '../../../core/interfaces/IView';
 import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
 import { UpsertActionsComponent } from '../../actions/upsert-actions/upsert-actions.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
+import { MessageComponent } from '../../../shared/components/message/message.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -36,6 +37,7 @@ import { TitleComponent } from '../../../shared/components/title/title.component
     ModulesTableComponent,
     ActionsTableComponent,
     TitleComponent,
+    MessageComponent,
   ],
   templateUrl: './view-courses.component.html',
 })

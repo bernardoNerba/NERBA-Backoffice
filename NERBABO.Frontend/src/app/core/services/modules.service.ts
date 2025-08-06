@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
-import { Module } from '../models/module';
+import { Module, ModuleTeacher } from '../models/module';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
@@ -85,6 +85,10 @@ export class ModulesService {
 
   getModulesWithoutTeacher(): Observable<Module[]> {
     return this.http.get<Module[]>(`${API_ENDPOINTS.modulesWithoutTeacher}modules-without-teacher`);
+  }
+
+  getModulesWithTeacherByAction(actionId: number): Observable<ModuleTeacher[]> {
+    return this.http.get<ModuleTeacher[]>(`${API_ENDPOINTS.modules}action/${actionId}/teacher`);
   }
 
   notifyModuleUpdate(id: number) {

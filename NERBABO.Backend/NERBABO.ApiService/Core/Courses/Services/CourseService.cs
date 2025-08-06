@@ -582,12 +582,12 @@ namespace NERBABO.ApiService.Core.Courses.Services
                     StatusCodes.Status404NotFound);
             }
 
-
-            if (!existingCourse.IsCourseActive)
+            // Prevent module removal from active courses
+            if (existingCourse.IsCourseActive)
             {
-                _logger.LogWarning("Module is not active for the given ModuleId: {ModuleId}", moduleId);
+                _logger.LogWarning("Attempted to remove module from active course. CourseId: {CourseId}, ModuleId: {ModuleId}", courseId, moduleId);
                 return Result<RetrieveCourseDto>
-                    .Fail("Erro de Validação", "Não é possível remover um módulo a um curso concluído ou cancelado.");
+                    .Fail("Erro de Validação", "Não é possível remover um módulo de um curso que está ativo (Não Iniciado ou Em Progresso).");
             }
 
             // Assign the module to the course
@@ -765,11 +765,20 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 hasChanges = true;
             }
 
-            // Update Modules if changed
+            // Update Modules if changed - but prevent changes if course is active
             var existingModuleIds = existingCourse.Modules.Select(m => m.Id).OrderBy(id => id).ToList();
             var newModuleIds = entityDto.Modules.OrderBy(id => id).ToList();
             if (!existingModuleIds.SequenceEqual(newModuleIds))
             {
+                // Check if course is active and modules are being removed
+                var removedModuleIds = existingModuleIds.Except(newModuleIds).ToList();
+                if (existingCourse.IsCourseActive && removedModuleIds.Any())
+                {
+                    _logger.LogWarning("Attempted to remove modules from active course. CourseId: {CourseId}", entityDto.Id);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação", "Não é possível remover módulos de um curso que está ativo (Não Iniciado ou Em Progresso).");
+                }
+                
                 existingCourse.Modules = modules;
                 hasChanges = true;
             }

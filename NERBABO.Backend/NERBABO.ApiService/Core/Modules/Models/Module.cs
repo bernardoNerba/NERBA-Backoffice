@@ -60,5 +60,25 @@ namespace NERBABO.ApiService.Core.Modules.Models
                 UpdatedAt = DateTime.UtcNow
             };
         }
+
+        public static RetrieveModuleTeacherDto ConvertEntityToRetrieveModuleTeacherDto(Module module, long actionId)
+        {
+            // Find the module teaching for this specific action
+            var moduleTeaching = module.ModuleTeachings.FirstOrDefault(mt => mt.ActionId == actionId);
+            
+            return new RetrieveModuleTeacherDto
+            {
+                Id = module.Id,
+                Name = module.Name,
+                Hours = module.Hours,
+                IsActive = module.IsActive,
+                CoursesQnt = module.CoursesQnt,
+                TeacherId = moduleTeaching?.TeacherId,
+                PersonId = moduleTeaching?.Teacher?.Person.Id,
+                TeacherName = moduleTeaching?.Teacher?.Person != null 
+                    ? $"{moduleTeaching.Teacher.Person.FirstName} {moduleTeaching.Teacher.Person.LastName}"
+                    : null
+            };
+        }
     }
 }

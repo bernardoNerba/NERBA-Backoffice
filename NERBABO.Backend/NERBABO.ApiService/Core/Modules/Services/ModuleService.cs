@@ -26,13 +26,13 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
         public async Task<Result<RetrieveModuleDto>> CreateAsync(CreateModuleDto entityDto)
         {
-            // Unique constrains check
+            // Unique constrains check (name + hours combination)
             if (await _context.Modules.AnyAsync(m =>
-                m.Name.ToLower().Equals(entityDto.Name.ToLower())))
+                m.Name.ToLower().Equals(entityDto.Name.ToLower()) && m.Hours == entityDto.Hours))
             {
-                _logger.LogWarning("Duplicated Module Name detected");
+                _logger.LogWarning("Duplicated Module Name and Hours combination detected");
                 return Result<RetrieveModuleDto>
-                    .Fail("Erro de Validação.", "O nome do módulo deve ser único. Já existe no sistema.");
+                    .Fail("Erro de Validação.", "A combinação de nome e horas do módulo deve ser única. Já existe no sistema.");
             }
 
             var createdModule = _context.Modules.Add(Module.ConvertCreateDtoToEntity(entityDto));
@@ -139,21 +139,33 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
         public async Task<Result<RetrieveModuleDto>> UpdateAsync(UpdateModuleDto entityDto)
         {
-            var existingModule = await _context.Modules.FindAsync(entityDto.Id);
+            var existingModule = await _context.Modules
+                .Include(m => m.Courses)
+                .FirstOrDefaultAsync(m => m.Id == entityDto.Id);
             if (existingModule is null)
                 return Result<RetrieveModuleDto>
                     .Fail("Não encontrado.", "Módulo não encontrado.",
                     StatusCodes.Status404NotFound);
 
-            // Unique constrains check
+            // Check if module is associated with any courses before allowing hours changes
+            bool hoursChanged = Math.Abs(existingModule.Hours - entityDto.Hours) > 0.01f;
+            if (hoursChanged && existingModule.Courses.Count > 0)
+            {
+                _logger.LogWarning("Attempted to change hours of Module with ID {ModuleId} that is associated with active courses.", entityDto.Id);
+                return Result<RetrieveModuleDto>
+                    .Fail("Erro de Validação.", "Não é possível alterar as horas de um módulo que está associado a cursos.");
+            }
+
+            // Unique constrains check (name + hours combination)
             if (await _context.Modules.AnyAsync(m =>
                 m.Name.ToLower().Equals(entityDto.Name.ToLower())
+                && m.Hours == entityDto.Hours
                 && m.Id != entityDto.Id)
                 )
             {
-                _logger.LogWarning("Duplicated Module Name detected");
+                _logger.LogWarning("Duplicated Module Name and Hours combination detected");
                 return Result<RetrieveModuleDto>
-                    .Fail("Erro de Validação.", "O nome do módulo deve ser único. Já existe no sistema.");
+                    .Fail("Erro de Validação.", "A combinação de nome e horas do módulo deve ser única. Já existe no sistema.");
             }
 
             // Selective field updates - only update fields that have changed
@@ -242,11 +254,21 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
         public async Task<Result> ToggleModuleIsActiveAsync(long id)
         {
-            var existingModule = await _context.Modules.FindAsync(id);
+            var existingModule = await _context.Modules
+                .Include(m => m.Courses)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (existingModule is null)
                 return Result
                     .Fail("Não encontrado.", "Módulo não encontrado.",
                     StatusCodes.Status404NotFound);
+
+            // Check if module is associated with any active courses before allowing toggle
+            if (existingModule.Courses.Any(c => c.IsCourseActive))
+            {
+                _logger.LogWarning("Attempted to toggle active status of Module with ID {ModuleId} that is associated with active courses.", id);
+                return Result
+                    .Fail("Erro de Validação.", "Não é possível alterar o estado de ativação de um módulo que está associado a cursos ativos.");
+            }
 
             existingModule.IsActive = !existingModule.IsActive;
             await _context.SaveChangesAsync();
@@ -304,6 +326,45 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             return Result<IEnumerable<RetrieveModuleDto>>
                 .Ok(modulesWithoutTeacher);
+        }
+
+        public async Task<Result<IEnumerable<RetrieveModuleTeacherDto>>> GetModulesWithTeacherByActionIdAsync(long actionId)
+        {
+            // Check if Action exists and get its course modules with teaching relationships
+            var existingAction = await _context.Actions
+                .Include(a => a.Course)
+                    .ThenInclude(c => c.Modules)
+                        .ThenInclude(m => m.ModuleTeachings.Where(mt => mt.ActionId == actionId))
+                            .ThenInclude(mt => mt.Teacher)
+                                .ThenInclude(t => t.Person)
+                .FirstOrDefaultAsync(a => a.Id == actionId);
+
+            if (existingAction is null)
+            {
+                _logger.LogWarning("Action with ID {ActionId} not found.", actionId);
+                return Result<IEnumerable<RetrieveModuleTeacherDto>>
+                    .Fail("Não encontrado.", "Ação Formação não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            // Convert modules to ModuleTeacher DTOs
+            var modulesWithTeacher = existingAction.Course.Modules
+                .Select(m => Module.ConvertEntityToRetrieveModuleTeacherDto(m, actionId))
+                .OrderBy(m => m.Name)
+                .ToList();
+
+            if (!modulesWithTeacher.Any())
+            {
+                _logger.LogInformation("No modules found in Action {ActionId}.", actionId);
+                return Result<IEnumerable<RetrieveModuleTeacherDto>>
+                    .Fail("Não encontrado.", "Não existem módulos nesta Ação.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            _logger.LogInformation("Found {Count} modules in Action {ActionId}.", modulesWithTeacher.Count, actionId);
+
+            return Result<IEnumerable<RetrieveModuleTeacherDto>>
+                .Ok(modulesWithTeacher);
         }
     }
 }
