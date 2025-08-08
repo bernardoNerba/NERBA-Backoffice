@@ -9,6 +9,7 @@ using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Core.People.Models;
+using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Data.Configurations;
@@ -28,6 +29,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Course> Courses { get; set; }
     public DbSet<CourseAction> Actions { get; set; }
     public DbSet<ModuleTeaching> ModuleTeachings { get; set; }
+    public DbSet<Session> Sessions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -53,6 +55,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.ApplyConfiguration(new ModuleConfiguration());
         builder.ApplyConfiguration(new CourseActionConfiguration());
         builder.ApplyConfiguration(new TeacherModuleActionConfiguration());
+        builder.ApplyConfiguration(new SessionConfiguration());
 
     }
 }
