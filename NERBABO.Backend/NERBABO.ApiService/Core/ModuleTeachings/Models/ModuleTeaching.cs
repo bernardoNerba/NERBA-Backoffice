@@ -29,6 +29,13 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public bool PaymentProcessed =>
             PaymentDate.HasValue;
 
+        public double ScheduledSessionsTime =>
+            Sessions.Sum(s => s.DurationHours);
+
+        public bool IsModuleHoursScheduled =>
+            ScheduledSessionsTime == Module.Hours;
+
+
 
         public static RetrieveModuleTeachingDto ConvertEntityToRetrieveDto(ModuleTeaching mt)
         {
