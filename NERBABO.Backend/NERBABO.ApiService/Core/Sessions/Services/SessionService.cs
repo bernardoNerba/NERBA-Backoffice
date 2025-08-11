@@ -1,5 +1,7 @@
 using Humanizer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Sessions.Dtos;
 using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Data;
@@ -11,11 +13,13 @@ namespace NERBABO.ApiService.Core.Sessions.Services;
 
 public class SessionService(
     AppDbContext context,
-    ILogger<SessionService> logger
+    ILogger<SessionService> logger,
+    UserManager<User> userManager
 ) : ISessionService
 {
     private readonly AppDbContext _context = context;
     private readonly ILogger<SessionService> _logger = logger;
+    private readonly UserManager<User> _userManager = userManager;
 
     public async Task<Result<RetrieveSessionDto>> CreateAsync(CreateSessionDto entityDto)
     {
@@ -28,6 +32,8 @@ public class SessionService(
             .Include(mt => mt.Action)
                 .ThenInclude(a => a.Course)
                     .ThenInclude(c => c.Modules)
+            .Include(mt => mt.Action.Coordenator)
+                .ThenInclude(c => c.Person)
             .FirstOrDefaultAsync(mt => mt.Id == entityDto.ModuleTeachingId);
         if (moduleTeaching is null)
         {
@@ -38,6 +44,17 @@ public class SessionService(
         }
 
         var action = moduleTeaching.Action;
+
+        // check if the user that made the request is the coordenator of the action or is admin
+        if ((action.CoordenatorId != entityDto.User.Id)
+            && !(await _userManager.GetRolesAsync(entityDto.User)).Contains("Admin"))
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                    "Apenas o coordenador do curso pode realizar esta ação.");
+        }
+
         // check the action is active
         if (!action.IsActionActive)
         {
@@ -45,7 +62,7 @@ public class SessionService(
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.",
                 "Não é possível marcar uma sessão quando a ação está inativa.");
-        }
+        }        
 
         // check if all the duration of the course is filled
         if (action.Course.TotalDuration - action.Course.CurrentDuration != 0)
@@ -114,6 +131,40 @@ public class SessionService(
     public Task<Result<IEnumerable<RetrieveSessionDto>>> GetAllAsync()
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<Result<IEnumerable<RetrieveSessionDto>>> GetAllByActionIdAsync(long actionId)
+    {
+        var existingAction = await _context.Actions
+            .FirstOrDefaultAsync(a => a.Id == actionId);
+        if (existingAction is null)
+        {
+            _logger.LogWarning("");
+            return Result<IEnumerable<RetrieveSessionDto>>
+                .Fail("Não encontrado", "Ação Formação não encontrada");
+        }
+
+        var existingSessionsOnAction = await _context.Sessions
+            .AsNoTracking()
+            .Include(s => s.ModuleTeaching)
+            .Include(s => s.ModuleTeaching.Teacher)
+                    .ThenInclude(mt => mt.Person)
+            .Include(s => s.ModuleTeaching.Module)
+            .Include(s => s.ModuleTeaching.Action)
+                .ThenInclude(a => a.Course)
+                    .ThenInclude(c => c.Modules)
+            .Include(s => s.ModuleTeaching.Action.Coordenator)
+                .ThenInclude(c => c.Person)
+            .Where(s => s.ModuleTeaching.ActionId == actionId)
+            .OrderByDescending(s => s.ScheduledDate)
+            .ToListAsync()
+            ?? [];
+
+        var retrieveSessions = existingSessionsOnAction
+            .Select(Session.ConvertEntityToRetrieveDto);
+
+        return Result<IEnumerable<RetrieveSessionDto>>
+            .Ok(retrieveSessions);
     }
 
     public Task<Result<RetrieveSessionDto>> GetByIdAsync(long id)

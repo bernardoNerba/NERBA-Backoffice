@@ -22,7 +22,7 @@ public class Session : Entity<long>
     public TimeOnly End =>
         Start.AddHours(DurationHours);
 
-    public string Time => $"{Start:HH:mm} - {End:HH:mm)}";
+    public string Time => $"{Start:HH:mm} - {End:HH:mm}";
 
     public static RetrieveSessionDto ConvertEntityToRetrieveDto(Session s)
     {
@@ -32,8 +32,10 @@ public class Session : Entity<long>
             ModuleTeachingId = s.ModuleTeachingId,
             ModuleId = s.ModuleTeaching.ModuleId,
             ModuleName = s.ModuleTeaching.Module.Name,
-            PersonId = s.ModuleTeaching.Teacher.PersonId,
-            PersonName = $"{s.ModuleTeaching.Teacher.Person.FirstName} {s.ModuleTeaching.Teacher.Person.LastName}",
+            TeacherPersonId = s.ModuleTeaching.Teacher.PersonId,
+            TeacherPersonName = s.ModuleTeaching.Teacher.Person.FullName,
+            CoordenatorPersonId = s.ModuleTeaching.Action.Coordenator.PersonId,
+            CoordenatorPersonName = s.ModuleTeaching.Action.Coordenator.Person?.FullName ?? "",
             ScheduledDate = s.ScheduledDate.ToString("yyyy-MM-dd"),
             Time = s.Time,
             DurationHours = s.DurationHours,

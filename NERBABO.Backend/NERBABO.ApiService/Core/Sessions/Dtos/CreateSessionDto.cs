@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Helper.Validators;
 
 namespace NERBABO.ApiService.Core.Sessions.Dtos
@@ -21,5 +23,8 @@ namespace NERBABO.ApiService.Core.Sessions.Dtos
         [Required(ErrorMessage = "Duração em horas é um campo obrigatório.")]
         [Range(1.0, 12.0, ErrorMessage = "Duração deve estar entre 1 e 12 horas.")]
         public double DurationHours { get; set; }
+
+        [JsonIgnore]
+        public User User { get; set; } = new User();
     }
 }

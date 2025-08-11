@@ -33,7 +33,6 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public bool IsActionActive =>
             Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
 
-
         public string Title => $"{ActionNumber} - {Locality}";
 
         // Navigation properties

@@ -9,8 +9,11 @@ public class RetrieveSessionDto
     public long ModuleId { get; set; }
     public string ModuleName { get; set; } = string.Empty;
 
-    public long PersonId { get; set; }
-    public string PersonName { get; set; } = string.Empty;
+    public long TeacherPersonId { get; set; }
+    public string TeacherPersonName { get; set; } = string.Empty;
+
+    public long CoordenatorPersonId { get; set; }
+    public string CoordenatorPersonName { get; set; } = string.Empty;
 
     public string ScheduledDate { get; set; } = string.Empty;
     public string Time { get; set; } = string.Empty;

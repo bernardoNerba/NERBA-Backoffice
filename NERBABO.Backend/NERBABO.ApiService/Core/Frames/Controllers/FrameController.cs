@@ -22,10 +22,10 @@ public class FrameController(
     /// </summary>
     /// <response code="200">The are frames on the system. Returns a list of all frames.</response>
     /// <response code="404">There are no frames on the system.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not Admin.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user must be a active user.</response>
     /// <response code="500">Unexpected error occurred.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> GetAllFramesAsync()
     {
         Result<IEnumerable<RetrieveFrameDto>> frames = await _frameService.GetAllAsync();   
@@ -54,10 +54,10 @@ public class FrameController(
     /// <param name="id">The ID of the frame to be retrieved.</param>
     /// <response code="200">Frame found. Returns the frame details.</response>
     /// <response code="404">Frame not found.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt. User must be an Admin.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt. User must be an Active user.</response>
     /// <response code="500">Unexpected error occurred.</response>
     [HttpGet("{id:long}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> GetFrameAsync(long id)
     {
         Result<RetrieveFrameDto> result = await _frameService.GetByIdAsync(id);

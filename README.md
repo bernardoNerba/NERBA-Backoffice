@@ -154,10 +154,8 @@ If you're interested in contributing, please feel free to open a pull request or
 ## ToDo's
 
 - [ ] Add new Integration tests project
-- [ ] Document, with comments, critical methods and classes
-- [ ] Write the frontend code for Teachers, Students features
-- [ ] Frontend data filtering for user-friendly and efficient interaction
-- [ ] Write docker prod environment workflow documentation
+- [ ] Document, with comments, critical methods, classes and interfaces
+- [ ] Optimize Services Queries
 
 ## Code of Conduct
 

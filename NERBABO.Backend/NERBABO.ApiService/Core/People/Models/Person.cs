@@ -33,6 +33,8 @@ public class Person : Entity<long>
     public bool IsStudent => Student != null;
     public bool IsColaborator => User != null;
 
+    public string FullName => $"{FirstName} {LastName}";
+
     // Navigation properties
     public User? User { get; set; }
     public Teacher? Teacher { get; set; }
