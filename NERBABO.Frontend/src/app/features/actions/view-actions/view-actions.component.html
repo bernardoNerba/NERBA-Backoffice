@@ -273,6 +273,35 @@
     </div>
     } }
     <!-- END MODULES TABLE ACCORDION -->
+    <!-- MODULES TABLE ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-session-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#session-info-content"
+          aria-expanded="false"
+          aria-controls="session-info-content"
+        >
+          <app-icon [icon]="ICONS.session" [marginEnd]="3" />
+          <h5>Sessões</h5>
+        </button>
+      </h2>
+      <div
+        id="session-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-session-info"
+      >
+        <div class="accordion-body">
+          <app-sessions-scheduler
+            [query]="'byActionId'"
+            [actionId]="action.id"
+          />
+        </div>
+      </div>
+    </div>
+    <!-- END MODULES TABLE ACCORDION -->
   </div>
 </div>
 }

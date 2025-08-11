@@ -1,0 +1,44 @@
+.session-day {
+  background-color: var(--danger-background-hover);
+  color: var(--p-primary-contrast-color);
+  border-radius: 50%;
+  padding: 1rem;
+}
+
+.sessions-container {
+  height: 500px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-card .p-card-header {
+  padding: 8px 16px !important;
+}
+
+.session-card .p-card-content {
+  padding: 8px 16px !important;
+}
+
+/* Custom scrollbar for sessions list */
+.sessions-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sessions-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.sessions-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.sessions-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

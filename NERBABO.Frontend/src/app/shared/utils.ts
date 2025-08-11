@@ -29,3 +29,10 @@ export function convertDateOnlyToPtDate(dateString: string): string {
   const [year, month, day] = dateString.split('-');
   return `${day}/${month}/${year}`;
 }
+
+export function formatDateForApi(date: Date): string {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}

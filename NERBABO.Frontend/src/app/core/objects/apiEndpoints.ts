@@ -105,4 +105,8 @@ export const API_ENDPOINTS = {
 
   // Health check endpoint
   health: `${BASE_URL}/health`,
+
+  // Sessions
+  sessions: `${BASE_URL}/api/sessions/`,
+  sessionsByAction: `${BASE_URL}/api/sessions/action/`,
 };

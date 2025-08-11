@@ -37,6 +37,7 @@ public class Session : Entity<long>
             CoordenatorPersonId = s.ModuleTeaching.Action.Coordenator.PersonId,
             CoordenatorPersonName = s.ModuleTeaching.Action.Coordenator.Person?.FullName ?? "",
             ScheduledDate = s.ScheduledDate.ToString("yyyy-MM-dd"),
+            Weekday = s.Weekday.Humanize(LetterCasing.Sentence),
             Time = s.Time,
             DurationHours = s.DurationHours,
             TeacherPresence = s.TeacherPresence.Humanize()

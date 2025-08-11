@@ -16,6 +16,7 @@ public class RetrieveSessionDto
     public string CoordenatorPersonName { get; set; } = string.Empty;
 
     public string ScheduledDate { get; set; } = string.Empty;
+    public string Weekday { get; set; } = string.Empty;
     public string Time { get; set; } = string.Empty;
     public double DurationHours { get; set; }
     public string TeacherPresence { get; set; } = string.Empty;

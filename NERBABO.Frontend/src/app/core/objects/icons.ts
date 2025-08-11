@@ -51,4 +51,5 @@ export const ICONS = {
   book: faBook,
   company: faBuilding,
   action: faBookmark,
+  session: faCalendar,
 };
