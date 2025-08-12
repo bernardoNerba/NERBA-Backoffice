@@ -27,4 +27,8 @@ export class SessionsService {
   create(session: CreateSession): Observable<OkResponse> {
     return this.http.post<OkResponse>(API_ENDPOINTS.sessions, session);
   }
+
+  delete(sessionId: number): Observable<OkResponse> {
+    return this.http.delete<OkResponse>(API_ENDPOINTS.sessions + sessionId);
+  }
 }

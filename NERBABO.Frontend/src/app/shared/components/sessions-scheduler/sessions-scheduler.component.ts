@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { Tag } from 'primeng/tag';
 import { UpsertSessionsComponent } from '../../../features/sessions/upsert-sessions/upsert-sessions.component';
 import { Action } from '../../../core/models/action';
+import { DeleteSessionsComponent } from '../../../features/sessions/delete-sessions/delete-sessions.component';
 
 @Component({
   selector: 'app-sessions-scheduler',
@@ -131,6 +132,16 @@ export class SessionsSchedulerComponent implements OnInit {
     // });
   }
 
+  onDeleteSession(session: Session): void {
+    this.modalService.show(DeleteSessionsComponent, {
+      class: 'modal-md',
+      initialState: {
+        id: session.id,
+        session: session,
+      },
+    });
+  }
+
   isSessionDay(date: any): boolean {
     const dateString = formatDateForApi(
       new Date(date.year, date.month, date.day)
@@ -157,19 +168,6 @@ export class SessionsSchedulerComponent implements OnInit {
     return this.action.weekDays.some(
       (allowedDay) => allowedDay.toLowerCase() === currentWeekDay
     );
-  }
-
-  onDeleteSession(session: Session): void {
-    // if (confirm('Tem certeza de que deseja excluir esta sessão?')) {
-    //   this.sessionsService.deleteSession(session.id).subscribe({
-    //     next: () => {
-    //       this.loadSessions();
-    //     },
-    //     error: (error) => {
-    //       console.error('Error deleting session:', error);
-    //     },
-    //   });
-    // }
   }
 
   getPresenceSeverity(presence: string): string {
