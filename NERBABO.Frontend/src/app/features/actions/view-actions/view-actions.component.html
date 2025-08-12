@@ -294,10 +294,7 @@
         aria-labelledby="heading-session-info"
       >
         <div class="accordion-body">
-          <app-sessions-scheduler
-            [query]="'byActionId'"
-            [actionId]="action.id"
-          />
+          <app-sessions-scheduler [query]="'byActionId'" [action]="action" />
         </div>
       </div>
     </div>

@@ -5,21 +5,30 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
 import { formatDateForApi } from '../../utils';
 import { Subscription } from 'rxjs';
-import { Button, ButtonModule } from 'primeng/button';
-import { DatePicker, DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Tag } from 'primeng/tag';
+import { UpsertSessionsComponent } from '../../../features/sessions/upsert-sessions/upsert-sessions.component';
+import { Action } from '../../../core/models/action';
 
 @Component({
   selector: 'app-sessions-scheduler',
-  imports: [ButtonModule, DatePickerModule, CommonModule, CardModule, Tag],
+  imports: [
+    ButtonModule,
+    DatePickerModule,
+    CommonModule,
+    CardModule,
+    FormsModule,
+  ],
   templateUrl: './sessions-scheduler.component.html',
   styleUrl: './sessions-scheduler.component.css',
 })
 export class SessionsSchedulerComponent implements OnInit {
   @Input({ required: true }) query!: 'all' | 'byActionId';
-  @Input({}) actionId?: number | null;
+  @Input({}) action?: Action | null;
   sessions: Session[] = [];
   filteredSessions: Session[] = [];
   selectedDate?: Date;
@@ -41,21 +50,23 @@ export class SessionsSchedulerComponent implements OnInit {
   loadSessions(): void {
     switch (this.query) {
       case 'byActionId':
-        if (this.actionId) {
-          this.sessionsService.getSessionsByActionId(this.actionId).subscribe({
-            next: (sessions: Session[]) => {
-              console.log('Loaded sessions:', sessions);
-              this.sessions = sessions;
-              this.filteredSessions = this.sessions;
-              this.sessionsDates = sessions.map((s) => s.scheduledDate);
-              console.log('Session dates for calendar:', this.sessionsDates);
-            },
-            error: (error: any) => {
-              console.error('Error loading sessions:', error);
-              this.sessions = [];
-              this.filteredSessions = [];
-            },
-          });
+        if (this.action?.id) {
+          this.sessionsService
+            .getSessionsByActionId(this.action?.id)
+            .subscribe({
+              next: (sessions: Session[]) => {
+                console.log('Loaded sessions:', sessions);
+                this.sessions = sessions;
+                this.filteredSessions = this.sessions;
+                this.sessionsDates = sessions.map((s) => s.scheduledDate);
+                console.log('Session dates for calendar:', this.sessionsDates);
+              },
+              error: (error: any) => {
+                console.error('Error loading sessions:', error);
+                this.sessions = [];
+                this.filteredSessions = [];
+              },
+            });
         } else {
           this.sharedService.showWarning(
             'A ação não foi passada para filtrar as sessões'
@@ -98,15 +109,15 @@ export class SessionsSchedulerComponent implements OnInit {
   }
 
   onCreateSession(): void {
-    // this.modalService.show(UpsertSessionsComponent, {
-    //   class: 'modal-lg',
-    //   initialState: {
-    //     id: 0, // New session
-    //     actionId: this.action?.id,
-    //     actionTitle: this.action?.title,
-    //     selectedDate: this.selectedDate,
-    //   },
-    // });
+    this.modalService.show(UpsertSessionsComponent, {
+      class: 'modal-lg',
+      initialState: {
+        id: 0, // New session
+        actionId: this.action?.id,
+        actionTitle: this.action?.title,
+        selectedDate: this.selectedDate,
+      },
+    });
   }
 
   onEditSession(session: Session): void {
@@ -148,10 +159,15 @@ export class SessionsSchedulerComponent implements OnInit {
       case 'Presente':
         return 'success';
       case 'Faltou':
-        return 'warn';
+        return 'danger';
       default:
-        return 'warn';
+        return 'secondary';
     }
+  }
+
+  onScheduledDateClicked(date: string) {
+    this.selectedDate = new Date(date);
+    this.filterSessionsByDate();
   }
 
   ngOnDestroy(): void {

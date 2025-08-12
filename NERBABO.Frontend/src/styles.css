@@ -446,3 +446,15 @@ a.nav-link:hover {
     font-size: 0.7rem;
   }
 }
+
+.color-danger {
+  color: var(--danger-background);
+}
+
+.color-success {
+  color: var(--p-primary-600);
+}
+
+.color-secondary {
+  color: var(--p-surface-500);
+}

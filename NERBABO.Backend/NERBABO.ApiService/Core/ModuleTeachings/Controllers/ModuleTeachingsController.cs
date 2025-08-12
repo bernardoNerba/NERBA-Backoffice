@@ -6,6 +6,7 @@ using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.Modules.Services;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
+using NERBABO.ApiService.Core.Sessions.Dtos;
 
 namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
 {
@@ -136,6 +137,22 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
         public async Task<IActionResult> GetModuleTeachingByActionAndModuleAsync(long actionId, long moduleId)
         {
             Result<RetrieveModuleTeachingDto> result = await _moduleTeachingService.GetByActionAndModuleAsync(actionId, moduleId);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Gets the module teaching association for a specific action in a minimal way.
+        /// </summary>
+        /// <param name="actionId">The ID of the action.</param>
+        /// <response code="200">ModuleTeaching association found. Returns the association details.</response>
+        /// <response code="404">ModuleTeaching association not found for this action and module.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("action/{actionId:long}/")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> GetModuleTeachingByActionAndModuleAsync(long actionId)
+        {
+            Result<MinimalModuleTeachingDto> result = await _moduleTeachingService.GetByActionIdMinimalAsync(actionId);
             return _responseHandler.HandleResult(result);
         }
     }

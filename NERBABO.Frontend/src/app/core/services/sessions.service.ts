@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SharedService } from './shared.service';
 import { OkResponse } from '../models/okResponse';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
-import { Session } from '../objects/sessions';
+import { CreateSession, Session } from '../objects/sessions';
 
 @Injectable({
   providedIn: 'root',
@@ -22,5 +22,9 @@ export class SessionsService {
 
   getSessionsByActionId(actionId: number): Observable<Session[]> {
     return this.http.get<Session[]>(API_ENDPOINTS.sessionsByAction + actionId);
+  }
+
+  create(session: CreateSession): Observable<OkResponse> {
+    return this.http.post<OkResponse>(API_ENDPOINTS.sessions, session);
   }
 }

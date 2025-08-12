@@ -5,7 +5,7 @@
       <h6 class="fw-bold mb-0">Selecionar Data</h6>
     </div>
     <p-datepicker
-      formControlName="selectedDate"
+      [(ngModel)]="selectedDate"
       (onSelect)="onDateSelect($event)"
       (onClearClick)="clearDateSelection()"
       [inline]="true"
@@ -62,16 +62,18 @@
           <ng-template pTemplate="header">
             <div class="d-flex justify-content-between align-items-center p-2">
               <div>
-                <h6 class="mb-0">{{ session.moduleName || "Sessão" }}</h6>
-                <small class="text-muted">{{
-                  session.scheduledDate | date : "dd/MM/yyyy"
-                }}</small>
+                <h6 class="mb-0">
+                  {{ session.moduleName || "Sessão" }}
+                </h6>
+                <small class="mb-0">
+                  {{ session.scheduledDate | date : "dd/MM/yyyy" }}
+                </small>
               </div>
-              <div>
+              <div style="min-width: 100px">
                 <p-button
                   icon="pi pi-pencil"
                   size="small"
-                  severity="secondary"
+                  severity="warn"
                   [text]="true"
                   (onClick)="onEditSession(session)"
                   pTooltip="Editar Sessão"
@@ -87,12 +89,35 @@
                   pTooltip="Excluir Sessão"
                 >
                 </p-button>
+                <p-button
+                  icon="pi pi-calendar"
+                  [text]="true"
+                  size="small"
+                  severity="secondary"
+                  (click)="onScheduledDateClicked(session.scheduledDate)"
+                />
               </div>
             </div>
           </ng-template>
 
           <!-- Session time start - end -->
           <div class="row g-2 small">
+            <div class="col-12">
+              <strong>Formador:</strong>
+              <p class="mb-0">
+                {{ session.teacherPersonName || "N/A" }}
+              </p>
+            </div>
+            <div class="col-6">
+              <strong>Presença:</strong>
+              <p
+                class="mb-1 text-{{
+                  getPresenceSeverity(session.teacherPresence)
+                }}"
+              >
+                {{ session.teacherPresence || "N/A" }}
+              </p>
+            </div>
             <div class="col-6">
               <strong>Horário:</strong>
               <p class="mb-1">{{ session.time }}</p>
@@ -102,23 +127,8 @@
               <p class="mb-1">{{ session.durationHours }}h</p>
             </div>
             <div class="col-6">
-              <strong>Dia:</strong>
+              <strong>Dia da Semana:</strong>
               <p class="mb-1">{{ session.weekday }}</p>
-            </div>
-            <div class="col-6">
-              <strong>Presença:</strong>
-              <p class="mb-1">
-                <p-tag
-                  [severity]="getPresenceSeverity(session.teacherPresence)"
-                  [rounded]="true"
-                  [value]="session.teacherPresence || 'N/A'"
-                />
-              </p>
-            </div>
-
-            <div class="col-12">
-              <strong>Formador:</strong>
-              <p class="mb-0">{{ session.teacherPersonName || "N/A" }}</p>
             </div>
           </div>
         </p-card>

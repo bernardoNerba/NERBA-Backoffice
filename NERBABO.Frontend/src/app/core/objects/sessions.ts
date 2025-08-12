@@ -13,15 +13,10 @@ export interface Session {
   teacherPresence: string;
 }
 
-// "id": 6,
-//         "moduleTeachingId": 3,
-//         "moduleId": 2,
-//         "moduleName": "Módulo Lorem",
-//         "teacherPersonId": 2,
-//         "teacherPersonName": "Dinis dos Anjos Ferreira",
-//         "coordenatorPersonId": 1,
-//         "coordenatorPersonName": "Admin Admin",
-//         "scheduledDate": "2025-09-19",
-//         "time": "09:00 - 10:00",
-//         "durationHours": 1,
-//         "teacherPresence": "Não Especificado"
+export interface CreateSession {
+  moduleTeachingId: number;
+  weekday: string;
+  scheduledDate: string;
+  start: string;
+  durationHours: number;
+}

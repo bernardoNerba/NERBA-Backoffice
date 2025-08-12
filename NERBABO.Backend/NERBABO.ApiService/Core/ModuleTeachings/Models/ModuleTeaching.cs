@@ -1,6 +1,7 @@
 ﻿using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
+using NERBABO.ApiService.Core.Sessions.Dtos;
 using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Models;
@@ -65,6 +66,15 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
                 Teacher = teacher,
                 Action = action,
                 Module = module
+            };
+        }
+
+        public static MinimalModuleTeachingDto ConvertEntityToMinimalDto(ModuleTeaching mt)
+        {
+            return new MinimalModuleTeachingDto
+            {
+                ModuleTeachingId = mt.Id,
+                ModuleName = mt.Module.Name
             };
         }
     }

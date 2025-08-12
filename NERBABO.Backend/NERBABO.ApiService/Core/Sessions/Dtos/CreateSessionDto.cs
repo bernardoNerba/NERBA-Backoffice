@@ -7,6 +7,7 @@ namespace NERBABO.ApiService.Core.Sessions.Dtos
 {
     public class CreateSessionDto
     {
+        
         [Required(ErrorMessage = "ModuleTeaching é um campo obrigatório.")]
         public long ModuleTeachingId { get; set; }
 
