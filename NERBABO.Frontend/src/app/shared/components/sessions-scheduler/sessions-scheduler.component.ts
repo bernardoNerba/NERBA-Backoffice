@@ -3,7 +3,7 @@ import { SessionsService } from '../../../core/services/sessions.service';
 import { Session } from '../../../core/objects/sessions';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
-import { formatDateForApi } from '../../utils';
+import { formatDateForApi, getWeekDayPT } from '../../utils';
 import { Subscription } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -137,6 +137,26 @@ export class SessionsSchedulerComponent implements OnInit {
     );
     const isSession = this.sessionsDates.includes(dateString);
     return isSession;
+  }
+
+  isValidActionDay(date: any): boolean {
+    if (!this.action) return false;
+
+    const currentDate = new Date(date.year, date.month, date.day);
+    const startDate = new Date(this.action.startDate);
+    const endDate = new Date(this.action.endDate);
+
+    // Check if date is within action date range
+    if (currentDate < startDate || currentDate > endDate) {
+      return false;
+    }
+
+    // Check if current weekday is allowed
+    const currentWeekDay = getWeekDayPT(currentDate);
+
+    return this.action.weekDays.some(
+      (allowedDay) => allowedDay.toLowerCase() === currentWeekDay
+    );
   }
 
   onDeleteSession(session: Session): void {

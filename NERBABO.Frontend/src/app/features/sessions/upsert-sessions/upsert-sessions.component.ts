@@ -67,6 +67,10 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
     this.initializeForm();
     this.initializeData();
     this.listenToFormChanges();
+
+    if (this.id !== 0) {
+      this.isUpdate = true;
+    }
   }
 
   initializeForm(): void {
@@ -85,7 +89,6 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
 
   initializeData(): void {
     // initializes Module Teachings options from dropdown
-    console.log('ActionId:', this.actionId);
     if (this.actionId) {
       this.moduleTeachingService
         .getModuleTeachingByActionMinimal(this.actionId)
@@ -109,6 +112,10 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
     } else {
       console.error('ActionId is not provided');
       this.moduleTeachingOptions = [];
+    }
+
+    if (this.selectedDate) {
+      this.form.patchValue({ scheduledDate: this.selectedDate });
     }
   }
 
