@@ -52,7 +52,8 @@ public class SessionService(
             _logger.LogWarning("");
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.",
-                    "Apenas o coordenador do curso pode realizar esta ação.");
+                    "Apenas o coordenador do curso pode realizar esta ação.",
+                    StatusCodes.Status401Unauthorized);
         }
 
         // check the action is active
@@ -123,9 +124,79 @@ public class SessionService(
 
     }
 
-    public Task<Result> DeleteAsync(long id)
+    public async Task<Result> DeleteIfActionCoordenatorAsync(long id, User user)
     {
-        throw new NotImplementedException();
+        // TODO: Handle relationships deletes
+        var existingSession = await _context.Sessions
+            .Include(s => s.ModuleTeaching)
+                .ThenInclude(mt => mt.Action)
+            .FirstOrDefaultAsync(s => s.Id == id);
+        if (existingSession is null)
+        {
+            _logger.LogInformation("");
+            return Result
+            .Fail("Não encontrado", "Sessão não encontrada.",
+            StatusCodes.Status404NotFound);
+        }
+
+        if (!(await _userManager.GetRolesAsync(user)).Contains("Admin"))
+        {
+            if (existingSession.ModuleTeaching.Action.CoordenatorId != user.Id)
+            {
+                _logger.LogWarning("");
+                return Result
+                    .Fail("Erro de Validação.",
+                        "Apenas o coordenador do curso pode realizar esta ação.",
+                        StatusCodes.Status401Unauthorized);
+            }
+        }
+
+        // Check if the session was already lecture
+        if (existingSession.TeacherPresence.Equals(PresenceEnum.Present))
+        {
+            _logger.LogInformation("");
+            return Result
+            .Fail("Erro de Validação", "A sessão já foi lecionada, não é possível eliminar.");
+        }
+
+        // Check if is action coordenator
+
+        _context.Sessions.Remove(existingSession);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Session deleted successfully with ID: {SessionId}", id);
+        return Result
+            .Ok("Sessão eliminada.", "Sessão eliminada com sucesso.");
+    }
+
+    public async Task<Result> DeleteAsync(long id)
+    {
+        // TODO: Handle relationships deletes
+        var existingSession = await _context.Sessions
+            .FirstOrDefaultAsync(s => s.Id == id);
+        if (existingSession is null)
+        {
+            _logger.LogInformation("");
+            return Result
+            .Fail("Não encontrado", "Sessão não encontrada.",
+            StatusCodes.Status404NotFound);
+        }
+
+        // Check if the session was already lecture
+        if (existingSession.TeacherPresence.Equals(PresenceEnum.Present))
+        {
+            _logger.LogInformation("");
+            return Result
+            .Fail("Erro de Validação", "A sessão já foi lecionada, não é possível eliminar.");
+        }
+
+        // Check if is action coordenator
+        _context.Sessions.Remove(existingSession);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Session deleted successfully with ID: {SessionId}", id);
+        return Result
+            .Ok("Sessão eliminada.", "Sessão eliminada com sucesso.");
     }
 
     public Task<Result<IEnumerable<RetrieveSessionDto>>> GetAllAsync()
