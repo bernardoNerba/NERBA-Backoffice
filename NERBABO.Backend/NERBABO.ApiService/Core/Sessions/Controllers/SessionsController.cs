@@ -72,6 +72,20 @@ public class SessionsController(
     }
 
     /// <summary>
+    /// Gets all sessions in the system.
+    /// </summary>
+    /// <response code="200">Sessions retrieved successfully. Returns a collection of RetrieveSessionDto.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet]
+    [Authorize(Policy = "ActiveUser")]
+    public async Task<IActionResult> GetAllSessionsAsync()
+    {
+        Result<IEnumerable<RetrieveSessionDto>> result = await _sessionService.GetAllAsync();
+        return _responseHandler.HandleResult(result);
+    }
+
+    /// <summary>
     /// Gets all sessions for a specific action.
     /// </summary>
     /// <param name="id">The action ID to get sessions for.</param>
