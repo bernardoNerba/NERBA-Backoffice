@@ -324,23 +324,25 @@ public class ModuleTeachingService(
         return Result<RetrieveModuleTeachingDto>.Ok(retrieveModuleTeaching);
     }
 
-    public async Task<Result<MinimalModuleTeachingDto>> GetByActionIdMinimalAsync(long actionId)
+    public async Task<Result<IEnumerable<MinimalModuleTeachingDto>>> GetByActionIdMinimalAsync(long actionId)
     {
-        var moduleTeaching = await _context.ModuleTeachings
+        var moduleTeachings = await _context.ModuleTeachings
             .Include(mt => mt.Module)
             .Include(mt => mt.Action)
-            .FirstOrDefaultAsync(mt => mt.ActionId == actionId);
-        if (moduleTeaching is null)
+            .Include(mt => mt.Sessions)
+            .Where(mt => mt.ActionId == actionId)
+            .ToListAsync();
+        if (moduleTeachings is null)
         {
             _logger.LogWarning("ModuleTeaching not found for Action {ActionId}", actionId);
-            return Result<MinimalModuleTeachingDto>
+            return Result<IEnumerable<MinimalModuleTeachingDto>>
                 .Fail("Não encontrado.", "Associação de módulo e formador não encontrada para esta ação.",
                 StatusCodes.Status404NotFound);
         }
 
-        var retrieveModuleTeaching = ModuleTeaching.ConvertEntityToMinimalDto(moduleTeaching);
+        var retrieveModuleTeachings = moduleTeachings.Select(ModuleTeaching.ConvertEntityToMinimalDto);
 
-        return Result<MinimalModuleTeachingDto>
-            .Ok(retrieveModuleTeaching);
+        return Result<IEnumerable<MinimalModuleTeachingDto>>
+            .Ok(retrieveModuleTeachings);
     }
 }

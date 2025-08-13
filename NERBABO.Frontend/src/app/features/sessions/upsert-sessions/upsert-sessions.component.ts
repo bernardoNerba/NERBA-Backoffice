@@ -113,12 +113,8 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
         .getModuleTeachingByActionMinimal(this.actionId)
         .subscribe({
           next: (values: MinimalModuleTeaching[]) => {
-            console.log('Module teaching options received:', values);
             if (Array.isArray(values)) {
               this.moduleTeachingOptions = values;
-            } else if (values && typeof values === 'object') {
-              // API returned a single object instead of array
-              this.moduleTeachingOptions = [values as MinimalModuleTeaching];
             } else {
               this.moduleTeachingOptions = [];
             }

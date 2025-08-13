@@ -26,6 +26,31 @@
         >
       </ng-template>
     </p-datepicker>
+
+    <!-- MetaData -->
+    <div class="mb-2">
+      @if (minimalModuleTeachings && minimalModuleTeachings.length > 0) {
+      <div class="card border-0 p-2">
+        @for (mt of minimalModuleTeachings; track mt.moduleTeachingId){
+        <div class="mb-2">
+          <label class="small">{{
+            (mt.moduleName | truncate : 40) || "Module"
+          }}</label>
+          <p-progressbar
+            [value]="mt.scheduledPercent"
+            [color]="mt.scheduledPercent < 100 ? 'black' : ''"
+          />
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="card border-0 p-3 text-center">
+        <small class="text-muted"
+          >Ainda não foram atríbuidos Formadores aos Módulos...</small
+        >
+      </div>
+      }
+    </div>
   </div>
   <!-- Sessions List Column -->
   <div class="col-md-6">

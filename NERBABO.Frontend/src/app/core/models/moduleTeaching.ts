@@ -21,6 +21,7 @@ export interface ModuleTeaching {
 export interface MinimalModuleTeaching {
   moduleTeachingId: number;
   moduleName: string;
+  scheduledPercent: number;
 }
 
 export interface CreateModuleTeaching {

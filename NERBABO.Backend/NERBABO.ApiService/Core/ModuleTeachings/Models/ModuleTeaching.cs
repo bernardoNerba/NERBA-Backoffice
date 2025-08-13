@@ -36,7 +36,13 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public bool IsModuleHoursScheduled =>
             ScheduledSessionsTime == Module.Hours;
 
-
+        public double ScheduledPercent()
+        {
+            if (Module.Hours != 0)
+                return Math.Round((ScheduledSessionsTime * 100) / Module.Hours, 2);
+        
+            return 0;
+        }
 
         public static RetrieveModuleTeachingDto ConvertEntityToRetrieveDto(ModuleTeaching mt)
         {
@@ -74,7 +80,8 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
             return new MinimalModuleTeachingDto
             {
                 ModuleTeachingId = mt.Id,
-                ModuleName = mt.Module.Name
+                ModuleName = mt.Module.Name,
+                ScheduledPercent = mt.ScheduledPercent()
             };
         }
     }

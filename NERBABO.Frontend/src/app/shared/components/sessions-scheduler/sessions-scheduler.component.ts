@@ -14,6 +14,10 @@ import { Tag } from 'primeng/tag';
 import { UpsertSessionsComponent } from '../../../features/sessions/upsert-sessions/upsert-sessions.component';
 import { Action } from '../../../core/models/action';
 import { DeleteSessionsComponent } from '../../../features/sessions/delete-sessions/delete-sessions.component';
+import { ProgressBar } from 'primeng/progressbar';
+import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
+import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
+import { TruncatePipe } from '../../pipes/truncate.pipe';
 
 @Component({
   selector: 'app-sessions-scheduler',
@@ -23,6 +27,8 @@ import { DeleteSessionsComponent } from '../../../features/sessions/delete-sessi
     CommonModule,
     CardModule,
     FormsModule,
+    ProgressBar,
+    TruncatePipe,
   ],
   templateUrl: './sessions-scheduler.component.html',
   styleUrl: './sessions-scheduler.component.css',
@@ -37,51 +43,82 @@ export class SessionsSchedulerComponent implements OnInit {
   sessionsDates: string[] = [];
   totalRegisteredHours: number = 0;
 
+  minimalModuleTeachings: MinimalModuleTeaching[] = [];
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(
     private sessionsService: SessionsService,
     private modalService: BsModalService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private moduleTeachingService: ModuleTeachingService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.setDefaultCalendarMonth();
-    this.loadSessions();
-  }
-
-  loadSessions(): void {
     switch (this.query) {
       case 'byActionId':
         if (this.action?.id) {
-          this.sessionsService
-            .getSessionsByActionId(this.action?.id)
-            .subscribe({
-              next: (sessions: Session[]) => {
-                console.log('Loaded sessions:', sessions);
-                this.sessions = sessions;
-                this.filteredSessions = this.sessions;
-                this.sessionsDates = sessions.map((s) => s.scheduledDate);
-                console.log('Session dates for calendar:', this.sessionsDates);
-              },
-              error: (error: any) => {
-                console.error('Error loading sessions:', error);
-                this.sessions = [];
-                this.filteredSessions = [];
-              },
-            });
+          const actionId = this.action?.id;
+          this.loadSessionByActionId(actionId);
+          this.loadModuleTeachingByActionId(actionId);
         } else {
-          this.sharedService.showWarning(
-            'A ação não foi passada para filtrar as sessões'
-          );
+          this.sharedService.showWarning('Erro ao carregar sessões da ação');
           this.sessions = [];
           this.filteredSessions = [];
+          this.minimalModuleTeachings = [];
         }
         break;
       case 'all':
-        // TODO: fetch all sessions
         break;
     }
+  }
+
+  loadSessionByActionId(actionId: number) {
+    this.sessionsService.getSessionsByActionId(actionId).subscribe({
+      next: (sessions: Session[]) => {
+        console.log('Loaded sessions:', sessions);
+        this.sessions = sessions;
+        this.filteredSessions = this.sessions;
+        this.sessionsDates = sessions.map((s) => s.scheduledDate);
+        console.log('Session dates for calendar:', this.sessionsDates);
+      },
+      error: (error: any) => {
+        console.error('Error loading sessions:', error);
+        this.sessions = [];
+        this.filteredSessions = [];
+      },
+    });
+  }
+
+  loadModuleTeachingByActionId(actionId: number) {
+    this.moduleTeachingService
+      .getModuleTeachingByActionMinimal(actionId)
+      .subscribe({
+        next: (mt: MinimalModuleTeaching[] | MinimalModuleTeaching) => {
+          // Handle both array and single object responses
+          if (Array.isArray(mt)) {
+            this.minimalModuleTeachings = mt;
+          } else if (mt && typeof mt === 'object') {
+            // API returned a single object, wrap it in an array
+            this.minimalModuleTeachings = [mt as MinimalModuleTeaching];
+          } else {
+            this.minimalModuleTeachings = [];
+          }
+
+          console.log(
+            'Minimal ModuleTeachings loaded:',
+            this.minimalModuleTeachings
+          );
+          console.log('Array length:', this.minimalModuleTeachings.length);
+          this.cdr.detectChanges(); // Force change detection
+        },
+        error: (error: any) => {
+          console.log('Error loading module teachings', error);
+          this.minimalModuleTeachings = [];
+        },
+      });
   }
 
   calculateTotalRegisteredHours(): void {

@@ -10,5 +10,5 @@ public interface IModuleTeachingService
 : IGenericService<RetrieveModuleTeachingDto, CreateModuleTeachingDto, UpdateModuleTeachingDto, long>
 {
     Task<Result<RetrieveModuleTeachingDto>> GetByActionAndModuleAsync(long actionId, long moduleId);
-    Task<Result<MinimalModuleTeachingDto>> GetByActionIdMinimalAsync(long actionId);
+    Task<Result<IEnumerable<MinimalModuleTeachingDto>>> GetByActionIdMinimalAsync(long actionId);
 }
