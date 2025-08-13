@@ -20,3 +20,12 @@ export interface CreateSession {
   start: string;
   durationHours: number;
 }
+
+export interface UpdateSession {
+  id: number;
+  weekDay: string;
+  scheduledDate: string;
+  start: string;
+  durationHours: number;
+  teacherPresence: boolean;
+}

@@ -52,7 +52,7 @@ public class SessionService(
             _logger.LogWarning("");
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.",
-                    "Apenas o coordenador do curso pode realizar esta ação.",
+                    "Apenas o coordenador pode realizar esta ação.",
                     StatusCodes.Status401Unauthorized);
         }
 
@@ -101,6 +101,15 @@ public class SessionService(
             _logger.LogWarning("");
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.", "Data de Inicio invalida.");
+        }
+
+        // check if the start time is a valid TimeOnly
+        var validStartTime = TimeOnly.TryParse(entityDto.Start, out TimeOnly startTime);
+        if (!validStartTime)
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.", "Hora de início inválida.");
         }
 
         if (moduleTeaching.ScheduledSessionsTime + entityDto.DurationHours > moduleTeaching.Module.Hours)
@@ -238,13 +247,174 @@ public class SessionService(
             .Ok(retrieveSessions);
     }
 
-    public Task<Result<RetrieveSessionDto>> GetByIdAsync(long id)
+    public async Task<Result<RetrieveSessionDto>> GetByIdAsync(long id)
     {
-        throw new NotImplementedException();
+        var existingSession = await _context.Sessions
+            .AsNoTracking()
+            .Include(s => s.ModuleTeaching)
+            .Include(s => s.ModuleTeaching.Teacher)
+                    .ThenInclude(mt => mt.Person)
+            .Include(s => s.ModuleTeaching.Module)
+            .Include(s => s.ModuleTeaching.Action)
+                .ThenInclude(a => a.Course)
+                    .ThenInclude(c => c.Modules)
+            .Include(s => s.ModuleTeaching.Action.Coordenator)
+                .ThenInclude(c => c.Person)
+            .FirstOrDefaultAsync(s => s.Id == id);
+        if (existingSession is null)
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Não encontrado.", "Sessão não encontrada.",
+                StatusCodes.Status404NotFound);
+        }
+
+        var retrieveSession = Session.ConvertEntityToRetrieveDto(existingSession);
+        return Result<RetrieveSessionDto>
+            .Ok(retrieveSession);
     }
 
-    public Task<Result<RetrieveSessionDto>> UpdateAsync(UpdateSessionDto entityDto)
+    public async Task<Result<RetrieveSessionDto>> UpdateAsync(UpdateSessionDto entityDto)
     {
-        throw new NotImplementedException();
+        var existingSession = await _context.Sessions
+            .Include(s => s.ModuleTeaching)
+            .Include(s => s.ModuleTeaching.Teacher)
+                    .ThenInclude(mt => mt.Person)
+            .Include(s => s.ModuleTeaching.Module)
+            .Include(s => s.ModuleTeaching.Action)
+                .ThenInclude(a => a.Course)
+                    .ThenInclude(c => c.Modules)
+            .Include(s => s.ModuleTeaching.Action.Coordenator)
+                .ThenInclude(c => c.Person)
+            .FirstOrDefaultAsync(s => s.Id == entityDto.Id);
+        if (existingSession is null)
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Não encontrado.", "Sessão para atualizar não encontrada.",
+                StatusCodes.Status404NotFound);
+        }
+
+        var action = existingSession.ModuleTeaching.Action;
+
+        // check if the user that made the request is the coordenator of the action or is admin
+        if ((action.CoordenatorId != entityDto.User.Id)
+            && !(await _userManager.GetRolesAsync(entityDto.User)).Contains("Admin"))
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                    "Apenas o coordenador pode realizar esta ação.",
+                    StatusCodes.Status401Unauthorized);
+        }
+
+        // check if the action is active
+        if (!action.IsActionActive)
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                "Não é possível modificar uma sessão quando a ação está inativa.");
+        }
+
+        // check if all the duration of the course is filled
+        if (action.Course.TotalDuration - action.Course.CurrentDuration != 0)
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                "O curso em questão não tem a duração total completa. Altere ou adicione os Módulos do Curso.");
+        }
+
+        // check if the week day string is a valid WeekDaysEnum
+        if (!EnumHelp.IsValidEnum<WeekDaysEnum>(entityDto.Weekday))
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                "O dia da semana inserido não é válido");
+        }
+
+        // convert the week day to the enum correspondent
+        // and check if is a valid week day for the action
+        var weekDay = entityDto.Weekday.DehumanizeTo<WeekDaysEnum>();
+        if (!action.WeekDays.Contains(weekDay))
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                "O dia da semana inserido não está dentro dos dias da semana admitidos na Ação.");
+        }
+
+        // check if the date is a valid date and the date is between action start and end dates
+        var validStartDate = DateOnly.TryParse(entityDto.ScheduledDate, out DateOnly date);
+        if (!validStartDate || (date < action.StartDate) || (date > action.EndDate))
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.", "Data de Inicio invalida.");
+        }
+
+        // check if the start time is a valid TimeOnly
+        var validStartTime = TimeOnly.TryParse(entityDto.Start, out TimeOnly startTime);
+        if (!validStartTime)
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.", "Hora de início inválida.");
+        }
+
+        // calculate the total scheduled hours for this module teaching, excluding the current session being updated
+        var otherSessionsTime = existingSession.ModuleTeaching.ScheduledSessionsTime - existingSession.DurationHours;
+        if (otherSessionsTime + entityDto.DurationHours > existingSession.ModuleTeaching.Module.Hours)
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                "Modificar a duração desta sessão ultrapassaria o máximo de horas do módulo.");
+        }
+
+        // check if session was already taught (prevent modification if teacher was present)
+        if (existingSession.TeacherPresence.Equals(PresenceEnum.Present))
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                "Não é possível modificar uma sessão que já foi lecionada.");
+        }
+
+        // validate teacher presence enum if provided
+        if (!string.IsNullOrEmpty(entityDto.TeacherPresence) 
+            && !EnumHelp.IsValidEnum<PresenceEnum>(entityDto.TeacherPresence))
+        {
+            _logger.LogWarning("");
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                "O estado de presença do formador inserido não é válido.");
+        }
+
+        // update the session properties
+        existingSession.Weekday = weekDay;
+        existingSession.ScheduledDate = date;
+        existingSession.Start = startTime;
+        existingSession.DurationHours = entityDto.DurationHours;
+        
+        if (!string.IsNullOrEmpty(entityDto.TeacherPresence))
+        {
+            existingSession.TeacherPresence = entityDto.TeacherPresence.DehumanizeTo<PresenceEnum>();
+        }
+
+        existingSession.UpdatedAt = DateTime.UtcNow;
+
+        _context.Sessions.Update(existingSession);
+        await _context.SaveChangesAsync();
+
+        var retrieveSession = Session.ConvertEntityToRetrieveDto(existingSession);
+
+        _logger.LogInformation("Session updated successfully with ID: {SessionId}", entityDto.Id);
+
+        return Result<RetrieveSessionDto>
+            .Ok(retrieveSession, "Sessão atualizada.", 
+            "A sessão foi atualizada com sucesso.");
     }
 }

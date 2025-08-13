@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Humanizer;
+using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Helper.Validators;
 using NERBABO.ApiService.Shared.Dtos;
 using NERBABO.ApiService.Shared.Enums;
@@ -23,4 +25,7 @@ public class UpdateSessionDto : EntityDto<long>
         [Range(0.1, 24.0, ErrorMessage = "Duração deve estar entre 0.1 e 24 horas.")]
         public double DurationHours { get; set; }
         public string TeacherPresence { get; set; } = PresenceEnum.Unknown.Humanize();
+
+        [JsonIgnore]
+        public User User { get; set; } = new User();
 }
