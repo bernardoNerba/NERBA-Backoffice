@@ -1,13 +1,13 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { SharedService } from './shared.service';
-import { OkResponse } from '../models/okResponse';
-import { API_ENDPOINTS } from '../objects/apiEndpoints';
-import { CreateSession, Session, UpdateSession } from '../objects/sessions';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable, Subject, tap } from "rxjs";
+import { SharedService } from "./shared.service";
+import { OkResponse } from "../models/okResponse";
+import { API_ENDPOINTS } from "../objects/apiEndpoints";
+import { CreateSession, Session, UpdateSession } from "../objects/sessions";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class SessionsService {
   private loadingSubject = new BehaviorSubject<boolean>(true);
@@ -18,7 +18,10 @@ export class SessionsService {
   updatedSource$ = this.updatedSource.asObservable();
   deletedSource$ = this.deletedSource.asObservable();
 
-  constructor(private http: HttpClient, private sharedService: SharedService) {}
+  constructor(
+    private http: HttpClient,
+    private sharedService: SharedService,
+  ) {}
 
   getSessionsByActionId(actionId: number): Observable<Session[]> {
     return this.http.get<Session[]>(API_ENDPOINTS.sessionsByAction + actionId);
@@ -30,18 +33,32 @@ export class SessionsService {
   }
 
   create(session: CreateSession): Observable<OkResponse> {
-    return this.http.post<OkResponse>(API_ENDPOINTS.sessions, session);
+    return this.http
+      .post<OkResponse>(API_ENDPOINTS.sessions, session)
+      .pipe(tap(() => this.notifySessionUpdate(0)));
   }
 
   update(session: UpdateSession): Observable<OkResponse> {
-    return this.http.put<OkResponse>(API_ENDPOINTS.sessions, session);
+    return this.http
+      .put<OkResponse>(API_ENDPOINTS.sessions, session)
+      .pipe(tap(() => this.notifySessionUpdate(session.id)));
   }
 
   delete(sessionId: number): Observable<OkResponse> {
-    return this.http.delete<OkResponse>(API_ENDPOINTS.sessions + sessionId);
+    return this.http
+      .delete<OkResponse>(API_ENDPOINTS.sessions + sessionId)
+      .pipe(tap(() => this.notifySessionDelete(sessionId)));
   }
 
   getSingleSession(sessionId: number): Observable<Session> {
     return this.http.get<Session>(API_ENDPOINTS.sessions + sessionId);
+  }
+
+  notifySessionUpdate(id: number) {
+    this.updatedSource.next(id);
+  }
+
+  notifySessionDelete(id: number) {
+    this.deletedSource.next(id);
   }
 }

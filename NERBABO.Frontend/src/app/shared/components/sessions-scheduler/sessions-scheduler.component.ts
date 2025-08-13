@@ -1,26 +1,26 @@
-import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
-import { SessionsService } from '../../../core/services/sessions.service';
-import { Session } from '../../../core/objects/sessions';
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { SharedService } from '../../../core/services/shared.service';
-import { formatDateForApi, getWeekDayPT } from '../../utils';
-import { Subscription } from 'rxjs';
-import { ButtonModule } from 'primeng/button';
-import { DatePickerModule } from 'primeng/datepicker';
-import { CardModule } from 'primeng/card';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Tag } from 'primeng/tag';
-import { UpsertSessionsComponent } from '../../../features/sessions/upsert-sessions/upsert-sessions.component';
-import { Action } from '../../../core/models/action';
-import { DeleteSessionsComponent } from '../../../features/sessions/delete-sessions/delete-sessions.component';
-import { ProgressBar } from 'primeng/progressbar';
-import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
-import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
-import { TruncatePipe } from '../../pipes/truncate.pipe';
+import { Component, Input, OnInit, ChangeDetectorRef } from "@angular/core";
+import { SessionsService } from "../../../core/services/sessions.service";
+import { Session } from "../../../core/objects/sessions";
+import { BsModalService } from "ngx-bootstrap/modal";
+import { SharedService } from "../../../core/services/shared.service";
+import { formatDateForApi, getWeekDayPT } from "../../utils";
+import { Subscription } from "rxjs";
+import { ButtonModule } from "primeng/button";
+import { DatePickerModule } from "primeng/datepicker";
+import { CardModule } from "primeng/card";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { Tag } from "primeng/tag";
+import { UpsertSessionsComponent } from "../../../features/sessions/upsert-sessions/upsert-sessions.component";
+import { Action } from "../../../core/models/action";
+import { DeleteSessionsComponent } from "../../../features/sessions/delete-sessions/delete-sessions.component";
+import { ProgressBar } from "primeng/progressbar";
+import { MinimalModuleTeaching } from "../../../core/models/moduleTeaching";
+import { ModuleTeachingService } from "../../../core/services/module-teaching.service";
+import { TruncatePipe } from "../../pipes/truncate.pipe";
 
 @Component({
-  selector: 'app-sessions-scheduler',
+  selector: "app-sessions-scheduler",
   imports: [
     ButtonModule,
     DatePickerModule,
@@ -30,11 +30,11 @@ import { TruncatePipe } from '../../pipes/truncate.pipe';
     ProgressBar,
     TruncatePipe,
   ],
-  templateUrl: './sessions-scheduler.component.html',
-  styleUrl: './sessions-scheduler.component.css',
+  templateUrl: "./sessions-scheduler.component.html",
+  styleUrl: "./sessions-scheduler.component.css",
 })
 export class SessionsSchedulerComponent implements OnInit {
-  @Input({ required: true }) query!: 'all' | 'byActionId';
+  @Input({ required: true }) query!: "all" | "byActionId";
   @Input({}) action?: Action | null;
   sessions: Session[] = [];
   filteredSessions: Session[] = [];
@@ -52,25 +52,27 @@ export class SessionsSchedulerComponent implements OnInit {
     private modalService: BsModalService,
     private sharedService: SharedService,
     private moduleTeachingService: ModuleTeachingService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.setDefaultCalendarMonth();
+    this.setupSessionChangeListeners();
+
     switch (this.query) {
-      case 'byActionId':
+      case "byActionId":
         if (this.action?.id) {
           const actionId = this.action?.id;
           this.loadSessionByActionId(actionId);
           this.loadModuleTeachingByActionId(actionId);
         } else {
-          this.sharedService.showWarning('Erro ao carregar sessões da ação');
+          this.sharedService.showWarning("Erro ao carregar sessões da ação");
           this.sessions = [];
           this.filteredSessions = [];
           this.minimalModuleTeachings = [];
         }
         break;
-      case 'all':
+      case "all": // TODO: Add logic for all sessions
         break;
     }
   }
@@ -78,16 +80,20 @@ export class SessionsSchedulerComponent implements OnInit {
   loadSessionByActionId(actionId: number) {
     this.sessionsService.getSessionsByActionId(actionId).subscribe({
       next: (sessions: Session[]) => {
-        console.log('Loaded sessions:', sessions);
+        console.log("Loaded sessions:", sessions);
         this.sessions = sessions;
         this.filteredSessions = this.sessions;
         this.sessionsDates = sessions.map((s) => s.scheduledDate);
-        console.log('Session dates for calendar:', this.sessionsDates);
+        console.log("Session dates for calendar:", this.sessionsDates);
+
+        // Force change detection to update the UI
+        this.cdr.detectChanges();
       },
       error: (error: any) => {
-        console.error('Error loading sessions:', error);
+        console.error("Error loading sessions:", error);
         this.sessions = [];
         this.filteredSessions = [];
+        this.sessionsDates = [];
       },
     });
   }
@@ -100,7 +106,7 @@ export class SessionsSchedulerComponent implements OnInit {
           // Handle both array and single object responses
           if (Array.isArray(mt)) {
             this.minimalModuleTeachings = mt;
-          } else if (mt && typeof mt === 'object') {
+          } else if (mt && typeof mt === "object") {
             // API returned a single object, wrap it in an array
             this.minimalModuleTeachings = [mt as MinimalModuleTeaching];
           } else {
@@ -108,14 +114,14 @@ export class SessionsSchedulerComponent implements OnInit {
           }
 
           console.log(
-            'Minimal ModuleTeachings loaded:',
-            this.minimalModuleTeachings
+            "Minimal ModuleTeachings loaded:",
+            this.minimalModuleTeachings,
           );
-          console.log('Array length:', this.minimalModuleTeachings.length);
+          console.log("Array length:", this.minimalModuleTeachings.length);
           this.cdr.detectChanges(); // Force change detection
         },
         error: (error: any) => {
-          console.log('Error loading module teachings', error);
+          console.log("Error loading module teachings", error);
           this.minimalModuleTeachings = [];
         },
       });
@@ -136,7 +142,7 @@ export class SessionsSchedulerComponent implements OnInit {
     if (this.selectedDate) {
       const selectedDateString = formatDateForApi(new Date(this.selectedDate));
       this.filteredSessions = this.sessions.filter(
-        (session) => session.scheduledDate === selectedDateString
+        (session) => session.scheduledDate === selectedDateString,
       );
     } else {
       this.filteredSessions = this.sessions;
@@ -149,8 +155,8 @@ export class SessionsSchedulerComponent implements OnInit {
   }
 
   onCreateSession(): void {
-    this.modalService.show(UpsertSessionsComponent, {
-      class: 'modal-lg',
+    const modalRef = this.modalService.show(UpsertSessionsComponent, {
+      class: "modal-lg",
       initialState: {
         id: 0, // New session
         actionId: this.action?.id,
@@ -158,32 +164,53 @@ export class SessionsSchedulerComponent implements OnInit {
         selectedDate: this.selectedDate,
       },
     });
+
+    // Listen for modal close and refresh data
+    this.subscriptions.add(
+      modalRef.onHidden?.subscribe(() => {
+        this.refreshSessions();
+      }) || new Subscription(),
+    );
   }
 
   onUpdateSession(session: Session): void {
-    this.modalService.show(UpsertSessionsComponent, {
-      class: 'modal-lg',
+    const modalRef = this.modalService.show(UpsertSessionsComponent, {
+      class: "modal-lg",
       initialState: {
         id: session.id,
         actionId: this.action?.id,
         actionTitle: this.action?.title,
       },
     });
+
+    // Listen for modal close and refresh data
+    this.subscriptions.add(
+      modalRef.onHidden?.subscribe(() => {
+        this.refreshSessions();
+      }) || new Subscription(),
+    );
   }
 
   onDeleteSession(session: Session): void {
-    this.modalService.show(DeleteSessionsComponent, {
-      class: 'modal-md',
+    const modalRef = this.modalService.show(DeleteSessionsComponent, {
+      class: "modal-md",
       initialState: {
         id: session.id,
         session: session,
       },
     });
+
+    // Listen for modal close and refresh data
+    this.subscriptions.add(
+      modalRef.onHidden?.subscribe(() => {
+        this.refreshSessions();
+      }) || new Subscription(),
+    );
   }
 
   isSessionDay(date: any): boolean {
     const dateString = formatDateForApi(
-      new Date(date.year, date.month, date.day)
+      new Date(date.year, date.month, date.day),
     );
     const isSession = this.sessionsDates.includes(dateString);
     return isSession;
@@ -205,20 +232,20 @@ export class SessionsSchedulerComponent implements OnInit {
     const currentWeekDay = getWeekDayPT(currentDate);
 
     return this.action.weekDays.some(
-      (allowedDay) => allowedDay.toLowerCase() === currentWeekDay
+      (allowedDay) => allowedDay.toLowerCase() === currentWeekDay,
     );
   }
 
   getPresenceSeverity(presence: string): string {
     switch (presence) {
-      case 'Não Especificado':
-        return 'secondary';
-      case 'Presente':
-        return 'success';
-      case 'Faltou':
-        return 'danger';
+      case "Não Especificado":
+        return "secondary";
+      case "Presente":
+        return "success";
+      case "Faltou":
+        return "danger";
       default:
-        return 'secondary';
+        return "secondary";
     }
   }
 
@@ -228,10 +255,46 @@ export class SessionsSchedulerComponent implements OnInit {
   }
 
   setDefaultCalendarMonth(): void {
-    if (this.query === 'byActionId' && this.action?.startDate) {
+    if (this.query === "byActionId" && this.action?.startDate) {
       this.defaultDate = new Date(this.action.startDate);
     }
     // defaultDate is already initialized to new Date() as default
+  }
+
+  private setupSessionChangeListeners(): void {
+    // Listen for session updates
+    this.subscriptions.add(
+      this.sessionsService.updatedSource$.subscribe((sessionId: number) => {
+        console.log("Session updated, ID:", sessionId);
+        this.refreshSessions();
+      }),
+    );
+
+    // Listen for session deletions
+    this.subscriptions.add(
+      this.sessionsService.deletedSource$.subscribe((sessionId: number) => {
+        console.log("Session deleted, ID:", sessionId);
+        this.refreshSessions();
+      }),
+    );
+  }
+
+  private refreshSessions(): void {
+    if (this.query === "byActionId" && this.action?.id) {
+      const currentSelectedDate = this.selectedDate;
+
+      this.loadSessionByActionId(this.action.id);
+      this.loadModuleTeachingByActionId(this.action.id);
+
+      // Restore the selected date and reapply filters after data loads
+      if (currentSelectedDate) {
+        setTimeout(() => {
+          this.selectedDate = currentSelectedDate;
+          this.filterSessionsByDate();
+        }, 100);
+      }
+    }
+    // TODO: Add logic for "all" query if needed in the future
   }
 
   ngOnDestroy(): void {
