@@ -23,7 +23,7 @@ export interface CreateSession {
 
 export interface UpdateSession {
   id: number;
-  weekDay: string;
+  weekday: string;
   scheduledDate: string;
   start: string;
   durationHours: number;

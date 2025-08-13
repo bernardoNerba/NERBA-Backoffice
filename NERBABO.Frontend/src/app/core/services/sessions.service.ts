@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SharedService } from './shared.service';
 import { OkResponse } from '../models/okResponse';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
-import { CreateSession, Session } from '../objects/sessions';
+import { CreateSession, Session, UpdateSession } from '../objects/sessions';
 
 @Injectable({
   providedIn: 'root',
@@ -24,11 +24,24 @@ export class SessionsService {
     return this.http.get<Session[]>(API_ENDPOINTS.sessionsByAction + actionId);
   }
 
+  upsert(session: any, isUpdate: boolean) {
+    if (isUpdate) return this.update(session);
+    return this.create(session);
+  }
+
   create(session: CreateSession): Observable<OkResponse> {
     return this.http.post<OkResponse>(API_ENDPOINTS.sessions, session);
   }
 
+  update(session: UpdateSession): Observable<OkResponse> {
+    return this.http.put<OkResponse>(API_ENDPOINTS.sessions, session);
+  }
+
   delete(sessionId: number): Observable<OkResponse> {
     return this.http.delete<OkResponse>(API_ENDPOINTS.sessions + sessionId);
+  }
+
+  getSingleSession(sessionId: number): Observable<Session> {
+    return this.http.get<Session>(API_ENDPOINTS.sessions + sessionId);
   }
 }

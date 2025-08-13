@@ -15,13 +15,14 @@
       styleClass="w-100 calendar-fix"
     >
       <ng-template pTemplate="date" let-date>
-        <span [ngClass]="{
-          'session-day': isSessionDay(date),
-          'valid-action-day': isValidActionDay(date),
-          'invalid-action-day': !isValidActionDay(date)
-        }">{{
-          date.day
-        }}</span>
+        <span
+          [ngClass]="{
+            'session-day': isSessionDay(date),
+            'valid-action-day': isValidActionDay(date),
+            'invalid-action-day': !isValidActionDay(date)
+          }"
+          >{{ date.day }}</span
+        >
       </ng-template>
     </p-datepicker>
   </div>
@@ -79,7 +80,7 @@
                   size="small"
                   severity="warn"
                   [text]="true"
-                  (onClick)="onEditSession(session)"
+                  (onClick)="onUpdateSession(session)"
                   pTooltip="Editar Sessão"
                 >
                 </p-button>

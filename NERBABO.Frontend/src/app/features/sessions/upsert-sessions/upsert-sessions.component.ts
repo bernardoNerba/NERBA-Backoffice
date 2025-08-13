@@ -8,7 +8,12 @@ import {
 } from '@angular/forms';
 import { SessionsService } from '../../../core/services/sessions.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { CreateSession, Session } from '../../../core/objects/sessions';
+import {
+  CreateSession,
+  Session,
+  UpdateSession,
+} from '../../../core/objects/sessions';
+import { PresenceEnum, PRESENCES } from '../../../core/objects/presence';
 import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import {
@@ -21,7 +26,12 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { Subscription } from 'rxjs';
-import { formatDateForApi, stringToTimeObject } from '../../../shared/utils';
+import {
+  convertDateOnlyToPtDate,
+  formatDateForApi,
+  stringToTimeObject,
+  hoursToTimeFormat,
+} from '../../../shared/utils';
 import { Select } from 'primeng/select';
 
 @Component({
@@ -44,6 +54,8 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
   @Input({}) selectedDate: Date | undefined;
   currentSesssion?: Session | null;
   moduleTeachingOptions: MinimalModuleTeaching[] = [];
+  presenceOptions = PRESENCES;
+  currentModuleName: string = '';
   endTime: string = '';
 
   submitted: boolean = false;
@@ -70,6 +82,13 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
 
     if (this.id !== 0) {
       this.isUpdate = true;
+      this.sessionsService.getSingleSession(this.id).subscribe({
+        next: (session: Session) => {
+          this.currentSesssion = session;
+          this.currentModuleName = session.moduleName || '';
+          this.patchFormValues();
+        },
+      });
     }
   }
 
@@ -83,7 +102,7 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
         '00:00',
         [Validators.required, Validators.min(1), Validators.max(12)],
       ],
-      teacherPresence: [false],
+      teacherPresence: [PresenceEnum.Unknown],
     });
   }
 
@@ -121,15 +140,25 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
 
   patchFormValues(): void {
     if (this.currentSesssion) {
+      // Convert date string to Date object
+      const dateStr = this.currentSesssion.scheduledDate;
+      const [year, month, day] = dateStr.split('-');
+      const scheduledDate = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day)
+      );
+
       this.form.patchValue({
         moduleTeachingId: this.currentSesssion.moduleTeachingId,
         weekday: this.currentSesssion.weekday,
-        scheduledDate: ['', Validators.required],
+        scheduledDate: scheduledDate,
         start: this.currentSesssion.time.split(' - ')[0],
-        durationHours: this.currentSesssion.durationHours,
+        durationHours: hoursToTimeFormat(this.currentSesssion.durationHours),
         teacherPresence: this.currentSesssion.teacherPresence,
       });
     }
+    console.log(this.form.value.teacherPresence);
   }
 
   private listenToFormChanges(): void {
@@ -155,7 +184,11 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
         }
 
         const c: Date = formValue.scheduledDate;
-        formValue.weekday = c.toLocaleDateString('pt-PT', { weekday: 'long' });
+        if (c && typeof c.toLocaleDateString === 'function') {
+          formValue.weekday = c.toLocaleDateString('pt-PT', {
+            weekday: 'long',
+          });
+        }
       })
     );
   }
@@ -186,22 +219,40 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
     const createSession: CreateSession = {
       moduleTeachingId: formValue.moduleTeachingId,
       weekday: formValue.weekday,
-      scheduledDate: formatDateForApi(formValue.scheduledDate),
+      scheduledDate:
+        formValue.scheduledDate instanceof Date
+          ? formatDateForApi(formValue.scheduledDate)
+          : formValue.scheduledDate,
       start: formValue.start,
       durationHours: convertTimeToDecimalHours(formValue.durationHours),
     };
 
-    this.sessionsService.create(createSession).subscribe({
-      next: (response) => {
-        this.loading = false;
-        this.bsModalRef.hide();
-        this.sharedService.showSuccess('Sessão criada com sucesso.');
-      },
-      error: (error) => {
-        this.errorMessages = this.sharedService.handleErrorResponse(error);
-        this.loading = false;
-      },
-    });
+    // update session
+    const updatesession: UpdateSession = {
+      id: this.id,
+      weekday: formValue.weekday,
+      scheduledDate:
+        formValue.scheduledDate instanceof Date
+          ? formatDateForApi(formValue.scheduledDate)
+          : formValue.scheduledDate,
+      start: formValue.start,
+      durationHours: convertTimeToDecimalHours(formValue.durationHours),
+      teacherPresence: formValue.teacherPresence,
+    };
+
+    this.sessionsService
+      .upsert(this.isUpdate ? updatesession : createSession, this.isUpdate)
+      .subscribe({
+        next: (response) => {
+          this.loading = false;
+          this.bsModalRef.hide();
+          this.sharedService.showSuccess(response.message);
+        },
+        error: (error) => {
+          this.errorMessages = this.sharedService.handleErrorResponse(error);
+          this.loading = false;
+        },
+      });
   }
 
   ngOnDestroy(): void {

@@ -83,3 +83,20 @@ export function getWeekDayPT(date: Date): string {
   ];
   return days[date.getDay()];
 }
+
+/**
+ * Converts decimal hours to "HH:mm" format
+ * @param hours - The decimal hours (e.g., 1.5 for 1 hour and 30 minutes)
+ * @returns Time string in "HH:mm" format
+ */
+export function hoursToTimeFormat(hours: number): string {
+  if (hours < 0) return '00:00';
+  
+  const wholeHours = Math.floor(hours);
+  const minutes = Math.round((hours - wholeHours) * 60);
+  
+  const paddedHours = wholeHours.toString().padStart(2, '0');
+  const paddedMinutes = minutes.toString().padStart(2, '0');
+  
+  return `${paddedHours}:${paddedMinutes}`;
+}

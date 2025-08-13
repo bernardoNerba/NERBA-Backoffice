@@ -58,6 +58,22 @@
           </div>
         </div>
 
+        <!-- Module Display for Updates -->
+        <div class="col-12" *ngIf="isUpdate">
+          <div class="mb-3">
+            <label for="currentModule">Módulo com Formador</label>
+            <input
+              type="text"
+              pInputText
+              id="currentModule"
+              [value]="currentModuleName"
+              disabled
+              readonly
+              class="w-100"
+            />
+          </div>
+        </div>
+
         <!-- Date -->
         <div class="col-md-6">
           <div class="mb-3">
@@ -159,6 +175,25 @@
             }
           </div>
         </div>
+
+        <!-- Teacher Presence Dropdown (only for updates) -->
+        @if (isUpdate) {
+        <div class="col-12">
+          <div class="mb-3">
+            <label for="teacherPresence">Presença do Formador</label>
+            <p-dropdown
+              id="teacherPresence"
+              formControlName="teacherPresence"
+              [options]="presenceOptions"
+              placeholder="Selecione a presença"
+              optionLabel="value"
+              optionValue="value"
+              [showClear]="true"
+              styleClass="w-100"
+            ></p-dropdown>
+          </div>
+        </div>
+        }
 
         <!-- End Time Display (readonly - calculated) -->
         @if (endTime){

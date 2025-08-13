@@ -121,15 +121,15 @@ export class SessionsSchedulerComponent implements OnInit {
     });
   }
 
-  onEditSession(session: Session): void {
-    // this.modalService.show(UpsertSessionsComponent, {
-    //   class: 'modal-lg',
-    //   initialState: {
-    //     id: session.id,
-    //     actionId: this.action?.id,
-    //     actionTitle: this.action?.title,
-    //   },
-    // });
+  onUpdateSession(session: Session): void {
+    this.modalService.show(UpsertSessionsComponent, {
+      class: 'modal-lg',
+      initialState: {
+        id: session.id,
+        actionId: this.action?.id,
+        actionTitle: this.action?.title,
+      },
+    });
   }
 
   onDeleteSession(session: Session): void {
