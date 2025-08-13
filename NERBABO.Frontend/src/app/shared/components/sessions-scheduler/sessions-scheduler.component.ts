@@ -33,6 +33,7 @@ export class SessionsSchedulerComponent implements OnInit {
   sessions: Session[] = [];
   filteredSessions: Session[] = [];
   selectedDate?: Date;
+  defaultDate: Date = new Date();
   sessionsDates: string[] = [];
   totalRegisteredHours: number = 0;
 
@@ -45,6 +46,7 @@ export class SessionsSchedulerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.setDefaultCalendarMonth();
     this.loadSessions();
   }
 
@@ -186,6 +188,13 @@ export class SessionsSchedulerComponent implements OnInit {
   onScheduledDateClicked(date: string) {
     this.selectedDate = new Date(date);
     this.filterSessionsByDate();
+  }
+
+  setDefaultCalendarMonth(): void {
+    if (this.query === 'byActionId' && this.action?.startDate) {
+      this.defaultDate = new Date(this.action.startDate);
+    }
+    // defaultDate is already initialized to new Date() as default
   }
 
   ngOnDestroy(): void {

@@ -6,6 +6,7 @@
     </div>
     <p-datepicker
       [(ngModel)]="selectedDate"
+      [defaultDate]="defaultDate"
       (onSelect)="onDateSelect($event)"
       (onClearClick)="clearDateSelection()"
       [inline]="true"
