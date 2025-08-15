@@ -18,6 +18,12 @@ export interface ModuleTeaching {
   moduleHours?: number;
 }
 
+export interface MinimalModuleTeaching {
+  moduleTeachingId: number;
+  moduleName: string;
+  scheduledPercent: number;
+}
+
 export interface CreateModuleTeaching {
   teacherId: number;
   actionId: number;

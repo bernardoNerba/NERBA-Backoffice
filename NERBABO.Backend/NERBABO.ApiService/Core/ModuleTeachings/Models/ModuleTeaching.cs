@@ -1,6 +1,8 @@
 ﻿using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
+using NERBABO.ApiService.Core.Sessions.Dtos;
+using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Models;
 
@@ -20,6 +22,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public required Teacher Teacher { get; set; }
         public required CourseAction Action { get; set; }
         public required Module Module { get; set; }
+        public List<Session> Sessions { get; set; } = [];
 
         // Calculated properties
         public float AvaliationAvg =>
@@ -27,6 +30,19 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public bool PaymentProcessed =>
             PaymentDate.HasValue;
 
+        public double ScheduledSessionsTime =>
+            Sessions.Sum(s => s.DurationHours);
+
+        public bool IsModuleHoursScheduled =>
+            ScheduledSessionsTime == Module.Hours;
+
+        public double ScheduledPercent()
+        {
+            if (Module.Hours != 0)
+                return Math.Round((ScheduledSessionsTime * 100) / Module.Hours, 2);
+        
+            return 0;
+        }
 
         public static RetrieveModuleTeachingDto ConvertEntityToRetrieveDto(ModuleTeaching mt)
         {
@@ -56,6 +72,16 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
                 Teacher = teacher,
                 Action = action,
                 Module = module
+            };
+        }
+
+        public static MinimalModuleTeachingDto ConvertEntityToMinimalDto(ModuleTeaching mt)
+        {
+            return new MinimalModuleTeachingDto
+            {
+                ModuleTeachingId = mt.Id,
+                ModuleName = mt.Module.Name,
+                ScheduledPercent = mt.ScheduledPercent()
             };
         }
     }

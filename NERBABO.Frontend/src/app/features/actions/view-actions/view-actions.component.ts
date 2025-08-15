@@ -12,7 +12,6 @@ import { DeleteActionsComponent } from '../delete-actions/delete-actions.compone
 import { ChangeStatusActionsComponent } from '../change-status-actions/change-status-actions.component';
 import { UpsertModuleTeachingComponent } from '../upsert-module-teaching/upsert-module-teaching.component';
 import { CommonModule } from '@angular/common';
-import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
 import { CoursesService } from '../../../core/services/courses.service';
@@ -25,6 +24,7 @@ import { ModuleTeachingService } from '../../../core/services/module-teaching.se
 import { Module, ModuleTeacher } from '../../../core/models/module';
 import { Message } from 'primeng/message';
 import { MessageComponent } from '../../../shared/components/message/message.component';
+import { SessionsSchedulerComponent } from '../../../shared/components/sessions-scheduler/sessions-scheduler.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -35,6 +35,7 @@ import { MessageComponent } from '../../../shared/components/message/message.com
     TitleComponent,
     IconAnchorComponent,
     MessageComponent,
+    SessionsSchedulerComponent,
   ],
   templateUrl: './view-actions.component.html',
 })

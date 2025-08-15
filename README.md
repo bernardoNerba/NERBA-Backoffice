@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="NERBABO.Frontend/public/images/logo_grande.png" alt="NERBA Logo" width="200"/>
+  <img src="NERBABO.Frontend/public/images/logo_g.png" alt="NERBA Logo" width="200"/>
 </p>
 <h1 align="center">NERBA - Backoffice</h1>
 
@@ -154,10 +154,9 @@ If you're interested in contributing, please feel free to open a pull request or
 ## ToDo's
 
 - [ ] Add new Integration tests project
-- [ ] Document, with comments, critical methods and classes
-- [ ] Write the frontend code for Teachers, Students features
-- [ ] Frontend data filtering for user-friendly and efficient interaction
-- [ ] Write docker prod environment workflow documentation
+- [ ] Document, with comments, critical methods, classes and interfaces
+- [ ] Optimize Services Queries
+- [ ] Refactor Delete logic to handle all related entities
 
 ## Code of Conduct
 

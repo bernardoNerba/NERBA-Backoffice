@@ -30,12 +30,14 @@ namespace NERBABO.ApiService.Core.Actions.Models
             => Course.Modules.All(m =>
                 ModuleTeachings.Any(tma => tma.ModuleId == m.Id));
 
+        public bool IsActionActive =>
+            Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
+
         public string Title => $"{ActionNumber} - {Locality}";
 
         // Navigation properties
         public required Course Course { get; set; }
         public required User Coordenator { get; set; }
-        //public List<Student> Students { get; set; } = [];
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
 
 

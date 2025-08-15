@@ -102,7 +102,12 @@ export const API_ENDPOINTS = {
   // ModuleTeachings endpoints
   moduleTeachings: `${BASE_URL}/api/ModuleTeachings/`,
   modulesWithoutTeacher: `${BASE_URL}/api/ModuleTeachings/action/`,
+  modulesTeachingByAction: `${BASE_URL}/api/ModuleTeachings/action/`,
 
   // Health check endpoint
   health: `${BASE_URL}/health`,
+
+  // Sessions
+  sessions: `${BASE_URL}/api/sessions/`,
+  sessionsByAction: `${BASE_URL}/api/sessions/action/`,
 };

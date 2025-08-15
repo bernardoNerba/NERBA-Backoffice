@@ -1,0 +1,31 @@
+<div class="modal-header">
+  <h4 class="modal-title">Eliminar Sessão</h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <p>
+    Tem a certeza que deseja eliminar a sessão do módulo
+    <strong>{{ session.moduleName }}</strong> lecionada no dia
+    <strong>{{ session.scheduledDate }}</strong> das
+    <strong>{{ session.time }}</strong
+    >?
+  </p>
+  <p class="text-danger">Esta ação não pode ser revertida.</p>
+</div>
+<div class="modal-footer">
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancelar
+    </button>
+    <button type="submit" class="btn-danger-action" (click)="confirmDelete()">
+      @if (deleting){
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } Eliminar
+    </button>
+  </div>
+</div>

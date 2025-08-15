@@ -1,30 +1,30 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { IUpsert } from '../../../core/interfaces/IUpsert';
+import { Component, Input, OnInit } from "@angular/core";
+import { IUpsert } from "../../../core/interfaces/IUpsert";
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
-} from '@angular/forms';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { AccService } from '../../../core/services/acc.service';
-import { SharedService } from '../../../core/services/shared.service';
-import { UserInfo } from '../../../core/models/userInfo';
-import { PasswordValidators } from 'ngx-validators';
-import { OkResponse } from '../../../core/models/okResponse';
-import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
-import { DividerModule } from 'primeng/divider';
-import { PasswordModule } from 'primeng/password';
+} from "@angular/forms";
+import { BsModalRef } from "ngx-bootstrap/modal";
+import { AccService } from "../../../core/services/acc.service";
+import { SharedService } from "../../../core/services/shared.service";
+import { UserInfo } from "../../../core/models/userInfo";
+import { PasswordValidators } from "ngx-validators";
+import { OkResponse } from "../../../core/models/okResponse";
+import { ErrorCardComponent } from "../../../shared/components/error-card/error-card.component";
+import { DividerModule } from "primeng/divider";
+import { PasswordModule } from "primeng/password";
 import {
   AutoCompleteCompleteEvent,
   AutoCompleteModule,
-} from 'primeng/autocomplete';
-import { InputTextModule } from 'primeng/inputtext';
-import { PeopleService } from '../../../core/services/people.service';
-import { Person } from '../../../core/models/person';
+} from "primeng/autocomplete";
+import { InputTextModule } from "primeng/inputtext";
+import { PeopleService } from "../../../core/services/people.service";
+import { Person } from "../../../core/models/person";
 
 @Component({
-  selector: 'app-upsert-acc',
+  selector: "app-upsert-acc",
   imports: [
     ReactiveFormsModule,
     ErrorCardComponent,
@@ -33,8 +33,8 @@ import { Person } from '../../../core/models/person';
     AutoCompleteModule,
     InputTextModule,
   ],
-  templateUrl: './upsert-acc.component.html',
-  styleUrl: './upsert-acc.component.css',
+  templateUrl: "./upsert-acc.component.html",
+  styleUrl: "./upsert-acc.component.css",
 })
 export class UpsertAccComponent implements IUpsert, OnInit {
   @Input({ required: true }) id!: string | number;
@@ -56,7 +56,7 @@ export class UpsertAccComponent implements IUpsert, OnInit {
     private userService: AccService,
     private formBuilder: FormBuilder,
     private sharedService: SharedService,
-    private peopleService: PeopleService
+    private peopleService: PeopleService,
   ) {}
 
   ngOnInit(): void {
@@ -69,7 +69,7 @@ export class UpsertAccComponent implements IUpsert, OnInit {
           this.patchFormValues();
         },
         error: (error) => {
-          this.sharedService.showError('Utilizador não encontrado.');
+          this.sharedService.showError("Utilizador não encontrado.");
           this.bsModalRef.hide();
         },
       });
@@ -89,8 +89,9 @@ export class UpsertAccComponent implements IUpsert, OnInit {
             });
           },
         });
+      } else {
+        this.loadPeople();
       }
-      this.loadPeople();
     }
   }
 
@@ -98,7 +99,7 @@ export class UpsertAccComponent implements IUpsert, OnInit {
     this.form = this.formBuilder.group(
       {
         email: [
-          '',
+          "",
           [
             Validators.required,
             Validators.maxLength(50),
@@ -107,7 +108,7 @@ export class UpsertAccComponent implements IUpsert, OnInit {
           ],
         ],
         userName: [
-          '',
+          "",
           [
             Validators.required,
             Validators.minLength(3),
@@ -115,22 +116,22 @@ export class UpsertAccComponent implements IUpsert, OnInit {
           ],
         ],
         password: [
-          '',
+          "",
           [
             Validators.required,
             Validators.minLength(8),
             Validators.maxLength(30),
           ],
         ],
-        confirmPassword: ['', [Validators.required]],
-        personId: [''], // verify required on submit if register
+        confirmPassword: ["", [Validators.required]],
+        personId: [""], // verify required on submit if register
       },
       {
         validators: PasswordValidators.mismatchedPasswords(
-          'password',
-          'confirmPassword'
+          "password",
+          "confirmPassword",
         ),
-      }
+      },
     );
   }
 
@@ -148,7 +149,7 @@ export class UpsertAccComponent implements IUpsert, OnInit {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.sharedService.showError(
-        'Os dados fornecidos não estão de acordo com as diretrizes.'
+        "Os dados fornecidos não estão de acordo com as diretrizes.",
       );
       return;
     }
@@ -163,7 +164,7 @@ export class UpsertAccComponent implements IUpsert, OnInit {
     if (!this.isUpdate) {
       // verify person id included
       if (!this.form.value.personId.id) {
-        this.sharedService.showError('Pessoa é um campo obrigatório!');
+        this.sharedService.showError("Pessoa é um campo obrigatório!");
         return;
       }
 
@@ -194,7 +195,7 @@ export class UpsertAccComponent implements IUpsert, OnInit {
 
   private loadPeople() {
     // load people for multiple type ahead choices
-    this.peopleService.peopleWithoutUser$.subscribe({
+    this.peopleService.fetchPeopleWithoutUser().subscribe({
       next: (data) => {
         if (data) {
           this.people = data;

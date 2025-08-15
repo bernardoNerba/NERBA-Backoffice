@@ -3,6 +3,7 @@ using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
+using NERBABO.ApiService.Core.Sessions.Dtos;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
@@ -321,5 +322,27 @@ public class ModuleTeachingService(
         var retrieveModuleTeaching = ModuleTeaching.ConvertEntityToRetrieveDto(moduleTeaching);
 
         return Result<RetrieveModuleTeachingDto>.Ok(retrieveModuleTeaching);
+    }
+
+    public async Task<Result<IEnumerable<MinimalModuleTeachingDto>>> GetByActionIdMinimalAsync(long actionId)
+    {
+        var moduleTeachings = await _context.ModuleTeachings
+            .Include(mt => mt.Module)
+            .Include(mt => mt.Action)
+            .Include(mt => mt.Sessions)
+            .Where(mt => mt.ActionId == actionId)
+            .ToListAsync();
+        if (moduleTeachings is null)
+        {
+            _logger.LogWarning("ModuleTeaching not found for Action {ActionId}", actionId);
+            return Result<IEnumerable<MinimalModuleTeachingDto>>
+                .Fail("Não encontrado.", "Associação de módulo e formador não encontrada para esta ação.",
+                StatusCodes.Status404NotFound);
+        }
+
+        var retrieveModuleTeachings = moduleTeachings.Select(ModuleTeaching.ConvertEntityToMinimalDto);
+
+        return Result<IEnumerable<MinimalModuleTeachingDto>>
+            .Ok(retrieveModuleTeachings);
     }
 }

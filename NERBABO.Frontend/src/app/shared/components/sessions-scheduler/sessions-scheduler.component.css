@@ -1,0 +1,137 @@
+/* Reset and base calendar day styling */
+::ng-deep .p-datepicker-calendar .p-datepicker-other-month span,
+::ng-deep .p-datepicker-calendar td span {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  transition: all 0.15s ease-in-out;
+  cursor: default;
+}
+
+/* Available days (can schedule sessions) */
+::ng-deep .p-datepicker-calendar td span.valid-action-day {
+  background-color: rgba(16, 185, 129, 0.6);
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+::ng-deep .p-datepicker-calendar td span.valid-action-day:hover {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #000000;
+  transform: scale(1.1);
+}
+
+/* Days with existing sessions */
+::ng-deep .p-datepicker-calendar td span.session-day {
+  background-color: #374151;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+::ng-deep .p-datepicker-calendar td span.session-day:hover {
+  background-color: #1f2937;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Invalid days (outside range or wrong weekday) */
+::ng-deep .p-datepicker-calendar td span.invalid-action-day {
+  background-color: transparent;
+  color: #000000;
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* Override PrimeNG theme selected date styling */
+::ng-deep .p-datepicker .p-datepicker-calendar .p-datepicker-selected td span,
+::ng-deep .p-datepicker-calendar .p-datepicker-selected td span,
+::ng-deep .p-datepicker-calendar td.p-datepicker-selected span,
+::ng-deep .p-datepicker-calendar td span.p-datepicker-selected {
+  box-shadow: 0 0 0 2px #10b981 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  background-color: inherit !important;
+}
+
+/* Target all possible selected day combinations with theme classes */
+::ng-deep
+  .p-datepicker-calendar
+  .p-datepicker-selected
+  td
+  span.valid-action-day,
+::ng-deep .p-datepicker-calendar .p-datepicker-selected td span.session-day,
+::ng-deep
+  .p-datepicker-calendar
+  .p-datepicker-selected
+  td
+  span.invalid-action-day,
+::ng-deep .p-datepicker-calendar td.p-datepicker-selected span.valid-action-day,
+::ng-deep .p-datepicker-calendar td.p-datepicker-selected span.session-day,
+::ng-deep
+  .p-datepicker-calendar
+  td.p-datepicker-selected
+  span.invalid-action-day {
+  color: #ffffff !important;
+  background-color: inherit !important;
+}
+
+/* Today indicator - subtle underline */
+::ng-deep .p-datepicker-calendar .p-datepicker-today td span {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Center weekday headers - comprehensive targeting */
+::ng-deep .p-datepicker-calendar .p-datepicker-weekheader th,
+::ng-deep .p-datepicker-calendar .p-datepicker-weekday-cell,
+::ng-deep .p-datepicker-calendar thead tr th,
+::ng-deep .p-datepicker-calendar .p-datepicker-weekday,
+::ng-deep .p-datepicker-calendar .p-datepicker-weekheader {
+  text-align: center !important;
+  font-weight: 600 !important;
+  padding: 0.5rem !important;
+}
+
+.sessions-container {
+  height: 500px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-card .p-card-header {
+  padding: 8px 16px !important;
+}
+
+.session-card .p-card-content {
+  padding: 8px 16px !important;
+}
+
+/* Custom scrollbar for sessions list */
+.sessions-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sessions-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.sessions-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.sessions-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

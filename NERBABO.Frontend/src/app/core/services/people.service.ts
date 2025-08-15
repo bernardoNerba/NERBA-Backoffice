@@ -1,30 +1,31 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { Person } from '../models/person';
-import { HttpClient } from '@angular/common/http';
-import { SharedService } from './shared.service';
-import { API_ENDPOINTS } from '../objects/apiEndpoints';
-import { OkResponse } from '../models/okResponse';
-import { PersonRelationship } from '../models/personRelationships';
-import { finalize, tap } from 'rxjs/operators';
+import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { Person } from "../models/person";
+import { HttpClient } from "@angular/common/http";
+import { SharedService } from "./shared.service";
+import { API_ENDPOINTS } from "../objects/apiEndpoints";
+import { OkResponse } from "../models/okResponse";
+import { PersonRelationship } from "../models/personRelationships";
+import { finalize, tap } from "rxjs/operators";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class PeopleService {
   private peopleSubject = new BehaviorSubject<Person[]>([]);
-  private peopleWithoutUserSubject = new BehaviorSubject<Person[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private updatedSource = new Subject<number>();
   private deletedSource = new Subject<number>();
 
   people$ = this.peopleSubject.asObservable();
-  peopleWithoutUser$ = this.peopleWithoutUserSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
   updatedSource$ = this.updatedSource.asObservable();
   deletedSource$ = this.deletedSource.asObservable();
 
-  constructor(private http: HttpClient, private sharedService: SharedService) {
+  constructor(
+    private http: HttpClient,
+    private sharedService: SharedService,
+  ) {
     this.fetchPeople();
   }
 
@@ -36,7 +37,7 @@ export class PeopleService {
   }
 
   private createPerson(
-    model: Omit<Person, 'id' | 'fullName' | 'age'>
+    model: Omit<Person, "id" | "fullName" | "age">,
   ): Observable<OkResponse> {
     return this.http
       .post<OkResponse>(`${API_ENDPOINTS.all_people}create`, model)
@@ -45,7 +46,7 @@ export class PeopleService {
 
   private updatePerson(
     id: number,
-    model: Omit<Person, 'fullName' | 'age'>
+    model: Omit<Person, "fullName" | "age">,
   ): Observable<OkResponse> {
     return this.http
       .put<OkResponse>(`${API_ENDPOINTS.all_people}update/${id}`, model)
@@ -64,7 +65,7 @@ export class PeopleService {
 
   getPersonRelationships(id: number): Observable<PersonRelationship> {
     return this.http.get<PersonRelationship>(
-      `${API_ENDPOINTS.all_people}${id}/relationships`
+      `${API_ENDPOINTS.all_people}${id}/relationships`,
     );
   }
 
@@ -98,7 +99,7 @@ export class PeopleService {
           this.peopleSubject.next(data);
         },
         error: (err) => {
-          console.error('Failed to fetch people:', err);
+          console.error("Failed to fetch people:", err);
           this.peopleSubject.next([]);
           if (err.status === 403 || err.status === 401) {
             this.sharedService.redirectUser();
@@ -107,7 +108,9 @@ export class PeopleService {
       });
   }
 
-  fetchPeopleWithoutUser(): void {
-    this.http.get<Person[]>(API_ENDPOINTS.people_not_user + 'colaborator/');
+  fetchPeopleWithoutUser(): Observable<Person[]> {
+    return this.http.get<Person[]>(
+      API_ENDPOINTS.people_not_user + "colaborator/",
+    );
   }
 }

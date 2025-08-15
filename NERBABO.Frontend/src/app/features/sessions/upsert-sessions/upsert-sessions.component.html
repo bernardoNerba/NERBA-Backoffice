@@ -1,0 +1,231 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ isUpdate ? "Atualizar" : "Registar" }} Sessão</h4>
+  <button type="button" class="btn-close" (click)="bsModalRef.hide()"></button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="form">
+    <div class="container">
+      <div class="row">
+        <!-- Action -->
+        <div class="col-12">
+          <div class="mb-3">
+            <label for="firstName"
+              >Ação Formação
+              <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              pInputText
+              disabled
+              [value]="actionTitle"
+              class="w-100"
+            />
+          </div>
+        </div>
+        <!-- Module Teaching Selection -->
+        <div class="col-12" *ngIf="!isUpdate">
+          <div class="mb-3">
+            <label for="moduleTeaching"
+              >Módulos com Formador
+              <span class="text-danger">*</span>
+            </label>
+            @if (moduleTeachingOptions && moduleTeachingOptions.length >= 0) {
+            <p-select
+              id="moduleTeaching"
+              formControlName="moduleTeachingId"
+              [options]="moduleTeachingOptions"
+              placeholder="Selecione o módulo"
+              optionLabel="moduleName"
+              optionValue="moduleTeachingId"
+              [showClear]="true"
+              styleClass="w-100"
+              [class.is-invalid]="
+                submitted && form.get('moduleTeachingId')?.errors
+              "
+              class="{{
+                submitted && form.get('moduleTeachingId')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            ></p-select>
+            } @else {
+            <div class="alert alert-warning">Carregando opções...</div>
+            } @if (submitted &&
+            form.get('moduleTeachingId')?.hasError('required')) {
+            <span class="text-danger"> Módulo/Formador é obrigatório. </span>
+            }
+          </div>
+        </div>
+
+        <!-- Module Display for Updates -->
+        <div class="col-12" *ngIf="isUpdate">
+          <div class="mb-3">
+            <label for="currentModule">Módulo com Formador</label>
+            <input
+              type="text"
+              pInputText
+              id="currentModule"
+              [value]="currentModuleName"
+              disabled
+              readonly
+              class="w-100"
+            />
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="scheduledDate"
+              >Data
+              <span class="text-danger">*</span>
+            </label>
+            <p-datepicker
+              id="scheduledDate"
+              formControlName="scheduledDate"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              [disabled]="isUpdate"
+              styleClass="w-100"
+              [class.is-invalid]="
+                submitted && form.get('scheduledDate')?.errors
+              "
+              class="{{
+                submitted && form.get('scheduledDate')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
+            @if (submitted && form.get('scheduledDate')?.hasError('required')) {
+            <span class="text-danger"> Data é obrigatória. </span>
+            }
+          </div>
+        </div>
+
+        <!-- Weekday (readonly) -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="weekday">Dia da Semana</label>
+            <input
+              type="text"
+              pInputText
+              id="weekday"
+              [value]="form.value.weekday"
+              readonly
+              disabled
+              class="w-100"
+            />
+          </div>
+        </div>
+
+        <!-- Start Time -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="start"
+              >Hora Início
+              <span class="text-danger">*</span>
+            </label>
+            <input
+              type="time"
+              pInputText
+              id="start"
+              formControlName="start"
+              [class.is-invalid]="submitted && form.get('start')?.errors"
+              class="w-100 {{
+                submitted && form.get('start')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
+            @if (submitted && form.get('start')?.hasError('required')) {
+            <span class="text-danger"> Hora de início é obrigatória. </span>
+            }
+          </div>
+        </div>
+
+        <!-- Duration Hours -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="durationHours"
+              >Duração
+              <span class="text-danger">*</span>
+            </label>
+            <input
+              type="time"
+              pInputText
+              id="durationHours"
+              formControlName="durationHours"
+              [class.is-invalid]="
+                submitted && form.get('durationHours')?.errors
+              "
+              class="w-100 {{
+                submitted && form.get('durationHours')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
+            @if (submitted && form.get('durationHours')?.hasError('required')) {
+            <span class="text-danger"> Duração é obrigatória. </span>
+            } @else if (submitted && (form.get('durationHours')?.hasError('min')
+            || form.get('durationHours')?.hasError('max'))) {
+            <span class="text-danger">
+              Duração deve estar entre 1 e 12 horas.
+            </span>
+            }
+          </div>
+        </div>
+
+        <!-- Teacher Presence Dropdown (only for updates) -->
+        @if (isUpdate) {
+        <div class="col-12">
+          <div class="mb-3">
+            <label for="teacherPresence">Presença do Formador</label>
+            <p-dropdown
+              id="teacherPresence"
+              formControlName="teacherPresence"
+              [options]="presenceOptions"
+              placeholder="Selecione a presença"
+              optionLabel="value"
+              optionValue="value"
+              [showClear]="true"
+              styleClass="w-100"
+            ></p-dropdown>
+          </div>
+        </div>
+        }
+
+        <!-- End Time Display (readonly - calculated) -->
+        @if (endTime){
+        <div class="col-12">
+          <div class="mb-3">
+            <div class="alert alert-light">
+              <strong>Hora de Fim:</strong> {{ endTime }}
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+  </form>
+</div>
+
+<div class="modal-footer">
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading) {
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } {{ isUpdate ? "Atualizar" : "Registar" }}
+    </button>
+  </div>
+</div>
