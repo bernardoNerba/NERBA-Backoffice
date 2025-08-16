@@ -487,3 +487,5 @@ appsettings.Local.json
 secrets.json
 
 Data/Migrations/
+
+Storage/PDFs/*

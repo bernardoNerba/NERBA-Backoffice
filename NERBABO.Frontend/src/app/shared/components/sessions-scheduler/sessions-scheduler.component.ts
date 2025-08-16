@@ -18,6 +18,8 @@ import { ProgressBar } from "primeng/progressbar";
 import { MinimalModuleTeaching } from "../../../core/models/moduleTeaching";
 import { ModuleTeachingService } from "../../../core/services/module-teaching.service";
 import { TruncatePipe } from "../../pipes/truncate.pipe";
+import { PdfActionsComponent } from "../pdf-actions/pdf-actions.component";
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: "app-sessions-scheduler",
@@ -29,6 +31,8 @@ import { TruncatePipe } from "../../pipes/truncate.pipe";
     FormsModule,
     ProgressBar,
     TruncatePipe,
+    PdfActionsComponent,
+    ToastModule,
   ],
   templateUrl: "./sessions-scheduler.component.html",
   styleUrl: "./sessions-scheduler.component.css",

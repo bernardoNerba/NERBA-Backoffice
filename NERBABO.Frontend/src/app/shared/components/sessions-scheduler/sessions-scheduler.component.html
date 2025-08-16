@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div class="row g-3">
   <!-- Calendary Pick Date Column -->
   <div class="col-md-6">
@@ -83,6 +84,16 @@
         </p-button>
       </div>
     </div>
+
+    <!-- PDF Actions -->
+    @if (action?.id) {
+    <div class="mb-3">
+      <app-pdf-actions 
+        [actionId]="action!.id"
+        [actionTitle]="action!.title">
+      </app-pdf-actions>
+    </div>
+    }
 
     <!-- Sessions List -->
     <div class="sessions-container">
