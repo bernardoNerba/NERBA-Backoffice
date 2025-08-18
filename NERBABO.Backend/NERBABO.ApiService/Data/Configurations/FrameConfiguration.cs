@@ -35,6 +35,14 @@ public class FrameConfiguration : IEntityTypeConfiguration<Frame>
             .HasColumnType("varchar(150)")
             .IsRequired(true);
 
+        builder.Property(f => f.ProgramLogo)
+            .HasColumnType("varchar(500)")
+            .IsRequired(false);
+
+        builder.Property(f => f.FinancementLogo)
+            .HasColumnType("varchar(500)")
+            .IsRequired(true);
+
         builder.Property(p => p.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP")
             .ValueGeneratedOnAdd();

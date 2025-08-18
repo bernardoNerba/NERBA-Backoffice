@@ -14,6 +14,10 @@ import { CommonModule } from '@angular/common';
 import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { Frame } from '../../../core/models/frame';
+import {
+  FileUploadComponent,
+  FileUploadData,
+} from '../../../shared/components/file-upload/file-upload.component';
 
 @Component({
   selector: 'app-upsert-frames',
@@ -22,6 +26,7 @@ import { Frame } from '../../../core/models/frame';
     ReactiveFormsModule,
     ErrorCardComponent,
     InputTextModule,
+    FileUploadComponent,
   ],
   templateUrl: './upsert-frames.component.html',
 })
@@ -35,6 +40,12 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
 
   errorMessages: string[] = [];
   form: FormGroup = new FormGroup({});
+
+  // File handling properties
+  programLogoFile?: File;
+  financementLogoFile?: File;
+  programLogoPreview?: string;
+  financementLogoPreview?: string;
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -51,6 +62,7 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
         next: (frame: Frame) => {
           this.currentFrame = frame;
           this.patchFormValues();
+          this.setExistingLogoPreviews();
         },
         error: (error) => {
           this.sharedService.showError('Enquadramento não encontrado.');
@@ -127,20 +139,64 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
       return;
     }
 
+    // Validate required financement logo for new frames
+    if (!this.isUpdate && !this.financementLogoFile) {
+      this.sharedService.showError('Logo de financiamento é obrigatório.');
+      return;
+    }
+
     this.loading = true;
 
-    this.frameService
-      .upsert({ id: this.id, ...this.form.value }, this.isUpdate)
-      .subscribe({
-        next: (value: OkResponse) => {
-          this.bsModalRef.hide();
-          this.frameService.triggerFetchFrames();
-          this.sharedService.showSuccess(value.title);
-        },
-        error: (error) => {
-          this.errorMessages = this.sharedService.handleErrorResponse(error);
-          this.loading = false;
-        },
-      });
+    const frameData = {
+      id: this.id,
+      ...this.form.value,
+      programLogoFile: this.programLogoFile,
+      financementLogoFile: this.financementLogoFile,
+    };
+
+    this.frameService.upsert(frameData, this.isUpdate).subscribe({
+      next: (value: OkResponse) => {
+        this.bsModalRef.hide();
+        this.frameService.triggerFetchFrames();
+        this.sharedService.showSuccess(value.title);
+      },
+      error: (error) => {
+        this.errorMessages = this.sharedService.handleErrorResponse(error);
+        this.loading = false;
+      },
+    });
+  }
+
+  onProgramLogoSelect(data: FileUploadData): void {
+    this.programLogoFile = data.file;
+    this.programLogoPreview = data.preview;
+  }
+
+  onFinancementLogoSelect(data: FileUploadData): void {
+    this.financementLogoFile = data.file;
+    this.financementLogoPreview = data.preview;
+  }
+
+  onProgramLogoClear(): void {
+    this.programLogoFile = undefined;
+    this.programLogoPreview = undefined;
+  }
+
+  onFinancementLogoClear(): void {
+    this.financementLogoFile = undefined;
+    this.financementLogoPreview = undefined;
+  }
+
+  onFileValidationError(error: string): void {
+    this.sharedService.showError(error);
+  }
+
+  private setExistingLogoPreviews(): void {
+    if (this.currentFrame?.programLogoUrl) {
+      this.programLogoPreview = this.currentFrame.programLogoUrl;
+    }
+    if (this.currentFrame?.financementLogoUrl) {
+      this.financementLogoPreview = this.currentFrame.financementLogoUrl;
+    }
   }
 }

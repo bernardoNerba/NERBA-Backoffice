@@ -1,4 +1,5 @@
 using NERBABO.ApiService.Core.Frames.Dtos;
+using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 
 namespace NERBABO.ApiService.Core.Frames.Services;
@@ -6,4 +7,6 @@ namespace NERBABO.ApiService.Core.Frames.Services;
 public interface IFrameService
     : IGenericService<RetrieveFrameDto, CreateFrameDto, UpdateFrameDto, long>
 {
+    Task<byte[]?> GetProgramLogoAsync(long frameId);
+    Task<byte[]?> GetFinancementLogoAsync(long frameId);
 }

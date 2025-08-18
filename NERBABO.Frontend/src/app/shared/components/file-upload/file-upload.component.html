@@ -1,0 +1,59 @@
+<div class="file-upload-container p-inputtext">
+  <!-- Hidden File Input -->
+  <input
+    #fileInput
+    type="file"
+    [accept]="accept"
+    class="d-none"
+    (change)="onFileSelect($event); fileInput.value = ''"
+    [disabled]="disabled"
+  />
+
+  <!-- Upload Interface -->
+  <div class="d-flex align-items-center gap-3">
+    <!-- Upload Button -->
+    <p-button
+      icon="pi pi-upload"
+      [label]="label"
+      size="small"
+      [severity]="uploadButtonSeverity"
+      [outlined]="true"
+      [disabled]="disabled"
+      (onClick)="fileInput.click()"
+      [pTooltip]="uploadTooltip"
+    />
+
+    <!-- File Status and Clear Button -->
+    @if (hasFile()) {
+    <div class="d-flex align-items-center gap-2">
+      <!-- Clear Button -->
+      <p-button
+        icon="pi pi-trash"
+        size="small"
+        severity="danger"
+        [outlined]="true"
+        [disabled]="disabled"
+        (onClick)="onClearFile()"
+        [pTooltip]="clearTooltip"
+      />
+    </div>
+    } @else {
+    <small class="text-muted status-text">{{ getStatusText() }}</small>
+    }
+  </div>
+
+  <!-- Image Preview -->
+  @if (previewUrl && previewUrl.startsWith('data:') ||
+  previewUrl?.includes('uploads/images/')) {
+  <div class="mt-3 preview-container">
+    <img
+      [src]="previewUrl"
+      [alt]="label + ' Preview'"
+      class="img-thumbnail preview-image"
+      [style.max-width.px]="previewMaxWidth"
+      [style.max-height.px]="previewMaxHeight"
+      [style.object-fit]="'contain'"
+    />
+  </div>
+  }
+</div>

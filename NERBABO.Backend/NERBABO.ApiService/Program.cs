@@ -78,6 +78,10 @@ builder.Services.AddScoped<ICourseActionService, CourseActionService>();
 builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<IImageService, ImageService>();
+
+// Register HTTP context accessor for URL generation
+builder.Services.AddHttpContextAccessor();
 
 // Register Other services and middleware
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
@@ -363,6 +367,9 @@ else
 {
     app.UseHttpsRedirection();
 }
+
+// Enable static file serving for uploaded images
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

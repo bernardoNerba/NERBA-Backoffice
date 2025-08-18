@@ -145,6 +145,48 @@
       }
     </div>
 
+    <!-- Program Logo Upload -->
+    <div class="mb-3">
+      <label>Logo do Programa (Opcional)</label>
+      <div class="mt-2">
+        <app-file-upload
+          label="Selecione o logo..."
+          [required]="false"
+          uploadButtonSeverity="info"
+          placeholderText="Nenhum logo selecionado"
+          [existingFileUrl]="programLogoPreview"
+          uploadTooltip="Selecionar logo do programa"
+          clearTooltip="Limpar logo do programa"
+          (fileSelect)="onProgramLogoSelect($event)"
+          (fileClear)="onProgramLogoClear()"
+          (validationError)="onFileValidationError($event)"
+        />
+      </div>
+    </div>
+
+    <!-- Financement Logo Upload -->
+    <div class="mb-3">
+      <label
+        >Logo de Financiamento @if (!isUpdate) {
+        <span class="text-danger">*</span> }</label
+      >
+      <div class="mt-2">
+        <app-file-upload
+          label="Selecione o logo..."
+          [required]="!isUpdate"
+          uploadButtonSeverity="info"
+          placeholderText="Nenhum logo selecionado"
+          requiredText="Logo obrigatório"
+          [existingFileUrl]="financementLogoPreview"
+          uploadTooltip="Selecionar logo de financiamento"
+          clearTooltip="Limpar logo de financiamento"
+          (fileSelect)="onFinancementLogoSelect($event)"
+          (fileClear)="onFinancementLogoClear()"
+          (validationError)="onFileValidationError($event)"
+        />
+      </div>
+    </div>
+
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
   </form>
 </div>

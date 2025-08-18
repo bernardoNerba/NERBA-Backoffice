@@ -18,6 +18,7 @@ import { SpinnerComponent } from '../../spinner/spinner.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { UpsertFramesComponent } from '../../../../features/frames/upsert-frames/upsert-frames.component';
+import { SharedService } from '../../../../core/services/shared.service';
 
 @Component({
   selector: 'app-frames-table',
@@ -51,7 +52,8 @@ export class FramesTableComponent implements OnInit {
   constructor(
     private modalService: BsModalService,
     private router: Router,
-    private framesService: FrameService
+    private framesService: FrameService,
+    private sharedService: SharedService
   ) {}
 
   ngOnInit(): void {
@@ -169,6 +171,26 @@ export class FramesTableComponent implements OnInit {
   clearFilters() {
     this.searchValue = '';
     this.dt.reset();
+  }
+
+  downloadLogo(frame: Frame, logoType: 'program' | 'financement'): void {
+    this.framesService.downloadLogo(frame.id, logoType).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${frame.program}-${logoType}-logo`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        this.sharedService.showSuccess('Logo descarregado com sucesso.');
+      },
+      error: (error) => {
+        console.error('Failed to download logo:', error);
+        this.sharedService.showError('Erro ao descarregar o logo.');
+      }
+    });
   }
 
   ngOnDestroy(): void {

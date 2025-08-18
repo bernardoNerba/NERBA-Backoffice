@@ -14,6 +14,8 @@ public class Frame : Entity<long>
     public string InterventionType { get; set; } = string.Empty;
     public string Operation { get; set; } = string.Empty;
     public string OperationType { get; set; } = string.Empty;
+    public string? ProgramLogo { get; set; }
+    public string FinancementLogo { get; set; } = string.Empty;
 
     // Navigation Properties
     public List<Course> Courses { get; set; } = [];
@@ -33,7 +35,7 @@ public class Frame : Entity<long>
         };
     }
 
-    public static RetrieveFrameDto ConvertEntityToRetrieveDto(Frame frame)
+    public static RetrieveFrameDto ConvertEntityToRetrieveDto(Frame frame, string baseUrl)
     {
         return new RetrieveFrameDto
         {
@@ -43,6 +45,12 @@ public class Frame : Entity<long>
             InterventionType = frame.InterventionType,
             Operation = frame.Operation,
             OperationType = frame.OperationType,
+            ProgramLogoUrl = !string.IsNullOrEmpty(frame.ProgramLogo) 
+                ? $"{baseUrl}/uploads/images/{frame.ProgramLogo.Replace('\\', '/')}" 
+                : null,
+            FinancementLogoUrl = !string.IsNullOrEmpty(frame.FinancementLogo) 
+                ? $"{baseUrl}/uploads/images/{frame.FinancementLogo.Replace('\\', '/')}" 
+                : null,
             CreatedAt = frame.CreatedAt.Humanize(culture: new CultureInfo("pt-PT"))
         };
     }

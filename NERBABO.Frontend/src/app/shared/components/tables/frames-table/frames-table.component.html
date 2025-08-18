@@ -9,140 +9,195 @@
 @else {
 <div class="table-responsive">
   <p-table
-  #dt
-  stripedRows
-  [value]="frames"
-  size="small"
-  [tableStyle]="{ 'min-width': '85rem' }"
-  [globalFilterFields]="['program', 'intervention']"
-  [paginator]="true"
-  [rows]="10"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-  (onPage)="pageChange($event)"
-  [rowsPerPageOptions]="[10, 25, 50]"
->
-  <!-- Table caption with Search and clear filter  -->
-  <ng-template #caption>
-    <div class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center">
-      <!-- Filter Controls Section -->
-      <div class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1">
-        <!-- Search Section -->
-        <div class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0">
-          <div class="flex-grow-1">
-            <p-iconfield iconPosition="left" class="w-100">
-              <p-inputicon>
-                <i class="pi pi-search"></i>
-              </p-inputicon>
-              <input
-                [(ngModel)]="searchValue"
-                (ngModelChange)="dt.filterGlobal($event, 'contains')"
-                pInputText
-                type="text"
-                placeholder="Procurar..."
-                class="w-100"
-                style="min-width: 200px;"
-              />
-            </p-iconfield>
+    #dt
+    stripedRows
+    [value]="frames"
+    size="small"
+    [tableStyle]="{ 'min-width': '95rem' }"
+    [globalFilterFields]="['program', 'intervention']"
+    [paginator]="true"
+    [rows]="10"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    (onPage)="pageChange($event)"
+    [rowsPerPageOptions]="[10, 25, 50]"
+  >
+    <!-- Table caption with Search and clear filter  -->
+    <ng-template #caption>
+      <div
+        class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center"
+      >
+        <!-- Filter Controls Section -->
+        <div
+          class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1"
+        >
+          <!-- Search Section -->
+          <div
+            class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0"
+          >
+            <div class="flex-grow-1">
+              <p-iconfield iconPosition="left" class="w-100">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input
+                  [(ngModel)]="searchValue"
+                  (ngModelChange)="dt.filterGlobal($event, 'contains')"
+                  pInputText
+                  type="text"
+                  placeholder="Procurar..."
+                  class="w-100"
+                  style="min-width: 200px"
+                />
+              </p-iconfield>
+            </div>
+            <p-button
+              icon="pi pi-filter-slash"
+              [outlined]="true"
+              (click)="clearFilters()"
+              title="Limpar filtros"
+              class="flex-shrink-0"
+            />
           </div>
-          <p-button
-            icon="pi pi-filter-slash"
-            [outlined]="true"
-            (click)="clearFilters()"
-            title="Limpar filtros"
-            class="flex-shrink-0"
-          />
         </div>
       </div>
-    </div>
-  </ng-template>
-  <ng-template #header>
-    <tr>
-      <th style="width: 60px; min-width: 60px;" class="text-center">#</th>
-      <th pSortableColumn="program" style="min-width: 180px;">
-        <div class="d-flex align-items-center gap-2">
-          Programa
-          <p-sortIcon field="program" />
-        </div>
-      </th>
-      <th pSortableColumn="intervention" style="min-width: 150px;">
-        <div class="d-flex align-items-center gap-2">
-          <span class="d-none d-lg-inline">Intervenção</span>
-          <span class="d-inline d-lg-none">Inter.</span>
-          <p-sortIcon field="intervention" />
-        </div>
-      </th>
-      <th pSortableColumn="interventionType" style="min-width: 200px;">
-        <div class="d-flex align-items-center gap-2">
-          <span class="d-none d-xl-inline">Tipo de Intervenção</span>
-          <span class="d-inline d-xl-none">Tipo Inter.</span>
-          <p-sortIcon field="interventionType" />
-        </div>
-      </th>
-      <th pSortableColumn="operation" style="min-width: 150px;">
-        <div class="d-flex align-items-center gap-2">
-          <span class="d-none d-lg-inline">Operação</span>
-          <span class="d-inline d-lg-none">Op.</span>
-          <p-sortIcon field="operation" />
-        </div>
-      </th>
-      <th pSortableColumn="operationType" style="min-width: 200px;">
-        <div class="d-flex align-items-center gap-2">
-          <span class="d-none d-xl-inline">Tipo de Operação</span>
-          <span class="d-inline d-xl-none">Tipo Op.</span>
-          <p-sortIcon field="operationType" />
-        </div>
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template #body let-frame>
-    <tr>
-      <!-- DROPDOWN MENU -->
-      <td class="text-center">
-        <p-menu #menu [model]="menuItems" [popup]="true" [appendTo]="'body'" />
-        <p-button
-          icon="pi pi-ellipsis-v"
-          [rounded]="true"
-          severity="secondary"
-          [outlined]="true"
-          size="small"
-          (click)="menu.toggle($event); selectedFrame = frame"
-        />
-      </td>
-      <!-- FRAME PROGRAM -->
-      <td class="text-break">
-        <app-icon-anchor
-          [field]="frame.program"
-          [display]="frame.program | truncate : 25"
-          [link]="'/frames/' + frame.id"
-          [icon]="'pi pi-link'"
-        />
-      </td>
-      <!-- FRAME INTERVENTION -->
-      <td class="text-break">
-        <span class="fw-medium">{{ frame.intervention | truncate : 18 }}</span>
-      </td>
-      <!-- FRAME INTERVENTION TYPE -->
-      <td class="text-break">
-        <span class="fw-medium">{{ frame.interventionType | truncate : 25 }}</span>
-      </td>
-      <!-- FRAME OPERATION -->
-      <td class="text-break">
-        <span class="fw-medium">{{ frame.operation | truncate : 18 }}</span>
-      </td>
-      <!-- FRAME OPERATION TYPE -->
-      <td class="text-break">
-        <span class="fw-medium">{{ frame.operationType | truncate : 25 }}</span>
-      </td>
-    </tr>
-  </ng-template>
-  <!-- EMPTY STATE -->
-  <ng-template #emptymessage>
-    <tr>
-      <td colspan="6">
-        Não foram encontrados enquadramentos com essas diretrizes.
-      </td>
-    </tr>
-  </ng-template>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+        <th pSortableColumn="program" style="min-width: 180px">
+          <div class="d-flex align-items-center gap-2">
+            Programa
+            <p-sortIcon field="program" />
+          </div>
+        </th>
+        <th style="min-width: 150px" class="text-center">
+          <span class="d-none d-lg-inline">Logo Programa</span>
+          <span class="d-inline d-lg-none">Logo P.</span>
+        </th>
+        <th style="min-width: 150px" class="text-center">
+          <span class="d-none d-lg-inline">Logo Financiamento</span>
+          <span class="d-inline d-lg-none">Logo F.</span>
+        </th>
+        <th pSortableColumn="intervention" style="min-width: 150px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-lg-inline">Intervenção</span>
+            <span class="d-inline d-lg-none">Inter.</span>
+            <p-sortIcon field="intervention" />
+          </div>
+        </th>
+        <th pSortableColumn="interventionType" style="min-width: 200px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-xl-inline">Tipo de Intervenção</span>
+            <span class="d-inline d-xl-none">Tipo Inter.</span>
+            <p-sortIcon field="interventionType" />
+          </div>
+        </th>
+        <th pSortableColumn="operation" style="min-width: 150px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-lg-inline">Operação</span>
+            <span class="d-inline d-lg-none">Op.</span>
+            <p-sortIcon field="operation" />
+          </div>
+        </th>
+        <th pSortableColumn="operationType" style="min-width: 200px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-xl-inline">Tipo de Operação</span>
+            <span class="d-inline d-xl-none">Tipo Op.</span>
+            <p-sortIcon field="operationType" />
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-frame>
+      <tr>
+        <!-- DROPDOWN MENU -->
+        <td class="text-center">
+          <p-menu
+            #menu
+            [model]="menuItems"
+            [popup]="true"
+            [appendTo]="'body'"
+          />
+          <p-button
+            icon="pi pi-ellipsis-v"
+            [rounded]="true"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            (click)="menu.toggle($event); selectedFrame = frame"
+          />
+        </td>
+        <!-- FRAME PROGRAM -->
+        <td class="text-break">
+          <app-icon-anchor
+            [field]="frame.program"
+            [display]="frame.program | truncate : 25"
+            [link]="'/frames/' + frame.id"
+            [icon]="'pi pi-link'"
+          />
+        </td>
+        <!-- PROGRAM LOGO -->
+        <td class="text-center">
+          @if (frame.programLogoUrl) {
+          <p-button
+            [outlined]="true"
+            [icon]="'pi pi-cloud-download'"
+            size="small"
+            [rounded]="true"
+            severity="primary"
+            (click)="downloadLogo(frame, 'program')"
+          />
+          } @else {
+          <span class="text-muted">N/A</span>
+          }
+        </td>
+        <!-- FINANCEMENT LOGO -->
+        <td class="text-center">
+          @if (frame.financementLogoUrl) {
+          <p-button
+            [outlined]="true"
+            [icon]="'pi pi-cloud-download'"
+            size="small"
+            [rounded]="true"
+            severity="primary"
+            (click)="downloadLogo(frame, 'financement')"
+          />
+          } @else {
+          <span class="text-muted">N/A</span>
+          }
+        </td>
+        <!-- FRAME INTERVENTION -->
+        <td class="text-break">
+          <span class="fw-medium">{{
+            frame.intervention | truncate : 18
+          }}</span>
+        </td>
+        <!-- FRAME INTERVENTION TYPE -->
+        <td class="text-break">
+          <span class="fw-medium">{{
+            frame.interventionType | truncate : 25
+          }}</span>
+        </td>
+        <!-- FRAME OPERATION -->
+        <td class="text-break">
+          <span class="fw-medium">{{ frame.operation | truncate : 18 }}</span>
+        </td>
+        <!-- FRAME OPERATION TYPE -->
+        <td class="text-break">
+          <span class="fw-medium">{{
+            frame.operationType | truncate : 25
+          }}</span>
+        </td>
+      </tr>
+    </ng-template>
+    <!-- EMPTY STATE -->
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="8">
+          Não foram encontrados enquadramentos com essas diretrizes.
+        </td>
+      </tr>
+    </ng-template>
   </p-table>
 </div>
 }
