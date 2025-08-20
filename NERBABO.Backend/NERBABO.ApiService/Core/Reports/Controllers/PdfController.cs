@@ -34,123 +34,26 @@ public class PdfController(
     [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> GenerateSessionReportAsync(long actionId, [FromQuery] bool forceRegenerate = false)
     {
-        try
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return BadRequest("Invalid User");
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return BadRequest("Invalid User");
 
-            byte[] pdfBytes;
-            
-            if (forceRegenerate)
+        byte[] pdfBytes;
+        
+        if (forceRegenerate)
+        {
+            // Delete existing saved PDF first
+            var existingPdf = await _pdfService.GetSavedPdfAsync(PdfTypes.SessionReport, actionId);
+            if (existingPdf != null)
             {
-                // Delete existing saved PDF first
-                var existingPdf = await _pdfService.GetSavedPdfAsync(PdfTypes.SessionReport, actionId);
-                if (existingPdf != null)
-                {
-                    await _pdfService.DeleteSavedPdfAsync(existingPdf.Id);
-                }
+                await _pdfService.DeleteSavedPdfAsync(existingPdf.Id);
             }
+        }
 
-            pdfBytes = await _pdfService.GenerateSessionReportAsync(actionId, user.Id);
-            return File(pdfBytes, "application/pdf", $"sessoes-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return _responseHandler.HandleResult(Result.Fail("Erro", ex.Message));
-        }
+        pdfBytes = await _pdfService.GenerateSessionReportAsync(actionId, user.Id);
+        return File(pdfBytes, "application/pdf", $"sessoes-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
     }
-
-    /// <summary>
-    /// Generates or returns cached detailed PDF report for a specific session.
-    /// </summary>
-    /// <param name="sessionId">The session ID to generate the detail for.</param>
-    /// <param name="forceRegenerate">Force regeneration of PDF even if cached version exists.</param>
-    /// <response code="200">PDF generated successfully. Returns the PDF file.</response>
-    /// <response code="404">Session not found.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-    /// <response code="500">Unexpected error occurred during PDF generation.</response>
-    [HttpGet("session/{sessionId:long}/detail")]
-    [Authorize(Policy = "ActiveUser")]
-    public async Task<IActionResult> GenerateSessionDetailAsync(long sessionId, [FromQuery] bool forceRegenerate = false)
-    {
-        try
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return BadRequest("Invalid User");
-
-            byte[] pdfBytes;
-            
-            if (forceRegenerate)
-            {
-                var existingPdf = await _pdfService.GetSavedPdfAsync(PdfTypes.SessionDetail, sessionId);
-                if (existingPdf != null)
-                {
-                    await _pdfService.DeleteSavedPdfAsync(existingPdf.Id);
-                }
-            }
-
-            pdfBytes = await _pdfService.GenerateSessionDetailAsync(sessionId, user.Id);
-            return File(pdfBytes, "application/pdf", $"detalhe-sessao-{sessionId}-{DateTime.Now:yyyyMMdd}.pdf");
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return _responseHandler.HandleResult(Result.Fail("Erro", ex.Message));
-        }
-    }
-
-    /// <summary>
-    /// Generates or returns cached summary PDF report for a specific action.
-    /// </summary>
-    /// <param name="actionId">The action ID to generate the summary for.</param>
-    /// <param name="forceRegenerate">Force regeneration of PDF even if cached version exists.</param>
-    /// <response code="200">PDF generated successfully. Returns the PDF file.</response>
-    /// <response code="404">Action not found.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-    /// <response code="500">Unexpected error occurred during PDF generation.</response>
-    [HttpGet("action/{actionId:long}/summary")]
-    [Authorize(Policy = "ActiveUser")]
-    public async Task<IActionResult> GenerateActionSummaryAsync(long actionId, [FromQuery] bool forceRegenerate = false)
-    {
-        try
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return BadRequest("Invalid User");
-
-            byte[] pdfBytes;
-            
-            if (forceRegenerate)
-            {
-                var existingPdf = await _pdfService.GetSavedPdfAsync(PdfTypes.ActionSummary, actionId);
-                if (existingPdf != null)
-                {
-                    await _pdfService.DeleteSavedPdfAsync(existingPdf.Id);
-                }
-            }
-
-            pdfBytes = await _pdfService.GenerateActionSummaryAsync(actionId, user.Id);
-            return File(pdfBytes, "application/pdf", $"resumo-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
-        }
-        catch (ArgumentException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return _responseHandler.HandleResult(Result.Fail("Erro", ex.Message));
-        }
-    }
-
+    
     /// <summary>
     /// Checks if a saved PDF exists for the specified type and reference ID.
     /// </summary>

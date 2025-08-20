@@ -488,4 +488,5 @@ secrets.json
 
 Data/Migrations/
 
-Storage/PDFs/*
+Storage/*
+wwwroot/*

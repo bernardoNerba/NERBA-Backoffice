@@ -17,15 +17,10 @@ interface PdfOption {
 @Component({
   selector: 'app-pdf-actions',
   standalone: true,
-  imports: [
-    CommonModule,
-    ButtonModule,
-    DropdownModule,
-    TooltipModule
-  ],
+  imports: [CommonModule, ButtonModule, DropdownModule, TooltipModule],
   template: `
     <div class="d-flex flex-wrap gap-2 align-items-center">
-      <p-button 
+      <p-button
         *ngIf="actionId"
         label="Relatório de Sessões"
         icon="pi pi-file-pdf"
@@ -35,36 +30,11 @@ interface PdfOption {
         [disabled]="isGenerating"
         (onClick)="generateSessionsReport()"
         pTooltip="Gerar PDF com todas as sessões desta ação"
-        tooltipPosition="top">
+        tooltipPosition="top"
+      >
       </p-button>
 
-      <p-button 
-        *ngIf="sessionId"
-        label="Detalhe da Sessão"
-        icon="pi pi-file-pdf"
-        severity="secondary" 
-        size="small"
-        [loading]="isGeneratingDetail"
-        [disabled]="isGenerating"
-        (onClick)="generateSessionDetail()"
-        pTooltip="Gerar PDF com detalhes desta sessão"
-        tooltipPosition="top">
-      </p-button>
-
-      <p-button 
-        *ngIf="actionId"
-        label="Resumo da Ação"
-        icon="pi pi-file-pdf"
-        severity="info"
-        size="small" 
-        [loading]="isGeneratingSummary"
-        [disabled]="isGenerating"
-        (onClick)="generateActionSummary()"
-        pTooltip="Gerar PDF com resumo desta ação"
-        tooltipPosition="top">
-      </p-button>
-
-      <p-dropdown 
+      <p-dropdown
         [options]="pdfActions"
         optionLabel="label"
         optionValue="value"
@@ -72,7 +42,8 @@ interface PdfOption {
         [disabled]="isGenerating"
         size="small"
         (onChange)="onPdfActionSelect($event)"
-        [showClear]="false">
+        [showClear]="false"
+      >
         <ng-template pTemplate="selectedItem" let-selectedOption>
           <div class="flex align-items-center gap-2">
             <i [class]="selectedOption?.icon"></i>
@@ -87,7 +58,7 @@ interface PdfOption {
         </ng-template>
       </p-dropdown>
     </div>
-  `
+  `,
 })
 export class PdfActionsComponent {
   @Input() actionId?: number;
@@ -103,14 +74,14 @@ export class PdfActionsComponent {
       label: 'Visualizar',
       value: 'view',
       icon: 'pi pi-eye',
-      tooltip: 'Visualizar PDF no navegador'
+      tooltip: 'Visualizar PDF no navegador',
     },
     {
       label: 'Imprimir',
       value: 'print',
       icon: 'pi pi-print',
-      tooltip: 'Imprimir PDF diretamente'
-    }
+      tooltip: 'Imprimir PDF diretamente',
+    },
   ];
 
   constructor(
@@ -119,69 +90,38 @@ export class PdfActionsComponent {
   ) {}
 
   get isGenerating(): boolean {
-    return this.isGeneratingReport || this.isGeneratingDetail || this.isGeneratingSummary;
+    return (
+      this.isGeneratingReport ||
+      this.isGeneratingDetail ||
+      this.isGeneratingSummary
+    );
   }
 
   generateSessionsReport(): void {
     if (!this.actionId) return;
 
     this.isGeneratingReport = true;
-    this.pdfService.generateSessionsReport(this.actionId)
-      .pipe(finalize(() => this.isGeneratingReport = false))
+    this.pdfService
+      .generateSessionsReport(this.actionId)
+      .pipe(finalize(() => (this.isGeneratingReport = false)))
       .subscribe({
         next: (blob) => {
-          const filename = `relatorio-sessoes-acao-${this.actionId}-${this.getCurrentDate()}.pdf`;
+          const filename = `relatorio-sessoes-acao-${
+            this.actionId
+          }-${this.getCurrentDate()}.pdf`;
           this.pdfService.downloadPdf(blob, filename);
           this.showSuccess('Relatório de sessões gerado com sucesso!');
         },
         error: (error) => {
           console.error('Error generating sessions report:', error);
           this.showError('Erro ao gerar relatório de sessões');
-        }
-      });
-  }
-
-  generateSessionDetail(): void {
-    if (!this.sessionId) return;
-
-    this.isGeneratingDetail = true;
-    this.pdfService.generateSessionDetail(this.sessionId)
-      .pipe(finalize(() => this.isGeneratingDetail = false))
-      .subscribe({
-        next: (blob) => {
-          const filename = `detalhe-sessao-${this.sessionId}-${this.getCurrentDate()}.pdf`;
-          this.pdfService.downloadPdf(blob, filename);
-          this.showSuccess('Detalhe da sessão gerado com sucesso!');
         },
-        error: (error) => {
-          console.error('Error generating session detail:', error);
-          this.showError('Erro ao gerar detalhe da sessão');
-        }
-      });
-  }
-
-  generateActionSummary(): void {
-    if (!this.actionId) return;
-
-    this.isGeneratingSummary = true;
-    this.pdfService.generateActionSummary(this.actionId)
-      .pipe(finalize(() => this.isGeneratingSummary = false))
-      .subscribe({
-        next: (blob) => {
-          const filename = `resumo-acao-${this.actionId}-${this.getCurrentDate()}.pdf`;
-          this.pdfService.downloadPdf(blob, filename);
-          this.showSuccess('Resumo da ação gerado com sucesso!');
-        },
-        error: (error) => {
-          console.error('Error generating action summary:', error);
-          this.showError('Erro ao gerar resumo da ação');
-        }
       });
   }
 
   onPdfActionSelect(event: any): void {
     const action = event.value;
-    
+
     if (action === 'view') {
       this.viewPdf();
     } else if (action === 'print') {
@@ -192,8 +132,9 @@ export class PdfActionsComponent {
   private viewPdf(): void {
     if (this.actionId) {
       this.isGeneratingReport = true;
-      this.pdfService.generateSessionsReport(this.actionId)
-        .pipe(finalize(() => this.isGeneratingReport = false))
+      this.pdfService
+        .generateSessionsReport(this.actionId)
+        .pipe(finalize(() => (this.isGeneratingReport = false)))
         .subscribe({
           next: (blob) => {
             this.pdfService.viewPdf(blob);
@@ -202,7 +143,7 @@ export class PdfActionsComponent {
           error: (error) => {
             console.error('Error viewing PDF:', error);
             this.showError('Erro ao visualizar PDF');
-          }
+          },
         });
     }
   }
@@ -210,8 +151,9 @@ export class PdfActionsComponent {
   private printPdf(): void {
     if (this.actionId) {
       this.isGeneratingReport = true;
-      this.pdfService.generateSessionsReport(this.actionId)
-        .pipe(finalize(() => this.isGeneratingReport = false))
+      this.pdfService
+        .generateSessionsReport(this.actionId)
+        .pipe(finalize(() => (this.isGeneratingReport = false)))
         .subscribe({
           next: (blob) => {
             this.pdfService.printPdf(blob);
@@ -220,7 +162,7 @@ export class PdfActionsComponent {
           error: (error) => {
             console.error('Error printing PDF:', error);
             this.showError('Erro ao preparar impressão');
-          }
+          },
         });
     }
   }
@@ -234,7 +176,7 @@ export class PdfActionsComponent {
       severity: 'success',
       summary: 'Sucesso',
       detail: message,
-      life: 3000
+      life: 3000,
     });
   }
 
@@ -243,7 +185,7 @@ export class PdfActionsComponent {
       severity: 'error',
       summary: 'Erro',
       detail: message,
-      life: 5000
+      life: 5000,
     });
   }
 }

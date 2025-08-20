@@ -17,6 +17,8 @@ public class ImageService : IImageService
         
         // Use wwwroot/uploads for web-accessible files
         _imageStoragePath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "uploads", "images");
+
+        // Ensure storage directory exists
         Directory.CreateDirectory(_imageStoragePath);
     }
 

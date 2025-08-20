@@ -1,10 +1,10 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { API_ENDPOINTS } from "../objects/apiEndpoints";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../objects/apiEndpoints';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class PdfService {
   private readonly baseUrl = API_ENDPOINTS.getBaseUrl();
@@ -17,31 +17,12 @@ export class PdfService {
    * @returns Observable of PDF blob
    */
   generateSessionsReport(actionId: number): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/api/pdf/action/${actionId}/sessions-report`, {
-      responseType: 'blob'
-    });
-  }
-
-  /**
-   * Generates a detailed PDF report for a specific session
-   * @param sessionId The session ID to generate the detail for
-   * @returns Observable of PDF blob
-   */
-  generateSessionDetail(sessionId: number): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/api/pdf/session/${sessionId}/detail`, {
-      responseType: 'blob'
-    });
-  }
-
-  /**
-   * Generates a summary PDF report for a specific action
-   * @param actionId The action ID to generate the summary for
-   * @returns Observable of PDF blob
-   */
-  generateActionSummary(actionId: number): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/api/pdf/action/${actionId}/summary`, {
-      responseType: 'blob'
-    });
+    return this.http.get(
+      `${this.baseUrl}/api/pdf/action/${actionId}/sessions-report`,
+      {
+        responseType: 'blob',
+      }
+    );
   }
 
   /**
@@ -79,7 +60,7 @@ export class PdfService {
     iframe.style.display = 'none';
     iframe.src = url;
     document.body.appendChild(iframe);
-    
+
     iframe.onload = () => {
       iframe.contentWindow?.print();
       setTimeout(() => {

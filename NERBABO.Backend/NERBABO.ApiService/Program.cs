@@ -28,6 +28,7 @@ using NERBABO.ApiService.Core.ModuleTeachings.Services;
 using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.People.Services;
+using NERBABO.ApiService.Core.Reports.Composers;
 using NERBABO.ApiService.Core.Reports.Services;
 using NERBABO.ApiService.Core.Sessions.Services;
 using NERBABO.ApiService.Core.Students.Cache;
@@ -79,6 +80,7 @@ builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IComposer, Composer>();
 
 // Register HTTP context accessor for URL generation
 builder.Services.AddHttpContextAccessor();
