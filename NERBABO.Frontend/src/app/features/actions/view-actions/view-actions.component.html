@@ -273,7 +273,8 @@
     </div>
     } }
     <!-- END MODULES TABLE ACCORDION -->
-    <!-- MODULES TABLE ACCORDION-->
+
+    <!-- SESSIONS ACCORDION-->
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-session-info">
         <button
@@ -298,7 +299,46 @@
         </div>
       </div>
     </div>
-    <!-- END MODULES TABLE ACCORDION -->
+    <!-- END SESSIONS ACCORDION -->
+
+    <!-- FILE LIST ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-file-actions">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#file-actions-content"
+          aria-expanded="false"
+          aria-controls="file-actions-content"
+        >
+          <app-icon [icon]="ICONS.download" [marginEnd]="3" />
+          <h5>Ficheiros</h5>
+        </button>
+      </h2>
+      <div
+        id="file-actions-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-file-actions"
+      >
+        <div class="accordion-body">
+          <!-- PDF Actions -->
+          @if (action?.id) {
+          <div class="mb-3">
+            <ol class="list-group list-group-flush">
+              <li class="list-group-item">
+                <app-pdf-actions
+                  [actionId]="action!.id"
+                  [title]="'Cronograma'"
+                />
+              </li>
+            </ol>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    <!-- END FILE LIST ACCORDION -->
   </div>
 </div>
 }

@@ -20,69 +20,55 @@ interface PdfOption {
   imports: [CommonModule, ButtonModule, DropdownModule, TooltipModule],
   template: `
     <div class="d-flex flex-wrap gap-2 align-items-center">
+      <div class="me-4">
+        <i class="pi pi-file-pdf me-2"> </i>
+        {{ title || '' }}
+      </div>
+
+      <!-- Generate Report And Download it-->
+      @if (actionId){
       <p-button
-        *ngIf="actionId"
-        label="Relatório de Sessões"
-        icon="pi pi-file-pdf"
-        severity="secondary"
+        icon="pi pi-download"
+        outlined="true"
         size="small"
         [loading]="isGeneratingReport"
         [disabled]="isGenerating"
         (onClick)="generateSessionsReport()"
-        pTooltip="Gerar PDF com todas as sessões desta ação"
-        tooltipPosition="top"
-      >
-      </p-button>
-
-      <p-dropdown
-        [options]="pdfActions"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Mais opções PDF..."
-        [disabled]="isGenerating"
+        severity="secondary"
+        pTooltip="Gerar PDF"
+      />
+      }
+      <p-button
+        icon="pi pi-eye"
+        outlined="true"
         size="small"
-        (onChange)="onPdfActionSelect($event)"
-        [showClear]="false"
-      >
-        <ng-template pTemplate="selectedItem" let-selectedOption>
-          <div class="flex align-items-center gap-2">
-            <i [class]="selectedOption?.icon"></i>
-            <span>{{ selectedOption?.label }}</span>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="item" let-option>
-          <div class="flex align-items-center gap-2" [title]="option.tooltip">
-            <i [class]="option.icon"></i>
-            <span>{{ option.label }}</span>
-          </div>
-        </ng-template>
-      </p-dropdown>
+        [loading]="isGeneratingReport"
+        [disabled]="isGenerating"
+        (onClick)="viewPdf()"
+        severity="secondary"
+        pTooltip="Ver PDF no browser"
+      />
+      <p-button
+        icon="pi pi-print"
+        outlined="true"
+        size="small"
+        [loading]="isGeneratingReport"
+        [disabled]="isGenerating"
+        (onClick)="printPdf()"
+        severity="secondary"
+        pTooltip="Imprimir PDF no browser"
+      />
     </div>
   `,
 })
 export class PdfActionsComponent {
   @Input() actionId?: number;
   @Input() sessionId?: number;
-  @Input() actionTitle?: string;
+  @Input() title?: string;
 
   isGeneratingReport = false;
   isGeneratingDetail = false;
   isGeneratingSummary = false;
-
-  pdfActions: PdfOption[] = [
-    {
-      label: 'Visualizar',
-      value: 'view',
-      icon: 'pi pi-eye',
-      tooltip: 'Visualizar PDF no navegador',
-    },
-    {
-      label: 'Imprimir',
-      value: 'print',
-      icon: 'pi pi-print',
-      tooltip: 'Imprimir PDF diretamente',
-    },
-  ];
 
   constructor(
     private pdfService: PdfService,
@@ -119,17 +105,7 @@ export class PdfActionsComponent {
       });
   }
 
-  onPdfActionSelect(event: any): void {
-    const action = event.value;
-
-    if (action === 'view') {
-      this.viewPdf();
-    } else if (action === 'print') {
-      this.printPdf();
-    }
-  }
-
-  private viewPdf(): void {
+  viewPdf(): void {
     if (this.actionId) {
       this.isGeneratingReport = true;
       this.pdfService
@@ -148,7 +124,7 @@ export class PdfActionsComponent {
     }
   }
 
-  private printPdf(): void {
+  printPdf(): void {
     if (this.actionId) {
       this.isGeneratingReport = true;
       this.pdfService

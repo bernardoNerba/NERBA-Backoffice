@@ -85,16 +85,6 @@
       </div>
     </div>
 
-    <!-- PDF Actions -->
-    @if (action?.id) {
-    <div class="mb-3">
-      <app-pdf-actions 
-        [actionId]="action!.id"
-        [actionTitle]="action!.title">
-      </app-pdf-actions>
-    </div>
-    }
-
     <!-- Sessions List -->
     <div class="sessions-container">
       @if (filteredSessions.length > 0) {

@@ -26,6 +26,7 @@ import { Message } from 'primeng/message';
 import { MessageComponent } from '../../../shared/components/message/message.component';
 import { SessionsSchedulerComponent } from '../../../shared/components/sessions-scheduler/sessions-scheduler.component';
 import { MessageService } from 'primeng/api';
+import { PdfActionsComponent } from '../../../shared/components/pdf-actions/pdf-actions.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -37,6 +38,7 @@ import { MessageService } from 'primeng/api';
     IconAnchorComponent,
     MessageComponent,
     SessionsSchedulerComponent,
+    PdfActionsComponent,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',
