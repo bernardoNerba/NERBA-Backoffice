@@ -8,7 +8,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { ICONS } from '../../../core/objects/icons';
 import { CompaniesTableComponent } from '../../../shared/components/tables/companies-table/companies-table.component';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertCompaniesComponent } from '../upsert-companies/upsert-companies.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
@@ -19,7 +18,6 @@ import { TitleComponent } from '../../../shared/components/title/title.component
     CommonModule,
     ReactiveFormsModule,
     CompaniesTableComponent,
-    IconComponent,
     TitleComponent,
   ],
   templateUrl: './index-companies.component.html',

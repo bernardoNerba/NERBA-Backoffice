@@ -7,7 +7,6 @@ import { CommonModule } from '@angular/common';
 import { Frame } from '../../../core/models/frame';
 import { SharedService } from '../../../core/services/shared.service';
 
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { ICONS } from '../../../core/objects/icons';
 import { FramesTableComponent } from '../../../shared/components/tables/frames-table/frames-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
@@ -20,7 +19,6 @@ import { TitleComponent } from '../../../shared/components/title/title.component
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    IconComponent,
     FramesTableComponent,
     TitleComponent,
   ],

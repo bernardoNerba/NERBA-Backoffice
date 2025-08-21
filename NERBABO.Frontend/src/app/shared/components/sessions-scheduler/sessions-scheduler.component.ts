@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { SessionsService } from '../../../core/services/sessions.service';
 import { Session } from '../../../core/objects/sessions';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -36,7 +36,7 @@ import { ToastModule } from 'primeng/toast';
   templateUrl: './sessions-scheduler.component.html',
   styleUrl: './sessions-scheduler.component.css',
 })
-export class SessionsSchedulerComponent implements OnInit {
+export class SessionsSchedulerComponent implements OnInit, OnDestroy {
   @Input({ required: true }) query!: 'all' | 'byActionId';
   @Input({}) action?: Action | null;
   sessions: Session[] = [];
@@ -126,14 +126,6 @@ export class SessionsSchedulerComponent implements OnInit {
         },
         error: (error: any) => {
           console.log('Error loading module teachings', error);
-            "Minimal ModuleTeachings loaded:",
-            this.minimalModuleTeachings,
-          );
-          console.log("Array length:", this.minimalModuleTeachings.length);
-          this.cdr.detectChanges(); // Force change detection
-        },
-        error: (error: any) => {
-          console.log("Error loading module teachings", error);
           this.minimalModuleTeachings = [];
         },
       });

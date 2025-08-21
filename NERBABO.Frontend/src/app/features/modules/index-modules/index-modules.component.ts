@@ -6,7 +6,6 @@ import { ICONS } from '../../../core/objects/icons';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
@@ -16,7 +15,6 @@ import { TitleComponent } from '../../../shared/components/title/title.component
 @Component({
   selector: 'app-index-modules',
   imports: [
-    IconComponent,
     ReactiveFormsModule,
     CommonModule,
     ModulesTableComponent,
