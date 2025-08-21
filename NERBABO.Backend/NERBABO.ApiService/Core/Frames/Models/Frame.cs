@@ -1,5 +1,6 @@
 using System.Globalization;
 using Humanizer;
+using Microsoft.AspNetCore.Mvc.Routing;
 using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Shared.Models;
@@ -35,7 +36,7 @@ public class Frame : Entity<long>
         };
     }
 
-    public static RetrieveFrameDto ConvertEntityToRetrieveDto(Frame frame, string baseUrl)
+    public static RetrieveFrameDto ConvertEntityToRetrieveDto(Frame frame)
     {
         return new RetrieveFrameDto
         {
@@ -46,10 +47,10 @@ public class Frame : Entity<long>
             Operation = frame.Operation,
             OperationType = frame.OperationType,
             ProgramLogoUrl = !string.IsNullOrEmpty(frame.ProgramLogo) 
-                ? $"{baseUrl}/uploads/images/{frame.ProgramLogo.Replace('\\', '/')}" 
+                ? $"{Helper.UrlHelper.GetBaseUrl()}/uploads/images/{frame.ProgramLogo.Replace('\\', '/')}" 
                 : null,
             FinancementLogoUrl = !string.IsNullOrEmpty(frame.FinancementLogo) 
-                ? $"{baseUrl}/uploads/images/{frame.FinancementLogo.Replace('\\', '/')}" 
+                ? $"{Helper.UrlHelper.GetBaseUrl()}/uploads/images/{frame.FinancementLogo.Replace('\\', '/')}" 
                 : null,
             CreatedAt = frame.CreatedAt.Humanize(culture: new CultureInfo("pt-PT"))
         };

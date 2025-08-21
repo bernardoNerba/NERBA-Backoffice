@@ -42,6 +42,6 @@ public class UpdateGeneralInfoDto
         ErrorMessage = "NIPC deve conter exatamente {1} caracteres")]
     [AllNumbers(ErrorMessage = "NIPC deve conter somente números.")]
     public string Nipc { get; set; } = string.Empty;
-    public string LogoFinancing { get; set; } = string.Empty;
+    public IFormFile? Logo { get; set; }
 
 }

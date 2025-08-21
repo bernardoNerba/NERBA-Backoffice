@@ -13,7 +13,7 @@ public class GeneralInfo : Entity<long>
     public string BankEntity { get; set; } = string.Empty;
     public string Iban { get; set; } = string.Empty;
     public string Nipc { get; set; } = string.Empty;
-    public string LogoFinancing { get; set; } = string.Empty;
+    public string? Logo { get; set; } = string.Empty;
 
     public Tax? IvaTax { get; set; }
 
@@ -28,7 +28,9 @@ public class GeneralInfo : Entity<long>
             BankEntity = generalInfo.BankEntity,
             Iban = generalInfo.Iban,
             Nipc = generalInfo.Nipc,
-            LogoFinancing = generalInfo.LogoFinancing,
+            LogoUrl = !string.IsNullOrEmpty(generalInfo.Logo)
+                ? $"{Helper.UrlHelper.GetBaseUrl()}/uploads/images/{generalInfo.Logo.Replace('\\', '/')}"
+                : null,
             IvaId = generalInfo.IvaTax?.Id ?? 0,
             IvaRegime = generalInfo.IvaTax?.Name ?? string.Empty,
             IvaPercent = generalInfo.IvaTax?.ValuePercent ?? 0

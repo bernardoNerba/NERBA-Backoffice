@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Core.Frames.Models;
@@ -12,22 +13,12 @@ namespace NERBABO.ApiService.Core.Frames.Services;
 public class FrameService(
     AppDbContext context,
     ILogger<FrameService> logger,
-    IImageService imageService,
-    IHttpContextAccessor httpContextAccessor
+    IImageService imageService
     ) : IFrameService
 {
     private readonly AppDbContext _context = context;
     private readonly ILogger<FrameService> _logger = logger;
     private readonly IImageService _imageService = imageService;
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-    
-    private string GetBaseUrl()
-    {
-        var request = _httpContextAccessor.HttpContext?.Request;
-        if (request == null) return "";
-        
-        return $"{request.Scheme}://{request.Host}";
-    }
 
     public async Task<Result<RetrieveFrameDto>> CreateAsync(CreateFrameDto entityDto)
     {
@@ -87,7 +78,7 @@ public class FrameService(
         await _context.SaveChangesAsync();
 
         return Result<RetrieveFrameDto>
-            .Ok(Frame.ConvertEntityToRetrieveDto(newFrame, GetBaseUrl()), "Enquadramento Criado.",
+            .Ok(Frame.ConvertEntityToRetrieveDto(newFrame), "Enquadramento Criado.",
                 $"Foi criado um enquadramento com o programa {newFrame.Operation}.",
                 StatusCodes.Status201Created);
     }
@@ -135,7 +126,7 @@ public class FrameService(
             .ToListAsync();
             
         var existingFrames = frames
-            .Select(f => Frame.ConvertEntityToRetrieveDto(f, GetBaseUrl()))
+            .Select(f => Frame.ConvertEntityToRetrieveDto(f))
             .ToList();
 
 
@@ -162,7 +153,7 @@ public class FrameService(
         }
 
         return Result<RetrieveFrameDto>
-            .Ok(Frame.ConvertEntityToRetrieveDto(existingFrame, GetBaseUrl()));
+            .Ok(Frame.ConvertEntityToRetrieveDto(existingFrame));
     }
 
     public async Task<Result<RetrieveFrameDto>> UpdateAsync(UpdateFrameDto entityDto)
@@ -288,7 +279,7 @@ public class FrameService(
         await _context.SaveChangesAsync();
 
         return Result<RetrieveFrameDto>
-            .Ok(Frame.ConvertEntityToRetrieveDto(existingFrame, GetBaseUrl()), "Enquadramento Atualizado.",
+            .Ok(Frame.ConvertEntityToRetrieveDto(existingFrame), "Enquadramento Atualizado.",
             $"Foi atualizada o enquadramento com o programa {existingFrame.Program}.");
     }
 
