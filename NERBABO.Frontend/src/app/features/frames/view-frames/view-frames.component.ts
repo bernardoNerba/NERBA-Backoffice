@@ -15,10 +15,11 @@ import { UpsertFramesComponent } from '../upsert-frames/upsert-frames.component'
 import { TitleComponent } from '../../../shared/components/title/title.component';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 import { IView } from '../../../core/interfaces/IView';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-view-frames',
-  imports: [CommonModule, TitleComponent, CoursesTableComponent],
+  imports: [CommonModule, TitleComponent, CoursesTableComponent, Button],
   templateUrl: './view-frames.component.html',
 })
 export class ViewFramesComponent implements IView, OnInit, OnDestroy {
@@ -172,6 +173,27 @@ export class ViewFramesComponent implements IView, OnInit, OnDestroy {
         }
       })
     );
+  }
+
+
+  downloadLogo(frame: Frame, logoType: 'program' | 'financement'): void {
+    this.frameService.downloadLogo(frame.id, logoType).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${frame.program}-${logoType}-logo`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        this.sharedService.showSuccess('Logo descarregado com sucesso.');
+      },
+      error: (error) => {
+        console.error('Failed to download logo:', error);
+        this.sharedService.showError('Erro ao descarregar o logo.');
+      }
+    });
   }
 
   ngOnDestroy(): void {

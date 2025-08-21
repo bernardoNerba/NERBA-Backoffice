@@ -2,19 +2,22 @@ using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Global.Dtos;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Dtos;
 using NERBABO.ApiService.Shared.Models;
-using System;
+using NERBABO.ApiService.Shared.Services;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
 
 public class GeneralInfoService(
     AppDbContext context,
-    ILogger<GeneralInfoService> logger
+    ILogger<GeneralInfoService> logger,
+    IImageService imageService
     ) : IGeneralInfoService
 {
     private readonly AppDbContext _context = context;
     private readonly ILogger<GeneralInfoService> _logger = logger;
+    private readonly IImageService _imageService = imageService;
     private GeneralInfo? _cachedConfig;
 
     // https://stackoverflow.com/questions/20056727/need-to-understand-the-usage-of-semaphoreslim 
@@ -74,7 +77,7 @@ public class GeneralInfoService(
                 StatusCodes.Status404NotFound);
         }
 
-        await UpdateConfigurationAsync(c =>
+        await UpdateConfigurationAsync(async c =>
         {
             // Selective field updates - only update fields that have changed
             bool hasChanges = false;
@@ -128,11 +131,27 @@ public class GeneralInfoService(
                 hasChanges = true;
             }
 
-            // Update LogoFinancing if changed
-            if (!string.Equals(c.LogoFinancing, updateGeneralInfo.LogoFinancing))
+            // Update Logo if file provided
+            if (updateGeneralInfo.Logo is not null)
             {
-                c.LogoFinancing = updateGeneralInfo.LogoFinancing;
-                hasChanges = true;
+                if (!_imageService.IsValidImageFile(updateGeneralInfo.Logo))
+                {
+                    throw new InvalidOperationException("O logo deve ser uma imagem válida (JPG, PNG, GIF, BMP) e menor que 5MB");
+                }
+
+                // Delete existing logo if it exists
+                if (!string.IsNullOrEmpty(c.Logo))
+                {
+                    await _imageService.DeleteImageAsync(c.Logo);
+                }
+
+                // Save new logo
+                var logoResult = await _imageService.SaveImageAsync(updateGeneralInfo.Logo, $"generalinfo/{c.Id}/logo");
+                if (logoResult.Success)
+                {
+                    c.Logo = logoResult.Data;
+                    hasChanges = true;
+                }
             }
 
             // Update IvaId if changed
@@ -142,11 +161,12 @@ public class GeneralInfoService(
                 hasChanges = true;
             }
 
-            // If no changes were detected, return early
-            if (!hasChanges)
+            // If no changes were detected, return early.
+            // There is not a higher reason to alarm the user here.
+            if (hasChanges)
             {
                 _logger.LogInformation("No changes detected for GeneralInfo. No update performed.");
-                throw new InvalidOperationException("Nenhuma alteração detetada. Não foi alterado nenhum dado. Modifique os dados e tente novamente.");
+                return;
             }
 
             // Update UpdatedAt if there are changes

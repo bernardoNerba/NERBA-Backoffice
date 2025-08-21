@@ -42,8 +42,8 @@ public class GeneralInfoConfiguration : IEntityTypeConfiguration<GeneralInfo>
             .HasColumnType("char(9)")
             .IsRequired(true);
 
-        builder.Property(x => x.LogoFinancing)
-            .HasColumnType("text")
+        builder.Property(x => x.Logo)
+            .HasColumnType("varchar(500)")
             .IsRequired(false);
 
         builder.HasOne(x => x.IvaTax)

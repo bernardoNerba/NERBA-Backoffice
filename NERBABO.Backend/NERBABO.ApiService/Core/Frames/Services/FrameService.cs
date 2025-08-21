@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Services;
 using System;
 using ZLinq;
 
@@ -10,11 +12,13 @@ namespace NERBABO.ApiService.Core.Frames.Services;
 
 public class FrameService(
     AppDbContext context,
-    ILogger<FrameService> logger
+    ILogger<FrameService> logger,
+    IImageService imageService
     ) : IFrameService
 {
     private readonly AppDbContext _context = context;
     private readonly ILogger<FrameService> _logger = logger;
+    private readonly IImageService _imageService = imageService;
 
     public async Task<Result<RetrieveFrameDto>> CreateAsync(CreateFrameDto entityDto)
     {
@@ -29,10 +33,50 @@ public class FrameService(
                 .Fail("Erro de Validação.", "O Operação deve ser único. Já existe no sistema.");
         }
 
-        var newFrame = Frame.ConvertCreateDtoToEntity(entityDto);
+        // Validate logo files
+        if (entityDto.ProgramLogoFile != null && !_imageService.IsValidImageFile(entityDto.ProgramLogoFile))
+        {
+            return Result<RetrieveFrameDto>
+                .Fail("Arquivo inválido", "O logo do programa deve ser uma imagem válida (JPG, PNG, GIF, BMP) e menor que 5MB.");
+        }
 
+        if (entityDto.FinancementLogoFile == null || !_imageService.IsValidImageFile(entityDto.FinancementLogoFile))
+        {
+            return Result<RetrieveFrameDto>
+                .Fail("Arquivo inválido", "O logo de financiamento é obrigatório e deve ser uma imagem válida (JPG, PNG, GIF, BMP) e menor que 5MB.");
+        }
+
+        var newFrame = Frame.ConvertCreateDtoToEntity(entityDto);
+        
         _context.Frames.Add(newFrame);
+        await _context.SaveChangesAsync(); // Save first to get the ID
+
+        // Save logo files after getting the Frame ID
+        if (entityDto.ProgramLogoFile != null)
+        {
+            var programLogoResult = await _imageService.SaveImageAsync(entityDto.ProgramLogoFile, $"frames/{newFrame.Id}/program");
+            if (programLogoResult.Success)
+            {
+                newFrame.ProgramLogo = programLogoResult.Data;
+            }
+        }
+
+        var financementLogoResult = await _imageService.SaveImageAsync(entityDto.FinancementLogoFile, $"frames/{newFrame.Id}/financement");
+        if (financementLogoResult.Success)
+        {
+            newFrame.FinancementLogo = financementLogoResult.Data!;
+        }
+        else
+        {
+            // If financement logo fails, delete the frame and return error
+            _context.Frames.Remove(newFrame);
+            await _context.SaveChangesAsync();
+            return Result<RetrieveFrameDto>.Fail(financementLogoResult.Title!, financementLogoResult.Message!);
+        }
+
+        newFrame.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
+
         return Result<RetrieveFrameDto>
             .Ok(Frame.ConvertEntityToRetrieveDto(newFrame), "Enquadramento Criado.",
                 $"Foi criado um enquadramento com o programa {newFrame.Operation}.",
@@ -58,6 +102,17 @@ public class FrameService(
                 .Fail("Não é possível eliminar.", "O enquadramento está associado a cursos.");
         }
 
+        // Delete logo files
+        if (!string.IsNullOrEmpty(existingFrame.ProgramLogo))
+        {
+            await _imageService.DeleteImageAsync(existingFrame.ProgramLogo);
+        }
+        
+        if (!string.IsNullOrEmpty(existingFrame.FinancementLogo))
+        {
+            await _imageService.DeleteImageAsync(existingFrame.FinancementLogo);
+        }
+
         _context.Remove(existingFrame);
         await _context.SaveChangesAsync();
         return Result.Ok("Enquadramento eliminado.", "Enquadramento eliminado com sucesso.");
@@ -65,11 +120,14 @@ public class FrameService(
 
     public async Task<Result<IEnumerable<RetrieveFrameDto>>> GetAllAsync()
     {
-        var existingFrames = await _context.Frames
+        var frames = await _context.Frames
             .OrderByDescending(f => f.CreatedAt)
             .ThenBy(f => f.Program)
-            .Select(f => Frame.ConvertEntityToRetrieveDto(f))
             .ToListAsync();
+            
+        var existingFrames = frames
+            .Select(f => Frame.ConvertEntityToRetrieveDto(f))
+            .ToList();
 
 
         if (existingFrames is null || existingFrames.Count == 0)
@@ -159,6 +217,54 @@ public class FrameService(
             hasChanges = true;
         }
 
+        // Update ProgramLogo if file provided
+        if (entityDto.ProgramLogoFile != null)
+        {
+            if (!_imageService.IsValidImageFile(entityDto.ProgramLogoFile))
+            {
+                return Result<RetrieveFrameDto>
+                    .Fail("Arquivo inválido", "O logo do programa deve ser uma imagem válida (JPG, PNG, GIF, BMP) e menor que 5MB.");
+            }
+
+            // Delete existing logo if it exists
+            if (!string.IsNullOrEmpty(existingFrame.ProgramLogo))
+            {
+                await _imageService.DeleteImageAsync(existingFrame.ProgramLogo);
+            }
+
+            // Save new logo
+            var programLogoResult = await _imageService.SaveImageAsync(entityDto.ProgramLogoFile, $"frames/{entityDto.Id}/program");
+            if (programLogoResult.Success)
+            {
+                existingFrame.ProgramLogo = programLogoResult.Data;
+                hasChanges = true;
+            }
+        }
+
+        // Update FinancementLogo if file provided
+        if (entityDto.FinancementLogoFile != null)
+        {
+            if (!_imageService.IsValidImageFile(entityDto.FinancementLogoFile))
+            {
+                return Result<RetrieveFrameDto>
+                    .Fail("Arquivo inválido", "O logo de financiamento deve ser uma imagem válida (JPG, PNG, GIF, BMP) e menor que 5MB.");
+            }
+
+            // Delete existing logo if it exists
+            if (!string.IsNullOrEmpty(existingFrame.FinancementLogo))
+            {
+                await _imageService.DeleteImageAsync(existingFrame.FinancementLogo);
+            }
+
+            // Save new logo
+            var financementLogoResult = await _imageService.SaveImageAsync(entityDto.FinancementLogoFile, $"frames/{entityDto.Id}/financement");
+            if (financementLogoResult.Success)
+            {
+                existingFrame.FinancementLogo = financementLogoResult.Data!;
+                hasChanges = true;
+            }
+        }
+
         // Return fail result if no changes were detected
         if (!hasChanges)
         {
@@ -175,5 +281,27 @@ public class FrameService(
         return Result<RetrieveFrameDto>
             .Ok(Frame.ConvertEntityToRetrieveDto(existingFrame), "Enquadramento Atualizado.",
             $"Foi atualizada o enquadramento com o programa {existingFrame.Program}.");
+    }
+
+    public async Task<byte[]?> GetProgramLogoAsync(long frameId)
+    {
+        var existingFrame = await _context.Frames.FindAsync(frameId);
+        if (existingFrame is null || string.IsNullOrEmpty(existingFrame.ProgramLogo))
+        {
+            return null;
+        }
+
+        return await _imageService.GetImageAsync(existingFrame.ProgramLogo);
+    }
+
+    public async Task<byte[]?> GetFinancementLogoAsync(long frameId)
+    {
+        var existingFrame = await _context.Frames.FindAsync(frameId);
+        if (existingFrame is null || string.IsNullOrEmpty(existingFrame.FinancementLogo))
+        {
+            return null;
+        }
+
+        return await _imageService.GetImageAsync(existingFrame.FinancementLogo);
     }
 }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using Humanizer;
+using Microsoft.AspNetCore.Mvc.Routing;
 using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Frames.Dtos;
 using NERBABO.ApiService.Shared.Models;
@@ -14,6 +15,8 @@ public class Frame : Entity<long>
     public string InterventionType { get; set; } = string.Empty;
     public string Operation { get; set; } = string.Empty;
     public string OperationType { get; set; } = string.Empty;
+    public string? ProgramLogo { get; set; }
+    public string FinancementLogo { get; set; } = string.Empty;
 
     // Navigation Properties
     public List<Course> Courses { get; set; } = [];
@@ -43,6 +46,12 @@ public class Frame : Entity<long>
             InterventionType = frame.InterventionType,
             Operation = frame.Operation,
             OperationType = frame.OperationType,
+            ProgramLogoUrl = !string.IsNullOrEmpty(frame.ProgramLogo) 
+                ? $"{Helper.UrlHelper.GetBaseUrl()}/uploads/images/{frame.ProgramLogo.Replace('\\', '/')}" 
+                : null,
+            FinancementLogoUrl = !string.IsNullOrEmpty(frame.FinancementLogo) 
+                ? $"{Helper.UrlHelper.GetBaseUrl()}/uploads/images/{frame.FinancementLogo.Replace('\\', '/')}" 
+                : null,
             CreatedAt = frame.CreatedAt.Humanize(culture: new CultureInfo("pt-PT"))
         };
     }

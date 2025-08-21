@@ -33,7 +33,7 @@ public class FrameController(
     }
 
     /// <summary>
-    /// Creates a new frame.
+    /// Creates a new frame with logo uploads.
     /// </summary>
     /// <param name="frame">The CreateFrameDto object containing the details of the frame to be created.</param>
     /// <response code="201">Frame created successfully. Returns the created frame details.</response>
@@ -42,7 +42,7 @@ public class FrameController(
     /// <response code="500">Unexpected error occurred.</response>
     [HttpPost("create")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateFrameAsync([FromBody] CreateFrameDto frame)
+    public async Task<IActionResult> CreateFrameAsync([FromForm] CreateFrameDto frame)
     {
         Result<RetrieveFrameDto> result = await _frameService.CreateAsync(frame);
         return _responseHandler.HandleResult(result);
@@ -65,7 +65,7 @@ public class FrameController(
     }
 
     /// <summary>
-    /// Updates an existing frame.
+    /// Updates an existing frame with optional logo uploads.
     /// </summary>
     /// <param name="id">The ID of the frame to be updated.</param>
     /// <param name="frame">The UpdateFrameDto object containing the updated details of the frame.</param>
@@ -76,7 +76,7 @@ public class FrameController(
     /// <response code="500">Unexpected error occurred.</response>
     [HttpPut("update/{id:long}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateFrameAsync(long id, [FromBody] UpdateFrameDto frame)
+    public async Task<IActionResult> UpdateFrameAsync(long id, [FromForm] UpdateFrameDto frame)
     {
         if (id != frame.Id)
             return BadRequest("ID mismatch");
@@ -100,4 +100,43 @@ public class FrameController(
         Result result = await _frameService.DeleteAsync(id);
         return _responseHandler.HandleResult(result);
     }
+
+    /// <summary>
+    /// Retrieves the program logo for a frame.
+    /// </summary>
+    /// <param name="id">The ID of the frame.</param>
+    /// <response code="200">Program logo retrieved successfully.</response>
+    /// <response code="404">Frame or logo not found.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt. User must be an Active user.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet("{id:long}/program-logo")]
+    [Authorize(Policy = "ActiveUser")]
+    public async Task<IActionResult> GetProgramLogoAsync(long id)
+    {
+        var logoData = await _frameService.GetProgramLogoAsync(id);
+        if (logoData == null)
+            return NotFound("Program logo not found.");
+
+        return File(logoData, "image/jpeg");
+    }
+
+    /// <summary>
+    /// Retrieves the financement logo for a frame.
+    /// </summary>
+    /// <param name="id">The ID of the frame.</param>
+    /// <response code="200">Financement logo retrieved successfully.</response>
+    /// <response code="404">Frame or logo not found.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt. User must be an Active user.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet("{id:long}/financement-logo")]
+    [Authorize(Policy = "ActiveUser")]
+    public async Task<IActionResult> GetFinancementLogoAsync(long id)
+    {
+        var logoData = await _frameService.GetFinancementLogoAsync(id);
+        if (logoData == null)
+            return NotFound("Financement logo not found.");
+
+        return File(logoData, "image/jpeg");
+    }
+
 }

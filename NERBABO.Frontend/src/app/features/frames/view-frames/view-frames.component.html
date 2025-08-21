@@ -73,6 +73,82 @@
                 </div>
               </div>
             </div>
+
+            <!-- LOGOS SECTION -->
+            <hr class="my-4" />
+            <h6 class="fw-bold mb-3">
+              <i class="bi bi-image me-2"></i>
+              Logótipos
+            </h6>
+            <div class="row row-cols-1 row-cols-sm-2 g-4">
+              <!-- PROGRAM LOGO -->
+              <div class="col">
+                <div class="property">
+                  <strong>Logo do Programa</strong>
+                  @if (frame.programLogoUrl) {
+                  <div class="mt-2">
+                    <p-button
+                      icon="pi pi-download"
+                      size="small"
+                      [outlined]="true"
+                      severity="secondary"
+                      class="me-2"
+                      (click)="downloadLogo(frame, 'program')"
+                    />
+                    <img
+                      [src]="frame.programLogoUrl"
+                      alt="Logo do Programa"
+                      class="img-thumbnail mb-2"
+                      style="
+                        max-width: 150px;
+                        max-height: 100px;
+                        object-fit: contain;
+                      "
+                      loading="lazy"
+                    />
+                  </div>
+                  } @else {
+                  <p class="text-muted mb-0 mt-2">
+                    Nenhum logo do programa disponível
+                  </p>
+                  }
+                </div>
+              </div>
+
+              <!-- FINANCEMENT LOGO -->
+              <div class="col">
+                <div class="property">
+                  <strong>Logo de Financiamento</strong>
+                  @if (frame.financementLogoUrl) {
+                  <div class="mt-2">
+                    <p-button
+                      icon="pi pi-download"
+                      size="small"
+                      [outlined]="true"
+                      severity="secondary"
+                      (click)="downloadLogo(frame, 'financement')"
+                      class="me-2"
+                    />
+                    <img
+                      [src]="frame.financementLogoUrl"
+                      alt="Logo de Financiamento"
+                      class="img-thumbnail mb-2"
+                      style="
+                        max-width: 150px;
+                        max-height: 100px;
+                        object-fit: contain;
+                      "
+                      loading="lazy"
+                    />
+                  </div>
+                  } @else {
+                  <p class="text-muted mb-0 mt-2">
+                    Nenhum logo de financiamento disponível
+                  </p>
+                  }
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

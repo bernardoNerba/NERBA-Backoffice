@@ -153,10 +153,12 @@ If you're interested in contributing, please feel free to open a pull request or
 
 ## ToDo's
 
-- [ ] Add new Integration tests project
-- [ ] Document, with comments, critical methods, classes and interfaces
-- [ ] Optimize Services Queries
-- [ ] Refactor Delete logic to handle all related entities
+- [ ] Add new Integration tests project to the Backend;
+- [ ] Document, with comments, critical methods, classes and interfaces;
+- [ ] Optimize Services Queries;
+- [ ] Refactor Delete logic to handle all related entities;
+- [ ] Refactor Authorization and Authentication logic to apply additional security.
+
 
 ## Code of Conduct
 

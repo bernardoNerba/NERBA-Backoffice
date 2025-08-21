@@ -110,4 +110,9 @@ export const API_ENDPOINTS = {
   // Sessions
   sessions: `${BASE_URL}/api/sessions/`,
   sessionsByAction: `${BASE_URL}/api/sessions/action/`,
+
+  // PDF Reports
+  pdfSessionsReport: `${BASE_URL}/api/pdf/action/`,
+  pdfSessionDetail: `${BASE_URL}/api/pdf/session/`,
+  pdfActionSummary: `${BASE_URL}/api/pdf/action/`,
 };

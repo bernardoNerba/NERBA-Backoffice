@@ -9,7 +9,7 @@ public class RetrieveGeneralInfoDto
     public string BankEntity { get; set; } = string.Empty;
     public string Iban { get; set; } = string.Empty;
     public string Nipc { get; set; } = string.Empty;
-    public string LogoFinancing { get; set; } = string.Empty;
+    public string? LogoUrl { get; set; } = string.Empty;
     public int IvaId { get; set; }
     public float IvaPercent { get; set; }
     public string IvaRegime { get; set; } = string.Empty;

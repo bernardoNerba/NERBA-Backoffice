@@ -24,6 +24,7 @@ import {
   faBook,
   faBuilding,
   faBookmark,
+  faFileDownload,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -52,4 +53,5 @@ export const ICONS = {
   company: faBuilding,
   action: faBookmark,
   session: faCalendar,
+  download: faFileDownload,
 };

@@ -29,4 +29,9 @@ public class CreateFrameDto
     [ValidateLengthIfNotEmpty(150, MinimumLength = 3,
         ErrorMessage = "O Operação Tipo deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public string OperationType { get; set; } = string.Empty;
+
+    public IFormFile? ProgramLogoFile { get; set; }
+
+    [Required(ErrorMessage = "Logo de Financiamento é um campo obrigatório.")]
+    public IFormFile FinancementLogoFile { get; set; } = null!;
 }

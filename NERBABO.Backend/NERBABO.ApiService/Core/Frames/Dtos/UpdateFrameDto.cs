@@ -31,4 +31,8 @@ public class UpdateFrameDto : EntityDto<long>
         ErrorMessage = "O Operação Tipo deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public string OperationType { get; set; } = string.Empty;
 
+    public IFormFile? ProgramLogoFile { get; set; }
+
+    public IFormFile? FinancementLogoFile { get; set; }
+
 }

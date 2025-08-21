@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Frame } from '../models/frame';
+import { Frame, CreateFrameData, UpdateFrameData } from '../models/frame';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
@@ -51,21 +51,56 @@ export class FrameService {
     return this.http.get<Frame>(`${API_ENDPOINTS.frames}${id}`);
   }
 
-  upsert(model: Frame, isUpdate: boolean): Observable<OkResponse> {
-    if (isUpdate) return this.update(model.id, model);
-    return this.create(model);
+  upsert(model: CreateFrameData | UpdateFrameData, isUpdate: boolean): Observable<OkResponse> {
+    if (isUpdate) return this.update(model as UpdateFrameData);
+    return this.create(model as CreateFrameData);
   }
 
-  create(frame: Omit<Frame, 'id'>): Observable<OkResponse> {
-    return this.http.post<OkResponse>(`${API_ENDPOINTS.frames}create`, frame);
+  create(frameData: CreateFrameData): Observable<OkResponse> {
+    const formData = this.createFormData(frameData);
+    return this.http.post<OkResponse>(`${API_ENDPOINTS.frames}create`, formData);
   }
 
-  update(id: number, frame: Frame): Observable<OkResponse> {
+  update(frameData: UpdateFrameData): Observable<OkResponse> {
+    const formData = this.createFormData(frameData);
     return this.http
-      .put<OkResponse>(`${API_ENDPOINTS.frames}update/${id}`, frame)
+      .put<OkResponse>(`${API_ENDPOINTS.frames}update/${frameData.id}`, formData)
       .pipe(
-        tap(() => this.notifyFrameUpdate(id)) // Notify update after success
+        tap(() => this.notifyFrameUpdate(frameData.id)) // Notify update after success
       );
+  }
+
+  private createFormData(frameData: CreateFrameData | UpdateFrameData): FormData {
+    const formData = new FormData();
+    
+    // Add text fields
+    formData.append('program', frameData.program);
+    formData.append('intervention', frameData.intervention);
+    formData.append('interventionType', frameData.interventionType);
+    formData.append('operation', frameData.operation);
+    formData.append('operationType', frameData.operationType);
+    
+    // Add id for updates
+    if ('id' in frameData) {
+      formData.append('id', frameData.id.toString());
+    }
+    
+    // Add file fields
+    if (frameData.programLogoFile) {
+      formData.append('programLogoFile', frameData.programLogoFile);
+    }
+    
+    if (frameData.financementLogoFile) {
+      formData.append('financementLogoFile', frameData.financementLogoFile);
+    }
+    
+    return formData;
+  }
+
+  downloadLogo(frameId: number, logoType: 'program' | 'financement'): Observable<Blob> {
+    return this.http.get(`${API_ENDPOINTS.frames}${frameId}/${logoType}-logo`, {
+      responseType: 'blob'
+    });
   }
 
   delete(id: number): Observable<OkResponse> {

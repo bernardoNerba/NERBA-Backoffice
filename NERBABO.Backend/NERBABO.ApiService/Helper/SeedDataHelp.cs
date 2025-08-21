@@ -133,7 +133,7 @@ public class SeedDataHelp
             BankEntity = "Crédito Agrícola",
             Iban = "PT50004521914029554091581",
             Nipc = "502280344",
-            LogoFinancing = ""
+            Logo = ""
         };
 
         _context.GeneralInfo.Add(generalInfo);

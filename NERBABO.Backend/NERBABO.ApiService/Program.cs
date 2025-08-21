@@ -28,6 +28,8 @@ using NERBABO.ApiService.Core.ModuleTeachings.Services;
 using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.People.Services;
+using NERBABO.ApiService.Core.Reports.Composers;
+using NERBABO.ApiService.Core.Reports.Services;
 using NERBABO.ApiService.Core.Sessions.Services;
 using NERBABO.ApiService.Core.Students.Cache;
 using NERBABO.ApiService.Core.Students.Models;
@@ -76,6 +78,12 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseActionService, CourseActionService>();
 builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<SessionsTimelineComposer>();
+
+// Register HTTP context accessor for URL generation
+builder.Services.AddHttpContextAccessor();
 
 // Register Other services and middleware
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
@@ -361,6 +369,9 @@ else
 {
     app.UseHttpsRedirection();
 }
+
+// Enable static file serving for uploaded images
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
