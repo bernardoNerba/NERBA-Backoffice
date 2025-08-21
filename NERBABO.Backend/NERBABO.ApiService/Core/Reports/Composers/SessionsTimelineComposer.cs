@@ -1,14 +1,17 @@
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Sessions.Models;
+using NERBABO.ApiService.Shared.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 namespace NERBABO.ApiService.Core.Reports.Composers;
 
-public class Composer : IComposer
+public class SessionsTimelineComposer(IImageService imageService)
 {
-    public Document ComposeSessionsTimeline(List<Session> sessions, CourseAction action)
+    private readonly IImageService _imageService = imageService;
+
+    public Document Compose(List<Session> sessions, CourseAction action)
     {
         // Generate PDF using existing logic
         return Document.Create(container =>
@@ -18,18 +21,7 @@ public class Composer : IComposer
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
 
-                page.Header().Row(row =>
-
-                    row.RelativeItem().Column(column =>
-                        {
-                            column.Item().Text($"Cronograma - {action.Course.Title}")
-                                .FontSize(14).FontFamily("Arial");
-                            column.Item().Text(action.Course.Frame.OperationType)
-                                .FontSize(10).FontFamily("Arial");
-                        })
-
-
-                );
+                page.Header().Element(container => ComposeHeader(container, action));
                 page.Content().Element(container => container.Column(column =>
                 {
                     // Action details section
@@ -82,29 +74,75 @@ public class Composer : IComposer
                             container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
                     });
                 }));
-                page.Footer().AlignCenter().Text(x =>
-                {
-                    x.Span(" / ");
-                });
+                page.Footer().Element(container => ComposeFooter(container, action));
             });
         });
 
     }
 
-
-    // TODO: Refactor to display small logo
-    private void ComposeHeader(IContainer container)
+    private void ComposeHeader(IContainer container, CourseAction action)
     {
-        container.Row(row =>
+        container.PaddingBottom(10).Row(row =>
         {
-            row.RelativeItem().Column(column =>
+            // Left side - Title and info
+            row.RelativeItem().Column(titleColumn =>
             {
-                column.Item().Text("NERBA - Sistema de Gestão")
-                    .FontSize(20).SemiBold().FontColor(Colors.Blue.Medium);
+                titleColumn.Item().AlignLeft().Text($"Cronograma - {action.Course.Title}")
+                    .FontSize(14).FontFamily("Arial").SemiBold();
+                titleColumn.Item().AlignLeft().Text(action.Course.Frame.OperationType)
+                    .FontSize(10).FontFamily("Arial");
+                titleColumn.Item().AlignLeft().PaddingTop(3).Text($"Data: {DateTime.Now:dd/MM/yyyy}")
+                    .FontSize(8).FontFamily("Arial");
             });
 
-            row.ConstantItem(100).AlignRight()
-                .Text($"Data: {DateTime.Now:dd/MM/yyyy}");
+            // Right side - Program logo (if available)
+            if (!string.IsNullOrEmpty(action.Course.Frame.ProgramLogo))
+            {
+                row.ConstantItem(10); // Spacer
+                row.ConstantItem(80).Element(logoContainer =>
+                {
+                    try
+                    {
+                        var programImageBytes = _imageService.GetImageAsync(action.Course.Frame.ProgramLogo).Result;
+                        if (programImageBytes != null)
+                        {
+                            logoContainer.Height(50).AlignCenter().AlignMiddle()
+                                .Image(programImageBytes).FitArea();
+                        }
+                    }
+                    catch
+                    {
+                        // If image loading fails, continue without the image
+                    }
+                });
+            }
+        });
+    }
+
+    private void ComposeFooter(IContainer container, CourseAction action)
+    {
+        container.Column(column =>
+        {
+            // Financement logo at the bottom (if available)
+            if (!string.IsNullOrEmpty(action.Course.Frame.FinancementLogo))
+            {
+                column.Item().AlignCenter().Element(logoContainer =>
+                {
+                    try
+                    {
+                        var financementImageBytes = _imageService.GetImageAsync(action.Course.Frame.FinancementLogo).Result;
+                        if (financementImageBytes != null)
+                        {
+                            logoContainer.Height(40).AlignCenter().AlignMiddle()
+                                .Image(financementImageBytes).FitArea();
+                        }
+                    }
+                    catch
+                    {
+                        // If image loading fails, continue without the image
+                    }
+                });
+            }
         });
     }
 }

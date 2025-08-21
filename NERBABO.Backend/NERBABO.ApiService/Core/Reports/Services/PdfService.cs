@@ -1,14 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Data;
-using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Core.Reports.Models;
-using NERBABO.ApiService.Shared.Models;
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
-using System.Security.Cryptography;
-using System.Text;
 using NERBABO.ApiService.Core.Reports.Composers;
+using QuestPDF.Infrastructure;
 
 namespace NERBABO.ApiService.Core.Reports.Services;
 
@@ -17,16 +12,16 @@ public class PdfService : IPdfService
     private readonly AppDbContext _context;
     private readonly ILogger<PdfService> _logger;
     private readonly IWebHostEnvironment _environment;
-    private readonly IComposer _composer;
+    private readonly SessionsTimelineComposer _timelineComposer;
     private readonly string _pdfStoragePath;
     
 
-    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, IComposer composer)
+    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, SessionsTimelineComposer timelineComposer)
     {
         _context = context;
         _logger = logger;
         _environment = environment;
-        _composer = composer;
+        _timelineComposer = timelineComposer;
 
         // Configure storage path
         _pdfStoragePath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "storage", "pdfs");
@@ -69,7 +64,7 @@ public class PdfService : IPdfService
             .OrderBy(s => s.ScheduledDate)
             .ToListAsync();
 
-        var document = _composer.ComposeSessionsTimeline(sessions, action);
+        var document = _timelineComposer.Compose(sessions, action);
         var pdfBytes = document.GeneratePdf();
         
         // Save the new PDF

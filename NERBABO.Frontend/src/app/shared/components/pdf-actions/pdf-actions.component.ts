@@ -19,45 +19,53 @@ interface PdfOption {
   standalone: true,
   imports: [CommonModule, ButtonModule, DropdownModule, TooltipModule],
   template: `
-    <div class="d-flex flex-wrap gap-2 align-items-center">
+    <div class="d-flex flex-wrap gap-2 justify-content-between">
       <div class="me-4">
         <i class="pi pi-file-pdf me-2"> </i>
         {{ title || '' }}
       </div>
 
       <!-- Generate Report And Download it-->
-      @if (actionId){
-      <p-button
-        icon="pi pi-download"
-        outlined="true"
-        size="small"
-        [loading]="isGeneratingReport"
-        [disabled]="isGenerating"
-        (onClick)="generateSessionsReport()"
-        severity="secondary"
-        pTooltip="Gerar PDF"
-      />
-      }
-      <p-button
-        icon="pi pi-eye"
-        outlined="true"
-        size="small"
-        [loading]="isGeneratingReport"
-        [disabled]="isGenerating"
-        (onClick)="viewPdf()"
-        severity="secondary"
-        pTooltip="Ver PDF no browser"
-      />
-      <p-button
-        icon="pi pi-print"
-        outlined="true"
-        size="small"
-        [loading]="isGeneratingReport"
-        [disabled]="isGenerating"
-        (onClick)="printPdf()"
-        severity="secondary"
-        pTooltip="Imprimir PDF no browser"
-      />
+      <div class="mx-2">
+        @if (actionId){
+        <p-button
+          icon="pi pi-download"
+          outlined="true"
+          size="small"
+          [loading]="isGeneratingReport"
+          [disabled]="isGenerating"
+          (onClick)="generateSessionsReport()"
+          [text]="true"
+          severity="contrast"
+          pTooltip="Gerar PDF"
+          class="me-2"
+        />
+        }
+        <p-button
+          icon="pi pi-eye"
+          outlined="true"
+          size="small"
+          [loading]="isGeneratingReport"
+          [disabled]="isGenerating"
+          (onClick)="viewPdf()"
+          severity="contrast"
+          [text]="true"
+          pTooltip="Ver PDF no browser"
+          class="me-2"
+        />
+        <p-button
+          icon="pi pi-print"
+          outlined="true"
+          size="small"
+          [loading]="isGeneratingReport"
+          [disabled]="isGenerating"
+          (onClick)="printPdf()"
+          severity="contrast"
+          [text]="true"
+          pTooltip="Imprimir PDF no browser"
+          class="me-2"
+        />
+      </div>
     </div>
   `,
 })

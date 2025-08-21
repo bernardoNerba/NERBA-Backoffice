@@ -80,7 +80,7 @@ builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<IComposer, Composer>();
+builder.Services.AddScoped<SessionsTimelineComposer>();
 
 // Register HTTP context accessor for URL generation
 builder.Services.AddHttpContextAccessor();
