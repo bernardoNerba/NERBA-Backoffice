@@ -35,6 +35,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public bool IsActionActive =>
             Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
 
+
         public string AllDiferentSessionTeachers() {
             var teachers = ModuleTeachings.Select(mt => mt.Teacher.Person.FirstName).ToHashSet();
             return String.Join(" | ", teachers);
@@ -44,7 +45,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
             var times = ModuleTeachings.SelectMany(mt => mt.Sessions.Select(s => s.Time)).ToHashSet();
             return String.Join(" | ", times);
         }
-
+        
         public string Title => $"{ActionNumber} - {Locality}";
 
         // Navigation properties

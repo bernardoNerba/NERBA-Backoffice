@@ -75,7 +75,7 @@ export class SessionsSchedulerComponent implements OnInit {
           this.minimalModuleTeachings = [];
         }
         break;
-      case 'all': // TODO: Add logic for all sessions
+      case "all": // TODO: Add logic for all sessions
         break;
     }
   }
@@ -88,6 +88,7 @@ export class SessionsSchedulerComponent implements OnInit {
         this.filteredSessions = this.sessions;
         this.sessionsDates = sessions.map((s) => s.scheduledDate);
         console.log('Session dates for calendar:', this.sessionsDates);
+
 
         // Force change detection to update the UI
         this.cdr.detectChanges();
@@ -125,6 +126,14 @@ export class SessionsSchedulerComponent implements OnInit {
         },
         error: (error: any) => {
           console.log('Error loading module teachings', error);
+            "Minimal ModuleTeachings loaded:",
+            this.minimalModuleTeachings,
+          );
+          console.log("Array length:", this.minimalModuleTeachings.length);
+          this.cdr.detectChanges(); // Force change detection
+        },
+        error: (error: any) => {
+          console.log("Error loading module teachings", error);
           this.minimalModuleTeachings = [];
         },
       });
