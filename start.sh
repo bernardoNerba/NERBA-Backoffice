@@ -116,10 +116,17 @@ sleep 10
 # Check if services are healthy
 echo -e "${GREEN}🔍 Checking service health...${NC}"
 
-# Check API health
+# Check API health with comprehensive checks
 API_URL="http://$LOCAL_IP:5001"
-if curl -f -s "$API_URL/health" >/dev/null 2>&1; then
-    echo -e "${GREEN}✅ API is healthy at $API_URL${NC}"
+if curl -f -s "$API_URL/api/general-info/alive" >/dev/null 2>&1; then
+    echo -e "${GREEN}✅ API is alive at $API_URL${NC}"
+    
+    # Try comprehensive health check
+    if curl -f -s "$API_URL/api/general-info/health" >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ API is fully healthy (database and cache connected)${NC}"
+    else
+        echo -e "${YELLOW}⚠️  API is alive but some services may not be ready${NC}"
+    fi
 else
     echo -e "${YELLOW}⚠️  API might still be starting up at $API_URL${NC}"
 fi

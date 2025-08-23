@@ -5,6 +5,7 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Dtos;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
+using StackExchange.Redis;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
@@ -12,12 +13,14 @@ namespace NERBABO.ApiService.Core.Global.Services;
 public class GeneralInfoService(
     AppDbContext context,
     ILogger<GeneralInfoService> logger,
-    IImageService imageService
+    IImageService imageService,
+    IConnectionMultiplexer redis
     ) : IGeneralInfoService
 {
     private readonly AppDbContext _context = context;
     private readonly ILogger<GeneralInfoService> _logger = logger;
     private readonly IImageService _imageService = imageService;
+    private readonly IConnectionMultiplexer _redis = redis;
     private GeneralInfo? _cachedConfig;
 
     // https://stackoverflow.com/questions/20056727/need-to-understand-the-usage-of-semaphoreslim 
@@ -175,6 +178,231 @@ public class GeneralInfoService(
 
         return Result
             .Ok("Informação Atualizada.", "Foram atualizadas as configurações gerais.");
+    }
+
+    public async Task<Result<object>> HealthCheckAsync()
+    {
+        var healthStatus = new
+        {
+            Status = "Healthy",
+            Timestamp = DateTime.UtcNow,
+            Version = "1.0.0",
+            Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown",
+            Checks = new List<object>()
+        };
+
+        var checks = healthStatus.Checks;
+        var overallHealthy = true;
+
+        // Check database connectivity
+        try
+        {
+            var canConnect = await _context.Database.CanConnectAsync();
+            checks.Add(new
+            {
+                Name = "Database",
+                Status = canConnect ? "Healthy" : "Unhealthy",
+                Description = canConnect ? "Database connection successful" : "Cannot connect to database"
+            });
+
+            if (!canConnect)
+                overallHealthy = false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Database health check failed");
+            checks.Add(new
+            {
+                Name = "Database",
+                Status = "Unhealthy",
+                Description = $"Database check failed: {ex.Message}"
+            });
+            overallHealthy = false;
+        }
+
+        // Check Redis connectivity
+        try
+        {
+            var database = _redis.GetDatabase();
+            await database.PingAsync();
+            checks.Add(new
+            {
+                Name = "Redis",
+                Status = "Healthy",
+                Description = "Redis connection successful"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Redis health check failed");
+            checks.Add(new
+            {
+                Name = "Redis",
+                Status = "Unhealthy",
+                Description = $"Redis check failed: {ex.Message}"
+            });
+            overallHealthy = false;
+        }
+
+        // Check disk space for file uploads
+        try
+        {
+            var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            if (Directory.Exists(uploadPath))
+            {
+                var drive = new DriveInfo(Path.GetPathRoot(uploadPath)!);
+                var freeSpaceGB = drive.AvailableFreeSpace / (1024 * 1024 * 1024);
+                var isHealthy = freeSpaceGB > 1; // At least 1GB free space
+
+                checks.Add(new
+                {
+                    Name = "DiskSpace",
+                    Status = isHealthy ? "Healthy" : "Warning",
+                    Description = $"Available space: {freeSpaceGB:F2} GB",
+                    FreeSpaceGB = freeSpaceGB
+                });
+
+                if (!isHealthy)
+                    overallHealthy = false;
+            }
+            else
+            {
+                checks.Add(new
+                {
+                    Name = "DiskSpace",
+                    Status = "Warning",
+                    Description = "Upload directory does not exist"
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Disk space health check failed");
+            checks.Add(new
+            {
+                Name = "DiskSpace",
+                Status = "Warning",
+                Description = $"Disk space check failed: {ex.Message}"
+            });
+        }
+
+        // Update overall status
+        var result = new
+        {
+            Status = overallHealthy ? "Healthy" : "Unhealthy",
+            Timestamp = healthStatus.Timestamp,
+            Version = healthStatus.Version,
+            Environment = healthStatus.Environment,
+            Checks = checks
+        };
+
+        if (overallHealthy)
+        {
+            return Result<object>.Ok(result, "Application is healthy and ready to serve requests.", "", StatusCodes.Status200OK);
+        }
+        else
+        {
+            return new Result<object>
+            {
+                Success = false,
+                Title = "Application is not healthy - database or cache issues.",
+                Message = "",
+                StatusCode = StatusCodes.Status503ServiceUnavailable,
+                Data = result
+            };
+        }
+    }
+
+    public Task<Result<object>> AliveAsync()
+    {
+        var result = new
+        {
+            Status = "Alive",
+            Timestamp = DateTime.UtcNow,
+            Message = "Application is running"
+        };
+
+        return Task.FromResult(Result<object>.Ok(result, "Application is alive and responding.", "", StatusCodes.Status200OK));
+    }
+
+    public async Task<Result<object>> ReadyAsync()
+    {
+        try
+        {
+            // Check if database is ready and migrated
+            var canConnect = await _context.Database.CanConnectAsync();
+            if (!canConnect)
+            {
+                var notReadyResult = new
+                {
+                    Status = "NotReady",
+                    Timestamp = DateTime.UtcNow,
+                    Message = "Database not available"
+                };
+                return new Result<object>
+                {
+                    Success = false,
+                    Title = "Application is not ready - still initializing.",
+                    Message = "",
+                    StatusCode = StatusCodes.Status503ServiceUnavailable,
+                    Data = notReadyResult
+                };
+            }
+
+            // Check if migrations are applied (look for migration history table)
+            var migrationsApplied = await _context.Database
+                .GetAppliedMigrationsAsync();
+            
+            if (!migrationsApplied.Any())
+            {
+                var notReadyResult = new
+                {
+                    Status = "NotReady",
+                    Timestamp = DateTime.UtcNow,
+                    Message = "Database migrations not applied"
+                };
+                return new Result<object>
+                {
+                    Success = false,
+                    Title = "Application is not ready - still initializing.",
+                    Message = "",
+                    StatusCode = StatusCodes.Status503ServiceUnavailable,
+                    Data = notReadyResult
+                };
+            }
+
+            // Check Redis connectivity
+            var database = _redis.GetDatabase();
+            await database.PingAsync();
+
+            var readyResult = new
+            {
+                Status = "Ready",
+                Timestamp = DateTime.UtcNow,
+                Message = "Application is ready to serve requests",
+                MigrationsCount = migrationsApplied.Count()
+            };
+
+            return Result<object>.Ok(readyResult, "Application is ready to serve requests.", "", StatusCodes.Status200OK);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Readiness check failed");
+            var errorResult = new
+            {
+                Status = "NotReady",
+                Timestamp = DateTime.UtcNow,
+                Message = $"Readiness check failed: {ex.Message}"
+            };
+            return new Result<object>
+            {
+                Success = false,
+                Title = "Application is not ready - still initializing.",
+                Message = "",
+                StatusCode = StatusCodes.Status503ServiceUnavailable,
+                Data = errorResult
+            };
+        }
     }
 
 

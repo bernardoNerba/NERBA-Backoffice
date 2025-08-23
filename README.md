@@ -157,8 +157,8 @@ If you're interested in contributing, please feel free to open a pull request or
 - [ ] Document, with comments, critical methods, classes and interfaces;
 - [ ] Optimize Services Queries;
 - [ ] Refactor Delete logic to handle all related entities;
-- [ ] Refactor Authorization and Authentication logic to apply additional security.
-
+- [ ] Refactor Authorization and Authentication logic to apply additional security;
+- [ ] Add volumes presistente storage and automated backup logic, for production.
 
 ## Code of Conduct
 
