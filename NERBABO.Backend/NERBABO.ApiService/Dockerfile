@@ -34,7 +34,7 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # Create necessary directories and set permissions
-RUN mkdir -p /app/logs /app/temp && \
+RUN mkdir -p /app/logs /app/temp /app/wwwroot/uploads && \
     chown -R appuser:appuser /app
 
 # Switch to non-root user
