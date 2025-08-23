@@ -320,16 +320,28 @@ app.MapDefaultEndpoints();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
 
-    var dbContext = services.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+    try
+    {
+        logger.LogInformation("Starting database migration...");
+        var dbContext = services.GetRequiredService<AppDbContext>();
+        dbContext.Database.Migrate();
+        logger.LogInformation("Database migration completed successfully.");
 
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = services.GetRequiredService<UserManager<User>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<User>>();
 
-    var seeder = new SeedDataHelp(userManager, roleManager, dbContext, builder.Configuration);
-
-    await seeder.InitializeAsync();
+        logger.LogInformation("Starting database seeding...");
+        var seeder = new SeedDataHelp(userManager, roleManager, dbContext, builder.Configuration);
+        await seeder.InitializeAsync();
+        logger.LogInformation("Database seeding completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+        throw; // Re-throw to prevent the app from starting with an incomplete database
+    }
 }
 
 app.UseCors("AllowAngularApp");
