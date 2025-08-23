@@ -47,5 +47,43 @@ namespace NERBABO.ApiService.Core.Global.Controllers
             Result result = await _generalInfoService.UpdateGeneralInfoAsync(updateConfig);
             return _responseHandler.HandleResult(result);
         }
+
+        /// <summary>
+        /// Health check endpoint for application readiness and liveness.
+        /// </summary>
+        /// <response code="200">Application is healthy and ready to serve requests.</response>
+        /// <response code="503">Application is not healthy - database or cache issues.</response>
+        [HttpGet("health")]
+        [AllowAnonymous]
+        public async Task<IActionResult> HealthCheck()
+        {
+            Result<object> result = await _generalInfoService.HealthCheckAsync();
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Simple liveness probe for basic application availability.
+        /// </summary>
+        /// <response code="200">Application is alive and responding.</response>
+        [HttpGet("alive")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Alive()
+        {
+            Result<object> result = await _generalInfoService.AliveAsync();
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Readiness probe that checks if application is ready to serve traffic.
+        /// </summary>
+        /// <response code="200">Application is ready to serve requests.</response>
+        /// <response code="503">Application is not ready - still initializing.</response>
+        [HttpGet("ready")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Ready()
+        {
+            Result<object> result = await _generalInfoService.ReadyAsync();
+            return _responseHandler.HandleResult(result);
+        }
     }
 }

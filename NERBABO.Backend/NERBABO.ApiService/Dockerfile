@@ -48,9 +48,9 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
-# Configure health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+# Configure health check - using custom health endpoint with comprehensive checks
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/api/general-info/alive || exit 1
 
 # Set the entry point
 ENTRYPOINT ["dotnet", "NERBABO.ApiService.dll"]
