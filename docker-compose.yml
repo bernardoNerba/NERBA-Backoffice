@@ -71,6 +71,8 @@ services:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
     ports:
       - "5001:8080"
+    volumes:
+      - api_uploads:/app/wwwroot
     depends_on:
       postgres:
         condition: service_healthy
@@ -130,6 +132,8 @@ volumes:
     name: nerbabo-pgadmin-data
   redisinsight_data:
     name: nerbabo-redisinsight-data
+  api_uploads:
+    name: nerbabo-api-uploads
 
 networks:
   nerbabo-network:
