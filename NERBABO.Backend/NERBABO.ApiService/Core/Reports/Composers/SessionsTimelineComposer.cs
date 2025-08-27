@@ -37,8 +37,11 @@ public class SessionsTimelineComposer(IImageService imageService)
                             .FontSize(8).FontFamily("Arial");
                         details.Item().PaddingBottom(5).Text($"Horário: {action.AllDiferentSessionTimes()}")
                             .FontSize(8).FontFamily("Arial");
+                        if (!string.IsNullOrEmpty(action.Address))
+                        {
                         details.Item().PaddingBottom(5).Text($"Morada do Local de realização: {action.Address}")
                             .FontSize(8).FontFamily("Arial");
+                        }
                         details.Item().PaddingBottom(5).Text($"Formador: {action.AllDiferentSessionTeachers()}")
                             .FontSize(8).FontFamily("Arial");
                     });
@@ -48,10 +51,11 @@ public class SessionsTimelineComposer(IImageService imageService)
                     {
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.ConstantColumn(60);
+                            columns.RelativeColumn(1);
                             columns.RelativeColumn(3);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
                             columns.RelativeColumn(2);
-                            columns.ConstantColumn(60);
                         });
 
                         table.Header(header =>
@@ -60,6 +64,7 @@ public class SessionsTimelineComposer(IImageService imageService)
                             header.Cell().Element(CellStyle).Text("Módulo").FontSize(8).FontFamily("Arial").SemiBold();
                             header.Cell().Element(CellStyle).Text("Horário").FontSize(8).FontFamily("Arial").SemiBold();
                             header.Cell().Element(CellStyle).Text("Duração").FontSize(8).FontFamily("Arial").SemiBold();
+                            header.Cell().Element(CellStyle).Text("Observação").FontSize(8).FontFamily("Arial").SemiBold();
                         });
 
                         foreach (var session in sessions)
@@ -68,6 +73,7 @@ public class SessionsTimelineComposer(IImageService imageService)
                             table.Cell().Element(CellStyle).Text(session.ModuleTeaching.Module?.Name ?? "N/A").FontSize(7).FontFamily("Arial");
                             table.Cell().Element(CellStyle).Text(session.Time).FontSize(7).FontFamily("Arial");
                             table.Cell().Element(CellStyle).Text($"{session.DurationHours:F1}h").FontSize(7).FontFamily("Arial");
+                            table.Cell().Element(CellStyle).Text(session.Note).FontSize(7).FontFamily("Arial");
                         }
 
                         static IContainer CellStyle(IContainer container) =>
