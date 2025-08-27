@@ -20,5 +20,6 @@ public class RetrieveSessionDto
     public string Time { get; set; } = string.Empty;
     public double DurationHours { get; set; }
     public string TeacherPresence { get; set; } = string.Empty;
+    public string Note { get; set; } = string.Empty;
 
 }

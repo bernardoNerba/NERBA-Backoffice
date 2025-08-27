@@ -1,4 +1,5 @@
 using Humanizer;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Core.Sessions.Dtos;
 using NERBABO.ApiService.Shared.Enums;
@@ -14,6 +15,7 @@ public class Session : Entity<long>
     public TimeOnly Start { get; set; }
     public double DurationHours { get; set; }
     public PresenceEnum TeacherPresence { get; set; } = PresenceEnum.Unknown;
+    public string Note { get; set; } = string.Empty;
 
     // Navigation properties
     public required ModuleTeaching ModuleTeaching { get; set; }
@@ -40,8 +42,8 @@ public class Session : Entity<long>
             Weekday = s.Weekday.Humanize(LetterCasing.Sentence),
             Time = s.Time,
             DurationHours = s.DurationHours,
-            TeacherPresence = s.TeacherPresence.Humanize()
-
+            TeacherPresence = s.TeacherPresence.Humanize(),
+            Note = s.Note
         };
     }
 
@@ -55,6 +57,7 @@ public class Session : Entity<long>
             Start = TimeOnly.Parse(s.Start),
             DurationHours = s.DurationHours,
             ModuleTeaching = mt,
+            Note = s.Note,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

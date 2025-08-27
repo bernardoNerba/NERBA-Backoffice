@@ -444,6 +444,7 @@ public class SessionService(
         existingSession.ScheduledDate = date;
         existingSession.Start = startTime;
         existingSession.DurationHours = entityDto.DurationHours;
+        existingSession.Note = entityDto.Note;
         
         if (!string.IsNullOrEmpty(entityDto.TeacherPresence))
         {

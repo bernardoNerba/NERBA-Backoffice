@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Humanizer;
+using NerbaApp.Api.Validators;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Helper.Validators;
 using NERBABO.ApiService.Shared.Dtos;
@@ -26,6 +27,11 @@ public class UpdateSessionDto : EntityDto<long>
         public double DurationHours { get; set; }
         public string TeacherPresence { get; set; } = PresenceEnum.Unknown.Humanize();
 
+        [ValidateLengthIfNotEmpty(255, MinimumLength = 3,
+        ErrorMessage = "Observação deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
+        public string Note { get; set; } = string.Empty;
+
         [JsonIgnore]
         public User User { get; set; } = new User();
+
 }

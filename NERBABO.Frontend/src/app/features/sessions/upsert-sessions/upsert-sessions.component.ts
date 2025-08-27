@@ -1,37 +1,38 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { IUpsert } from "../../../core/interfaces/IUpsert";
+import { Component, Input, OnInit } from '@angular/core';
+import { IUpsert } from '../../../core/interfaces/IUpsert';
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
-} from "@angular/forms";
-import { SessionsService } from "../../../core/services/sessions.service";
-import { SharedService } from "../../../core/services/shared.service";
+} from '@angular/forms';
+import { SessionsService } from '../../../core/services/sessions.service';
+import { SharedService } from '../../../core/services/shared.service';
 import {
   CreateSession,
   Session,
   UpdateSession,
-} from "../../../core/objects/sessions";
-import { PresenceEnum, PRESENCES } from "../../../core/objects/presence";
-import { ModuleTeachingService } from "../../../core/services/module-teaching.service";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { MinimalModuleTeaching } from "../../../core/models/moduleTeaching";
-import { CommonModule } from "@angular/common";
-import { ErrorCardComponent } from "../../../shared/components/error-card/error-card.component";
-import { DropdownModule } from "primeng/dropdown";
-import { DatePickerModule } from "primeng/datepicker";
-import { InputTextModule } from "primeng/inputtext";
-import { Subscription } from "rxjs";
+} from '../../../core/objects/sessions';
+import { PresenceEnum, PRESENCES } from '../../../core/objects/presence';
+import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
+import { CommonModule } from '@angular/common';
+import { ErrorCardComponent } from '../../../shared/components/error-card/error-card.component';
+import { DropdownModule } from 'primeng/dropdown';
+import { DatePickerModule } from 'primeng/datepicker';
+import { InputTextModule } from 'primeng/inputtext';
+import { Subscription } from 'rxjs';
 import {
   formatDateForApi,
   stringToTimeObject,
   hoursToTimeFormat,
-} from "../../../shared/utils";
-import { Select } from "primeng/select";
+} from '../../../shared/utils';
+import { Select } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
-  selector: "app-upsert-sessions",
+  selector: 'app-upsert-sessions',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -40,8 +41,9 @@ import { Select } from "primeng/select";
     DatePickerModule,
     InputTextModule,
     Select,
+    TextareaModule,
   ],
-  templateUrl: "./upsert-sessions.component.html",
+  templateUrl: './upsert-sessions.component.html',
 })
 export class UpsertSessionsComponent implements OnInit, IUpsert {
   @Input({}) id!: number;
@@ -51,8 +53,8 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
   currentSesssion?: Session | null;
   moduleTeachingOptions: MinimalModuleTeaching[] = [];
   presenceOptions = PRESENCES;
-  currentModuleName: string = "";
-  endTime: string = "";
+  currentModuleName: string = '';
+  endTime: string = '';
 
   submitted: boolean = false;
   loading: boolean = false;
@@ -68,7 +70,7 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
     private sharedService: SharedService,
     private moduleTeachingService: ModuleTeachingService,
     private formBuilder: FormBuilder,
-    public bsModalRef: BsModalRef,
+    public bsModalRef: BsModalRef
   ) {}
 
   ngOnInit(): void {
@@ -81,7 +83,7 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
       this.sessionsService.getSingleSession(this.id).subscribe({
         next: (session: Session) => {
           this.currentSesssion = session;
-          this.currentModuleName = session.moduleName || "";
+          this.currentModuleName = session.moduleName || '';
           this.patchFormValues();
         },
       });
@@ -90,15 +92,16 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
 
   initializeForm(): void {
     this.form = this.formBuilder.group({
-      moduleTeachingId: ["", [Validators.required]],
-      weekday: [""],
-      scheduledDate: ["", Validators.required],
-      start: ["", [Validators.required]],
+      moduleTeachingId: ['', [Validators.required]],
+      weekday: [''],
+      scheduledDate: ['', Validators.required],
+      start: ['', [Validators.required]],
       durationHours: [
-        "00:00",
+        '00:00',
         [Validators.required, Validators.min(1), Validators.max(12)],
       ],
       teacherPresence: [PresenceEnum.Unknown],
+      note: ['', [Validators.minLength(3), Validators.maxLength(255)]],
     });
   }
 
@@ -116,12 +119,12 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
             }
           },
           error: (error: any) => {
-            console.error("Error fetching module teachings:", error);
+            console.error('Error fetching module teachings:', error);
             this.moduleTeachingOptions = [];
           },
         });
     } else {
-      console.error("ActionId is not provided");
+      console.error('ActionId is not provided');
       this.moduleTeachingOptions = [];
     }
 
@@ -134,23 +137,23 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
     if (this.currentSesssion) {
       // Convert date string to Date object
       const dateStr = this.currentSesssion.scheduledDate;
-      const [year, month, day] = dateStr.split("-");
+      const [year, month, day] = dateStr.split('-');
       const scheduledDate = new Date(
         parseInt(year),
         parseInt(month) - 1,
-        parseInt(day),
+        parseInt(day)
       );
 
       this.form.patchValue({
         moduleTeachingId: this.currentSesssion.moduleTeachingId,
         weekday: this.currentSesssion.weekday,
         scheduledDate: scheduledDate,
-        start: this.currentSesssion.time.split(" - ")[0],
+        start: this.currentSesssion.time.split(' - ')[0],
         durationHours: hoursToTimeFormat(this.currentSesssion.durationHours),
         teacherPresence: this.currentSesssion.teacherPresence,
+        note: this.currentSesssion.note,
       });
     }
-    console.log(this.form.value.teacherPresence);
   }
 
   private listenToFormChanges(): void {
@@ -167,21 +170,21 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
           this.endTime = `${result
             .getHours()
             .toString()
-            .padStart(2, "0")}:${result
+            .padStart(2, '0')}:${result
             .getMinutes()
             .toString()
-            .padStart(2, "0")}`;
+            .padStart(2, '0')}`;
         } else {
-          this.endTime = "";
+          this.endTime = '';
         }
 
         const c: Date = formValue.scheduledDate;
-        if (c && typeof c.toLocaleDateString === "function") {
-          formValue.weekday = c.toLocaleDateString("pt-PT", {
-            weekday: "long",
+        if (c && typeof c.toLocaleDateString === 'function') {
+          formValue.weekday = c.toLocaleDateString('pt-PT', {
+            weekday: 'long',
           });
         }
-      }),
+      })
     );
   }
 
@@ -192,7 +195,7 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.sharedService.showError(
-        "Os dados fornecidos não estão de acordo com as diretrizes.",
+        'Os dados fornecidos não estão de acordo com as diretrizes.'
       );
       return;
     }
@@ -203,7 +206,7 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
 
     // Convert time format (HH:MM) to decimal hours
     const convertTimeToDecimalHours = (timeString: string): number => {
-      const [hours, minutes] = timeString.split(":").map(Number);
+      const [hours, minutes] = timeString.split(':').map(Number);
       return hours + minutes / 60;
     };
 
@@ -217,6 +220,7 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
           : formValue.scheduledDate,
       start: formValue.start,
       durationHours: convertTimeToDecimalHours(formValue.durationHours),
+      note: formValue.note,
     };
 
     // update session
@@ -230,6 +234,7 @@ export class UpsertSessionsComponent implements OnInit, IUpsert {
       start: formValue.start,
       durationHours: convertTimeToDecimalHours(formValue.durationHours),
       teacherPresence: formValue.teacherPresence,
+      note: formValue.note,
     };
 
     this.sessionsService
