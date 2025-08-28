@@ -35,14 +35,22 @@ public class PdfController(
     {
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
-            return BadRequest("Invalid User");
+        {
+            var userResult = Result<byte[]>
+                .Fail("Utilizador inválido.", "Utilizador não autenticado.", StatusCodes.Status401Unauthorized);
+            return _responseHandler.HandleResult(userResult);
+        }
 
-        byte[] pdfBytes;
+        var result = await _pdfService.GenerateSessionReportAsync(actionId, user.Id);
 
-        pdfBytes = await _pdfService.GenerateSessionReportAsync(actionId, user.Id);
-        return File(pdfBytes, "application/pdf", $"sessoes-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
+        if (!result.Success)
+        {
+            return _responseHandler.HandleResult(result);
+        }
+
+        return File(result.Data!, "application/pdf", $"sessoes-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
     }
-    
+
     /// <summary>
     /// Checks if a saved PDF exists for the specified type and reference ID.
     /// </summary>
@@ -54,27 +62,39 @@ public class PdfController(
     [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> CheckSavedPdfAsync(string pdfType, long referenceId)
     {
-        var savedPdf = await _pdfService.GetSavedPdfAsync(pdfType, referenceId);
-        
-        if (savedPdf is null)
+        var result = await _pdfService.GetSavedPdfAsync(pdfType, referenceId);
+
+        if (!result.Success)
         {
-            return Ok(new { exists = false, savedPdf = (object?)null });
+            // Return a success result with exists = false when PDF is not found
+            if (result.StatusCode == StatusCodes.Status404NotFound)
+            {
+                var notFoundResponse = new { exists = false, savedPdf = (object?)null };
+                var successResult = Result<object>
+                    .Ok(notFoundResponse, "Consulta realizada.", "PDF guardado não encontrado.");
+                return _responseHandler.HandleResult(successResult);
+            }
+            return _responseHandler.HandleResult(result);
         }
 
-        return Ok(new 
-        { 
-            exists = true, 
-            savedPdf = new 
+        var responseData = new
+        {
+            exists = true,
+            savedPdf = new
             {
-                savedPdf.Id,
-                savedPdf.PdfType,
-                savedPdf.ReferenceId,
-                savedPdf.FileName,
-                savedPdf.FileSizeBytes,
-                savedPdf.GeneratedAt,
-                savedPdf.GeneratedByUserId
+                result.Data!.Id,
+                result.Data.PdfType,
+                result.Data.ReferenceId,
+                result.Data.FileName,
+                result.Data.FileSizeBytes,
+                result.Data.GeneratedAt,
+                result.Data.GeneratedByUserId
             }
-        });
+        };
+
+        var checkResult = Result<object>
+            .Ok(responseData, "PDF encontrado.", "PDF guardado encontrado com sucesso.");
+        return _responseHandler.HandleResult(checkResult);
     }
 
     /// <summary>
@@ -88,13 +108,14 @@ public class PdfController(
     [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> DownloadSavedPdfAsync(long savedPdfId)
     {
-        var pdfContent = await _pdfService.GetSavedPdfContentAsync(savedPdfId);
-        if (pdfContent is null)
+        var result = await _pdfService.GetSavedPdfContentAsync(savedPdfId);
+
+        if (!result.Success)
         {
-            return NotFound("PDF not found");
+            return _responseHandler.HandleResult(result);
         }
 
-        return File(pdfContent, "application/pdf", $"saved-pdf-{savedPdfId}.pdf");
+        return File(result.Data!, "application/pdf", $"saved-pdf-{savedPdfId}.pdf");
     }
 
     /// <summary>
@@ -108,12 +129,7 @@ public class PdfController(
     [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
     public async Task<IActionResult> DeleteSavedPdfAsync(long savedPdfId)
     {
-        var success = await _pdfService.DeleteSavedPdfAsync(savedPdfId);
-        if (!success)
-        {
-            return NotFound("PDF not found");
-        }
-
-        return Ok(new { message = "PDF deleted successfully" });
+        var result = await _pdfService.DeleteSavedPdfAsync(savedPdfId);
+        return _responseHandler.HandleResult(result);
     }
 }

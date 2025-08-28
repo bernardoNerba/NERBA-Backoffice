@@ -1,14 +1,15 @@
 using NERBABO.ApiService.Core.Reports.Models;
+using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Reports.Services;
 
 public interface IPdfService
 {
-    Task<byte[]> GenerateSessionReportAsync(long actionId, string userId);
-    
+    Task<Result<byte[]>> GenerateSessionReportAsync(long actionId, string userId);
+
     // Storage-related methods
-    Task<SavedPdf?> GetSavedPdfAsync(string pdfType, long referenceId);
-    Task<byte[]?> GetSavedPdfContentAsync(long savedPdfId);
-    Task<bool> DeleteSavedPdfAsync(long savedPdfId);
-    Task<SavedPdf> SavePdfAsync(string pdfType, long referenceId, byte[] pdfContent, string userId);
+    Task<Result<SavedPdf>> GetSavedPdfAsync(string pdfType, long referenceId);
+    Task<Result<byte[]>> GetSavedPdfContentAsync(long savedPdfId);
+    Task<Result> DeleteSavedPdfAsync(long savedPdfId);
+    Task<Result<SavedPdf>> SavePdfAsync(string pdfType, long referenceId, byte[] pdfContent, string userId);
 }
