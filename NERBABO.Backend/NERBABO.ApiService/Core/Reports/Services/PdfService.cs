@@ -4,6 +4,7 @@ using NERBABO.ApiService.Core.Reports.Models;
 using QuestPDF.Fluent;
 using NERBABO.ApiService.Core.Reports.Composers;
 using QuestPDF.Infrastructure;
+using System.Reflection.Metadata.Ecma335;
 
 namespace NERBABO.ApiService.Core.Reports.Services;
 
@@ -35,26 +36,12 @@ public class PdfService : IPdfService
 
     public async Task<byte[]> GenerateSessionReportAsync(long actionId, string userId)
     {
-        // Check for existing PDF first
-        var existingPdf = await GetSavedPdfAsync(PdfTypes.SessionReport, actionId);
-        if (existingPdf != null)
-        {
-            var existingContent = await GetSavedPdfContentAsync(existingPdf.Id);
-            if (existingContent != null)
-            {
-                _logger.LogInformation("Returning existing session report for action {ActionId}", actionId);
-                return existingContent;
-            }
-        }
-
         // Fetch action data
         var action = await _context.Actions
             .Include(a => a.Course).ThenInclude(c => c.Frame)
             .Include(a => a.Coordenator).ThenInclude(c => c.Person)
-            .FirstOrDefaultAsync(a => a.Id == actionId);
-
-        if (action is null)
-            throw new ArgumentException("Ação não encontrada");
+            .FirstOrDefaultAsync(a => a.Id == actionId)
+            ?? throw new ArgumentException("Ação não encontrada");
 
         // Fetch sessions data
         var sessions = await _context.Sessions
@@ -68,7 +55,7 @@ public class PdfService : IPdfService
         var pdfBytes = document.GeneratePdf();
         
         // Save the new PDF
-        await SavePdfAsync(PdfTypes.SessionReport, actionId, pdfBytes, userId, true);
+        await SavePdfAsync(PdfTypes.SessionReport, actionId, pdfBytes, userId);
         
         _logger.LogInformation("Generated and saved new session report for action {ActionId}", actionId);
         return pdfBytes;
@@ -82,69 +69,68 @@ public class PdfService : IPdfService
 
     public async Task<byte[]?> GetSavedPdfContentAsync(long savedPdfId)
     {
+        // find the pdf
         var savedPdf = await _context.SavedPdfs.FindAsync(savedPdfId);
-        if (savedPdf == null)
-        {
-            return null;
-        }
 
         try
         {
-            if (File.Exists(savedPdf.FilePath))
+            // found the pdf in the db and there is a physical file corresponding
+            // return the file content in byte[]
+            if (savedPdf is not null && File.Exists(savedPdf.FilePath))
             {
                 return await File.ReadAllBytesAsync(savedPdf.FilePath);
             }
-            else
-            {
-                _logger.LogWarning("PDF file not found at path {FilePath} for SavedPdf {Id}", savedPdf.FilePath, savedPdfId);
-                return null;
-            }
+            
+            _logger.LogWarning("PDF file not found for SavedPdf {Id}", savedPdfId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reading PDF file for SavedPdf {Id}", savedPdfId);
-            return null;
         }
+        return null;
     }
 
     public async Task<bool> DeleteSavedPdfAsync(long savedPdfId)
     {
         var savedPdf = await _context.SavedPdfs.FindAsync(savedPdfId);
-        if (savedPdf == null)
-        {
-            return false;
-        }
 
         try
         {
-            // Delete physical file
-            if (File.Exists(savedPdf.FilePath))
+            if (savedPdf is not null)
             {
-                File.Delete(savedPdf.FilePath);
+                // Delete physical file
+                if (File.Exists(savedPdf.FilePath))
+                {
+                    File.Delete(savedPdf.FilePath);
+                }
+
+                // Delete database record
+                _context.SavedPdfs.Remove(savedPdf);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Deleted saved PDF {Id} and its file", savedPdfId);
+                return true;
             }
 
-            // Delete database record
-            _context.SavedPdfs.Remove(savedPdf);
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Deleted saved PDF {Id} and its file", savedPdfId);
-            return true;
+            _logger.LogWarning("PDF file not found for SavedPdf {Id}", savedPdfId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting saved PDF {Id}", savedPdfId);
-            return false;
         }
+
+        return false;
     }
 
-    public async Task<SavedPdf> SavePdfAsync(string pdfType, long referenceId, byte[] pdfContent, string userId, bool replaceExisting = false)
+    public async Task<SavedPdf> SavePdfAsync(string pdfType, long referenceId, byte[] pdfContent, string userId)
     {
+        // hash the content to check for modifications in the nenw file
         var contentHash = SavedPdf.ComputeSha256Hash(pdfContent);
         
         // Check for existing PDF
         var existingPdf = await GetSavedPdfAsync(pdfType, referenceId);
         
-        if (existingPdf != null)
+        if (existingPdf is not null)
         {
             if (existingPdf.ContentHash == contentHash)
             {
@@ -153,17 +139,13 @@ public class PdfService : IPdfService
                 return existingPdf;
             }
             
-            if (!replaceExisting)
-            {
-                throw new InvalidOperationException("PDF already exists and replaceExisting is false");
-            }
-            
+            // There where modifications on the content so
             // Delete the old file
             if (File.Exists(existingPdf.FilePath))
             {
                 File.Delete(existingPdf.FilePath);
             }
-            
+            // Delete the Database entry
             _context.SavedPdfs.Remove(existingPdf);
         }
 

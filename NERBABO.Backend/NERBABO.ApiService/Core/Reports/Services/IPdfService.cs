@@ -10,5 +10,5 @@ public interface IPdfService
     Task<SavedPdf?> GetSavedPdfAsync(string pdfType, long referenceId);
     Task<byte[]?> GetSavedPdfContentAsync(long savedPdfId);
     Task<bool> DeleteSavedPdfAsync(long savedPdfId);
-    Task<SavedPdf> SavePdfAsync(string pdfType, long referenceId, byte[] pdfContent, string userId, bool replaceExisting = false);
+    Task<SavedPdf> SavePdfAsync(string pdfType, long referenceId, byte[] pdfContent, string userId);
 }
