@@ -1,3 +1,4 @@
+using Humanizer;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Shared.Services;
@@ -42,7 +43,7 @@ public class SessionsTimelineComposer(IImageService imageService)
                         details.Item().PaddingBottom(5).Text($"Morada do Local de realização: {action.Address}")
                             .FontSize(8).FontFamily("Arial");
                         }
-                        details.Item().PaddingBottom(5).Text($"Formador: {action.AllDiferentSessionTeachers()}")
+                        details.Item().PaddingBottom(5).Text($"Regime: {action.Regiment.Humanize()}")
                             .FontSize(8).FontFamily("Arial");
                     });
 
@@ -61,7 +62,7 @@ public class SessionsTimelineComposer(IImageService imageService)
                         table.Header(header =>
                         {
                             header.Cell().Element(CellStyle).Text("Data").FontSize(8).FontFamily("Arial").SemiBold();
-                            header.Cell().Element(CellStyle).Text("Módulo").FontSize(8).FontFamily("Arial").SemiBold();
+                            header.Cell().Element(CellStyle).Text("Módulo / Formador").FontSize(8).FontFamily("Arial").SemiBold();
                             header.Cell().Element(CellStyle).Text("Horário").FontSize(8).FontFamily("Arial").SemiBold();
                             header.Cell().Element(CellStyle).Text("Duração").FontSize(8).FontFamily("Arial").SemiBold();
                             header.Cell().Element(CellStyle).Text("Observação").FontSize(8).FontFamily("Arial").SemiBold();
@@ -70,7 +71,16 @@ public class SessionsTimelineComposer(IImageService imageService)
                         foreach (var session in sessions)
                         {
                             table.Cell().Element(CellStyle).Text(session.ScheduledDate.ToString("dd/MM/yy")).FontSize(7).FontFamily("Arial");
-                            table.Cell().Element(CellStyle).Text(session.ModuleTeaching.Module?.Name ?? "N/A").FontSize(7).FontFamily("Arial");
+                            table.Cell().Element(CellStyle).Column(column =>
+                            {
+                                column.Item().Text(session.ModuleTeaching.Module?.Name ?? "N/A").FontSize(7).FontFamily("Arial");
+                                var teacherName = session.ModuleTeaching.Teacher?.Person?.FullName ?? 
+                                    $"{session.ModuleTeaching.Teacher?.Person?.FirstName} {session.ModuleTeaching.Teacher?.Person?.LastName}".Trim();
+                                if (!string.IsNullOrEmpty(teacherName))
+                                {
+                                    column.Item().Text(teacherName).FontSize(6).FontFamily("Arial");
+                                }
+                            });
                             table.Cell().Element(CellStyle).Text(session.Time).FontSize(7).FontFamily("Arial");
                             table.Cell().Element(CellStyle).Text($"{session.DurationHours:F1}h").FontSize(7).FontFamily("Arial");
                             table.Cell().Element(CellStyle).Text(session.Note).FontSize(7).FontFamily("Arial");
@@ -97,8 +107,6 @@ public class SessionsTimelineComposer(IImageService imageService)
                     .FontSize(14).FontFamily("Arial").SemiBold();
                 titleColumn.Item().AlignLeft().Text(action.Course.Frame.OperationType)
                     .FontSize(10).FontFamily("Arial");
-                titleColumn.Item().AlignLeft().PaddingTop(3).Text($"Data: {DateTime.Now:dd/MM/yyyy}")
-                    .FontSize(8).FontFamily("Arial");
             });
 
             // Right side - Program logo (if available)
