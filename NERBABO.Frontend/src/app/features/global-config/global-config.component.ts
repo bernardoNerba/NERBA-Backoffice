@@ -19,6 +19,10 @@ import { IndexTaxesComponent } from './taxes/index-taxes/index-taxes.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import {
+  FileUploadComponent,
+  FileUploadData,
+} from '../../shared/components/file-upload/file-upload.component';
 
 @Component({
   selector: 'app-global-config',
@@ -31,6 +35,7 @@ import { SelectModule } from 'primeng/select';
     InputTextModule,
     InputNumberModule,
     SelectModule,
+    FileUploadComponent,
   ],
   templateUrl: './global-config.component.html',
 })
@@ -43,6 +48,11 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
   configurationInfo$!: Observable<GeneralInfo | null>;
   taxes$!: Observable<Array<Tax>>;
   loading$!: Observable<boolean>;
+  
+  // Logo upload properties
+  logoFile?: File;
+  logoPreview?: string;
+  currentLogoUrl?: string;
 
   constructor(
     private fb: FormBuilder,
@@ -73,6 +83,8 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
             iban: config.iban ?? '',
             nipc: config.nipc ?? '',
           });
+          this.currentLogoUrl = config.logoUrl;
+          this.logoPreview = config.logoUrl;
         }
       },
       error: (err) => {
@@ -154,7 +166,7 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
 
     const model = this.form.value;
 
-    this.confService.updateGeneralInfo(model).subscribe({
+    this.confService.updateGeneralInfo(model, this.logoFile).subscribe({
       next: (value: OkResponse) => {
         this.confService.triggerFetchConfigs();
         this.sharedService.showSuccess(value.message);
@@ -184,5 +196,19 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
         className: 'inactive',
       },
     ]);
+  }
+
+  onLogoSelect(data: FileUploadData): void {
+    this.logoFile = data.file;
+    this.logoPreview = data.preview;
+  }
+
+  onLogoClear(): void {
+    this.logoFile = undefined;
+    this.logoPreview = this.currentLogoUrl;
+  }
+
+  onLogoValidationError(error: string): void {
+    this.sharedService.showError(error);
   }
 }

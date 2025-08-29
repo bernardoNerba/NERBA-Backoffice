@@ -2,7 +2,7 @@
 @if (loading) {
 <div class="text-center py-5">
   <app-spinner />
-  <p class="mt-2">Loading pessoas...</p>
+  <p class="mt-2">Loading módulos...</p>
 </div>
 }
 <!-- START table -->
@@ -66,7 +66,7 @@
         <th style="width: 60px; min-width: 60px" class="text-center">#</th>
         <th pSortableColumn="name" style="min-width: 250px">
           <div class="d-flex align-items-center gap-2">
-            <span class="d-none d-md-inline">UFCD</span>
+            <span class="d-none d-md-inline">Nome</span>
             <span class="d-inline d-md-none">Módulo</span>
             <p-sortIcon field="name" />
           </div>

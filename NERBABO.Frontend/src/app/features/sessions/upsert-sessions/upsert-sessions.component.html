@@ -176,6 +176,31 @@
           </div>
         </div>
 
+        <!-- Session Note -->
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label for="note">Observação</label>
+            <textarea
+              rows="5"
+              cols="30"
+              pTextarea
+              formControlName="note"
+              [class.is-invalid]="submitted && form.get('note')?.errors"
+              class="w-100 {{
+                submitted && form.get('note')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            ></textarea>
+            @if (submitted && form.get('note')?.hasError('minlength') ||
+            form.get('note')?.hasError('maxlength')) {
+            <span class="text-danger">
+              Observação deve ter entre 3 e 255 caracteres.
+            </span>
+            }
+          </div>
+        </div>
+
         <!-- Teacher Presence Dropdown (only for updates) -->
         @if (isUpdate) {
         <div class="col-12">

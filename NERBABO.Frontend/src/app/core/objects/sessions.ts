@@ -11,6 +11,7 @@ export interface Session {
   time: string;
   durationHours: number;
   teacherPresence: string;
+  note: string;
 }
 
 export interface CreateSession {
@@ -19,6 +20,7 @@ export interface CreateSession {
   scheduledDate: string;
   start: string;
   durationHours: number;
+  note: string;
 }
 
 export interface UpdateSession {
@@ -27,5 +29,6 @@ export interface UpdateSession {
   scheduledDate: string;
   start: string;
   durationHours: number;
-  teacherPresence: boolean;
+  teacherPresence: string;
+  note: string;
 }

@@ -331,7 +331,36 @@ null){
                 </div>
               </div>
 
-              <!-- TODO: LOGO FINANCIAMENTO -->
+              <!-- LOGO UPLOAD SECTION -->
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label for="logo" class="form-label">
+                      Logo da Entidade
+                    </label>
+                    <app-file-upload
+                      label="Selecionar Logo"
+                      accept="image/*"
+                      [maxFileSize]="5000000"
+                      [required]="false"
+                      [disabled]="loading"
+                      [existingFileUrl]="currentLogoUrl"
+                      uploadButtonSeverity="primary"
+                      placeholderText="Nenhum logo selecionado"
+                      uploadTooltip="Selecionar logo da entidade"
+                      clearTooltip="Remover logo selecionado"
+                      [previewMaxWidth]="200"
+                      [previewMaxHeight]="120"
+                      (fileSelect)="onLogoSelect($event)"
+                      (fileClear)="onLogoClear()"
+                      (validationError)="onLogoValidationError($event)"
+                    />
+                    <small class="text-muted">
+                      Formatos aceitos: JPG, PNG, GIF, BMP. Tamanho máximo: 5MB.
+                    </small>
+                  </div>
+                </div>
+              </div>
 
               <div class="text-end">
                 <button type="submit" class="btn-main" [disabled]="loading">

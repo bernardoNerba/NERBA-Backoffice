@@ -90,8 +90,23 @@ export class ConfigService {
     return this.http.get<Tax[]>(API_ENDPOINTS.get_taxes_by_type + type);
   }
 
-  updateGeneralInfo(model: GeneralInfo): Observable<OkResponse> {
-    return this.http.put<OkResponse>(API_ENDPOINTS.update_general_conf, model);
+  updateGeneralInfo(model: GeneralInfo, logoFile?: File): Observable<OkResponse> {
+    if (logoFile) {
+      const formData = new FormData();
+      formData.append('designation', model.designation);
+      formData.append('site', model.site);
+      formData.append('hourValueTeacher', model.hourValueTeacher.toString());
+      formData.append('hourValueAlimentation', model.hourValueAlimentation.toString());
+      formData.append('bankEntity', model.bankEntity);
+      formData.append('iban', model.iban);
+      formData.append('nipc', model.nipc);
+      formData.append('ivaId', model.ivaId.toString());
+      formData.append('logo', logoFile);
+      
+      return this.http.put<OkResponse>(API_ENDPOINTS.update_general_conf, formData);
+    } else {
+      return this.http.put<OkResponse>(API_ENDPOINTS.update_general_conf, model);
+    }
   }
 
   triggerFetchConfigs() {

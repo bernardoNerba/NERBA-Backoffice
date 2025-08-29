@@ -31,6 +31,9 @@ namespace NERBABO.ApiService.Data.Configurations
                 .HasColumnType("float")
                 .IsRequired();
 
+            builder.Property(s => s.Note)
+                .HasColumnType("varchar(255)");
+
             builder.HasOne(s => s.ModuleTeaching)
                 .WithMany(mt => mt.Sessions)
                 .HasForeignKey(s => s.ModuleTeachingId)
