@@ -42,7 +42,7 @@ namespace NERBABO.ApiService.Core.Global.Controllers
         /// <response code="500">Unexpected error occurred.</response>
         [HttpPut("update")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateGeneralInfoAsync([FromBody] UpdateGeneralInfoDto updateConfig)
+        public async Task<IActionResult> UpdateGeneralInfoAsync([FromForm] UpdateGeneralInfoDto updateConfig)
         {
             Result result = await _generalInfoService.UpdateGeneralInfoAsync(updateConfig);
             return _responseHandler.HandleResult(result);

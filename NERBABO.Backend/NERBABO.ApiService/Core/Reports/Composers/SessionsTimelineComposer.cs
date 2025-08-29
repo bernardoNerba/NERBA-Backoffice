@@ -1,5 +1,7 @@
 using Humanizer;
 using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Core.Global.Services;
 using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Shared.Services;
 using QuestPDF.Fluent;
@@ -12,7 +14,7 @@ public class SessionsTimelineComposer(IImageService imageService)
 {
     private readonly IImageService _imageService = imageService;
 
-    public Document Compose(List<Session> sessions, CourseAction action)
+    public Document Compose(List<Session> sessions, CourseAction action, GeneralInfo infos)
     {
         // Generate PDF using existing logic
         return Document.Create(container =>
@@ -22,11 +24,11 @@ public class SessionsTimelineComposer(IImageService imageService)
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
 
-                page.Header().Element(container => ComposeHeader(container, action));
+                page.Header().Element(container => ComposeHeader(container, action, infos));
                 page.Content().Element(container => container.Column(column =>
                 {
                     // Action details section
-                    column.Item().PaddingTop(20).Column(details =>
+                    column.Item().PaddingTop(5).Column(details =>
                     {
                         details.Item().PaddingBottom(5).Text($"Operação: {action.Course.Frame.Operation}")
                             .FontSize(8).FontFamily("Arial");
@@ -48,7 +50,7 @@ public class SessionsTimelineComposer(IImageService imageService)
                     });
 
                     // Sessions table section
-                    column.Item().PaddingTop(30).Table(table =>
+                    column.Item().PaddingTop(15).Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
@@ -96,40 +98,66 @@ public class SessionsTimelineComposer(IImageService imageService)
 
     }
 
-    private void ComposeHeader(IContainer container, CourseAction action)
+    private void ComposeHeader(IContainer container, CourseAction action, GeneralInfo infos)
     {
-        container.PaddingBottom(10).Row(row =>
+        container.Column(column =>
         {
-            // Left side - Title and info
-            row.RelativeItem().Column(titleColumn =>
+            // Top row - General Info logo at the very top without left padding (if available)
+            if (!string.IsNullOrEmpty(infos.Logo))
             {
-                titleColumn.Item().AlignLeft().Text($"Cronograma - {action.Course.Title}")
-                    .FontSize(14).FontFamily("Arial").SemiBold();
-                titleColumn.Item().AlignLeft().Text(action.Course.Frame.OperationType)
-                    .FontSize(10).FontFamily("Arial");
-            });
-
-            // Right side - Program logo (if available)
-            if (!string.IsNullOrEmpty(action.Course.Frame.ProgramLogo))
-            {
-                row.ConstantItem(10); // Spacer
-                row.ConstantItem(80).Element(logoContainer =>
+                column.Item().PaddingBottom(5).AlignLeft().Element(logoContainer =>
                 {
                     try
                     {
-                        var programImageBytes = _imageService.GetImageAsync(action.Course.Frame.ProgramLogo).Result;
-                        if (programImageBytes != null)
+                        var generalLogoBytes = _imageService.GetImageAsync(infos.Logo).ConfigureAwait(false).GetAwaiter().GetResult();
+                        if (generalLogoBytes != null)
                         {
-                            logoContainer.Height(50).AlignCenter().AlignMiddle()
-                                .Image(programImageBytes).FitArea();
+                            logoContainer.Height(30).AlignLeft().AlignTop()
+                                .Image(generalLogoBytes).FitArea();
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // If image loading fails, continue without the image
+                        // Log the exception if needed and continue without the image
+                        System.Diagnostics.Debug.WriteLine($"Failed to load general info logo: {ex.Message}");
                     }
                 });
             }
+
+            // Title row
+            column.Item().PaddingBottom(5).Row(row =>
+            {
+                // Left side - Title and info
+                row.RelativeItem().Column(titleColumn =>
+                {
+                    titleColumn.Item().AlignLeft().Text($"Cronograma - {action.Course.Title}")
+                        .FontSize(14).FontFamily("Arial").SemiBold();
+                    titleColumn.Item().AlignLeft().Text(action.Course.Frame.OperationType)
+                        .FontSize(10).FontFamily("Arial");
+                });
+
+                // Right side - Program logo (if available)
+                if (!string.IsNullOrEmpty(action.Course.Frame.ProgramLogo))
+                {
+                    row.ConstantItem(50).Element(logoContainer =>
+                    {
+                        try
+                        {
+                            var programImageBytes = _imageService.GetImageAsync(action.Course.Frame.ProgramLogo).ConfigureAwait(false).GetAwaiter().GetResult();
+                            if (programImageBytes != null)
+                            {
+                                logoContainer.Height(50).AlignCenter().AlignMiddle()
+                                    .Image(programImageBytes).FitArea();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the exception if needed and continue without the image
+                            System.Diagnostics.Debug.WriteLine($"Failed to load program logo: {ex.Message}");
+                        }
+                    });
+                }
+            });
         });
     }
 
@@ -144,16 +172,17 @@ public class SessionsTimelineComposer(IImageService imageService)
                 {
                     try
                     {
-                        var financementImageBytes = _imageService.GetImageAsync(action.Course.Frame.FinancementLogo).Result;
+                        var financementImageBytes = _imageService.GetImageAsync(action.Course.Frame.FinancementLogo).ConfigureAwait(false).GetAwaiter().GetResult();
                         if (financementImageBytes != null)
                         {
-                            logoContainer.Height(40).AlignCenter().AlignMiddle()
+                            logoContainer.Height(80).AlignCenter().AlignMiddle()
                                 .Image(financementImageBytes).FitArea();
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // If image loading fails, continue without the image
+                        // Log the exception if needed and continue without the image
+                        System.Diagnostics.Debug.WriteLine($"Failed to load financement logo: {ex.Message}");
                     }
                 });
             }

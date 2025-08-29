@@ -59,7 +59,11 @@ public class PdfService : IPdfService
                 .OrderBy(s => s.ScheduledDate)
                 .ToListAsync();
 
-            var document = _timelineComposer.Compose(sessions, action);
+            // Fetch General Information
+            var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
+                ?? throw new Exception("Failed to obtain general information.");
+
+            var document = _timelineComposer.Compose(sessions, action, infos);
             var pdfBytes = document.GeneratePdf();
 
             // Save the new PDF
