@@ -39,7 +39,7 @@
               <!-- Action Title -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Título</strong>
+                  <div class="bg-green-white fw-bold">Título</div>
                   <p class="text-break mb-0">
                     {{ action.title }}
                   </p>
@@ -48,7 +48,7 @@
               <!-- Action Admin Code -->
               <div class="col-md-3 col-sm-6">
                 <div class="property">
-                  <strong>Cod. Administrativo</strong>
+                  <div class="bg-green-white fw-bold">Cod. Administrativo</div>
                   <p class="text-break mb-0">
                     {{ action.administrationCode }}
                   </p>
@@ -57,7 +57,7 @@
               <!-- Action Admin Code -->
               <div class="col-md-3 col-sm-6">
                 <div class="property">
-                  <strong>Data Ínicio</strong>
+                  <div class="bg-green-white fw-bold">Data Ínicio</div>
                   <p class="text-break mb-0">
                     {{ action.startDate | date : "dd/MM/yyyy" }}
                   </p>
@@ -66,7 +66,7 @@
               <!-- Action Admin Code -->
               <div class="col-md-3 col-sm-6">
                 <div class="property">
-                  <strong>Data Fim</strong>
+                  <div class="bg-green-white fw-bold">Data Fim</div>
                   <p class="text-break mb-0">
                     {{ action.endDate | date : "dd/MM/yyyy" }}
                   </p>
@@ -76,7 +76,7 @@
               <!-- Regiment -->
               <div class="col-md-3 col-sm-6">
                 <div class="property">
-                  <strong>Regime</strong>
+                  <div class="bg-green-white fw-bold">Regime</div>
                   <p class="text-break mb-0">
                     {{ action.regiment }}
                   </p>
@@ -86,7 +86,7 @@
               <!-- Week Days -->
               <div class="col-md-3 col-sm-6">
                 <div class="property">
-                  <strong>Dias da Semana</strong>
+                  <div class="bg-green-white fw-bold">Dias da Semana</div>
                   @if (action.weekDays.length !== 0) { @for (day of
                   action.weekDays; track day ) {
                   <p class="text-break mb-0">{{ day }}</p>
@@ -99,7 +99,7 @@
               <!-- Locality -->
               <div class="col-md-3 col-sm-6">
                 <div class="property">
-                  <strong>Localidade</strong>
+                  <div class="bg-green-white fw-bold">Localidade</div>
                   <p class="text-break mb-0">
                     {{ action.locality || "N/A" }}
                   </p>
@@ -109,7 +109,7 @@
               <!-- Coordenator -->
               <div class="col-md-3 col-sm-6">
                 <div class="property">
-                  <strong>Coordenador</strong>
+                  <div class="bg-green-white fw-bold">Coordenador</div>
                   <p class="text-break mb-0">
                     <app-icon-anchor
                       [icon]="'bi bi-link'"
@@ -124,7 +124,7 @@
               <!-- Coordenator -->
               <div class="col-md-3 col-sm-6">
                 <div class="property">
-                  <strong>Estado</strong>
+                  <div class="bg-green-white fw-bold">Estado</div>
                   <p class="text-break mb-0">
                     {{ action.status }}
                   </p>
@@ -133,7 +133,7 @@
 
               <div class="col-12">
                 <div class="property">
-                  <strong>Morada</strong>
+                  <div class="bg-green-white fw-bold">Morada</div>
                   <p class="text-break mb-0">
                     {{ action.address || "N/A" }}
                   </p>
@@ -173,7 +173,7 @@
               <!-- Course Title -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Título</strong>
+                  <div class="bg-green-white fw-bold">Título</div>
                   <p class="text-break mb-0">
                     {{ course.title }}
                   </p>
@@ -182,7 +182,7 @@
               <!-- Course MinLvl -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <strong>Nível Min. Habilitações</strong>
+                  <div class="bg-green-white fw-bold">Nível Min. Habilitações</div>
                   <p class="text-break mb-0">
                     {{ course.minHabilitationLevel }}
                   </p>
@@ -191,7 +191,7 @@
               <!-- Course total duration -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <strong>Duração Total</strong>
+                  <div class="bg-green-white fw-bold">Duração Total</div>
                   <p class="text-break mb-0">
                     {{ course.totalDuration - course.remainingDuration }} /
                     {{ course.totalDuration }}
@@ -202,28 +202,28 @@
               <!-- Course status -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <strong>Estado</strong>
+                  <div class="bg-green-white fw-bold">Estado</div>
                   <p class="text-break mb-0">{{ course.status }}</p>
                 </div>
               </div>
               <!-- Course Area -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Área</strong>
+                  <div class="bg-green-white fw-bold">Área</div>
                   <p class="text-break mb-0">{{ course.area }}</p>
                 </div>
               </div>
               <!-- Course Objectives -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Objetivos</strong>
+                  <div class="bg-green-white fw-bold">Objetivos</div>
                   <p class="text-break mb-0">{{ course.objectives }}</p>
                 </div>
               </div>
               <!-- Course Destinators -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Destinatários</strong>
+                  <div class="bg-green-white fw-bold">Destinatários</div>
                   @for(dest of course.destinators; track dest) {
                   <p class="text-break mb-0">{{ dest }}</p>
                   }

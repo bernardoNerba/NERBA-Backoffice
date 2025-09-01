@@ -1,5 +1,9 @@
 @if (person$ | async; as person){
-<app-title [title]="person.fullName" [isDropdown]="true" [menuItems]="menuItems" />
+<app-title
+  [title]="person.fullName"
+  [isDropdown]="true"
+  [menuItems]="menuItems"
+/>
 
 <div class="card w-100 hv-100 mt-2">
   <div class="card-header">
@@ -33,7 +37,7 @@
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                   <div class="col">
                     <div class="property">
-                      <strong>Nome</strong>
+                      <div class="bg-green-white fw-bold">Nome</div>
                       <p class="text-break mb-0">
                         {{ person.fullName || "N/A" }}
                       </p>
@@ -41,7 +45,7 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Genero</strong>
+                      <div class="bg-green-white fw-bold">Genero</div>
                       <p class="text-break mb-0">
                         {{ person.gender || "N/A" }}
                       </p>
@@ -49,7 +53,9 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Data de Nascimento</strong>
+                      <div class="bg-green-white fw-bold">
+                        Data de Nascimento
+                      </div>
                       <p class="text-break mb-0">
                         {{ (person.birthDate | date : "dd/MM/yyyy") || "N/A" }}
                       </p>
@@ -57,7 +63,7 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Nacionalidade</strong>
+                      <div class="bg-green-white fw-bold">Nacionalidade</div>
                       <p class="text-break mb-0">
                         {{ person.nationality || "N/A" }}
                       </p>
@@ -65,7 +71,7 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Naturalidade</strong>
+                      <div class="bg-green-white fw-bold">Naturalidade</div>
                       <p class="text-break mb-0">
                         {{ person.naturality || "N/A" }}
                       </p>
@@ -73,7 +79,7 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Habilitações</strong>
+                      <div class="bg-green-white fw-bold">Habilitações</div>
                       <p class="text-break mb-0">
                         {{ person.habilitation || "N/A" }}
                       </p>
@@ -111,13 +117,13 @@
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                   <div class="col">
                     <div class="property">
-                      <strong>Email</strong>
+                      <div class="bg-green-white fw-bold">Email</div>
                       <p class="text-break mb-0">{{ person.email || "N/A" }}</p>
                     </div>
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Tel.</strong>
+                      <div class="bg-green-white fw-bold">Tel.</div>
                       <p class="text-break mb-0">
                         {{ person.phoneNumber || "N/A" }}
                       </p>
@@ -125,7 +131,7 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Código-Postal</strong>
+                      <div class="bg-green-white fw-bold">Código-Postal</div>
                       <p class="text-break mb-0">
                         {{ person.zipCode || "N/A" }}
                       </p>
@@ -133,7 +139,7 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Morada</strong>
+                      <div class="bg-green-white fw-bold">Morada</div>
                       <p class="text-break mb-0">
                         {{ person.address || "N/A" }}
                       </p>
@@ -171,19 +177,19 @@
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                   <div class="col">
                     <div class="property">
-                      <strong>NIF</strong>
+                      <div class="bg-green-white fw-bold">NIF</div>
                       <p class="text-break mb-0">{{ person.nif || "N/A" }}</p>
                     </div>
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>NISS</strong>
+                      <div class="bg-green-white fw-bold">NISS</div>
                       <p class="text-break mb-0">{{ person.niss || "N/A" }}</p>
                     </div>
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>nº identificação</strong>
+                      <div class="bg-green-white fw-bold">nº identificação</div>
                       <p class="text-break mb-0">
                         {{ person.identificationNumber || "N/A" }}
                       </p>
@@ -191,7 +197,7 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Tipo de identificação</strong>
+                      <div class="bg-green-white fw-bold">Tipo de identificação</div>
                       <p class="text-break mb-0">
                         {{ person.identificationType || "N/A" }}
                       </p>
@@ -199,7 +205,7 @@
                   </div>
                   <div class="col">
                     <div class="property">
-                      <strong>Validade da identificação</strong>
+                      <div class="bg-green-white fw-bold">Validade da identificação</div>
                       <p class="text-break mb-0">
                         {{
                           (person.identificationValidationDate
@@ -211,7 +217,7 @@
 
                   <div class="col">
                     <div class="property">
-                      <strong>IBAN</strong>
+                      <div class="bg-green-white fw-bold">IBAN</div>
                       <p class="text-break mb-0">
                         {{ person.iban || "N/A" }}
                       </p>
@@ -246,7 +252,6 @@
           >
             <div class="accordion-body">
               <div class="container-fluid px-0">
-                
                 <!-- Habilitation PDF Manager -->
                 <app-pdf-file-manager
                   [config]="habilitationPdfConfig"
@@ -260,7 +265,7 @@
                   (deleteClick)="deleteHabilitationPdf()"
                 />
 
-                <hr/>
+                <hr />
 
                 <!-- NIF PDF Manager -->
                 <app-pdf-file-manager
@@ -275,7 +280,7 @@
                   (deleteClick)="deleteNifPdf()"
                 />
 
-                <hr/>
+                <hr />
 
                 <!-- Identification Document PDF Manager -->
                 <app-pdf-file-manager

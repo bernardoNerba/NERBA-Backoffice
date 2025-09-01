@@ -40,7 +40,7 @@
               <!-- Frame Program -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Programa</strong>
+                  <div class="bg-green-white fw-bold">Programa</div>
                   <p class="text-break mb-0">
                     {{ frame.program }}
                   </p>
@@ -49,7 +49,7 @@
               <!-- Frame Intervention -->
               <div class="col-md-4">
                 <div class="property">
-                  <strong>Intervention</strong>
+                  <div class="bg-green-white fw-bold">Intervention</div>
                   <p class="text-break mb-0">
                     {{ frame.intervention }}
                   </p>
@@ -58,7 +58,7 @@
               <!-- Frame Intervention Type -->
               <div class="col-md-8">
                 <div class="property">
-                  <strong>Tipo de Intervenção</strong>
+                  <div class="bg-green-white fw-bold">Tipo de Intervenção</div>
                   <p class="text-break mb-0">
                     {{ frame.interventionType }}
                   </p>
@@ -67,7 +67,7 @@
               <!-- Frame Operation -->
               <div class="col-md-4">
                 <div class="property">
-                  <strong>Operação</strong>
+                  <div class="bg-green-white fw-bold">Operação</div>
                   <p class="text-break mb-0">
                     {{ frame.operation }}
                   </p>
@@ -76,7 +76,7 @@
               <!-- Frame Intervention Type -->
               <div class="col-md-8">
                 <div class="property">
-                  <strong>Tipo de Operação</strong>
+                  <div class="bg-green-white fw-bold">Tipo de Operação</div>
                   <p class="text-break mb-0">
                     {{ frame.operationType }}
                   </p>
@@ -116,7 +116,7 @@
               <!-- Course Title -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Título</strong>
+                  <div class="bg-green-white fw-bold">Título</div>
                   <p class="text-break mb-0">
                     {{ course.title }}
                   </p>
@@ -125,7 +125,7 @@
               <!-- Course MinLvl -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <strong>Nível Min. Habilitações</strong>
+                  <div class="bg-green-white fw-bold">Nível Min. Habilitações</div>
                   <p class="text-break mb-0">
                     {{ course.minHabilitationLevel }}
                   </p>
@@ -134,7 +134,7 @@
               <!-- Course total duration -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <strong>Duração Total</strong>
+                  <div class="bg-green-white fw-bold">Duração Total</div>
                   <p class="text-break mb-0">
                     {{ course.totalDuration - course.remainingDuration }} /
                     {{ course.totalDuration }}
@@ -145,28 +145,28 @@
               <!-- Course status -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <strong>Estado</strong>
+                  <div class="bg-green-white fw-bold">Estado</div>
                   <p class="text-break mb-0">{{ course.status }}</p>
                 </div>
               </div>
               <!-- Course Area -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Área</strong>
+                  <div class="bg-green-white fw-bold">Área</div>
                   <p class="text-break mb-0">{{ course.area }}</p>
                 </div>
               </div>
               <!-- Course Objectives -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Objetivos</strong>
+                  <div class="bg-green-white fw-bold">Objetivos</div>
                   <p class="text-break mb-0">{{ course.objectives }}</p>
                 </div>
               </div>
               <!-- Course Destinators -->
               <div class="col-12">
                 <div class="property">
-                  <strong>Destinatários</strong>
+                  <div class="bg-green-white fw-bold">Destinatários</div>
                   @for(dest of course.destinators; track dest) {
                   <p class="text-break mb-0">{{ dest }}</p>
                   }

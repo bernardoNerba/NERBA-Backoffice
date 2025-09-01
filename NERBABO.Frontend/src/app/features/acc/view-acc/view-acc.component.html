@@ -35,7 +35,7 @@
                   <!-- User Name -->
                   <div class="col-md-4 col-sm-6">
                     <div class="property">
-                      <strong>Nome de Utilizador</strong>
+                      <div class="bg-green-white fw-bold">Nome de Utilizador</div>
                       <p class="text-break mb-0">
                         {{ user.userName || "N/A" }}
                       </p>
@@ -44,7 +44,7 @@
                   <!-- Email -->
                   <div class="col-md-4 col-sm-6">
                     <div class="property">
-                      <strong>Email</strong>
+                      <div class="bg-green-white fw-bold">Email</div>
                       <p class="text-break mb-0">
                         {{ user.email || "N/A" }}
                       </p>
@@ -53,7 +53,7 @@
                   <!-- Is Active -->
                   <div class="col-md-4 col-sm-6">
                     <div class="property">
-                      <strong>Estado</strong>
+                      <div class="bg-green-white fw-bold">Estado</div>
                       <p class="text-break mb-0">
                         {{ user.isActive ? "Ativo" : "Inativo" }}
                       </p>
@@ -62,7 +62,7 @@
                   <!-- Roles -->
                   <div class="col-12">
                     <div class="property">
-                      <strong>Funções</strong>
+                      <div class="bg-green-white fw-bold">Funções</div>
                       <p class="text-break mb-0">
                         @if (user.roles && user.roles.length > 0) {
                           @if (typeof user.roles === 'string') {
@@ -178,7 +178,7 @@
                       <!-- User Name -->
                       <div class="col-md-4 col-sm-6">
                         <div class="property">
-                          <strong>Nome de Utilizador</strong>
+                          <div class="bg-green-white fw-bold">Nome de Utilizador</div>
                           <p class="text-break mb-0">
                             {{ user.userName || "N/A" }}
                           </p>
@@ -187,7 +187,7 @@
                       <!-- Email -->
                       <div class="col-md-4 col-sm-6">
                         <div class="property">
-                          <strong>Email</strong>
+                          <div class="bg-green-white fw-bold">Email</div>
                           <p class="text-break mb-0">
                             {{ user.email || "N/A" }}
                           </p>
@@ -196,7 +196,7 @@
                       <!-- Is Active -->
                       <div class="col-md-4 col-sm-6">
                         <div class="property">
-                          <strong>Estado</strong>
+                          <div class="bg-green-white fw-bold">Estado</div>
                           <p class="text-break mb-0">
                             {{ user.isActive ? "Ativo" : "Inativo" }}
                           </p>
@@ -205,7 +205,7 @@
                       <!-- Roles -->
                       <div class="col-12">
                         <div class="property">
-                          <strong>Funções</strong>
+                          <div class="bg-green-white fw-bold">Funções</div>
                           <p class="text-break mb-0">
                             @if (user.roles && user.roles.length > 0) {
                               @if (typeof user.roles === 'string') {
