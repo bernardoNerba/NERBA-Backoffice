@@ -6,6 +6,8 @@ using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.People.Models;
+using NERBABO.ApiService.Core.Reports.Models;
+using NERBABO.ApiService.Core.Reports.Services;
 using NERBABO.ApiService.Core.Students.Cache;
 using NERBABO.ApiService.Core.Teachers.Cache;
 using NERBABO.ApiService.Data;
@@ -22,7 +24,8 @@ public class PeopleService(
         UserManager<User> userManager,
         ICachePeopleRepository cache,
         ICacheStudentsRepository cacheStudents,
-        ICacheTeacherRepository cacheTeacher
+        ICacheTeacherRepository cacheTeacher,
+        IPdfService pdfService
 
     ) : IPeopleService
 {
@@ -32,6 +35,7 @@ public class PeopleService(
     private readonly ICachePeopleRepository _cache = cache;
     private readonly ICacheStudentsRepository _cacheStudents = cacheStudents;
     private readonly ICacheTeacherRepository _cacheTeacher = cacheTeacher;
+    private readonly IPdfService _pdfService = pdfService;
 
     public async Task<Result<RetrievePersonDto>> CreateAsync(CreatePersonDto entityDto)
     {
@@ -539,5 +543,427 @@ public class PeopleService(
         await _cache.RemovePeopleCacheAsync(id);
         await _cacheStudents.RemoveStudentsCacheAsync();
         await _cacheTeacher.RemoveTeacherCacheAsync();
+    }
+
+    public async Task<Result<RetrievePersonDto>> UploadHabilitationPdfAsync(long personId, IFormFile file, string userId)
+    {
+        try
+        {
+            // Validate person exists
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result<RetrievePersonDto>
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            // Validate file
+            if (file == null || file.Length == 0)
+            {
+                return Result<RetrievePersonDto>
+                    .Fail("Arquivo inválido.", "Nenhum arquivo foi fornecido ou o arquivo está vazio.", StatusCodes.Status400BadRequest);
+            }
+
+            if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return Result<RetrievePersonDto>
+                    .Fail("Tipo de arquivo inválido.", "Apenas arquivos PDF são permitidos.", StatusCodes.Status400BadRequest);
+            }
+
+            // Read file content
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            var pdfContent = memoryStream.ToArray();
+
+            // Save PDF using PdfService
+            var savePdfResult = await _pdfService.SavePdfAsync(PdfTypes.HabilitationComprovative, personId, pdfContent, userId);
+            if (!savePdfResult.Success)
+            {
+                return Result<RetrievePersonDto>
+                    .Fail(savePdfResult.Title!, savePdfResult.Message!, savePdfResult.StatusCode!.Value);
+            }
+
+            // Update person's HabilitationComprovativePdfId
+            person.HabilitationComprovativePdfId = savePdfResult.Data!.Id;
+            person.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            var retrievePerson = Person.ConvertEntityToRetrieveDto(person);
+            
+            // Update cache
+            await RemoveRelatedCache(person.Id);
+            await _cache.SetSinglePersonCacheAsync(retrievePerson);
+
+            return Result<RetrievePersonDto>
+                .Ok(retrievePerson, "PDF carregado.", "PDF de certificado de habilitações carregado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading habilitation PDF for person {PersonId}", personId);
+            return Result<RetrievePersonDto>
+                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result<FileDownloadResult>> GetHabilitationPdfAsync(long personId)
+    {
+        try
+        {
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result<FileDownloadResult>
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            if (!person.HabilitationComprovativePdfId.HasValue)
+            {
+                return Result<FileDownloadResult>
+                    .Fail("Não encontrado.", "Nenhum PDF de certificado de habilitações encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+            }
+
+            var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.HabilitationComprovativePdfId.Value);
+            if (!pdfContentResult.Success)
+            {
+                return Result<FileDownloadResult>
+                    .Fail(pdfContentResult.Title!, pdfContentResult.Message!, pdfContentResult.StatusCode!.Value);
+            }
+
+            var fileName = $"Habilitation_Comprovative_{person.FirstName}_{person.LastName}.pdf";
+            var fileResult = new FileDownloadResult
+            {
+                Content = pdfContentResult.Data!,
+                FileName = fileName,
+                ContentType = "application/pdf"
+            };
+
+            return Result<FileDownloadResult>.Ok(fileResult);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error downloading habilitation PDF for person {PersonId}", personId);
+            return Result<FileDownloadResult>
+                .Fail("Erro interno.", "Ocorreu um erro ao baixar o PDF.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result> DeleteHabilitationPdfAsync(long personId)
+    {
+        try
+        {
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            if (!person.HabilitationComprovativePdfId.HasValue)
+            {
+                return Result
+                    .Fail("Não encontrado.", "Nenhum PDF de certificado de habilitações encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+            }
+
+            // Delete PDF using PdfService
+            var deletePdfResult = await _pdfService.DeleteSavedPdfAsync(person.HabilitationComprovativePdfId.Value);
+            if (!deletePdfResult.Success)
+            {
+                return Result
+                    .Fail(deletePdfResult.Title!, deletePdfResult.Message!, deletePdfResult.StatusCode!.Value);
+            }
+
+            // Update person's HabilitationComprovativePdfId
+            person.HabilitationComprovativePdfId = null;
+            person.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            // Update cache
+            await RemoveRelatedCache(person.Id);
+
+            return Result
+                .Ok("PDF eliminado.", "PDF de certificado de habilitações eliminado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting habilitation PDF for person {PersonId}", personId);
+            return Result
+                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    // NIF PDF Methods
+    public async Task<Result<RetrievePersonDto>> UploadNifPdfAsync(long personId, IFormFile file, string generatedByUserId)
+    {
+        try
+        {
+            // Validate the person exists
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result<RetrievePersonDto>
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return Result<RetrievePersonDto>
+                    .Fail("Tipo de arquivo inválido.", "Apenas arquivos PDF são permitidos.", StatusCodes.Status400BadRequest);
+            }
+
+            // Read file content
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            var pdfContent = memoryStream.ToArray();
+
+            // Save PDF using PdfService
+            var savePdfResult = await _pdfService.SavePdfAsync(PdfTypes.NifComprovative, personId, pdfContent, generatedByUserId);
+            if (!savePdfResult.Success)
+            {
+                return Result<RetrievePersonDto>
+                    .Fail(savePdfResult.Title!, savePdfResult.Message!, savePdfResult.StatusCode!.Value);
+            }
+
+            // Update person's NifComprovativePdfId
+            person.NifComprovativePdfId = savePdfResult.Data!.Id;
+            person.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            var retrievePerson = Person.ConvertEntityToRetrieveDto(person);
+            
+            // Update cache
+            await RemoveRelatedCache(person.Id);
+            await _cache.SetSinglePersonCacheAsync(retrievePerson);
+
+            return Result<RetrievePersonDto>
+                .Ok(retrievePerson, "PDF carregado.", "PDF de comprovativo de NIF carregado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading NIF PDF for person {PersonId}", personId);
+            return Result<RetrievePersonDto>
+                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result<FileDownloadResult>> GetNifPdfAsync(long personId)
+    {
+        try
+        {
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result<FileDownloadResult>
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            if (!person.NifComprovativePdfId.HasValue)
+            {
+                return Result<FileDownloadResult>
+                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de NIF encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+            }
+
+            var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.NifComprovativePdfId.Value);
+            if (!pdfContentResult.Success)
+            {
+                return Result<FileDownloadResult>
+                    .Fail(pdfContentResult.Title!, pdfContentResult.Message!, pdfContentResult.StatusCode!.Value);
+            }
+
+            var fileName = $"Comprovativo_NIF_{person.FirstName}_{person.LastName}.pdf";
+            return Result<FileDownloadResult>
+                .Ok(new FileDownloadResult
+                {
+                    Content = pdfContentResult.Data!,
+                    FileName = fileName
+                });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting NIF PDF for person {PersonId}", personId);
+            return Result<FileDownloadResult>
+                .Fail("Erro interno.", "Ocorreu um erro ao obter o PDF.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result> DeleteNifPdfAsync(long personId)
+    {
+        try
+        {
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            if (!person.NifComprovativePdfId.HasValue)
+            {
+                return Result
+                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de NIF encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+            }
+
+            // Delete PDF using PdfService
+            var deletePdfResult = await _pdfService.DeleteSavedPdfAsync(person.NifComprovativePdfId.Value);
+            if (!deletePdfResult.Success)
+            {
+                return Result
+                    .Fail(deletePdfResult.Title!, deletePdfResult.Message!, deletePdfResult.StatusCode!.Value);
+            }
+
+            // Update person's NifComprovativePdfId
+            person.NifComprovativePdfId = null;
+            person.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            // Update cache
+            await RemoveRelatedCache(person.Id);
+
+            return Result
+                .Ok("PDF eliminado.", "PDF de comprovativo de NIF eliminado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting NIF PDF for person {PersonId}", personId);
+            return Result
+                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    // Identification Document PDF Methods
+    public async Task<Result<RetrievePersonDto>> UploadIdentificationDocumentPdfAsync(long personId, IFormFile file, string generatedByUserId)
+    {
+        try
+        {
+            // Validate the person exists
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result<RetrievePersonDto>
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return Result<RetrievePersonDto>
+                    .Fail("Tipo de arquivo inválido.", "Apenas arquivos PDF são permitidos.", StatusCodes.Status400BadRequest);
+            }
+
+            // Read file content
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            var pdfContent = memoryStream.ToArray();
+
+            // Save PDF using PdfService
+            var savePdfResult = await _pdfService.SavePdfAsync(PdfTypes.IdentificationDocument, personId, pdfContent, generatedByUserId);
+            if (!savePdfResult.Success)
+            {
+                return Result<RetrievePersonDto>
+                    .Fail(savePdfResult.Title!, savePdfResult.Message!, savePdfResult.StatusCode!.Value);
+            }
+
+            // Update person's IdentificationDocumentPdfId
+            person.IdentificationDocumentPdfId = savePdfResult.Data!.Id;
+            person.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            var retrievePerson = Person.ConvertEntityToRetrieveDto(person);
+            
+            // Update cache
+            await RemoveRelatedCache(person.Id);
+            await _cache.SetSinglePersonCacheAsync(retrievePerson);
+
+            return Result<RetrievePersonDto>
+                .Ok(retrievePerson, "PDF carregado.", "PDF de documento de identificação carregado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading identification document PDF for person {PersonId}", personId);
+            return Result<RetrievePersonDto>
+                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result<FileDownloadResult>> GetIdentificationDocumentPdfAsync(long personId)
+    {
+        try
+        {
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result<FileDownloadResult>
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            if (!person.IdentificationDocumentPdfId.HasValue)
+            {
+                return Result<FileDownloadResult>
+                    .Fail("Não encontrado.", "Nenhum PDF de documento de identificação encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+            }
+
+            var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.IdentificationDocumentPdfId.Value);
+            if (!pdfContentResult.Success)
+            {
+                return Result<FileDownloadResult>
+                    .Fail(pdfContentResult.Title!, pdfContentResult.Message!, pdfContentResult.StatusCode!.Value);
+            }
+
+            var fileName = $"Documento_Identificacao_{person.FirstName}_{person.LastName}.pdf";
+            return Result<FileDownloadResult>
+                .Ok(new FileDownloadResult
+                {
+                    Content = pdfContentResult.Data!,
+                    FileName = fileName
+                });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting identification document PDF for person {PersonId}", personId);
+            return Result<FileDownloadResult>
+                .Fail("Erro interno.", "Ocorreu um erro ao obter o PDF.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result> DeleteIdentificationDocumentPdfAsync(long personId)
+    {
+        try
+        {
+            var person = await _context.People.FindAsync(personId);
+            if (person == null)
+            {
+                return Result
+                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            if (!person.IdentificationDocumentPdfId.HasValue)
+            {
+                return Result
+                    .Fail("Não encontrado.", "Nenhum PDF de documento de identificação encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+            }
+
+            // Delete PDF using PdfService
+            var deletePdfResult = await _pdfService.DeleteSavedPdfAsync(person.IdentificationDocumentPdfId.Value);
+            if (!deletePdfResult.Success)
+            {
+                return Result
+                    .Fail(deletePdfResult.Title!, deletePdfResult.Message!, deletePdfResult.StatusCode!.Value);
+            }
+
+            // Update person's IdentificationDocumentPdfId
+            person.IdentificationDocumentPdfId = null;
+            person.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            // Update cache
+            await RemoveRelatedCache(person.Id);
+
+            return Result
+                .Ok("PDF eliminado.", "PDF de documento de identificação eliminado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting identification document PDF for person {PersonId}", personId);
+            return Result
+                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.", StatusCodes.Status500InternalServerError);
+        }
     }
 }

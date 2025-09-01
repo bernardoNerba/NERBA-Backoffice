@@ -25,7 +25,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// <response code="401">The user is not authorized, invalid jwt, user is not admin or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
         [HttpGet("users")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetAllAccountsAsync()
         {
             Result<IEnumerable<RetrieveUserDto>> result = await _accountService.GetAllAsync();
@@ -41,7 +41,7 @@ namespace NERBABO.ApiService.Core.Account.Controllers
         /// <response code="401">The user is not authorized, invalid jwt, user is not admin or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
         [HttpGet("user/{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetSingleAsync(string id)
         {
             Result<RetrieveUserDto> result = await _accountService.GetByIdAsync(id);

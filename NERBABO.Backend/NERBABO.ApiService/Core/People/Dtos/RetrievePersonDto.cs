@@ -30,5 +30,9 @@ public class RetrievePersonDto
     public bool IsTeacher { get; set; }
     public bool IsStudent { get; set; }
     public bool IsColaborator { get; set; }
+    
+    public long? HabilitationComprovativePdfId { get; set; }
+    public long? NifComprovativePdfId { get; set; }
+    public long? IdentificationDocumentPdfId { get; set; }
 
 }

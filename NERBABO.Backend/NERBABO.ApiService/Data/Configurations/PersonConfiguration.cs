@@ -98,5 +98,23 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
         builder.HasOne(p => p.Teacher)
             .WithOne(t => t.Person)
             .HasForeignKey<Teacher>(t => t.PersonId);
+
+        builder.HasOne(p => p.HabilitationComprovativePdf)
+            .WithMany()
+            .HasForeignKey(p => p.HabilitationComprovativePdfId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .IsRequired(false);
+
+        builder.HasOne(p => p.NifComprovativePdf)
+            .WithMany()
+            .HasForeignKey(p => p.NifComprovativePdfId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .IsRequired(false);
+
+        builder.HasOne(p => p.IdentificationDocumentPdf)
+            .WithMany()
+            .HasForeignKey(p => p.IdentificationDocumentPdfId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .IsRequired(false);
     }
 }

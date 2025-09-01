@@ -1,6 +1,7 @@
 using Humanizer;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.People.Dtos;
+using NERBABO.ApiService.Core.Reports.Models;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Enums;
@@ -27,6 +28,11 @@ public class Person : Entity<long>
     public GenderEnum Gender { get; set; } = GenderEnum.Unknown;
     public HabilitationEnum Habilitation { get; set; } = HabilitationEnum.WithoutProof;
     public IdentificationTypeEnum IdentificationType { get; set; } = IdentificationTypeEnum.Unknown;
+    
+    // PDF References
+    public long? HabilitationComprovativePdfId { get; set; }
+    public long? NifComprovativePdfId { get; set; }
+    public long? IdentificationDocumentPdfId { get; set; }
 
     // Calculated properties
     public bool IsTeacher => Teacher != null;
@@ -39,6 +45,9 @@ public class Person : Entity<long>
     public User? User { get; set; }
     public Teacher? Teacher { get; set; }
     public Student? Student { get; set; }
+    public SavedPdf? HabilitationComprovativePdf { get; set; }
+    public SavedPdf? NifComprovativePdf { get; set; }
+    public SavedPdf? IdentificationDocumentPdf { get; set; }
 
     public Person() { }
 
@@ -95,6 +104,9 @@ public class Person : Entity<long>
             IsTeacher = person.IsTeacher,
             IsStudent = person.IsStudent,
             IsColaborator = person.IsColaborator,
+            HabilitationComprovativePdfId = person.HabilitationComprovativePdfId,
+            NifComprovativePdfId = person.NifComprovativePdfId,
+            IdentificationDocumentPdfId = person.IdentificationDocumentPdfId,
         };
     }
 }

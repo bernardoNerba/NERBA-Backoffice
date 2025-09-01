@@ -1,0 +1,90 @@
+<div class="pdf-file-manager" [ngClass]="getColorClasses()">
+  <!-- PDF exists - show download/view/delete options -->
+  <div class="list-group">
+    <div
+      class="list-group-item bg-green-white d-flex align-items-center justify-content-between"
+    >
+      <div class="d-flex align-items-center">
+        <h6 class="fw-bold">
+          <i class="{{ config.icon }} me-2"></i>
+          {{ config.title }}
+        </h6>
+      </div>
+      <div class="actions">
+        <p-button
+          icon="pi pi-eye"
+          size="small"
+          severity="contrast"
+          [text]="true"
+          [disabled]="disabled"
+          (onClick)="onViewClick()"
+          pTooltip="Visualizar PDF"
+        />
+        <p-button
+          icon="pi pi-download"
+          size="small"
+          severity="warn"
+          [text]="true"
+          class="ms-1"
+          [disabled]="disabled"
+          (onClick)="onDownloadClick()"
+          pTooltip="Descarregar PDF"
+        />
+        <p-button
+          icon="pi pi-trash"
+          size="small"
+          severity="danger"
+          [text]="true"
+          class="ms-1"
+          [disabled]="disabled"
+          (onClick)="onDeleteClick()"
+          pTooltip="Eliminar PDF"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload form -->
+  <div class="mt-1">
+    <!-- File input and upload button row -->
+    <div class="row align-items-end">
+      <div class="col-11">
+        <input
+          [id]="getFileInputId()"
+          class="form-control"
+          type="file"
+          [accept]="config.accept"
+          [disabled]="disabled"
+          (change)="onFileSelected($event)"
+        />
+        <div class="form-text text-truncate">
+          Apenas ficheiros PDF são permitidos. Tamanho máximo:
+          {{ config.maxSize }}MB.
+        </div>
+      </div>
+      <div class="col-1 align-self-start">
+        <p-button
+          [icon]="hasFile() ? 'pi pi-sync' : 'pi pi-upload'"
+          size="small"
+          [outlined]="true"
+          [rounded]="true"
+          class="w-100"
+          [disabled]="!selectedFile || isUploading || disabled"
+          [loading]="isUploading"
+          (onClick)="onUploadClick()"
+          [pTooltip]="
+            hasFile() ? 'Substituir PDF existente' : 'Carregar novo PDF'
+          "
+          severity="contrast"
+        />
+      </div>
+    </div>
+
+    @if (isUploading) {
+    <div class="mt-2">
+      <p-progressBar mode="indeterminate"></p-progressBar>
+      <small class="text-muted">A carregar ficheiro...</small>
+    </div>
+    }
+  </div>
+</div>
