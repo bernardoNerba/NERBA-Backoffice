@@ -458,3 +458,7 @@ a.nav-link:hover {
 .color-secondary {
   color: var(--p-surface-500);
 }
+
+.bg-green-white {
+  background-color: #c3e6c329 !important;
+}

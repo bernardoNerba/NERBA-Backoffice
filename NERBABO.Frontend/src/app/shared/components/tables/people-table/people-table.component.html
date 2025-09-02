@@ -142,12 +142,13 @@
             [appendTo]="'body'"
           />
           <p-button
-            icon="pi pi-ellipsis-v"
-            [rounded]="true"
-            severity="secondary"
-            [outlined]="true"
             size="small"
+            [outlined]="true"
+            [rounded]="true"
+            class="w-100"
+            icon="pi pi-ellipsis-v"
             (click)="menu.toggle($event); selectedPerson = person"
+            severity="contrast"
           />
         </td>
         <!-- PERSON FULLNAME -->

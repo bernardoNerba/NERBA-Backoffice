@@ -28,7 +28,7 @@
             <div class="row">
               <div class="col-md-8">
                 <div class="property">
-                  <strong>Nome</strong>
+                  <div class="bg-green-white fw-bold">Nome</div>
                   <p class="text-break mb-0">
                     {{ module.name }}
                   </p>
@@ -36,13 +36,13 @@
               </div>
               <div class="col-md-2">
                 <div class="property">
-                  <strong>Total Horas</strong>
+                  <div class="bg-green-white fw-bold">Total Horas</div>
                   <p class="text-break mb-0">{{ module.hours }} h</p>
                 </div>
               </div>
               <div class="col-md-2">
                 <div class="property">
-                  <strong>Status</strong>
+                  <div class="bg-green-white fw-bold">Status</div>
                   <p class="text-break mb-0">
                     <app-active-badge [isActive]="module.isActive" />
                   </p>

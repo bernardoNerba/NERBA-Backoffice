@@ -22,4 +22,7 @@ export type Person = {
   isTeacher: boolean;
   isStudent: boolean;
   isColaborator: boolean;
+  habilitationComprovativePdfId?: number;
+  nifComprovativePdfId?: number;
+  identificationDocumentPdfId?: number;
 };

@@ -1,0 +1,36 @@
+input[type="file"][data-filename]::-webkit-file-upload-button {
+  display: none;
+}
+
+input[type="file"][data-filename]::before {
+  content: var(--filename, "Nenhum ficheiro selecionado");
+  display: inline-block;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+input[type="file"][data-filename] {
+  color: transparent;
+}
+
+input[type="file"][data-filename]::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+input[type="file"][data-filename]::before {
+  content: var(--filename, "Nenhum ficheiro selecionado");
+  color: #495057;
+  display: inline-block;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  cursor: pointer;
+}

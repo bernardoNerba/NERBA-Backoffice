@@ -42,4 +42,7 @@ public static class PdfTypes
     public const string SessionReport = "SessionReport";
     public const string SessionDetail = "SessionDetail"; 
     public const string ActionSummary = "ActionSummary";
+    public const string HabilitationComprovative = "HabilitationComprovative";
+    public const string NifComprovative = "NifComprovative";
+    public const string IdentificationDocument = "IdentificationDocument";
 }

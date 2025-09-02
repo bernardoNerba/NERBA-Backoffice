@@ -113,4 +113,88 @@ export class PeopleService {
       API_ENDPOINTS.people_not_user + "colaborator/",
     );
   }
+
+  // PDF-related methods
+  uploadHabilitationPdf(personId: number, file: File): Observable<OkResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return this.http.post<OkResponse>(
+      `${API_ENDPOINTS.all_people}${personId}/habilitation-pdf`, 
+      formData
+    ).pipe(
+      tap(() => this.notifyPersonUpdate(personId))
+    );
+  }
+
+  downloadHabilitationPdf(personId: number): Observable<Blob> {
+    return this.http.get(
+      `${API_ENDPOINTS.all_people}${personId}/habilitation-pdf`, 
+      { responseType: 'blob' }
+    );
+  }
+
+  deleteHabilitationPdf(personId: number): Observable<OkResponse> {
+    return this.http.delete<OkResponse>(
+      `${API_ENDPOINTS.all_people}${personId}/habilitation-pdf`
+    ).pipe(
+      tap(() => this.notifyPersonUpdate(personId))
+    );
+  }
+
+  // NIF PDF operations
+  uploadNifPdf(personId: number, file: File): Observable<Person> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return this.http.post<Person>(
+      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`, 
+      formData
+    ).pipe(
+      tap(() => this.notifyPersonUpdate(personId))
+    );
+  }
+
+  downloadNifPdf(personId: number): Observable<Blob> {
+    return this.http.get(
+      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`, 
+      { responseType: 'blob' }
+    );
+  }
+
+  deleteNifPdf(personId: number): Observable<OkResponse> {
+    return this.http.delete<OkResponse>(
+      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`
+    ).pipe(
+      tap(() => this.notifyPersonUpdate(personId))
+    );
+  }
+
+  // Identification Document PDF operations
+  uploadIdentificationDocumentPdf(personId: number, file: File): Observable<Person> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return this.http.post<Person>(
+      `${API_ENDPOINTS.all_people}${personId}/identification-document-pdf`, 
+      formData
+    ).pipe(
+      tap(() => this.notifyPersonUpdate(personId))
+    );
+  }
+
+  downloadIdentificationDocumentPdf(personId: number): Observable<Blob> {
+    return this.http.get(
+      `${API_ENDPOINTS.all_people}${personId}/identification-document-pdf`, 
+      { responseType: 'blob' }
+    );
+  }
+
+  deleteIdentificationDocumentPdf(personId: number): Observable<OkResponse> {
+    return this.http.delete<OkResponse>(
+      `${API_ENDPOINTS.all_people}${personId}/identification-document-pdf`
+    ).pipe(
+      tap(() => this.notifyPersonUpdate(personId))
+    );
+  }
 }

@@ -23,6 +23,7 @@ var apiService = builder.AddProject<Projects.NERBABO_ApiService>("api")
 builder.AddNpmApp("angular", "../../NERBABO.Frontend")
     .WithReference(apiService)
     .WaitFor(apiService)
+    .WithEnvironment("PORT", "4200")
     .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 

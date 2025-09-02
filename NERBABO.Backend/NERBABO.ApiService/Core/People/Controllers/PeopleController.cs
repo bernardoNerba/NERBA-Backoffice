@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.People.Services;
+using NERBABO.ApiService.Core.Reports.Services;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 
@@ -11,11 +14,15 @@ namespace NERBABO.ApiService.Core.People.Controllers
     [ApiController]
     public class PeopleController(
         IPeopleService peopleService,
-        IResponseHandler responseHandler
+        IResponseHandler responseHandler,
+        IPdfService pdfService,
+        UserManager<User> userManager
         ) : ControllerBase
     {
         private readonly IPeopleService _peopleService = peopleService;
         private readonly IResponseHandler _responseHandler = responseHandler;
+        private readonly IPdfService _pdfService = pdfService;
+        private readonly UserManager<User> _userManager = userManager;
 
         /// <summary>
         /// Gets all the people.
@@ -140,6 +147,199 @@ namespace NERBABO.ApiService.Core.People.Controllers
         public async Task<IActionResult> GetPersonRelationshipsAsync(long id)
         {
             var result = await _peopleService.GetPersonRelationshipsAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Uploads a habilitation comprovative PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <param name="file">The PDF file to upload.</param>
+        /// <response code="200">PDF uploaded successfully.</response>
+        /// <response code="400">Invalid file or person ID.</response>
+        /// <response code="404">Person not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPost("{id:long}/habilitation-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadHabilitationPdfAsync(long id, IFormFile file)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                var userResult = Result<RetrievePersonDto>
+                    .Fail("Utilizador inválido.", "Utilizador não autenticado.", StatusCodes.Status401Unauthorized);
+                return _responseHandler.HandleResult(userResult);
+            }
+
+            var result = await _peopleService.UploadHabilitationPdfAsync(id, file, user.Id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Downloads a habilitation comprovative PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <response code="200">PDF downloaded successfully.</response>
+        /// <response code="404">Person or PDF not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("{id:long}/habilitation-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> DownloadHabilitationPdfAsync(long id)
+        {
+            var result = await _peopleService.GetHabilitationPdfAsync(id);
+            if (!result.Success)
+                return _responseHandler.HandleResult(result);
+
+            var fileResult = result.Data!;
+            return File(fileResult.Content, "application/pdf", fileResult.FileName);
+        }
+
+        /// <summary>
+        /// Deletes a habilitation comprovative PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <response code="200">PDF deleted successfully.</response>
+        /// <response code="404">Person or PDF not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpDelete("{id:long}/habilitation-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> DeleteHabilitationPdfAsync(long id)
+        {
+            var result = await _peopleService.DeleteHabilitationPdfAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        // NIF Comprovative PDF endpoints
+        
+        /// <summary>
+        /// Uploads a NIF comprovative PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <param name="file">The PDF file to upload.</param>
+        /// <response code="200">PDF uploaded successfully.</response>
+        /// <response code="400">Invalid file or person ID.</response>
+        /// <response code="404">Person not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPost("{id:long}/nif-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadNifPdfAsync(long id, IFormFile file)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                var userResult = Result<RetrievePersonDto>
+                    .Fail("Utilizador inválido.", "Utilizador não autenticado.", StatusCodes.Status401Unauthorized);
+                return _responseHandler.HandleResult(userResult);
+            }
+
+            var result = await _peopleService.UploadNifPdfAsync(id, file, user.Id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Downloads a NIF comprovative PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <response code="200">PDF downloaded successfully.</response>
+        /// <response code="404">Person or PDF not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("{id:long}/nif-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> DownloadNifPdfAsync(long id)
+        {
+            var result = await _peopleService.GetNifPdfAsync(id);
+            if (!result.Success)
+                return _responseHandler.HandleResult(result);
+
+            var fileResult = result.Data!;
+            return File(fileResult.Content, "application/pdf", fileResult.FileName);
+        }
+
+        /// <summary>
+        /// Deletes a NIF comprovative PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <response code="200">PDF deleted successfully.</response>
+        /// <response code="404">Person or PDF not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpDelete("{id:long}/nif-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> DeleteNifPdfAsync(long id)
+        {
+            var result = await _peopleService.DeleteNifPdfAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        // Identification Document PDF endpoints
+
+        /// <summary>
+        /// Uploads an identification document PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <param name="file">The PDF file to upload.</param>
+        /// <response code="200">PDF uploaded successfully.</response>
+        /// <response code="400">Invalid file or person ID.</response>
+        /// <response code="404">Person not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPost("{id:long}/identification-document-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadIdentificationDocumentPdfAsync(long id, IFormFile file)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                var userResult = Result<RetrievePersonDto>
+                    .Fail("Utilizador inválido.", "Utilizador não autenticado.", StatusCodes.Status401Unauthorized);
+                return _responseHandler.HandleResult(userResult);
+            }
+
+            var result = await _peopleService.UploadIdentificationDocumentPdfAsync(id, file, user.Id);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Downloads an identification document PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <response code="200">PDF downloaded successfully.</response>
+        /// <response code="404">Person or PDF not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("{id:long}/identification-document-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> DownloadIdentificationDocumentPdfAsync(long id)
+        {
+            var result = await _peopleService.GetIdentificationDocumentPdfAsync(id);
+            if (!result.Success)
+                return _responseHandler.HandleResult(result);
+
+            var fileResult = result.Data!;
+            return File(fileResult.Content, "application/pdf", fileResult.FileName);
+        }
+
+        /// <summary>
+        /// Deletes an identification document PDF for a person.
+        /// </summary>
+        /// <param name="id">The ID of the person.</param>
+        /// <response code="200">PDF deleted successfully.</response>
+        /// <response code="404">Person or PDF not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpDelete("{id:long}/identification-document-pdf")]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> DeleteIdentificationDocumentPdfAsync(long id)
+        {
+            var result = await _peopleService.DeleteIdentificationDocumentPdfAsync(id);
             return _responseHandler.HandleResult(result);
         }
     }

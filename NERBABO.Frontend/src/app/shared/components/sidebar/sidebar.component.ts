@@ -9,7 +9,6 @@ import { ButtonModule } from 'primeng/button';
 import { Observable } from 'rxjs';
 import { User } from '../../../core/models/user';
 import { CommonModule } from '@angular/common';
-import { TruncatePipe } from '../../pipes/truncate.pipe';
 
 @Component({
   selector: 'app-sidebar',
@@ -75,13 +74,6 @@ export class SidebarComponent implements OnInit {
     this.setDisplayRole();
 
     this.profileMenuItems = [
-      {
-        label: 'Notificações',
-        icon: 'pi pi-bell',
-        command: () => {
-          this.router.navigate(['/notifications']);
-        },
-      },
       {
         label: 'Notificações',
         icon: 'pi pi-bell',
