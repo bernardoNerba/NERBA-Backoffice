@@ -105,9 +105,9 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false);
 
-        builder.HasOne(p => p.NifComprovativePdf)
+        builder.HasOne(p => p.IbanComprovativePdf)
             .WithMany()
-            .HasForeignKey(p => p.NifComprovativePdfId)
+            .HasForeignKey(p => p.IbanComprovativePdfId)
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false);
 

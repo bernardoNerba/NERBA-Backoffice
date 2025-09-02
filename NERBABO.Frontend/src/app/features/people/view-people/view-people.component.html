@@ -267,17 +267,17 @@
 
                 <hr />
 
-                <!-- NIF PDF Manager -->
+                <!-- IBAN PDF Manager -->
                 <app-pdf-file-manager
-                  [config]="nifPdfConfig"
-                  [pdfId]="person.nifComprovativePdfId"
+                  [config]="ibanPdfConfig"
+                  [pdfId]="person.ibanComprovativePdfId"
                   [personName]="person.fullName"
-                  [isUploading]="isUploadingNif"
-                  (fileSelected)="onNifFileSelected($event)"
-                  (uploadClick)="uploadNifPdf()"
-                  (downloadClick)="downloadNifPdf()"
-                  (viewClick)="viewNifPdf()"
-                  (deleteClick)="deleteNifPdf()"
+                  [isUploading]="isUploadingIban"
+                  (fileSelected)="onIbanFileSelected($event)"
+                  (uploadClick)="uploadIbanPdf()"
+                  (downloadClick)="downloadIbanPdf()"
+                  (viewClick)="viewIbanPdf()"
+                  (deleteClick)="deleteIbanPdf()"
                 />
 
                 <hr />
