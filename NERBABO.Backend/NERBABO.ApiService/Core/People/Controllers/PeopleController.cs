@@ -213,10 +213,10 @@ namespace NERBABO.ApiService.Core.People.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        // NIF Comprovative PDF endpoints
+        // IBAN Comprovative PDF endpoints
         
         /// <summary>
-        /// Uploads a NIF comprovative PDF for a person.
+        /// Uploads an IBAN comprovative PDF for a person.
         /// </summary>
         /// <param name="id">The ID of the person.</param>
         /// <param name="file">The PDF file to upload.</param>
@@ -225,10 +225,10 @@ namespace NERBABO.ApiService.Core.People.Controllers
         /// <response code="404">Person not found.</response>
         /// <response code="401">Unauthorized access.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [HttpPost("{id:long}/nif-pdf")]
+        [HttpPost("{id:long}/iban-pdf")]
         [Authorize(Policy = "ActiveUser")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadNifPdfAsync(long id, IFormFile file)
+        public async Task<IActionResult> UploadIbanPdfAsync(long id, IFormFile file)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
@@ -238,23 +238,23 @@ namespace NERBABO.ApiService.Core.People.Controllers
                 return _responseHandler.HandleResult(userResult);
             }
 
-            var result = await _peopleService.UploadNifPdfAsync(id, file, user.Id);
+            var result = await _peopleService.UploadIbanPdfAsync(id, file, user.Id);
             return _responseHandler.HandleResult(result);
         }
 
         /// <summary>
-        /// Downloads a NIF comprovative PDF for a person.
+        /// Downloads an IBAN comprovative PDF for a person.
         /// </summary>
         /// <param name="id">The ID of the person.</param>
         /// <response code="200">PDF downloaded successfully.</response>
         /// <response code="404">Person or PDF not found.</response>
         /// <response code="401">Unauthorized access.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [HttpGet("{id:long}/nif-pdf")]
+        [HttpGet("{id:long}/iban-pdf")]
         [Authorize(Policy = "ActiveUser")]
-        public async Task<IActionResult> DownloadNifPdfAsync(long id)
+        public async Task<IActionResult> DownloadIbanPdfAsync(long id)
         {
-            var result = await _peopleService.GetNifPdfAsync(id);
+            var result = await _peopleService.GetIbanPdfAsync(id);
             if (!result.Success)
                 return _responseHandler.HandleResult(result);
 
@@ -263,18 +263,18 @@ namespace NERBABO.ApiService.Core.People.Controllers
         }
 
         /// <summary>
-        /// Deletes a NIF comprovative PDF for a person.
+        /// Deletes an IBAN comprovative PDF for a person.
         /// </summary>
         /// <param name="id">The ID of the person.</param>
         /// <response code="200">PDF deleted successfully.</response>
         /// <response code="404">Person or PDF not found.</response>
         /// <response code="401">Unauthorized access.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        [HttpDelete("{id:long}/nif-pdf")]
+        [HttpDelete("{id:long}/iban-pdf")]
         [Authorize(Policy = "ActiveUser")]
-        public async Task<IActionResult> DeleteNifPdfAsync(long id)
+        public async Task<IActionResult> DeleteIbanPdfAsync(long id)
         {
-            var result = await _peopleService.DeleteNifPdfAsync(id);
+            var result = await _peopleService.DeleteIbanPdfAsync(id);
             return _responseHandler.HandleResult(result);
         }
 

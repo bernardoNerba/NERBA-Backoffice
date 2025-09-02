@@ -133,7 +133,7 @@ export class PeopleService {
     formData.append('file', file);
     
     return this.http.post<Person>(
-      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`, 
+      `${API_ENDPOINTS.all_people}${personId}/iban-pdf`, 
       formData
     ).pipe(
       tap(() => this.notifyPersonUpdate(personId))
@@ -142,14 +142,14 @@ export class PeopleService {
 
   downloadIbanPdf(personId: number): Observable<Blob> {
     return this.http.get(
-      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`, 
+      `${API_ENDPOINTS.all_people}${personId}/iban-pdf`, 
       { responseType: 'blob' }
     );
   }
 
   deleteIbanPdf(personId: number): Observable<OkResponse> {
     return this.http.delete<OkResponse>(
-      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`
+      `${API_ENDPOINTS.all_people}${personId}/iban-pdf`
     ).pipe(
       tap(() => this.notifyPersonUpdate(personId))
     );
