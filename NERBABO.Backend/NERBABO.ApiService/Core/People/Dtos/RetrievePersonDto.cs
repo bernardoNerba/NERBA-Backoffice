@@ -32,7 +32,7 @@ public class RetrievePersonDto
     public bool IsColaborator { get; set; }
     
     public long? HabilitationComprovativePdfId { get; set; }
-    public long? NifComprovativePdfId { get; set; }
+    public long? IbanComprovativePdfId { get; set; }
     public long? IdentificationDocumentPdfId { get; set; }
 
 }

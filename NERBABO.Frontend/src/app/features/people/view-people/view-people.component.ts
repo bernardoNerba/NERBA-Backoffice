@@ -330,7 +330,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       next: (response) => {
         this.sharedService.showSuccess('PDF carregado com sucesso.');
         this.habilitationSelectedFile = null;
-        this.initializeEntity();
+        this.refreshPersonData();
       },
       error: (error) => {
         console.error('Error uploading habilitation PDF:', error);
@@ -384,7 +384,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     this.peopleService.deleteHabilitationPdf(this.id).subscribe({
       next: (response) => {
         this.sharedService.showSuccess('PDF eliminado com sucesso.');
-        this.initializeEntity();
+        this.updatePersonPdfProperty('habilitationComprovativePdfId', null);
       },
       error: (error) => {
         this.handlePdfError(error, 'eliminar');
@@ -487,7 +487,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       next: (response) => {
         this.sharedService.showSuccess('PDF carregado com sucesso.');
         this.identificationDocumentSelectedFile = null;
-        this.initializeEntity();
+        this.refreshPersonData();
       },
       error: (error) => {
         this.handlePdfError(error, 'carregar');
@@ -536,7 +536,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     this.peopleService.deleteIdentificationDocumentPdf(this.id).subscribe({
       next: (response) => {
         this.sharedService.showSuccess('PDF eliminado com sucesso.');
-        this.initializeEntity();
+        this.updatePersonPdfProperty('identificationDocumentPdfId', null);
       },
       error: (error) => {
         this.handlePdfError(error, 'eliminar');

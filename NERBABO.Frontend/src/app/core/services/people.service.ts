@@ -170,33 +170,6 @@ export class PeopleService {
     );
   }
 
-  // NIF PDF operations
-  uploadNifPdf(personId: number, file: File): Observable<Person> {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    return this.http.post<Person>(
-      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`, 
-      formData
-    ).pipe(
-      tap(() => this.notifyPersonUpdate(personId))
-    );
-  }
-
-  downloadNifPdf(personId: number): Observable<Blob> {
-    return this.http.get(
-      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`, 
-      { responseType: 'blob' }
-    );
-  }
-
-  deleteNifPdf(personId: number): Observable<OkResponse> {
-    return this.http.delete<OkResponse>(
-      `${API_ENDPOINTS.all_people}${personId}/nif-pdf`
-    ).pipe(
-      tap(() => this.notifyPersonUpdate(personId))
-    );
-  }
 
   // Identification Document PDF operations
   uploadIdentificationDocumentPdf(personId: number, file: File): Observable<Person> {
