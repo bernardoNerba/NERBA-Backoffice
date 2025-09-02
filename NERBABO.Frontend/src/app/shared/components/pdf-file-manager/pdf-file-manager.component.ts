@@ -190,4 +190,41 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.updateFileInputDisplay();
   }
+
+  openFileDialog(): void {
+    if (this.disabled) return;
+    
+    const fileInput = document.getElementById(
+      this.getFileInputId()
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  getDisplayText(): string {
+    if (this.selectedFile) {
+      return this.selectedFile.name;
+    }
+    if (this.hasFile()) {
+      return this.getFileName();
+    }
+    return 'Nenhum ficheiro...';
+  }
+
+  onUploadSuccess(): void {
+    // Clear the selected file after successful upload
+    this.selectedFile = null;
+    
+    // Clear the file input value
+    const fileInput = document.getElementById(
+      this.getFileInputId()
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+    
+    // Update the display to show the new file exists
+    this.updateFileInputDisplay();
+  }
 }

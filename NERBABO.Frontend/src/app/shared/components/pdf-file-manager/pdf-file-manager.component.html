@@ -1,4 +1,28 @@
 <div class="pdf-file-manager" [ngClass]="getColorClasses()">
+  <style>
+    .file-input-wrapper {
+      position: relative;
+    }
+    
+    .file-input-hidden {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .file-input-display {
+      cursor: pointer;
+      color: #6c757d;
+    }
+    
+    .file-input-display:hover {
+      border-color: #86b7fe;
+    }
+    
+    .file-input-display.has-file {
+      color: #212529;
+    }
+  </style>
   <!-- PDF exists - show download/view/delete options -->
   <div class="list-group">
     <div
@@ -49,14 +73,21 @@
     <!-- File input and upload button row -->
     <div class="row align-items-end">
       <div class="col-11">
-        <input
-          [id]="getFileInputId()"
-          class="form-control"
-          type="file"
-          [accept]="config.accept"
-          [disabled]="disabled"
-          (change)="onFileSelected($event)"
-        />
+        <div class="file-input-wrapper">
+          <input
+            [id]="getFileInputId()"
+            class="form-control file-input-hidden"
+            type="file"
+            [accept]="config.accept"
+            [disabled]="disabled"
+            (change)="onFileSelected($event)"
+          />
+          <div class="file-input-display form-control" 
+               [class.has-file]="hasFile() || selectedFile"
+               (click)="openFileDialog()">
+            {{ getDisplayText() }}
+          </div>
+        </div>
         <div class="form-text text-truncate">
           Apenas ficheiros PDF são permitidos. Tamanho máximo:
           {{ config.maxSize }}MB.
