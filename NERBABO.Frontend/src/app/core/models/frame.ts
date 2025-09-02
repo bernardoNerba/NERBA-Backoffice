@@ -28,4 +28,6 @@ export type UpdateFrameData = {
   operationType: string;
   programLogoFile?: File;
   financementLogoFile?: File;
+  removeProgramLogo?: boolean;
+  removeFinancementLogo?: boolean;
 };

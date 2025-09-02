@@ -152,7 +152,7 @@
         <app-file-upload
           label="Selecione o logo..."
           [required]="false"
-          uploadButtonSeverity="info"
+          uploadButtonSeverity="primary"
           placeholderText="Nenhum logo selecionado"
           [existingFileUrl]="programLogoPreview"
           uploadTooltip="Selecionar logo do programa"
@@ -166,15 +166,12 @@
 
     <!-- Financement Logo Upload -->
     <div class="mb-3">
-      <label
-        >Logo de Financiamento @if (!isUpdate) {
-        <span class="text-danger">*</span> }</label
-      >
+      <label>Logo de Financiamento <span class="text-danger">*</span></label>
       <div class="mt-2">
         <app-file-upload
           label="Selecione o logo..."
-          [required]="!isUpdate"
-          uploadButtonSeverity="info"
+          [required]="true"
+          uploadButtonSeverity="primary"
           placeholderText="Nenhum logo selecionado"
           requiredText="Logo obrigatório"
           [existingFileUrl]="financementLogoPreview"

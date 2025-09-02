@@ -87,11 +87,20 @@ export class FrameService {
     
     // Add file fields
     if (frameData.programLogoFile) {
-      formData.append('programLogoFile', frameData.programLogoFile);
+      formData.append('ProgramLogoFile', frameData.programLogoFile);
     }
     
     if (frameData.financementLogoFile) {
-      formData.append('financementLogoFile', frameData.financementLogoFile);
+      formData.append('FinancementLogoFile', frameData.financementLogoFile);
+    }
+    
+    // Add removal flags for updates
+    if ('removeProgramLogo' in frameData && frameData.removeProgramLogo) {
+      formData.append('RemoveProgramLogo', 'true');
+    }
+    
+    if ('removeFinancementLogo' in frameData && frameData.removeFinancementLogo) {
+      formData.append('RemoveFinancementLogo', 'true');
     }
     
     return formData;

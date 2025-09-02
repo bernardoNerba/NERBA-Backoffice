@@ -46,6 +46,10 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
   financementLogoFile?: File;
   programLogoPreview?: string;
   financementLogoPreview?: string;
+  
+  // Track original logo states to detect removal
+  originalProgramLogoUrl?: string;
+  originalFinancementLogoUrl?: string;
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -139,20 +143,50 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
       return;
     }
 
-    // Validate required financement logo for new frames
-    if (!this.isUpdate && !this.financementLogoFile) {
+    // Validate required financement logo for all operations
+    // For new frames: must provide a file
+    // For updates: must have existing logo AND not be cleared, OR provide a new file
+    const hasExistingFinancementLogo = this.isUpdate && this.originalFinancementLogoUrl;
+    const hasNewFinancementLogoFile = !!this.financementLogoFile;
+    const isFinancementLogoCleared = this.isUpdate && this.originalFinancementLogoUrl && !this.financementLogoPreview;
+    
+    if (!hasExistingFinancementLogo && !hasNewFinancementLogoFile) {
       this.sharedService.showError('Logo de financiamento é obrigatório.');
+      return;
+    }
+    
+    // Prevent clearing financement logo during update
+    if (isFinancementLogoCleared && !hasNewFinancementLogoFile) {
+      this.sharedService.showError('Logo de financiamento é obrigatório e não pode ser removido.');
       return;
     }
 
     this.loading = true;
 
-    const frameData = {
+    const frameData: any = {
       id: this.id,
       ...this.form.value,
-      programLogoFile: this.programLogoFile,
-      financementLogoFile: this.financementLogoFile,
     };
+
+    // Only include logo files if they have been selected by the user
+    if (this.programLogoFile) {
+      frameData.programLogoFile = this.programLogoFile;
+    }
+
+    if (this.financementLogoFile) {
+      frameData.financementLogoFile = this.financementLogoFile;
+    }
+
+    // For updates, detect logo removals
+    if (this.isUpdate) {
+      // Check if program logo was removed (had original logo but preview is now undefined/empty)
+      if (this.originalProgramLogoUrl && !this.programLogoPreview && !this.programLogoFile) {
+        frameData.removeProgramLogo = true;
+      }
+      
+      // Note: We do NOT set removeFinancementLogo because financement logo is required
+      // If user tries to remove it, the validation above will catch it
+    }
 
     this.frameService.upsert(frameData, this.isUpdate).subscribe({
       next: (value: OkResponse) => {
@@ -183,8 +217,22 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
   }
 
   onFinancementLogoClear(): void {
+    // Prevent clearing financement logo if it would leave the frame without one
+    // For new frames: cannot clear if no file selected
+    // For updates: cannot clear if it's the only financement logo
+    if (!this.isUpdate) {
+      this.sharedService.showError('Logo de financiamento é obrigatório e não pode ser removido.');
+      return;
+    }
+    
+    // For updates: only allow clearing if there's an existing logo (user is replacing it)
+    if (this.isUpdate && !this.originalFinancementLogoUrl) {
+      this.sharedService.showError('Logo de financiamento é obrigatório e não pode ser removido.');
+      return;
+    }
+    
     this.financementLogoFile = undefined;
-    this.financementLogoPreview = undefined;
+    this.financementLogoPreview = this.originalFinancementLogoUrl; // Revert to original
   }
 
   onFileValidationError(error: string): void {
@@ -194,9 +242,11 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
   private setExistingLogoPreviews(): void {
     if (this.currentFrame?.programLogoUrl) {
       this.programLogoPreview = this.currentFrame.programLogoUrl;
+      this.originalProgramLogoUrl = this.currentFrame.programLogoUrl;
     }
     if (this.currentFrame?.financementLogoUrl) {
       this.financementLogoPreview = this.currentFrame.financementLogoUrl;
+      this.originalFinancementLogoUrl = this.currentFrame.financementLogoUrl;
     }
   }
 }

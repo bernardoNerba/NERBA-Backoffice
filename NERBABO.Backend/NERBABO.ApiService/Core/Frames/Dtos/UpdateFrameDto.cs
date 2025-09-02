@@ -35,4 +35,10 @@ public class UpdateFrameDto : EntityDto<long>
 
     public IFormFile? FinancementLogoFile { get; set; }
 
+    public bool RemoveProgramLogo { get; set; } = false;
+
+    // Note: RemoveFinancementLogo should not be allowed since FinancementLogo is required
+    // This property is kept for API consistency but will be validated in the service layer
+    public bool RemoveFinancementLogo { get; set; } = false;
+
 }
