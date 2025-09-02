@@ -723,8 +723,8 @@ public class PeopleService(
                     .Fail(savePdfResult.Title!, savePdfResult.Message!, savePdfResult.StatusCode!.Value);
             }
 
-            // Update person's NifComprovativePdfId
-            person.NifComprovativePdfId = savePdfResult.Data!.Id;
+            // Update person's IbanComprovativePdfId
+            person.IbanComprovativePdfId = savePdfResult.Data!.Id;
             person.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
@@ -756,13 +756,13 @@ public class PeopleService(
                     .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
             }
 
-            if (!person.NifComprovativePdfId.HasValue)
+            if (!person.IbanComprovativePdfId.HasValue)
             {
                 return Result<FileDownloadResult>
                     .Fail("Não encontrado.", "Nenhum PDF de comprovativo de NIF encontrado para esta pessoa.", StatusCodes.Status404NotFound);
             }
 
-            var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.NifComprovativePdfId.Value);
+            var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.IbanComprovativePdfId.Value);
             if (!pdfContentResult.Success)
             {
                 return Result<FileDownloadResult>
@@ -796,22 +796,22 @@ public class PeopleService(
                     .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
             }
 
-            if (!person.NifComprovativePdfId.HasValue)
+            if (!person.IbanComprovativePdfId.HasValue)
             {
                 return Result
                     .Fail("Não encontrado.", "Nenhum PDF de comprovativo de NIF encontrado para esta pessoa.", StatusCodes.Status404NotFound);
             }
 
             // Delete PDF using PdfService
-            var deletePdfResult = await _pdfService.DeleteSavedPdfAsync(person.NifComprovativePdfId.Value);
+            var deletePdfResult = await _pdfService.DeleteSavedPdfAsync(person.IbanComprovativePdfId.Value);
             if (!deletePdfResult.Success)
             {
                 return Result
                     .Fail(deletePdfResult.Title!, deletePdfResult.Message!, deletePdfResult.StatusCode!.Value);
             }
 
-            // Update person's NifComprovativePdfId
-            person.NifComprovativePdfId = null;
+            // Update person's IbanComprovativePdfId
+            person.IbanComprovativePdfId = null;
             person.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 

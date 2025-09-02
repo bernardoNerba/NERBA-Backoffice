@@ -31,7 +31,7 @@ public class Person : Entity<long>
     
     // PDF References
     public long? HabilitationComprovativePdfId { get; set; }
-    public long? NifComprovativePdfId { get; set; }
+    public long? IbanComprovativePdfId { get; set; }
     public long? IdentificationDocumentPdfId { get; set; }
 
     // Calculated properties
@@ -46,7 +46,7 @@ public class Person : Entity<long>
     public Teacher? Teacher { get; set; }
     public Student? Student { get; set; }
     public SavedPdf? HabilitationComprovativePdf { get; set; }
-    public SavedPdf? NifComprovativePdf { get; set; }
+    public SavedPdf? IbanComprovativePdf { get; set; }
     public SavedPdf? IdentificationDocumentPdf { get; set; }
 
     public Person() { }
@@ -105,7 +105,7 @@ public class Person : Entity<long>
             IsStudent = person.IsStudent,
             IsColaborator = person.IsColaborator,
             HabilitationComprovativePdfId = person.HabilitationComprovativePdfId,
-            NifComprovativePdfId = person.NifComprovativePdfId,
+            IbanComprovativePdfId = person.IbanComprovativePdfId,
             IdentificationDocumentPdfId = person.IdentificationDocumentPdfId,
         };
     }
