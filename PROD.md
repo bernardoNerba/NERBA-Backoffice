@@ -75,11 +75,13 @@ EXPOSE 80
 #### Backend Container (.NET API)
 - **Base Image**: `mcr.microsoft.com/dotnet/sdk:9.0` → `mcr.microsoft.com/dotnet/aspnet:9.0`
 - **Security**: Runs as non-root user (`appuser`)
-- **Volumes**: `/app/logs`, `/app/temp` for file operations
+- **Volumes**: 
+  - `/app/logs`, `/app/temp` for file operations
+  - `/app/wwwroot` → `api_uploads` volume (persistent file storage)
 - **Health Check**: Built-in health endpoints
 - **File Storage**: 
-  - Images: `/app/wwwroot/uploads/images/`
-  - PDFs: `/app/wwwroot/storage/pdfs/`
+  - Images: `/app/wwwroot/uploads/images/` (persistent)
+  - PDFs: `/app/wwwroot/storage/pdfs/` (persistent)
 
 ```dockerfile
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
@@ -143,6 +145,8 @@ services:
       context: .
       dockerfile: NERBABO.Backend/NERBABO.ApiService/Dockerfile
     container_name: nerbabo-api
+    volumes:
+      - api_uploads:/app/wwwroot  # Persistent file storage
     depends_on:
       postgres:
         condition: service_healthy
@@ -283,6 +287,7 @@ Post-deployment validation:
 ### Image Service (IImageService)
 
 - **Storage Location**: `wwwroot/uploads/images/`
+- **Persistence**: Docker volume `api_uploads` ensures files survive container restarts
 - **Supported Formats**: JPG, PNG, GIF, BMP (max 5MB)
 - **Access Pattern**: 
   - Upload via API: `POST /api/frames` with multipart form
@@ -293,6 +298,7 @@ Post-deployment validation:
 ### PDF Service (IPdfService)
 
 - **Storage Location**: `wwwroot/storage/pdfs/` 
+- **Persistence**: Docker volume `api_uploads` ensures files survive container restarts
 - **Generation**: On-demand report generation using QuestPDF
 - **Caching**: SHA-256 content hashing for deduplication
 - **Database Integration**: Metadata stored in `SavedPdfs` table
@@ -445,11 +451,14 @@ docker system prune -f
 # Backup database
 docker exec nerbabo-postgres pg_dump -U postgres nerbabo_db > backup.sql
 
-# Backup uploaded files
-docker cp nerbabo-api:/app/wwwroot ./file_backup
+# Backup uploaded files (from persistent volume)
+docker run --rm -v nerbabo-api-uploads:/source -v $(pwd):/backup ubuntu tar czf /backup/file_backup.tar.gz -C /source .
 
 # Restore database
 docker exec -i nerbabo-postgres psql -U postgres nerbabo_db < backup.sql
+
+# Restore uploaded files (to persistent volume)
+docker run --rm -v nerbabo-api-uploads:/target -v $(pwd):/backup ubuntu tar xzf /backup/file_backup.tar.gz -C /target
 ```
 
 ## 🔍 Troubleshooting
@@ -465,6 +474,8 @@ docker exec -i nerbabo-postgres psql -U postgres nerbabo_db < backup.sql
 - Verify nginx proxy configuration points to `nerbabo-api`
 - Check container networking: `docker network ls`
 - Validate file permissions: `/app/wwwroot` ownership
+- Confirm volume mount: `docker inspect nerbabo-api | grep Mounts`
+- Check persistent storage: `docker volume ls | grep nerbabo-api-uploads`
 
 **Performance Issues**:
 - Monitor Redis cache hit rate via Redis Insight
@@ -500,7 +511,8 @@ For production internet deployment:
 ### Backup Strategy
 
 - **Database**: Regular pg_dump exports with rotation
-- **Files**: File system backups of upload directories
+- **Files**: Docker volume backups of `api_uploads` persistent storage
 - **Configuration**: Version control for docker-compose.yml and .env templates
+- **Volume Management**: Consider named volume backup strategies for production
 
 This comprehensive setup provides a robust, scalable foundation for the NERBABO application with production-ready security, monitoring, and maintenance capabilities.
