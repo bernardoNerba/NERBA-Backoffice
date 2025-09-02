@@ -1,4 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Button } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -26,7 +33,6 @@ export interface PdfFileActions {
   standalone: true,
   imports: [CommonModule, Button, TooltipModule, ProgressBarModule],
   templateUrl: './pdf-file-manager.component.html',
-  styleUrl: './pdf-file-manager.component.css'
 })
 export class PdfFileManagerComponent implements OnInit, AfterViewInit {
   @Input() config!: PdfFileConfig;
@@ -58,7 +64,7 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
     if (!this.config.color) {
       this.config.color = 'primary';
     }
-    
+
     // Set file input display value if file exists
     setTimeout(() => this.updateFileInputDisplay(), 0);
   }
@@ -81,7 +87,7 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
   onDrop(event: DragEvent): void {
     event.preventDefault();
     this.dragOver = false;
-    
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.handleFileSelection(files[0]);
@@ -132,14 +138,18 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
   clearFileSelection(): void {
     this.selectedFile = null;
     // Clear the file input
-    const fileInput = document.getElementById(this.getFileInputId()) as HTMLInputElement;
+    const fileInput = document.getElementById(
+      this.getFileInputId()
+    ) as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
     }
   }
 
   getFileInputId(): string {
-    return `pdf-file-input-${this.config.fileNamePrefix.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    return `pdf-file-input-${this.config.fileNamePrefix
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')}`;
   }
 
   getFileName(): string {
@@ -156,7 +166,7 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
       [baseClass]: true,
       [`${baseClass}--${this.config.color}`]: true,
       [`${baseClass}--disabled`]: this.disabled,
-      [`${baseClass}--drag-over`]: this.dragOver
+      [`${baseClass}--drag-over`]: this.dragOver,
     };
   }
 
@@ -166,7 +176,9 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
 
   private updateFileInputDisplay(): void {
     if (this.hasFile()) {
-      const fileInput = document.getElementById(this.getFileInputId()) as HTMLInputElement;
+      const fileInput = document.getElementById(
+        this.getFileInputId()
+      ) as HTMLInputElement;
       if (fileInput) {
         const fileName = this.getFileName();
         fileInput.setAttribute('data-filename', fileName);
