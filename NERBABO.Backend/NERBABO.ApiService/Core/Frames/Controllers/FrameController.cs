@@ -114,7 +114,7 @@ public class FrameController(
     public async Task<IActionResult> GetProgramLogoAsync(long id)
     {
         var logoData = await _frameService.GetProgramLogoAsync(id);
-        if (logoData == null)
+        if (logoData is null)
             return NotFound("Program logo not found.");
 
         return File(logoData, "image/jpeg");
@@ -133,10 +133,9 @@ public class FrameController(
     public async Task<IActionResult> GetFinancementLogoAsync(long id)
     {
         var logoData = await _frameService.GetFinancementLogoAsync(id);
-        if (logoData == null)
+        if (logoData is null)
             return NotFound("Financement logo not found.");
 
         return File(logoData, "image/jpeg");
     }
-
 }

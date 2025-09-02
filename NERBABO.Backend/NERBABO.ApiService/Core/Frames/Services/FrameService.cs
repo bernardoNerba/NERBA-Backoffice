@@ -166,6 +166,13 @@ public class FrameService(
                 StatusCodes.Status404NotFound);
         }
 
+        // Validate that financement logo is always present (either existing or new file provided)
+        if (string.IsNullOrEmpty(existingFrame.FinancementLogo) && entityDto.FinancementLogoFile is null)
+        {
+            return Result<RetrieveFrameDto>
+                .Fail("Logo de financiamento obrigatório", "O logo de financiamento é obrigatório.");
+        }
+
         if (!string.IsNullOrEmpty(entityDto.Program)
         && await _context.Frames.AnyAsync(f => f.Program == entityDto.Program && f.Id != existingFrame.Id))
         {
@@ -217,8 +224,15 @@ public class FrameService(
             hasChanges = true;
         }
 
+        // Handle ProgramLogo removal
+        if (entityDto.RemoveProgramLogo && !string.IsNullOrEmpty(existingFrame.ProgramLogo))
+        {
+            await _imageService.DeleteImageAsync(existingFrame.ProgramLogo);
+            existingFrame.ProgramLogo = string.Empty;
+            hasChanges = true;
+        }
         // Update ProgramLogo if file provided
-        if (entityDto.ProgramLogoFile != null)
+        else if (entityDto.ProgramLogoFile is not null)
         {
             if (!_imageService.IsValidImageFile(entityDto.ProgramLogoFile))
             {
@@ -233,7 +247,8 @@ public class FrameService(
             }
 
             // Save new logo
-            var programLogoResult = await _imageService.SaveImageAsync(entityDto.ProgramLogoFile, $"frames/{entityDto.Id}/program");
+            var programLogoResult = await _imageService
+                .SaveImageAsync(entityDto.ProgramLogoFile, $"frames/{entityDto.Id}/program");
             if (programLogoResult.Success)
             {
                 existingFrame.ProgramLogo = programLogoResult.Data;
@@ -241,8 +256,15 @@ public class FrameService(
             }
         }
 
+        // Prevent FinancementLogo removal - it's required
+        if (entityDto.RemoveFinancementLogo)
+        {
+            return Result<RetrieveFrameDto>
+                .Fail("Operação não permitida", "O logo de financiamento é obrigatório e não pode ser removido.");
+        }
+
         // Update FinancementLogo if file provided
-        if (entityDto.FinancementLogoFile != null)
+        if (entityDto.FinancementLogoFile is not null)
         {
             if (!_imageService.IsValidImageFile(entityDto.FinancementLogoFile))
             {
