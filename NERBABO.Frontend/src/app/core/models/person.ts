@@ -23,6 +23,6 @@ export type Person = {
   isStudent: boolean;
   isColaborator: boolean;
   habilitationComprovativePdfId?: number;
-  nifComprovativePdfId?: number;
+  ibanComprovativePdfId?: number;
   identificationDocumentPdfId?: number;
 };

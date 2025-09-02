@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, of, Subscription, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -31,7 +31,8 @@ import { PdfFileManagerComponent, PdfFileConfig } from '../../../shared/componen
   templateUrl: './view-people.component.html',
 })
 export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
-  person$?: Observable<Person | null>;
+  private personSubject = new BehaviorSubject<Person | null>(null);
+  person$ = this.personSubject.asObservable();
   selectedId!: number;
   fullName!: string;
   id!: number;
@@ -51,11 +52,11 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     fileNamePrefix: 'Certificado_de_Habilitacoes'
   };
 
-  nifPdfConfig: PdfFileConfig = {
-    title: 'Comprovativo de NIF',
-    description: 'Nenhum comprovativo de NIF foi carregado.',
+  ibanPdfConfig: PdfFileConfig = {
+    title: 'Comprovativo de IBAN',
+    description: 'Nenhum comprovativo de IBAN foi carregado.',
     icon: 'bi bi-file-earmark-pdf',
-    fileNamePrefix: 'Comprovativo_NIF'
+    fileNamePrefix: 'Comprovativo_IBAN'
   };
 
   identificationDocumentPdfConfig: PdfFileConfig = {
@@ -67,7 +68,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
 
   // Loading states
   isUploadingHabilitation: boolean = false;
-  isUploadingNif: boolean = false;
+  isUploadingIban: boolean = false;
   isUploadingIdentification: boolean = false;
 
   subscriptions: Subscription = new Subscription();
@@ -171,7 +172,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   }
 
   initializeEntity() {
-    this.person$ = this.peopleService.getSinglePerson(this.id).pipe(
+    this.peopleService.getSinglePerson(this.id).pipe(
       catchError((error) => {
         if (error.status === 401 || error.status === 403) {
           this.sharedService.redirectUser();
@@ -191,9 +192,10 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
           this.isTeacher = person.isTeacher ?? false;
           this.updateBreadcrumbs();
           this.populateMenu();
+          this.personSubject.next(person);
         }
       })
-    );
+    ).subscribe();
   }
 
   populateMenu(): void {
@@ -306,6 +308,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.personSubject.complete();
   }
 
   // PDF handling methods - Habilitation
@@ -389,43 +392,43 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     });
   }
 
-  // NIF PDF handling methods
-  private nifSelectedFile: File | null = null;
+  // IBAN PDF handling methods
+  private ibanSelectedFile: File | null = null;
 
-  onNifFileSelected(file: File): void {
-    this.nifSelectedFile = file;
+  onIbanFileSelected(file: File): void {
+    this.ibanSelectedFile = file;
   }
 
-  uploadNifPdf(): void {
-    if (!this.nifSelectedFile) {
+  uploadIbanPdf(): void {
+    if (!this.ibanSelectedFile) {
       this.sharedService.showWarning('Por favor selecione um ficheiro PDF.');
       return;
     }
 
-    this.isUploadingNif = true;
+    this.isUploadingIban = true;
     
-    this.peopleService.uploadNifPdf(this.id, this.nifSelectedFile).subscribe({
+    this.peopleService.uploadIbanPdf(this.id, this.ibanSelectedFile).subscribe({
       next: (response) => {
         this.sharedService.showSuccess('PDF carregado com sucesso.');
-        this.nifSelectedFile = null;
-        this.initializeEntity();
+        this.ibanSelectedFile = null;
+        this.refreshPersonData();
       },
       error: (error) => {
         this.handlePdfError(error, 'carregar');
       },
       complete: () => {
-        this.isUploadingNif = false;
+        this.isUploadingIban = false;
       }
     });
   }
 
-  downloadNifPdf(): void {
-    this.peopleService.downloadNifPdf(this.id).subscribe({
+  downloadIbanPdf(): void {
+    this.peopleService.downloadIbanPdf(this.id).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Comprovativo_NIF_${this.fullName.replace(/\s+/g, '_')}.pdf`;
+        link.download = `Comprovativo_IBAN_${this.fullName.replace(/\s+/g, '_')}.pdf`;
         link.click();
         window.URL.revokeObjectURL(url);
         this.sharedService.showSuccess('PDF descarregado com sucesso.');
@@ -436,8 +439,8 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     });
   }
 
-  viewNifPdf(): void {
-    this.peopleService.downloadNifPdf(this.id).subscribe({
+  viewIbanPdf(): void {
+    this.peopleService.downloadIbanPdf(this.id).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         window.open(url, '_blank');
@@ -449,15 +452,15 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     });
   }
 
-  deleteNifPdf(): void {
+  deleteIbanPdf(): void {
     if (!confirm('Tem a certeza que deseja eliminar este PDF? Esta ação não pode ser desfeita.')) {
       return;
     }
 
-    this.peopleService.deleteNifPdf(this.id).subscribe({
+    this.peopleService.deleteIbanPdf(this.id).subscribe({
       next: (response) => {
         this.sharedService.showSuccess('PDF eliminado com sucesso.');
-        this.initializeEntity();
+        this.updatePersonPdfProperty('ibanComprovativePdfId', null);
       },
       error: (error) => {
         this.handlePdfError(error, 'eliminar');
@@ -539,6 +542,29 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         this.handlePdfError(error, 'eliminar');
       }
     });
+  }
+
+  // Helper method for refreshing person data without full component reload
+  private refreshPersonData(): void {
+    this.peopleService.getSinglePerson(this.id).pipe(
+      catchError((error) => {
+        console.error('Error refreshing person data:', error);
+        return of(null);
+      })
+    ).subscribe((person) => {
+      if (person) {
+        this.personSubject.next(person);
+      }
+    });
+  }
+
+  // Helper method for updating person PDF properties without full reload
+  private updatePersonPdfProperty(property: keyof Person, value: number | null): void {
+    const currentPerson = this.personSubject.value;
+    if (currentPerson) {
+      const updatedPerson = { ...currentPerson, [property]: value };
+      this.personSubject.next(updatedPerson);
+    }
   }
 
   // Helper method for PDF error handling
