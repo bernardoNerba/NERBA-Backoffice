@@ -142,8 +142,8 @@ export class PeopleService {
     );
   }
 
-  // NIF PDF operations
-  uploadNifPdf(personId: number, file: File): Observable<Person> {
+  // IBAN PDF operations
+  uploadIbanPdf(personId: number, file: File): Observable<Person> {
     const formData = new FormData();
     formData.append('file', file);
     
@@ -155,14 +155,14 @@ export class PeopleService {
     );
   }
 
-  downloadNifPdf(personId: number): Observable<Blob> {
+  downloadIbanPdf(personId: number): Observable<Blob> {
     return this.http.get(
       `${API_ENDPOINTS.all_people}${personId}/nif-pdf`, 
       { responseType: 'blob' }
     );
   }
 
-  deleteNifPdf(personId: number): Observable<OkResponse> {
+  deleteIbanPdf(personId: number): Observable<OkResponse> {
     return this.http.delete<OkResponse>(
       `${API_ENDPOINTS.all_people}${personId}/nif-pdf`
     ).pipe(
