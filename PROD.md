@@ -35,22 +35,23 @@ The application runs in a multi-container Docker environment with the following 
 
 ### Port Mapping
 
-| Service | Internal Port | External Port | Purpose |
-|---------|---------------|---------------|---------|
-| Angular Frontend | 80 | 4200 | Web Application UI |
-| .NET API | 8080 | 5001 | Backend REST API |
-| PostgreSQL | 5432 | 5432 | Primary Database |
-| Redis | 6379 | 6379 | Caching & Sessions |
-| PgAdmin | 80 | 8080 | Database Administration |
-| Redis Insight | 5540 | 5540 | Cache Monitoring |
+| Service          | Internal Port | External Port | Purpose                 |
+| ---------------- | ------------- | ------------- | ----------------------- |
+| Angular Frontend | 80            | 4200          | Web Application UI      |
+| .NET API         | 8080          | 5001          | Backend REST API        |
+| PostgreSQL       | 5432          | 5432          | Primary Database        |
+| Redis            | 6379          | 6379          | Caching & Sessions      |
+| PgAdmin          | 80            | 8080          | Database Administration |
+| Redis Insight    | 5540          | 5540          | Cache Monitoring        |
 
 ## 🐳 Docker Configuration
 
 ### Container Specifications
 
 #### Frontend Container (Angular + Nginx)
+
 - **Base Image**: `node:18-alpine` → `nginx:alpine` (multi-stage)
-- **Build Process**: 
+- **Build Process**:
   - Installs npm dependencies
   - Builds Angular app for production
   - Serves via nginx on port 80
@@ -73,13 +74,14 @@ EXPOSE 80
 ```
 
 #### Backend Container (.NET API)
+
 - **Base Image**: `mcr.microsoft.com/dotnet/sdk:9.0` → `mcr.microsoft.com/dotnet/aspnet:9.0`
 - **Security**: Runs as non-root user (`appuser`)
-- **Volumes**: 
+- **Volumes**:
   - `/app/logs`, `/app/temp` for file operations
   - `/app/wwwroot` → `api_uploads` volume (persistent file storage)
 - **Health Check**: Built-in health endpoints
-- **File Storage**: 
+- **File Storage**:
   - Images: `/app/wwwroot/uploads/images/` (persistent)
   - PDFs: `/app/wwwroot/storage/pdfs/` (persistent)
 
@@ -101,6 +103,7 @@ EXPOSE 8080
 ```
 
 #### Database Container (PostgreSQL)
+
 - **Base Image**: `postgres:17.4`
 - **Authentication**: SCRAM-SHA-256
 - **Persistent Storage**: Named volume `postgres_data`
@@ -146,7 +149,7 @@ services:
       dockerfile: NERBABO.Backend/NERBABO.ApiService/Dockerfile
     container_name: nerbabo-api
     volumes:
-      - api_uploads:/app/wwwroot  # Persistent file storage
+      - api_uploads:/app/wwwroot # Persistent file storage
     depends_on:
       postgres:
         condition: service_healthy
@@ -190,23 +193,23 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # Cache images for better performance
         expires 1y;
         add_header Cache-Control "public, immutable";
-        
+
         # Handle errors gracefully
         proxy_intercept_errors on;
         error_page 404 = @missing_image;
     }
-    
+
     # Handle static assets (JS, CSS, fonts)
     location ~* \.(js|css|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
         try_files $uri =404;
     }
-    
+
     # Handle image files from frontend static assets
     location ~* \.(png|jpg|jpeg|gif)$ {
         expires 1y;
@@ -241,27 +244,27 @@ The script uses multiple methods to detect the server IP:
 ```bash
 get_local_ip() {
     local ip=""
-    
+
     # Method 1: ip route (Linux - most reliable)
     if command -v ip >/dev/null 2>&1; then
         ip=$(ip route get 8.8.8.8 2>/dev/null | awk '{print $7}' | head -n1)
     fi
-    
+
     # Method 2: hostname -I (fallback)
     if [ -z "$ip" ] && command -v hostname >/dev/null 2>&1; then
         ip=$(hostname -I | awk '{print $1}')
     fi
-    
+
     # Method 3: ifconfig (macOS/BSD fallback)
     if [ -z "$ip" ] && command -v ifconfig >/dev/null 2>&1; then
         ip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -n1)
     fi
-    
+
     # Default fallback
     if [ -z "$ip" ]; then
         ip="localhost"
     fi
-    
+
     echo "$ip"
 }
 ```
@@ -269,14 +272,17 @@ get_local_ip() {
 ### Secure Configuration Generation
 
 Automatically generates:
+
 - **Database passwords**: Cryptographically secure random passwords
-- **Redis passwords**: 32-character random passwords  
+- **Redis passwords**: 32-character random passwords
 - **JWT keys**: 64-character signing keys
 - **CORS origins**: Dynamic based on detected IP
+- **Migrations**: Using Entity Framework
 
 ### Automated Health Checks
 
 Post-deployment validation:
+
 - API health endpoint verification
 - Frontend accessibility check
 - Container status monitoring
@@ -289,7 +295,7 @@ Post-deployment validation:
 - **Storage Location**: `wwwroot/uploads/images/`
 - **Persistence**: Docker volume `api_uploads` ensures files survive container restarts
 - **Supported Formats**: JPG, PNG, GIF, BMP (max 5MB)
-- **Access Pattern**: 
+- **Access Pattern**:
   - Upload via API: `POST /api/frames` with multipart form
   - Access via URL: `GET /uploads/images/{filename}`
   - Nginx proxy: Frontend → API for dynamic serving
@@ -297,7 +303,7 @@ Post-deployment validation:
 
 ### PDF Service (IPdfService)
 
-- **Storage Location**: `wwwroot/storage/pdfs/` 
+- **Storage Location**: `wwwroot/storage/pdfs/`
 - **Persistence**: Docker volume `api_uploads` ensures files survive container restarts
 - **Generation**: On-demand report generation using QuestPDF
 - **Caching**: SHA-256 content hashing for deduplication
@@ -307,10 +313,11 @@ Post-deployment validation:
 ### File URL Generation
 
 Images are served with fully qualified URLs:
+
 ```csharp
 // Example from Frame.cs:50-53
-ProgramLogoUrl = !string.IsNullOrEmpty(frame.ProgramLogo) 
-    ? $"{Helper.UrlHelper.GetBaseUrl()}/uploads/images/{frame.ProgramLogo.Replace('\\', '/')}" 
+ProgramLogoUrl = !string.IsNullOrEmpty(frame.ProgramLogo)
+    ? $"{Helper.UrlHelper.GetBaseUrl()}/uploads/images/{frame.ProgramLogo.Replace('\\', '/')}"
     : null
 ```
 
@@ -404,6 +411,7 @@ docker-compose logs -f -t
 ### Health Monitoring
 
 Health checks configured for all critical services:
+
 - PostgreSQL: `pg_isready` check every 30s
 - Redis: Connection validation
 - API: Application health endpoints (development only)
@@ -466,11 +474,13 @@ docker run --rm -v nerbabo-api-uploads:/target -v $(pwd):/backup ubuntu tar xzf 
 ### Common Issues
 
 **Migration Failures**:
+
 - Check PostgreSQL container health: `docker-compose ps`
 - Verify database connection: Connection string in logs
 - Check disk space: Migrations require temporary storage
 
 **File Upload Issues**:
+
 - Verify nginx proxy configuration points to `nerbabo-api`
 - Check container networking: `docker network ls`
 - Validate file permissions: `/app/wwwroot` ownership
@@ -478,6 +488,7 @@ docker run --rm -v nerbabo-api-uploads:/target -v $(pwd):/backup ubuntu tar xzf 
 - Check persistent storage: `docker volume ls | grep nerbabo-api-uploads`
 
 **Performance Issues**:
+
 - Monitor Redis cache hit rate via Redis Insight
 - Check PostgreSQL connection pooling
 - Review nginx access logs for static file serving
@@ -485,6 +496,7 @@ docker run --rm -v nerbabo-api-uploads:/target -v $(pwd):/backup ubuntu tar xzf 
 ### Debug Mode
 
 Enable detailed logging by setting environment variables:
+
 ```bash
 # In .env file
 ASPNETCORE_ENVIRONMENT=Development
@@ -503,6 +515,7 @@ Logging__LogLevel__Default=Debug
 ### SSL/TLS
 
 For production internet deployment:
+
 1. Obtain SSL certificates (Let's Encrypt recommended)
 2. Configure nginx SSL termination
 3. Update CORS origins to HTTPS

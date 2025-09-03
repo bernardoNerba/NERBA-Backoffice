@@ -101,6 +101,36 @@ if ! docker compose version >/dev/null 2>&1; then
     DOCKER_COMPOSE_CMD="docker-compose"
 fi
 
+# Check if .NET SDK and EF tools are available
+if ! command -v dotnet >/dev/null 2>&1; then
+    echo -e "${RED}❌ .NET SDK is not installed. Please install .NET SDK 9.0 and try again.${NC}"
+    exit 1
+fi
+
+# Check if this is first run by looking for existing migrations
+MIGRATIONS_DIR="NERBABO.Backend/NERBABO.ApiService/Data/Migrations"
+FIRST_RUN=false
+
+if [ ! -d "$MIGRATIONS_DIR" ] || [ -z "$(ls -A "$MIGRATIONS_DIR" 2>/dev/null)" ]; then
+    FIRST_RUN=true
+    echo -e "${YELLOW}📦 First run detected - will create InitialMigration${NC}"
+else
+    echo -e "${GREEN}✅ Existing migrations found - skipping migration creation${NC}"
+fi
+
+# Create InitialMigration if this is the first run
+if [ "$FIRST_RUN" = true ]; then
+    echo -e "${GREEN}🔧 Creating InitialMigration...${NC}"
+    
+    # Navigate to backend directory and create migration
+    if ! dotnet ef migrations add "InitialMigration" -o Data/Migrations --project NERBABO.Backend/NERBABO.ApiService; then
+        echo -e "${RED}❌ Failed to create InitialMigration. Please ensure EF tools are installed: dotnet tool install --global dotnet-ef${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✅ InitialMigration created successfully${NC}"
+fi
+
 # Stop existing containers if running
 echo -e "${YELLOW}🛑 Stopping existing containers...${NC}"
 $DOCKER_COMPOSE_CMD down
