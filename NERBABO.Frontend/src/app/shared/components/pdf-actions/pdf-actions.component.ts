@@ -19,7 +19,9 @@ interface PdfOption {
   standalone: true,
   imports: [CommonModule, ButtonModule, DropdownModule, TooltipModule],
   template: `
-    <div class="d-flex flex-wrap gap-2 justify-content-between">
+    <div
+      class="d-flex flex-wrap gap-2 align-items-center justify-content-between"
+    >
       <div class="me-4">
         <i class="pi pi-file-pdf me-2"> </i>
         {{ title || '' }}

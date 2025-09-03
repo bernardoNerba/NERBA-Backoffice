@@ -3,22 +3,22 @@
     .file-input-wrapper {
       position: relative;
     }
-    
+
     .file-input-hidden {
       position: absolute;
       opacity: 0;
       pointer-events: none;
     }
-    
+
     .file-input-display {
       cursor: pointer;
       color: #6c757d;
     }
-    
+
     .file-input-display:hover {
       border-color: #86b7fe;
     }
-    
+
     .file-input-display.has-file {
       color: #212529;
     }
@@ -26,7 +26,9 @@
   <!-- PDF exists - show download/view/delete options -->
   <div class="list-group">
     <div
-      class="list-group-item bg-green-white d-flex align-items-center justify-content-between"
+      class="list-group-item {{
+        hasFile() ? 'bg-green-white' : 'bg-orange-white'
+      }} d-flex align-items-center justify-content-between"
     >
       <div class="d-flex align-items-center mt-2">
         <h6 class="fw-bold">
@@ -82,9 +84,11 @@
             [disabled]="disabled"
             (change)="onFileSelected($event)"
           />
-          <div class="file-input-display form-control" 
-               [class.has-file]="hasFile() || selectedFile"
-               (click)="openFileDialog()">
+          <div
+            class="file-input-display form-control"
+            [class.has-file]="hasFile() || selectedFile"
+            (click)="openFileDialog()"
+          >
             {{ getDisplayText() }}
           </div>
         </div>
