@@ -1,5 +1,5 @@
 
-using Microsoft.EntityFrameworkCore.Storage.Json;
+using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Enrollments.Dtos;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Core.Students.Models;
@@ -13,38 +13,40 @@ namespace NERBABO.ApiService.Core.Enrollments.Models;
 public class MTEnrollment : Entity<long>
 {
     // Instance Properties
-    public long ModuleTeachingId { get; set; }
+    public long ActionId { get; set; }
     public long StudentId { get; set; }
-    public double TeacherEvaluation { get; set; }
+    public double Evaluation { get; set; }
 
     // Navigation Properties
-    public required ModuleTeaching ModuleTeaching { get; set; }
+    public required CourseAction Action { get; set; }
     public required Student Student { get; set; }
 
     // Calculated Properties
-    public bool Approved => TeacherEvaluation >= 3;
+    public bool Approved => Evaluation >= 3;
 
     public static RetrieveMTEnrollmentDto ConvertEntityToRetrieveDto(MTEnrollment mt)
     {
         return new RetrieveMTEnrollmentDto
         {
             EnrollmentId = mt.Id,
-            TeacherEvaluation = mt.TeacherEvaluation,
-            StudentFullName = mt.ModuleTeaching.Teacher.Person.FullName,
+            Evaluation = mt.Evaluation,
+            StudentFullName = mt.Student.Person.FullName,
             Approved = mt.Approved,
-            ModuleTeachingId = mt.ModuleTeachingId,
+            ActionId = mt.ActionId,
             CreatedAt = mt.CreatedAt
         };
     }
 
-    public static MTEnrollment ConvertCreateDtoToEntity(CreateMTEnrollmentDto mte, ModuleTeaching mt, Student s)
+    public static MTEnrollment ConvertCreateDtoToEntity(CreateMTEnrollmentDto mte, CourseAction a, Student s)
     {
         return new MTEnrollment
         {
-            ModuleTeachingId = mte.ModuleTeachingId,
+            ActionId = mte.ActionId,
             StudentId = mte.StudentId,
-            ModuleTeaching = mt,
-            Student = s
+            Action = a,
+            Student = s,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 }

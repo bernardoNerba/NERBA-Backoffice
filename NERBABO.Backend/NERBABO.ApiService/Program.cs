@@ -20,6 +20,7 @@ using NERBABO.ApiService.Core.Companies.Services;
 using NERBABO.ApiService.Core.Courses.Cache;
 using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Courses.Services;
+using NERBABO.ApiService.Core.Enrollments.Services;
 using NERBABO.ApiService.Core.Frames.Services;
 using NERBABO.ApiService.Core.Global.Services;
 using NERBABO.ApiService.Core.Modules.Cache;
@@ -78,8 +79,11 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseActionService, CourseActionService>();
 builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<IMTEnrollmentService, MTEnrollmentService>();
+
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+
 builder.Services.AddScoped<SessionsTimelineComposer>();
 
 // Register HTTP context accessor for URL generation

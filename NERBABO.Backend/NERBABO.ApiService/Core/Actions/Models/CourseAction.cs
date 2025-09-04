@@ -3,6 +3,7 @@ using Humanizer;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
+using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Enums;
@@ -30,7 +31,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
 
         public bool AllModulesOfActionHaveTeacher
             => Course.Modules.All(m =>
-                ModuleTeachings.Any(tma => tma.ModuleId == m.Id));
+                ModuleTeachings.Any(tma => tma.ModuleId == m.Id && tma.TeacherId > 0));
 
         public bool IsActionActive =>
             Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
@@ -52,6 +53,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public required Course Course { get; set; }
         public required User Coordenator { get; set; }
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
+        public List<MTEnrollment> MTEnrollments { get; set; } = [];
 
 
         public static RetrieveCourseActionDto ConvertEntityToRetrieveDto(CourseAction ca, User u, Course c)

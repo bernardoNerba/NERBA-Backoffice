@@ -11,11 +11,11 @@ public class MTEnrollmentConfiguration : IEntityTypeConfiguration<MTEnrollment>
     {
         builder.ToTable("MTEnrollments");
         builder.HasKey(tme => tme.Id);
-        builder.HasIndex(tme => new { tme.ModuleTeachingId, tme.StudentId });
+        builder.HasIndex(tme => new { tme.ActionId, tme.StudentId });
 
-        builder.HasOne(tme => tme.ModuleTeaching)
-                .WithMany(mt => mt.MTEnrollments)
-                .HasForeignKey(tme => tme.ModuleTeachingId)
+        builder.HasOne(tme => tme.Action)
+                .WithMany(a => a.MTEnrollments)
+                .HasForeignKey(tme => tme.ActionId)
                 .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasOne(tme => tme.Student)

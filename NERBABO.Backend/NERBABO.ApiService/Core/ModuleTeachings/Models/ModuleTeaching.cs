@@ -24,7 +24,6 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public required CourseAction Action { get; set; }
         public required Module Module { get; set; }
         public List<Session> Sessions { get; set; } = [];
-        public List<MTEnrollment> MTEnrollments { get; set; } = [];
 
         // Calculated properties
         public float AvaliationAvg =>
