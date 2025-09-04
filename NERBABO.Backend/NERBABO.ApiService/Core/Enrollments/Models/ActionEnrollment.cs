@@ -1,4 +1,3 @@
-
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Enrollments.Dtos;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
@@ -8,9 +7,9 @@ using NERBABO.ApiService.Shared.Models;
 namespace NERBABO.ApiService.Core.Enrollments.Models;
 
 /// <summary>
-/// Module Teaching Student enrrolement
+/// Action Student enrollment
 /// </summary>
-public class MTEnrollment : Entity<long>
+public class ActionEnrollment : Entity<long>
 {
     // Instance Properties
     public long ActionId { get; set; }
@@ -24,25 +23,25 @@ public class MTEnrollment : Entity<long>
     // Calculated Properties
     public bool Approved => Evaluation >= 3;
 
-    public static RetrieveMTEnrollmentDto ConvertEntityToRetrieveDto(MTEnrollment mt)
+    public static RetrieveActionEnrollmentDto ConvertEntityToRetrieveDto(ActionEnrollment ae)
     {
-        return new RetrieveMTEnrollmentDto
+        return new RetrieveActionEnrollmentDto
         {
-            EnrollmentId = mt.Id,
-            Evaluation = mt.Evaluation,
-            StudentFullName = mt.Student.Person.FullName,
-            Approved = mt.Approved,
-            ActionId = mt.ActionId,
-            CreatedAt = mt.CreatedAt
+            EnrollmentId = ae.Id,
+            Evaluation = ae.Evaluation,
+            StudentFullName = ae.Student.Person.FullName,
+            Approved = ae.Approved,
+            ActionId = ae.ActionId,
+            CreatedAt = ae.CreatedAt
         };
     }
 
-    public static MTEnrollment ConvertCreateDtoToEntity(CreateMTEnrollmentDto mte, CourseAction a, Student s)
+    public static ActionEnrollment ConvertCreateDtoToEntity(CreateActionEnrollmentDto ae, CourseAction a, Student s)
     {
-        return new MTEnrollment
+        return new ActionEnrollment
         {
-            ActionId = mte.ActionId,
-            StudentId = mte.StudentId,
+            ActionId = ae.ActionId,
+            StudentId = ae.StudentId,
             Action = a,
             Student = s,
             CreatedAt = DateTime.UtcNow,

@@ -43,7 +43,7 @@ namespace NERBABO.ApiService.Core.Students.Models
         // Navigation Properties
         public required Person Person { get; set; }
         public Company? Company { get; set; }
-        public List<MTEnrollment> MTEnrollments { get; set; } = [];
+        public List<ActionEnrollment> ActionEnrollments { get; set; } = [];
 
 
         public static RetrieveStudentDto ConvertEntityToRetrieveDto(Student s, Person p, Company? c)

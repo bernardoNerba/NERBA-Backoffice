@@ -32,7 +32,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<CourseAction> Actions { get; set; }
     public DbSet<ModuleTeaching> ModuleTeachings { get; set; }
     public DbSet<Session> Sessions { get; set; }
-    public DbSet<MTEnrollment> MTEnrollments { get; set; }
+    public DbSet<ActionEnrollment> ActionEnrollments { get; set; }
     public DbSet<SavedPdf> SavedPdfs { get; set; }
 
 
@@ -61,7 +61,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.ApplyConfiguration(new CourseActionConfiguration());
         builder.ApplyConfiguration(new TeacherModuleActionConfiguration());
         builder.ApplyConfiguration(new SessionConfiguration());
-        builder.ApplyConfiguration(new MTEnrollmentConfiguration());
+        builder.ApplyConfiguration(new ActionEnrollmentConfiguration());
         builder.ApplyConfiguration(new SavedPdfConfiguration());
     }
 }

@@ -1,6 +1,6 @@
 namespace NERBABO.ApiService.Core.Enrollments.Dtos;
 
-public class RetrieveMTEnrollmentDto
+public class RetrieveActionEnrollmentDto
 {
     public long EnrollmentId { get; set; }
     public double Evaluation { get; set; }

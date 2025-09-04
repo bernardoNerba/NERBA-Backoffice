@@ -53,7 +53,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public required Course Course { get; set; }
         public required User Coordenator { get; set; }
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
-        public List<MTEnrollment> MTEnrollments { get; set; } = [];
+        public List<ActionEnrollment> ActionEnrollments { get; set; } = [];
 
 
         public static RetrieveCourseActionDto ConvertEntityToRetrieveDto(CourseAction ca, User u, Course c)

@@ -79,7 +79,7 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseActionService, CourseActionService>();
 builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
-builder.Services.AddScoped<IMTEnrollmentService, MTEnrollmentService>();
+builder.Services.AddScoped<IActionEnrollmentService, ActionEnrollmentService>();
 
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();

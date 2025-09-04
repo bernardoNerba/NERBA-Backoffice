@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.Enrollments.Dtos;
 
-public class CreateMTEnrollmentDto
+public class CreateActionEnrollmentDto
 {
-    [Required(ErrorMessage = "Relação Ação Módulo é um campo obrigatório.")]
+    [Required(ErrorMessage = "Ação é um campo obrigatório.")]
     public long ActionId { get; set; }
 
     [Required(ErrorMessage = "Formando é um campo obrigatório.")]
