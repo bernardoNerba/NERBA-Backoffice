@@ -182,7 +182,9 @@
               <!-- Course MinLvl -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <div class="bg-green-white fw-bold">Nível Min. Habilitações</div>
+                  <div class="bg-green-white fw-bold">
+                    Nível Min. Habilitações
+                  </div>
                   <p class="text-break mb-0">
                     {{ course.minHabilitationLevel }}
                   </p>
@@ -249,7 +251,7 @@
           aria-controls="module-info-content"
         >
           <app-icon [icon]="ICONS.modules" [marginEnd]="3" />
-          <h5>Módulos</h5>
+          <h5>Módulos | Formadores</h5>
           <span class="badge bg-success">
             {{ modulesWithTeacher.length }}x
           </span>
@@ -273,6 +275,43 @@
     </div>
     } }
     <!-- END MODULES TABLE ACCORDION -->
+
+    <!-- STUDENT ENROLLMENTS ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-enrollments">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#enrollments-content"
+          aria-expanded="false"
+          aria-controls="enrollments-content"
+        >
+          <app-icon [icon]="ICONS.student" [marginEnd]="3" />
+          <h5>Formandos Inscritos | Avaliação Final</h5>
+          @if (!enrollmentsLoading) {
+          <span class="badge bg-success ms-2">
+            {{ actionEnrollments.length }}x
+          </span>
+          }
+        </button>
+      </h2>
+      <div
+        id="enrollments-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-enrollments"
+      >
+        <div class="accordion-body">
+          <app-action-enrollment-table
+            [actionEnrollments]="actionEnrollments"
+            [loading]="enrollmentsLoading"
+            [showActionColumn]="false"
+            [showMenuActions]="true"
+          />
+        </div>
+      </div>
+    </div>
+    <!-- END STUDENT ENROLLMENTS ACCORDION -->
 
     <!-- SESSIONS ACCORDION-->
     <div class="accordion-item">

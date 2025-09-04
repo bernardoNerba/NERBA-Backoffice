@@ -10,6 +10,4 @@ public class UpdateActionEnrollmentDto : EntityDto<long>
 
     [Required(ErrorMessage = "Formando é um campo obrigatório.")]
     public long StudentId { get; set; }
-
-    public double Evaluation { get; set; }
 }

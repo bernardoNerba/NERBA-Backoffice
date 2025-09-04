@@ -1,0 +1,205 @@
+<!-- Loading spinner -->
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Loading inscrições...</p>
+</div>
+}
+<!-- START table -->
+@else {
+<div class="table-responsive">
+  <p-table
+    #dt
+    stripedRows
+    [value]="actionEnrollments"
+    size="small"
+    [tableStyle]="{ 'min-width': '70rem' }"
+    [globalFilterFields]="['studentFullName', 'evaluation']"
+    [paginator]="true"
+    [rows]="10"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    (onPage)="pageChange($event)"
+    [rowsPerPageOptions]="[10, 25, 50]"
+  >
+    <!-- Table caption with Search -->
+    <ng-template #caption>
+      <div
+        class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center"
+      >
+        <!-- Filter Controls Section -->
+        <div
+          class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1"
+        >
+          <!-- Search Section -->
+          <div
+            class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0"
+          >
+            <div class="flex-grow-1">
+              <p-iconfield iconPosition="left" class="w-100">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input
+                  [(ngModel)]="searchValue"
+                  (ngModelChange)="dt.filterGlobal($event, 'contains')"
+                  pInputText
+                  type="text"
+                  placeholder="Procurar formandos..."
+                  class="w-100"
+                  style="min-width: 200px"
+                />
+              </p-iconfield>
+            </div>
+            <p-button
+              icon="pi pi-filter-slash"
+              [outlined]="true"
+              (click)="clearFilters()"
+              pTooltip="Limpar filtros"
+              class="flex-shrink-0"
+            />
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        @if (showMenuActions) {
+        <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+        }
+        <th pSortableColumn="studentFullName" style="min-width: 250px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-md-inline">Nome do Formando</span>
+            <span class="d-inline d-md-none">Formando</span>
+            <p-sortIcon field="studentFullName" />
+          </div>
+        </th>
+        @if (showActionColumn) {
+        <th pSortableColumn="actionId" style="min-width: 120px">
+          <div class="d-flex align-items-center gap-2">
+            Ação
+            <p-sortIcon field="actionId" />
+          </div>
+        </th>
+        }
+        <th pSortableColumn="evaluation" style="width: 180px; min-width: 180px">
+          <div class="d-flex align-items-center gap-2">
+            Avaliação Final
+            <p-sortIcon field="evaluation" />
+          </div>
+        </th>
+        <th pSortableColumn="approved" style="width: 180px; min-width: 180px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-lg-inline">Aprovação</span>
+            <span class="d-inline d-lg-none">Aprovação</span>
+            <p-sortIcon field="approved" />
+          </div>
+        </th>
+        <th pSortableColumn="createdAt" style="width: 180px; min-width: 180px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-lg-inline">Data Inscrição</span>
+            <span class="d-inline d-lg-none">Inscrição</span>
+            <p-sortIcon field="createdAt" />
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-enrollment>
+      <tr>
+        <!-- DROPDOWN MENU -->
+        @if (showMenuActions) {
+        <td class="text-center">
+          <p-menu
+            #menu
+            [model]="menuItems"
+            [popup]="true"
+            [appendTo]="'body'"
+          />
+          <p-button
+            icon="pi pi-ellipsis-v"
+            [rounded]="true"
+            severity="contrast"
+            [outlined]="true"
+            size="small"
+            (click)="menu.toggle($event); selectedEnrollment = enrollment"
+          />
+        </td>
+        }
+        <!-- STUDENT FULLNAME -->
+        <td class="text-break">
+          <div class="d-flex align-items-center gap-2">
+            <app-icon-anchor
+              [display]="enrollment.studentFullName | truncate : 30"
+              [field]="enrollment.studentFullName"
+              [link]="'/people/' + enrollment.personId"
+              icon="pi pi-user"
+            />
+          </div>
+        </td>
+        <!-- ACTION ID -->
+        @if (showActionColumn) {
+        <td class="text-break">
+          <p-tag
+            [value]="'#' + enrollment.actionId"
+            severity="info"
+            icon="pi pi-flag"
+          />
+        </td>
+        }
+        <!-- EVALUATION -->
+        <td>
+          @if (enrollment.evaluation > 0) {
+          <p-tag
+            [value]="formatEvaluation(enrollment.evaluation)"
+            [severity]="enrollment.approved ? 'success' : 'warning'"
+            icon="pi pi-star"
+          />
+          } @else {
+          <p-tag value="Pendente" severity="warn" icon="pi pi-clock" />
+          }
+        </td>
+        <!-- APPROVAL STATUS -->
+        <td>
+          <p-tag
+            [value]="enrollment.approvalStatus"
+            [severity]="getApprovalStatusSeverity(enrollment.approvalStatus)"
+            [icon]="getApprovalStatusIcon(enrollment.approvalStatus)"
+            class="w-100 d-flex justify-content-center"
+          />
+        </td>
+        <!-- CREATED AT -->
+        <td>
+          <small class="text-muted">
+            {{ enrollment.createdAt | date : "dd/MM/yyyy" }}
+          </small>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- EMPTY STATE -->
+    <ng-template #emptymessage>
+      <tr>
+        <td
+          [attr.colspan]="
+            showActionColumn
+              ? showMenuActions
+                ? 6
+                : 5
+              : showMenuActions
+              ? 5
+              : 4
+          "
+        >
+          <div class="text-center py-4">
+            <i class="pi pi-users text-muted" style="font-size: 2rem"></i>
+            <p class="mt-2 mb-0">
+              Não foram encontradas inscrições nesta ação.
+            </p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+}

@@ -56,7 +56,8 @@ namespace NERBABO.ApiService.Core.Students.Models
                 s.CompanyRole ?? "N/A",
                 s.IsEmployeed,
                 s.IsRegisteredWithJobCenter,
-                $"{p.FirstName} {p.LastName}"
+                $"{p.FirstName} {p.LastName}",
+                p.NIF
                 );
         }
 

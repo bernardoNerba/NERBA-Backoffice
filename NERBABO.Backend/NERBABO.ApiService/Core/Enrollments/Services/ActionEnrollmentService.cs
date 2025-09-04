@@ -3,6 +3,9 @@ using NERBABO.ApiService.Core.Enrollments.Dtos;
 using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Shared.Enums;
+using NERBABO.ApiService.Helper;
+using Humanizer;
 
 namespace NERBABO.ApiService.Core.Enrollments.Services;
 
@@ -100,14 +103,48 @@ public class ActionEnrollmentService(
                 StatusCodes.Status201Created);
     }
 
-    public Task<Result> DeleteAsync(long id)
+    public async Task<Result> DeleteAsync(long id)
     {
-        throw new NotImplementedException();
+        var existingEnrollment = await _context.ActionEnrollments
+            .FirstOrDefaultAsync(ae => ae.Id == id);
+        
+        if (existingEnrollment is null)
+        {
+            _logger.LogWarning("Action enrollment with ID {EnrollmentId} not found during deletion.", id);
+            return Result.Fail("Não encontrado.", "Inscrição de ação não encontrada.",
+                StatusCodes.Status404NotFound);
+        }
+
+        try
+        {
+            _context.ActionEnrollments.Remove(existingEnrollment);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error deleting Action enrollment {EnrollmentId}", id);
+            return Result.Fail("Erro de Base de Dados.", "Erro ao eliminar inscrição.");
+        }
+
+        _logger.LogInformation("Action enrollment {EnrollmentId} deleted successfully.", id);
+
+        return Result.Ok("Eliminado com sucesso.", "A inscrição foi eliminada com sucesso.",
+            StatusCodes.Status200OK);
     }
 
-    public Task<Result<IEnumerable<RetrieveActionEnrollmentDto>>> GetAllAsync()
+    public async Task<Result<IEnumerable<RetrieveActionEnrollmentDto>>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        var actionEnrollments = await _context.ActionEnrollments
+            .AsNoTracking()
+            .Include(e => e.Student).ThenInclude(s => s.Person)
+            .Include(e => e.Action)
+            .ToListAsync()
+            ?? [];
+        
+        var retrieveAEs = actionEnrollments.Select(ActionEnrollment.ConvertEntityToRetrieveDto);
+
+        return Result<IEnumerable<RetrieveActionEnrollmentDto>>
+                .Ok(retrieveAEs);
     }
 
     public async Task<Result<IEnumerable<RetrieveActionEnrollmentDto>>> GetAllByActionId(long actionId)
@@ -136,13 +173,51 @@ public class ActionEnrollmentService(
                 .Ok(retrieveAEs);
     }
 
-    public Task<Result<RetrieveActionEnrollmentDto>> GetByIdAsync(long id)
+    public async Task<Result<RetrieveActionEnrollmentDto>> GetByIdAsync(long id)
     {
-        throw new NotImplementedException();
+        var enrollment = await _context.ActionEnrollments
+            .AsNoTracking()
+            .Include(e => e.Student).ThenInclude(s => s.Person)
+            .Include(e => e.Action)
+            .FirstOrDefaultAsync(e => e.Id == id);
+        
+        if (enrollment is null)
+        {
+            _logger.LogWarning("Action enrollment with ID {EnrollmentId} not found.", id);
+            return Result<RetrieveActionEnrollmentDto>
+                .Fail("Não encontrado.", "Inscrição de ação não encontrada.",
+                StatusCodes.Status404NotFound);
+        }
+        
+        var retrieveDto = ActionEnrollment.ConvertEntityToRetrieveDto(enrollment);
+
+        return Result<RetrieveActionEnrollmentDto>
+                .Ok(retrieveDto);
     }
 
-    public Task<Result<RetrieveActionEnrollmentDto>> UpdateAsync(UpdateActionEnrollmentDto entityDto)
+    public async Task<Result<RetrieveActionEnrollmentDto>> UpdateAsync(UpdateActionEnrollmentDto entityDto)
     {
-        throw new NotImplementedException();
+        var existingEnrollment = await _context.ActionEnrollments
+            .Include(ae => ae.Student).ThenInclude(s => s.Person)
+            .Include(ae => ae.Action)
+            .FirstOrDefaultAsync(ae => ae.Id == entityDto.Id);
+        
+        if (existingEnrollment is null)
+        {
+            _logger.LogWarning("Action enrollment with ID {EnrollmentId} not found during update.", entityDto.Id);
+            return Result<RetrieveActionEnrollmentDto>
+                .Fail("Não encontrado.", "Inscrição de ação não encontrada.",
+                StatusCodes.Status404NotFound);
+        }
+
+        await _context.SaveChangesAsync();
+        var retrieveDto = ActionEnrollment.ConvertEntityToRetrieveDto(existingEnrollment);
+
+        _logger.LogInformation("Action enrollment {EnrollmentId} updated successfully.", entityDto.Id);
+
+        return Result<RetrieveActionEnrollmentDto>
+            .Ok(retrieveDto, "Atualizado com sucesso.",
+            "A inscrição foi atualizada com sucesso.",
+            StatusCodes.Status200OK);
     }
 }

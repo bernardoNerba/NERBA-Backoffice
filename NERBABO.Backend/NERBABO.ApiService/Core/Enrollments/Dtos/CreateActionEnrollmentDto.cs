@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using NERBABO.ApiService.Shared.Enums;
 
 namespace NERBABO.ApiService.Core.Enrollments.Dtos;
 

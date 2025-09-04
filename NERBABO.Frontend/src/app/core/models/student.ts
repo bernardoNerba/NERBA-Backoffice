@@ -4,6 +4,7 @@ export interface Student {
   companyId: number | null;
   companyName: string;
   studentFullName: string;
+  nif: string;
   companyRole: string;
   jobCenter: string;
   employeed: string;

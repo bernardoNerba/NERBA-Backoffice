@@ -1,0 +1,135 @@
+<!-- upsert-action-enrollment.component.html -->
+<div class="modal-header">
+  <h4 class="modal-title">
+    {{ getModalTitle() }}
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  ></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form">
+    <div class="container">
+      <div class="row">
+        <!-- Student Dropdown -->
+        @if (!isUpdate) {
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label for="studentId">
+              Formando
+              <span class="text-danger">*</span>
+            </label>
+            <p-dropdown
+              formControlName="studentId"
+              [options]="(students$ | async) ?? []"
+              optionLabel="studentFullName"
+              optionValue="id"
+              placeholder="Selecione um formando..."
+              styleClass="w-100"
+              [class.is-invalid]="submitted && form.get('studentId')?.errors"
+              class="{{
+                submitted && form.get('studentId')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            >
+              <ng-template #selectedItem let-option>
+                @if (option) {
+                <div class="d-flex align-items-center gap-2">
+                  <i class="pi pi-user text-muted"></i>
+                  <span
+                    >{{ option.studentFullName }} (NIF: {{ option.nif }})</span
+                  >
+                </div>
+                }
+              </ng-template>
+              <ng-template #item let-option>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="pi pi-user text-muted"></i>
+                  <div class="d-flex flex-column">
+                    <span class="fw-medium">{{ option.studentFullName }}</span>
+                    <small class="text-muted">NIF: {{ option.nif }}</small>
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+            @if (submitted && form.get('studentId')?.hasError('required')) {
+            <span class="text-danger">Formando é um campo obrigatório.</span>
+            }
+          </div>
+        </div>
+        } @else {
+        <!-- Display student name for update -->
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label for="studentInfo">Formando</label>
+            <input
+              type="text"
+              pInputText
+              [value]="currentEnrollment?.studentFullName"
+              disabled
+              class="w-100"
+            />
+          </div>
+        </div>
+        }
+        <!-- END Student Info -->
+
+        <!-- Approval Status -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="approvalStatus">
+              Estado de Aprovação
+              <span class="text-danger">*</span>
+            </label>
+            <p-dropdown
+              formControlName="approvalStatus"
+              [options]="approvalStatusOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Selecione o estado..."
+              styleClass="w-100"
+              [class.is-invalid]="
+                submitted && form.get('approvalStatus')?.errors
+              "
+              class="{{
+                submitted && form.get('approvalStatus')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
+            @if (submitted && form.get('approvalStatus')?.hasError('required'))
+            {
+            <span class="text-danger"
+              >Estado de aprovação é um campo obrigatório.</span
+            >
+            }
+          </div>
+        </div>
+        <!-- END Approval Status -->
+      </div>
+    </div>
+
+    <app-error-card [errors]="errorMessages" [submitted]="submitted" />
+  </form>
+</div>
+<div class="modal-footer">
+  <div class="text-end">
+    <button type="button" class="btn-gray me-2" (click)="bsModalRef.hide()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-main"
+      [disabled]="loading"
+      (click)="onSubmit()"
+    >
+      @if (loading) {
+      <span class="spinner-border spinner-border-sm me-1"></span>
+      } {{ getSubmitButtonText() }}
+    </button>
+  </div>
+</div>
