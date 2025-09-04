@@ -43,6 +43,6 @@ public static class PdfTypes
     public const string SessionDetail = "SessionDetail"; 
     public const string ActionSummary = "ActionSummary";
     public const string HabilitationComprovative = "HabilitationComprovative";
-    public const string NifComprovative = "NifComprovative";
+    public const string IbanComprovative = "IbanComprovative";
     public const string IdentificationDocument = "IdentificationDocument";
 }

@@ -691,8 +691,8 @@ public class PeopleService(
         }
     }
 
-    // NIF PDF Methods
-    public async Task<Result<RetrievePersonDto>> UploadNifPdfAsync(long personId, IFormFile file, string generatedByUserId)
+    // IBAN PDF Methods
+    public async Task<Result<RetrievePersonDto>> UploadIbanPdfAsync(long personId, IFormFile file, string generatedByUserId)
     {
         try
         {
@@ -716,7 +716,7 @@ public class PeopleService(
             var pdfContent = memoryStream.ToArray();
 
             // Save PDF using PdfService
-            var savePdfResult = await _pdfService.SavePdfAsync(PdfTypes.NifComprovative, personId, pdfContent, generatedByUserId);
+            var savePdfResult = await _pdfService.SavePdfAsync(PdfTypes.IbanComprovative, personId, pdfContent, generatedByUserId);
             if (!savePdfResult.Success)
             {
                 return Result<RetrievePersonDto>
@@ -735,17 +735,17 @@ public class PeopleService(
             await _cache.SetSinglePersonCacheAsync(retrievePerson);
 
             return Result<RetrievePersonDto>
-                .Ok(retrievePerson, "PDF carregado.", "PDF de comprovativo de NIF carregado com sucesso.");
+                .Ok(retrievePerson, "PDF carregado.", "PDF de comprovativo de IBAN carregado com sucesso.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error uploading NIF PDF for person {PersonId}", personId);
+            _logger.LogError(ex, "Error uploading IBAN PDF for person {PersonId}", personId);
             return Result<RetrievePersonDto>
                 .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.", StatusCodes.Status500InternalServerError);
         }
     }
 
-    public async Task<Result<FileDownloadResult>> GetNifPdfAsync(long personId)
+    public async Task<Result<FileDownloadResult>> GetIbanPdfAsync(long personId)
     {
         try
         {
@@ -759,7 +759,7 @@ public class PeopleService(
             if (!person.IbanComprovativePdfId.HasValue)
             {
                 return Result<FileDownloadResult>
-                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de NIF encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de IBAN encontrado para esta pessoa.", StatusCodes.Status404NotFound);
             }
 
             var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.IbanComprovativePdfId.Value);
@@ -769,7 +769,7 @@ public class PeopleService(
                     .Fail(pdfContentResult.Title!, pdfContentResult.Message!, pdfContentResult.StatusCode!.Value);
             }
 
-            var fileName = $"Comprovativo_NIF_{person.FirstName}_{person.LastName}.pdf";
+            var fileName = $"Comprovativo_IBAN_{person.FirstName}_{person.LastName}.pdf";
             return Result<FileDownloadResult>
                 .Ok(new FileDownloadResult
                 {
@@ -779,13 +779,13 @@ public class PeopleService(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting NIF PDF for person {PersonId}", personId);
+            _logger.LogError(ex, "Error getting IBAN PDF for person {PersonId}", personId);
             return Result<FileDownloadResult>
                 .Fail("Erro interno.", "Ocorreu um erro ao obter o PDF.", StatusCodes.Status500InternalServerError);
         }
     }
 
-    public async Task<Result> DeleteNifPdfAsync(long personId)
+    public async Task<Result> DeleteIbanPdfAsync(long personId)
     {
         try
         {
@@ -799,7 +799,7 @@ public class PeopleService(
             if (!person.IbanComprovativePdfId.HasValue)
             {
                 return Result
-                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de NIF encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de IBAN encontrado para esta pessoa.", StatusCodes.Status404NotFound);
             }
 
             // Delete PDF using PdfService
@@ -819,11 +819,11 @@ public class PeopleService(
             await RemoveRelatedCache(person.Id);
 
             return Result
-                .Ok("PDF eliminado.", "PDF de comprovativo de NIF eliminado com sucesso.");
+                .Ok("PDF eliminado.", "PDF de comprovativo de IBAN eliminado com sucesso.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting NIF PDF for person {PersonId}", personId);
+            _logger.LogError(ex, "Error deleting IBAN PDF for person {PersonId}", personId);
             return Result
                 .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.", StatusCodes.Status500InternalServerError);
         }

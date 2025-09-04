@@ -16,10 +16,10 @@ public interface IPeopleService
     Task<Result<FileDownloadResult>> GetHabilitationPdfAsync(long personId);
     Task<Result> DeleteHabilitationPdfAsync(long personId);
     
-    // NIF PDF methods
-    Task<Result<RetrievePersonDto>> UploadNifPdfAsync(long personId, IFormFile file, string userId);
-    Task<Result<FileDownloadResult>> GetNifPdfAsync(long personId);
-    Task<Result> DeleteNifPdfAsync(long personId);
+    // IBAN PDF methods
+    Task<Result<RetrievePersonDto>> UploadIbanPdfAsync(long personId, IFormFile file, string userId);
+    Task<Result<FileDownloadResult>> GetIbanPdfAsync(long personId);
+    Task<Result> DeleteIbanPdfAsync(long personId);
     
     // Identification Document PDF methods
     Task<Result<RetrievePersonDto>> UploadIdentificationDocumentPdfAsync(long personId, IFormFile file, string userId);
