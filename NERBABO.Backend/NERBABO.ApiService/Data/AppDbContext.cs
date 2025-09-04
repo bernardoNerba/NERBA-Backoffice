@@ -4,6 +4,7 @@ using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Companies.Models;
 using NERBABO.ApiService.Core.Courses.Models;
+using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -31,7 +32,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<CourseAction> Actions { get; set; }
     public DbSet<ModuleTeaching> ModuleTeachings { get; set; }
     public DbSet<Session> Sessions { get; set; }
+    public DbSet<MTEnrollment> MTEnrollments { get; set; }
     public DbSet<SavedPdf> SavedPdfs { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -58,7 +61,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.ApplyConfiguration(new CourseActionConfiguration());
         builder.ApplyConfiguration(new TeacherModuleActionConfiguration());
         builder.ApplyConfiguration(new SessionConfiguration());
+        builder.ApplyConfiguration(new MTEnrollmentConfiguration());
         builder.ApplyConfiguration(new SavedPdfConfiguration());
-
     }
 }

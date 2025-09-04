@@ -1,4 +1,5 @@
 ﻿using NERBABO.ApiService.Core.Companies.Models;
+using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.Students.Dtos;
 using NERBABO.ApiService.Shared.Models;
@@ -39,8 +40,10 @@ namespace NERBABO.ApiService.Core.Students.Models
         public bool EnrolledInFM { get; set; }
         public bool EnrolledInCQ { get; set; }
 
+        // Navigation Properties
         public required Person Person { get; set; }
         public Company? Company { get; set; }
+        public List<MTEnrollment> MTEnrollments { get; set; } = [];
 
 
         public static RetrieveStudentDto ConvertEntityToRetrieveDto(Student s, Person p, Company? c)
