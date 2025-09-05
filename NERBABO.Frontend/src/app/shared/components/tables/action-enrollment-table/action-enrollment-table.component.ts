@@ -76,11 +76,6 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
               command: () => this.navigateToStudent(),
             },
             {
-              label: 'Editar Avaliação',
-              icon: 'pi pi-pencil',
-              command: () => this.onUpdateModal(this.selectedEnrollment!),
-            },
-            {
               label: 'Remover Inscrição',
               icon: 'pi pi-trash',
               command: () => this.onDeleteModal(this.selectedEnrollment!),
@@ -216,15 +211,16 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
 
   getApprovalStatusSeverity(
     approvalStatus: ApprovalStatus
-  ): 'success' | 'warning' | 'danger' {
+  ): 'success' | 'warn' | 'danger' {
     switch (approvalStatus) {
       case ApprovalStatus.Approved:
         return 'success';
       case ApprovalStatus.Rejected:
         return 'danger';
       case ApprovalStatus.NotSpecified:
+        return 'warn';
       default:
-        return 'warning';
+        return 'warn';
     }
   }
 
@@ -247,10 +243,6 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
 
   getApprovalIcon(approved: boolean): string {
     return approved ? 'pi pi-check' : 'pi pi-clock';
-  }
-
-  formatEvaluation(evaluation: number): string {
-    return evaluation > 0 ? `${evaluation}` : 'Pendente';
   }
 
   ngOnDestroy(): void {

@@ -85,7 +85,6 @@ export class UpsertActionEnrollmentComponent implements IUpsert, OnInit {
   initializeForm(): void {
     this.form = this.formBuilder.group({
       studentId: ['', [Validators.required]],
-      approvalStatus: [ApprovalStatus.NotSpecified, [Validators.required]],
     });
   }
 
@@ -106,7 +105,6 @@ export class UpsertActionEnrollmentComponent implements IUpsert, OnInit {
     if (this.currentEnrollment) {
       this.form.patchValue({
         studentId: this.currentEnrollment.studentId,
-        approvalStatus: this.currentEnrollment.approvalStatus,
       });
     }
   }
@@ -131,7 +129,6 @@ export class UpsertActionEnrollmentComponent implements IUpsert, OnInit {
       id: this.id,
       actionId: this.actionId,
       studentId: this.form.value.studentId,
-      approvalStatus: this.form.value.approvalStatus,
     };
 
     const createData: CreateActionEnrollment = {

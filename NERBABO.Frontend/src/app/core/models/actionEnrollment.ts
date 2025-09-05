@@ -2,14 +2,14 @@ import { ApprovalStatus } from '../../shared/enums/approval-status.enum';
 
 export interface ActionEnrollment {
   enrollmentId: number;
-  evaluation: number;
   studentFullName: string;
   approvalStatus: ApprovalStatus;
-  approved: boolean;
+  avgEvaluation: boolean;
   actionId: number;
+  StudentAvaliated: boolean;
   personId: number;
   studentId: number;
-  createdAt: string; // API returns string, not Date
+  createdAt: string;
 }
 
 export interface CreateActionEnrollment {
@@ -21,5 +21,4 @@ export interface UpdateActionEnrollment {
   id: number;
   actionId: number;
   studentId: number;
-  approvalStatus: ApprovalStatus;
 }

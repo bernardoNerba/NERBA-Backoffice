@@ -77,39 +77,6 @@
         </div>
         }
         <!-- END Student Info -->
-
-        <!-- Approval Status -->
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="approvalStatus">
-              Estado de Aprovação
-              <span class="text-danger">*</span>
-            </label>
-            <p-dropdown
-              formControlName="approvalStatus"
-              [options]="approvalStatusOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Selecione o estado..."
-              styleClass="w-100"
-              [class.is-invalid]="
-                submitted && form.get('approvalStatus')?.errors
-              "
-              class="{{
-                submitted && form.get('approvalStatus')?.errors
-                  ? 'ng-invalid ng-dirty'
-                  : ''
-              }}"
-            />
-            @if (submitted && form.get('approvalStatus')?.hasError('required'))
-            {
-            <span class="text-danger"
-              >Estado de aprovação é um campo obrigatório.</span
-            >
-            }
-          </div>
-        </div>
-        <!-- END Approval Status -->
       </div>
     </div>
 
