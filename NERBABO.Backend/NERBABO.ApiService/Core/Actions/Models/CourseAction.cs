@@ -31,7 +31,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
 
         public bool AllModulesOfActionHaveTeacher
             => Course.Modules.All(m =>
-                ModuleTeachings.Any(tma => tma.ModuleId == m.Id && tma.TeacherId > 0));
+                ModuleTeachings.Any(tma => tma.ModuleId == m.Id));
 
         public bool IsActionActive =>
             Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;

@@ -7,10 +7,12 @@ using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.Reports.Models;
+using NERBABO.ApiService.Core.SessionParticipations.Models;
 using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
@@ -34,7 +36,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Session> Sessions { get; set; }
     public DbSet<ActionEnrollment> ActionEnrollments { get; set; }
     public DbSet<SavedPdf> SavedPdfs { get; set; }
-
+    public DbSet<SessionParticipation> SessionParticipations { get; set; }
+    public DbSet<ModuleAvaliation> ModuleAvaliations { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -58,10 +61,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.ApplyConfiguration(new CompanyConfiguration());
         builder.ApplyConfiguration(new StudentConfiguration());
         builder.ApplyConfiguration(new ModuleConfiguration());
+        builder.ApplyConfiguration(new CourseConfiguration());
         builder.ApplyConfiguration(new CourseActionConfiguration());
         builder.ApplyConfiguration(new TeacherModuleActionConfiguration());
         builder.ApplyConfiguration(new SessionConfiguration());
         builder.ApplyConfiguration(new ActionEnrollmentConfiguration());
         builder.ApplyConfiguration(new SavedPdfConfiguration());
+        builder.ApplyConfiguration(new ModuleAvaliationConfiguration());
+        builder.ApplyConfiguration(new SessionParticipationConfiguration());
     }
 }

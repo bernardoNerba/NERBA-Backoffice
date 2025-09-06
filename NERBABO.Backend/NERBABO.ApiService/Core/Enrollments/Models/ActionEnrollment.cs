@@ -4,6 +4,8 @@ using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Enums;
 using Humanizer;
+using NERBABO.ApiService.Core.SessionParticipations.Models;
+using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 
 namespace NERBABO.ApiService.Core.Enrollments.Models;
 
@@ -19,14 +21,17 @@ public class ActionEnrollment : Entity<long>
     // Navigation Properties
     public required CourseAction Action { get; set; }
     public required Student Student { get; set; }
+    public List<SessionParticipation> Participants { get; set; } = [];
+    public List<ModuleAvaliation> Avaliations = [];
 
     // Calculated Properties
-    // Todo: Avg of ModuleAvaliations
-    public double AvgEvaluation => 0;
+    public double AvgEvaluation =>
+        Avaliations.Count != 0
+        ? Avaliations.Sum(a => a.Grade) / Avaliations.Count 
+        : 0;
+    public bool StudentAvaliated => Avaliations.All(a => a.Grade > 0);
+    public int NumberOfParticipants => Participants.Count;
 
-    // Todo: Check if in all the ModuleAvaliations the student was Avaleated
-    public bool StudentAvaliated => false;
-    
     public ApprovalStatusEnum ApprovalStatus =>
         StudentAvaliated && AvgEvaluation != 0
         ? AvgEvaluation >= 3 ? ApprovalStatusEnum.Approved : ApprovalStatusEnum.Rejected

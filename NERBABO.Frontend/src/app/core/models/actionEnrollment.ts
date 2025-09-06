@@ -4,7 +4,7 @@ export interface ActionEnrollment {
   enrollmentId: number;
   studentFullName: string;
   approvalStatus: ApprovalStatus;
-  avgEvaluation: boolean;
+  avgEvaluation: number;
   actionId: number;
   StudentAvaliated: boolean;
   personId: number;

@@ -3,8 +3,9 @@ using NERBABO.ApiService.Core.Enrollments.Dtos;
 using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
+using NERBABO.ApiService.Core.SessionParticipations.Models;
+using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Shared.Enums;
-using NERBABO.ApiService.Helper;
 using Humanizer;
 
 namespace NERBABO.ApiService.Core.Enrollments.Services;
@@ -19,10 +20,8 @@ public class ActionEnrollmentService(
 
     public async Task<Result<RetrieveActionEnrollmentDto>> CreateAsync(CreateActionEnrollmentDto entityDto)
     {
+        // Check if action exists
         var existingAction = await _context.Actions
-            .AsNoTracking()
-            .Include(a => a.Course).ThenInclude(c => c.Modules)
-            .Include(a => a.ModuleTeachings)
             .FirstOrDefaultAsync(a => a.Id == entityDto.ActionId);
         if (existingAction is null)
         {
@@ -32,8 +31,8 @@ public class ActionEnrollmentService(
                 StatusCodes.Status404NotFound);
         }
 
+        // Check if student exists
         var existingStudent = await _context.Students
-            .AsNoTracking()
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == entityDto.StudentId);
         if (existingStudent is null)
@@ -44,70 +43,142 @@ public class ActionEnrollmentService(
                 StatusCodes.Status404NotFound);
         }
 
-        // Check if the all modules of the action have teacher
-        if (!existingAction.AllModulesOfActionHaveTeacher)
+        // Check if all modules have teachers
+        var hasAllTeachers = await _context.Actions
+            .AsNoTracking()
+            .Where(a => a.Id == entityDto.ActionId)
+            .SelectMany(a => a.Course.Modules)
+            .AllAsync(m => _context.ModuleTeachings
+                .Any(mt => mt.ModuleId == m.Id && mt.ActionId == entityDto.ActionId));
+        if (!hasAllTeachers)
         {
-            _logger.LogWarning("Action {ActionId} has modules without assigned teachers. Cannot create Action enrollment for student {StudentId}.", 
-                existingAction.Id, entityDto.StudentId);
+            _logger.LogWarning("Action {ActionId} has modules without assigned teachers. Cannot create Action enrollment for student {StudentId}.",
+                entityDto.ActionId, entityDto.StudentId);
             return Result<RetrieveActionEnrollmentDto>
                 .Fail("Erro de Validação.", "Falta atribuir Formador a um ou mais Módulos.");
         }
 
-        // Verify if the student is already registered on this Action
+        // Check for duplicate enrollment
         var isStudentAlreadyEnrolled = await _context.ActionEnrollments
-            .Where(ae => ae.ActionId == existingAction.Id)
-            .AnyAsync(ae => ae.StudentId == existingStudent.Id);
+            .AsNoTracking()
+            .AnyAsync(ae => ae.ActionId == entityDto.ActionId && ae.StudentId == entityDto.StudentId);
         if (isStudentAlreadyEnrolled)
         {
-            _logger.LogWarning("Student {StudentId} is already enrolled in action {ActionId}. Duplicate enrollment attempt blocked.", 
+            _logger.LogWarning("Student {StudentId} is already enrolled in action {ActionId}. Duplicate enrollment attempt blocked.",
                 entityDto.StudentId, entityDto.ActionId);
             return Result<RetrieveActionEnrollmentDto>
                 .Fail("Erro de Validação.", "O Formando já está inscrito nesta ação.");
         }
 
-        // Get fresh tracked entities for the converter to avoid EF conflicts
-        var trackedAction = await _context.Actions.FindAsync(entityDto.ActionId);
-        var trackedStudent = await _context.Students.FindAsync(entityDto.StudentId);
+        using var transaction = await _context.Database.BeginTransactionAsync();
 
-        var newEnrollment = ActionEnrollment.ConvertCreateDtoToEntity(entityDto, trackedAction!, trackedStudent!);
-
-        RetrieveActionEnrollmentDto retrieveAE;
         try
         {
-            var createdEntity = _context.ActionEnrollments.Add(newEnrollment);
+            // Create ActionEnrollment
+            var result = await _context.AddAsync(
+                ActionEnrollment.ConvertCreateDtoToEntity(entityDto, existingAction, existingStudent)
+                );
+            var enrollment = result.Entity;
+
+            // Create session participations relations
+            var sessions = await _context.Sessions
+                .Where(s => s.ModuleTeaching.ActionId == entityDto.ActionId)
+                .ToListAsync();
+
+            _logger.LogInformation("Found {Count} Sessions for Action {ActionId}", sessions.Count, entityDto.ActionId);
+
+            var sessionParticipations = sessions
+                .Select(session => new SessionParticipation
+                {
+                    SessionId = session.Id,
+                    Session = session,
+                    ActionEnrollmentId = enrollment.Id,
+                    ActionEnrollment = enrollment,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                })
+                .ToList();
+
+            // Create module avaliations relations
+            var moduleTeachings = await _context.ModuleTeachings
+                .Where(mt => mt.ActionId == entityDto.ActionId)
+                .ToListAsync();
+
+            _logger.LogInformation("Found {Count} ModuleTeachings for Action {ActionId}", moduleTeachings.Count, entityDto.ActionId);
+            _logger.LogInformation("Using ActionEnrollmentId {EnrollmentId} for related entities", enrollment.Id);
+
+            var moduleAvaliations = moduleTeachings
+                .Select(moduleTeaching => new ModuleAvaliation
+                {
+                    ModuleTeachingId = moduleTeaching.Id,
+                    ModuleTeaching = moduleTeaching,
+                    ActionEnrollmentId = enrollment.Id,
+                    ActionEnrollment = enrollment,
+                    Grade = 0,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                })
+                .ToList();
+
+            // Add all related entities
+            if (sessionParticipations.Count > 0)
+            {
+                await _context.SessionParticipations.AddRangeAsync(sessionParticipations);
+            }
+
+            if (moduleAvaliations.Count > 0)
+            {
+                await _context.ModuleAvaliations.AddRangeAsync(moduleAvaliations);
+            }
+
+            // Save all changes in single transaction
             await _context.SaveChangesAsync();
 
-            // Reload the entity with navigation properties for the response
-            var savedEnrollment = await _context.ActionEnrollments
-                .Include(ae => ae.Student).ThenInclude(s => s.Person)
-                .Include(ae => ae.Action)
-                .FirstAsync(ae => ae.Id == createdEntity.Entity.Id);
+            // Create response DTO with the data we already have
+            var retrieveAE = new RetrieveActionEnrollmentDto
+            {
+                EnrollmentId = enrollment.Id,
+                StudentFullName = existingStudent.Person.FullName,
+                ApprovalStatus = ApprovalStatusEnum.NotSpecified.Humanize(LetterCasing.Title),
+                ActionId = entityDto.ActionId,
+                StudentAvaliated = false,
+                AvgEvaluation = 0,
+                PersonId = existingStudent.PersonId,
+                StudentId = entityDto.StudentId,
+                CreatedAt = DateTime.UtcNow
+            };
 
-            retrieveAE = ActionEnrollment.ConvertEntityToRetrieveDto(savedEnrollment);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Database error creating Action enrollment for Student {StudentId} in Action {ActionId}", 
-                entityDto.StudentId, entityDto.ActionId);
-            
+            _logger.LogInformation("{entity} created successfully. Student {StudentId} enrolled on {ActionId}.",
+                nameof(ActionEnrollment), entityDto.StudentId, entityDto.ActionId);
+
             return Result<RetrieveActionEnrollmentDto>
-                .Fail("Erro de Base de Dados.", "Erro ao criar inscrição. Possível duplicação ou violação de restrições.");
+                    .Ok(retrieveAE, "Inscrito com sucesso.",
+                    $"O formando {existingStudent.Person.FullName} foi inscrito na ação {existingAction.Title}.",
+                    StatusCodes.Status201Created);
         }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Error creating Action enrollment for student {StudentId} in action {ActionId}.",
+                entityDto.StudentId, entityDto.ActionId);
 
-        _logger.LogInformation("{entity} created successfully. Student {StudentId} enrolled on {ActionId}.",
-            nameof(ActionEnrollment), entityDto.StudentId, entityDto.ActionId);
-
-        return Result<RetrieveActionEnrollmentDto>
-                .Ok(retrieveAE, "Inscrito com sucesso.",
-                $"O formando {existingStudent.Person.FullName} foi inscrito na ação {existingAction.Title}.",
-                StatusCodes.Status201Created);
+            return Result<RetrieveActionEnrollmentDto>
+                .Fail("Erro interno do servidor.", "Erro ao criar inscrição. Tente novamente.",
+                StatusCodes.Status500InternalServerError);
+        }
+        finally
+        {
+            await transaction.CommitAsync();
+        }
     }
 
     public async Task<Result> DeleteAsync(long id)
     {
         var existingEnrollment = await _context.ActionEnrollments
+            .Include(ae => ae.Student).ThenInclude(s => s.Person)
+            .Include(ae => ae.Action)
             .FirstOrDefaultAsync(ae => ae.Id == id);
-        
+
         if (existingEnrollment is null)
         {
             _logger.LogWarning("Action enrollment with ID {EnrollmentId} not found during deletion.", id);
@@ -115,21 +186,43 @@ public class ActionEnrollmentService(
                 StatusCodes.Status404NotFound);
         }
 
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
         try
         {
+            // Get counts for logging purposes
+            var sessionParticipationCount = await _context.SessionParticipations
+                .CountAsync(sp => sp.ActionEnrollmentId == id);
+
+            var moduleAvaliationCount = await _context.ModuleAvaliations
+                .CountAsync(ma => ma.ActionEnrollmentId == id);
+
+            // Remove the action enrollment (cascade delete will handle related entities)
             _context.ActionEnrollments.Remove(existingEnrollment);
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            _logger.LogInformation(
+                "Action enrollment {EnrollmentId} deleted successfully. " +
+                "Cascade deleted {SessionParticipations} session participations and {ModuleAvaliations} module avaliations. " +
+                "Student: {StudentName}, Action: {ActionTitle}",
+                id, sessionParticipationCount, moduleAvaliationCount,
+                existingEnrollment.Student.Person.FullName, existingEnrollment.Action.Title);
+
+            return Result.Ok("Eliminado com sucesso.",
+                $"A inscrição de {existingEnrollment.Student.Person.FullName} foi eliminada com sucesso.",
+                StatusCodes.Status200OK);
         }
-        catch (DbUpdateException ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "Database error deleting Action enrollment {EnrollmentId}", id);
-            return Result.Fail("Erro de Base de Dados.", "Erro ao eliminar inscrição.");
+            await transaction.RollbackAsync();
+            _logger.LogError(ex,
+                "Error deleting Action enrollment {EnrollmentId} for student {StudentName} in action {ActionTitle}.",
+                id, existingEnrollment.Student.Person.FullName, existingEnrollment.Action.Title);
+
+            return Result.Fail("Erro interno do servidor.", "Erro ao eliminar inscrição. Tente novamente.",
+                StatusCodes.Status500InternalServerError);
         }
-
-        _logger.LogInformation("Action enrollment {EnrollmentId} deleted successfully.", id);
-
-        return Result.Ok("Eliminado com sucesso.", "A inscrição foi eliminada com sucesso.",
-            StatusCodes.Status200OK);
     }
 
     public async Task<Result<IEnumerable<RetrieveActionEnrollmentDto>>> GetAllAsync()
@@ -138,9 +231,11 @@ public class ActionEnrollmentService(
             .AsNoTracking()
             .Include(e => e.Student).ThenInclude(s => s.Person)
             .Include(e => e.Action)
+            .Include(e => e.Avaliations)
+            .Include(e => e.Participants)
             .ToListAsync()
             ?? [];
-        
+
         var retrieveAEs = actionEnrollments.Select(ActionEnrollment.ConvertEntityToRetrieveDto);
 
         return Result<IEnumerable<RetrieveActionEnrollmentDto>>
@@ -163,10 +258,12 @@ public class ActionEnrollmentService(
             .AsNoTracking()
             .Include(e => e.Student).ThenInclude(s => s.Person)
             .Include(e => e.Action)
+            .Include(e => e.Avaliations)
+            .Include(e => e.Participants)
             .Where(e => e.ActionId == actionId)
             .ToListAsync()
             ?? [];
-        
+
         var retrieveAEs = actionEnrollments.Select(ActionEnrollment.ConvertEntityToRetrieveDto);
 
         return Result<IEnumerable<RetrieveActionEnrollmentDto>>
@@ -179,8 +276,10 @@ public class ActionEnrollmentService(
             .AsNoTracking()
             .Include(e => e.Student).ThenInclude(s => s.Person)
             .Include(e => e.Action)
+            .Include(e => e.Avaliations)
+            .Include(e => e.Participants)
             .FirstOrDefaultAsync(e => e.Id == id);
-        
+
         if (enrollment is null)
         {
             _logger.LogWarning("Action enrollment with ID {EnrollmentId} not found.", id);
@@ -188,7 +287,7 @@ public class ActionEnrollmentService(
                 .Fail("Não encontrado.", "Inscrição de ação não encontrada.",
                 StatusCodes.Status404NotFound);
         }
-        
+
         var retrieveDto = ActionEnrollment.ConvertEntityToRetrieveDto(enrollment);
 
         return Result<RetrieveActionEnrollmentDto>
@@ -201,7 +300,7 @@ public class ActionEnrollmentService(
             .Include(ae => ae.Student).ThenInclude(s => s.Person)
             .Include(ae => ae.Action)
             .FirstOrDefaultAsync(ae => ae.Id == entityDto.Id);
-        
+
         if (existingEnrollment is null)
         {
             _logger.LogWarning("Action enrollment with ID {EnrollmentId} not found during update.", entityDto.Id);
@@ -220,4 +319,5 @@ public class ActionEnrollmentService(
             "A inscrição foi atualizada com sucesso.",
             StatusCodes.Status200OK);
     }
+
 }
