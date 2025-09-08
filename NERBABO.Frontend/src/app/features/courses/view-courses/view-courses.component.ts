@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Course } from '../../../core/models/course';
+import { Course, CourseKpi } from '../../../core/models/course';
 import { catchError, Observable, of, Subscription, tap } from 'rxjs';
 import { ICONS } from '../../../core/objects/icons';
 import { Frame } from '../../../core/models/frame';
@@ -27,6 +27,7 @@ import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.compone
 import { UpsertActionsComponent } from '../../actions/upsert-actions/upsert-actions.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
 import { MessageComponent } from '../../../shared/components/message/message.component';
+import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -38,6 +39,7 @@ import { MessageComponent } from '../../../shared/components/message/message.com
     ActionsTableComponent,
     TitleComponent,
     MessageComponent,
+    KpiCardComponent,
   ],
   templateUrl: './view-courses.component.html',
 })
@@ -49,6 +51,7 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
   modules!: Module[];
   title!: string;
   course!: Course;
+  kpis?: CourseKpi;
   ICONS = ICONS;
   STATUS = StatusEnum;
   menuItems: MenuItem[] | undefined;
@@ -75,6 +78,7 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
 
     this.initializeEntity();
     this.initializeActions();
+    this.initializeKpis();
     this.updateSourceSubscription();
     this.deleteSourceSubscription();
     this.assignModuleSourceSubscription();
@@ -157,6 +161,17 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
 
   private initializeActions() {
     this.actions$ = this.actionsService.getActionsByCourseId(this.id);
+  }
+
+  private initializeKpis() {
+    this.coursesService.getKpis(this.id).subscribe({
+      next: (kpis) => {
+        this.kpis = kpis;
+      },
+      error: (error) => {
+        console.error('Error loading course KPIs:', error);
+      }
+    });
   }
 
   private initializeFrame(frameId: number) {
@@ -267,6 +282,7 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
         if (this.id === id) {
           this.initializeEntity();
           this.initializeActions();
+          this.initializeKpis();
         }
       })
     );

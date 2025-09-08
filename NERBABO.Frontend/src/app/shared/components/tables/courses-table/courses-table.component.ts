@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, ViewChild, OnDestroy, SimpleChanges } from '@angular/core';
 import { Course } from '../../../../core/models/course';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -45,9 +45,10 @@ import { UpsertActionsComponent } from '../../../../features/actions/upsert-acti
   ],
   templateUrl: './courses-table.component.html',
 })
-export class CoursesTableComponent implements OnInit, OnDestroy {
+export class CoursesTableComponent implements OnInit, OnChanges, OnDestroy {
   @Input({ required: true }) courses!: Course[];
   @Input({ required: true }) loading!: boolean;
+  @Output() tableFilter = new EventEmitter<Course[]>();
   @ViewChild('dt') dt!: Table;
   menuItems: MenuItem[] | undefined;
   searchValue: string = '';
@@ -61,6 +62,13 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
     private router: Router,
     private coursesService: CoursesService
   ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Emit initial data when courses change
+    if (changes['courses'] && this.courses && !this.loading) {
+      this.tableFilter.emit(this.courses);
+    }
+  }
 
   ngOnInit(): void {
     this.menuItems = [
@@ -202,6 +210,12 @@ export class CoursesTableComponent implements OnInit, OnDestroy {
   clearFilters() {
     this.searchValue = '';
     this.dt.reset();
+  }
+
+  onTableFilter(event: any) {
+    // Emit the filtered data to parent component
+    const filteredCourses: Course[] = event.filteredValue || this.courses;
+    this.tableFilter.emit(filteredCourses);
   }
 
   onAddCourseModal() {

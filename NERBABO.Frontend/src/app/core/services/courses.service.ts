@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, finalize, Observable, Subject, tap } from 'rxjs';
-import { Course } from '../models/course';
+import { Course, CourseKpi } from '../models/course';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { SharedService } from './shared.service';
@@ -106,6 +106,12 @@ export class CoursesService {
       `${API_ENDPOINTS.courses}${courseId}/modules`,
       moduleIds
     );
+  }
+
+  getKpis(courseId: number): Observable<CourseKpi> {
+    const url = API_ENDPOINTS.coursesKpis + courseId;
+
+    return this.http.get<CourseKpi>(url);
   }
 
   notifyCourseUpdate(id: number) {
