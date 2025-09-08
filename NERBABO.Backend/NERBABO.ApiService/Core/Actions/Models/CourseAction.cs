@@ -1,4 +1,5 @@
 ﻿using Humanizer;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
@@ -44,6 +45,9 @@ namespace NERBABO.ApiService.Core.Actions.Models
             var times = ModuleTeachings.SelectMany(mt => mt.Sessions.Select(s => s.Time)).ToHashSet();
             return String.Join(" | ", times);
         }
+
+        public bool AllSessionsScheduled =>
+            ModuleTeachings.All(mt => mt.ScheduledPercent() == 100);
         
         public string Title => $"{ActionNumber} - {Locality}";
 

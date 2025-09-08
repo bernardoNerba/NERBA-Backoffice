@@ -334,7 +334,7 @@ namespace NERBABO.ApiService.Core.Students.Services
         {
             // Check if action exists
             var existingAction = await _context.Actions
-                .Include(a => a.ModuleTeachings)
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Teacher)
                 .FirstOrDefaultAsync(a => a.Id == actionId);
             if (existingAction is null)
             {
@@ -355,7 +355,7 @@ namespace NERBABO.ApiService.Core.Students.Services
                 .ToListAsync();
 
             var retrieveStudents = availableStudents
-                .Where(s => !existingAction.ModuleTeachings.Any(mt => mt.TeacherId == s.Id))
+                .Where(s => !existingAction.ModuleTeachings.Any(mt => mt.Teacher.PersonId == s.PersonId))
                 .Select(s => Student.ConvertEntityToRetrieveDto(s, s.Person, s.Company));
 
             return Result<IEnumerable<RetrieveStudentDto>>

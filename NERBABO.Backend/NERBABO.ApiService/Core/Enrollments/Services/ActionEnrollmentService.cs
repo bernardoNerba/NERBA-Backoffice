@@ -22,6 +22,8 @@ public class ActionEnrollmentService(
     {
         // Check if action exists
         var existingAction = await _context.Actions
+            .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Module)
+            .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
             .FirstOrDefaultAsync(a => a.Id == entityDto.ActionId);
         if (existingAction is null)
         {
@@ -68,6 +70,15 @@ public class ActionEnrollmentService(
                 entityDto.StudentId, entityDto.ActionId);
             return Result<RetrieveActionEnrollmentDto>
                 .Fail("Erro de Validação.", "O Formando já está inscrito nesta ação.");
+        }
+
+        // Check if all Sessions are fully scheduled
+        if (!existingAction.AllSessionsScheduled)
+        {
+            _logger.LogWarning("Not all sessions are scheduled accordingly, is not possible to add the new student {studentId} to the action {actionId}",
+                entityDto.StudentId, entityDto.ActionId);
+            return Result<RetrieveActionEnrollmentDto>
+                .Fail("Erro de Validação.", "Faltam agendar sessões na ação.");
         }
 
         using var transaction = await _context.Database.BeginTransactionAsync();
