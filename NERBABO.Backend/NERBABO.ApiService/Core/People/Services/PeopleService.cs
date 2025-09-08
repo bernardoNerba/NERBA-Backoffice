@@ -153,34 +153,22 @@ public class PeopleService(
             }
 
             // remove pdf files from database and from wwwroot
-            var habilitationComprovative = await _context.SavedPdfs.FirstOrDefaultAsync(
-                pdf => pdf.ReferenceId == existingPerson.Id
-                && pdf.PdfType == PdfTypes.HabilitationComprovative
-                );
-            if (habilitationComprovative is not null)
+            var habilitationComprovative = await _pdfService.GetSavedPdfAsync(PdfTypes.HabilitationComprovative, existingPerson.Id);
+            if (habilitationComprovative.Data is not null)
             {
-                _context.SavedPdfs.Remove(habilitationComprovative);
-                await _pdfService.DeleteSavedPdfAsync(habilitationComprovative.Id);
+                await _pdfService.DeleteSavedPdfAsync(habilitationComprovative.Data.Id);
             }
 
-            var ibanComprovative = await _context.SavedPdfs.FirstOrDefaultAsync(
-                pdf => pdf.ReferenceId == existingPerson.Id
-                && pdf.PdfType == PdfTypes.IbanComprovative
-            );
-            if (ibanComprovative is not null)
+            var ibanComprovative = await _pdfService.GetSavedPdfAsync(PdfTypes.IbanComprovative, existingPerson.Id);
+            if (ibanComprovative.Data is not null)
             {
-                _context.SavedPdfs.Remove(ibanComprovative);
-                await _pdfService.DeleteSavedPdfAsync(ibanComprovative.Id);
+                await _pdfService.DeleteSavedPdfAsync(ibanComprovative.Data.Id);
             }
 
-            var identificationDocument = await _context.SavedPdfs.FirstOrDefaultAsync(
-                pdf => pdf.ReferenceId == existingPerson.Id
-                && pdf.PdfType == PdfTypes.IdentificationDocument
-            );
-            if (identificationDocument is not null)
+            var identificationDocument = await _pdfService.GetSavedPdfAsync(PdfTypes.IdentificationDocument, existingPerson.Id);
+            if (identificationDocument.Data is not null)
             {
-                _context.SavedPdfs.Remove(identificationDocument);
-                await _pdfService.DeleteSavedPdfAsync(identificationDocument.Id);
+                await _pdfService.DeleteSavedPdfAsync(identificationDocument.Data.Id);
             }
             
             // remove from database

@@ -1,11 +1,9 @@
-﻿using System.Reflection;
-using Humanizer;
+﻿using Humanizer;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
-using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 

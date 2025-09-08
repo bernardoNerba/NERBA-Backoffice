@@ -1,17 +1,16 @@
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
-using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Actions.Cache;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Courses.Cache;
 using NERBABO.ApiService.Core.Modules.Cache;
+using NERBABO.ApiService.Core.Reports.Models;
+using NERBABO.ApiService.Core.Reports.Services;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using System;
-using System.Linq;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Actions.Services
@@ -21,7 +20,8 @@ namespace NERBABO.ApiService.Core.Actions.Services
         ILogger<CourseActionService> logger,
         ICacheActionRepository cache,
         ICacheCourseRepository cacheCourse,
-        ICacheModuleRepository cacheModule
+        ICacheModuleRepository cacheModule,
+        IPdfService pdfService
         ) : ICourseActionService
     {
         private readonly AppDbContext _context = context;
@@ -29,6 +29,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
         private readonly ICacheActionRepository _cache = cache;
         private readonly ICacheCourseRepository _cacheCourse = cacheCourse;
         private readonly ICacheModuleRepository _cacheModule = cacheModule;
+        private readonly IPdfService _pdfService = pdfService;
 
         public async Task<Result<RetrieveCourseActionDto>> CreateAsync(CreateCourseActionDto entityDto)
         {
@@ -493,7 +494,13 @@ namespace NERBABO.ApiService.Core.Actions.Services
             var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // TODO: Remove related entities like Sessions, Enrollments, Presences etc.
+                // query saved pdf and remove from wwwroot and db
+                var sessionReport = await _pdfService.GetSavedPdfAsync(PdfTypes.SessionReport, c.Id);
+                if (sessionReport.Data is not null)
+                {
+                    await _pdfService.DeleteSavedPdfAsync(sessionReport.Data.Id);
+                }
+
                 _context.Actions.Remove(c);
                 await _context.SaveChangesAsync();
             }
