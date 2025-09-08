@@ -122,7 +122,8 @@ public class PeopleService(
     public async Task<Result> DeleteAsync(long id)
     {
         // Check if person exists
-        var existingPerson = await _context.People.FindAsync(id);
+        var existingPerson = await _context.People
+            .FindAsync(id);
         if (existingPerson is null)
             return Result
                 .Fail("Não encontrado.", $"Pessoa não encontrada.",
@@ -151,6 +152,37 @@ public class PeopleService(
                 _context.Students.Remove(existingStudent);
             }
 
+            // remove pdf files from database and from wwwroot
+            var habilitationComprovative = await _context.SavedPdfs.FirstOrDefaultAsync(
+                pdf => pdf.ReferenceId == existingPerson.Id
+                && pdf.PdfType == PdfTypes.HabilitationComprovative
+                );
+            if (habilitationComprovative is not null)
+            {
+                _context.SavedPdfs.Remove(habilitationComprovative);
+                await _pdfService.DeleteSavedPdfAsync(habilitationComprovative.Id);
+            }
+
+            var ibanComprovative = await _context.SavedPdfs.FirstOrDefaultAsync(
+                pdf => pdf.ReferenceId == existingPerson.Id
+                && pdf.PdfType == PdfTypes.IbanComprovative
+            );
+            if (ibanComprovative is not null)
+            {
+                _context.SavedPdfs.Remove(ibanComprovative);
+                await _pdfService.DeleteSavedPdfAsync(ibanComprovative.Id);
+            }
+
+            var identificationDocument = await _context.SavedPdfs.FirstOrDefaultAsync(
+                pdf => pdf.ReferenceId == existingPerson.Id
+                && pdf.PdfType == PdfTypes.IdentificationDocument
+            );
+            if (identificationDocument is not null)
+            {
+                _context.SavedPdfs.Remove(identificationDocument);
+                await _pdfService.DeleteSavedPdfAsync(identificationDocument.Id);
+            }
+            
             // remove from database
             _context.People.Remove(existingPerson);
             await _context.SaveChangesAsync();
