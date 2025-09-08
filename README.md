@@ -5,7 +5,7 @@
 
 ## About NERBA
 
-**NERBA – Business Association of the District of Bragança** is a private, non-profit organization recognized as being of public utility. Operating across the district, it focuses on promoting **entrepreneurship**, organizing **events**, and delivering **training and qualification programs**.
+**NERBA – Associação Empresarial do Distrito de Bragança** is a private, non-profit organization recognized as being of public utility. Operating across the district, it focuses on promoting **entrepreneurship**, organizing **events**, and delivering **training and qualification programs**.
 
 ## About the Backoffice System
 
