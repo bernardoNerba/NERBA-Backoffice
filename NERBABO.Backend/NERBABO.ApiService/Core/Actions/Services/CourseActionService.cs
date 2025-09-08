@@ -621,11 +621,30 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 _logger.LogInformation("There is no actions related to the user");
                 return Result<IEnumerable<RetrieveCourseActionDto>>
                     .Fail("Não encontrado", "Não é coordenador de nenhuma ação.",
-                    StatusCodes.Status404NotFound);                
+                    StatusCodes.Status404NotFound);
             }
 
             return Result<IEnumerable<RetrieveCourseActionDto>>
                 .Ok(existingActions);
+        }
+
+        public async Task<Result<KpisActionDto>> GetKpisAsync(long actionId)
+        {
+            var existingAction = await _context.Actions
+                .Include(a => a.ActionEnrollments)
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
+                .FirstOrDefaultAsync(a => a.Id == actionId);
+            if (existingAction is null)
+            {
+                _logger.LogWarning("CourseAction with ID {id} not found.", actionId);
+                return Result<KpisActionDto>
+                    .Fail("Não encontrado.", "Ação não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            var kpis = existingAction.ConvertEntityToKpiDto();
+            return Result<KpisActionDto>
+                .Ok(kpis);
         }
     }
 }

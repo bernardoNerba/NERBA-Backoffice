@@ -36,20 +36,27 @@ namespace NERBABO.ApiService.Core.Actions.Models
             Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
 
 
-        public string AllDiferentSessionTeachers() {
+        public string AllDiferentSessionTeachers()
+        {
             var teachers = ModuleTeachings.Select(mt => mt.Teacher.Person.FirstName).ToHashSet();
             return String.Join(" | ", teachers);
         }
 
-        public string AllDiferentSessionTimes() {
+        public string AllDiferentSessionTimes()
+        {
             var times = ModuleTeachings.SelectMany(mt => mt.Sessions.Select(s => s.Time)).ToHashSet();
             return String.Join(" | ", times);
         }
 
         public bool AllSessionsScheduled =>
             ModuleTeachings.All(mt => mt.ScheduledPercent() == 100);
-        
+
         public string Title => $"{ActionNumber} - {Locality}";
+
+        public int TotalStudents => ActionEnrollments.Count;
+        public int TotalApproved => ActionEnrollments.Count(ae => ae.ApprovalStatus == ApprovalStatusEnum.Approved);
+        public double TotalVolumeHours => TotalStudents * ModuleTeachings.SelectMany(mt => mt.Sessions).Sum(s => s.DurationHours);
+        public int TotalVolumeDays => TotalStudents * ModuleTeachings.SelectMany(mt => mt.Sessions).Count();
 
         // Navigation properties
         public required Course Course { get; set; }
@@ -57,6 +64,16 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
         public List<ActionEnrollment> ActionEnrollments { get; set; } = [];
 
+        public KpisActionDto ConvertEntityToKpiDto()
+        {
+            return new KpisActionDto
+            {
+                TotalStudents = TotalStudents,
+                TotalApproved = TotalApproved,
+                TotalVolumeDays = TotalVolumeDays,
+                TotalVolumeHours = TotalVolumeHours
+            };
+        }
 
         public static RetrieveCourseActionDto ConvertEntityToRetrieveDto(CourseAction ca, User u, Course c)
         {
@@ -108,5 +125,6 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 Course = c
             };
         }
+
     }
 }

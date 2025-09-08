@@ -91,6 +91,7 @@ export const API_ENDPOINTS = {
   actionsByModule: `${BASE_URL}/api/actions/module/`,
   actionsByCourse: `${BASE_URL}/api/actions/course/`,
   actionsByCoordinator: `${BASE_URL}/api/actions/coordenator/`,
+  actionsKpis: `${BASE_URL}/api/actions/kpis/`,
 
   // Frames endpoints
   frames: `${BASE_URL}/api/frame/`,

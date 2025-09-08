@@ -1,32 +1,38 @@
 @if (action$ | async; as action) {
 <app-title [title]="action.title" [isDropdown]="true" [menuItems]="menuItems" />
 
-<div class="row">
-  <div class="col-sm-3">
+@if (kpis){
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-lg-3">
     <app-kpi-card
       title="Total de Formandos"
-      value="2222"
+      value="{{ kpis.totalStudents }}"
       icon="pi pi-graduation-cap"
     />
   </div>
-  <div class="col-sm-3">
+  <div class="col-12 col-sm-6 col-lg-3">
     <app-kpi-card
       title="Total de Certificados"
-      value="100/120"
+      value="{{ kpis.totalApproved }}"
       icon="pi pi-verified"
     />
   </div>
-  <div class="col-sm-3">
-    <app-kpi-card title="Volume Total (horas)" value="90h" icon="pi pi-clock" />
+  <div class="col-12 col-sm-6 col-lg-3">
+    <app-kpi-card
+      title="Volume Total (horas)"
+      value="{{ kpis.totalVolumeHours }} h"
+      icon="pi pi-clock"
+    />
   </div>
-  <div class="col-sm-3">
+  <div class="col-12 col-sm-6 col-lg-3">
     <app-kpi-card
       title="Volume Total (dias)"
-      value="30 dias"
+      value="{{ kpis.totalVolumeDays }} dias"
       icon="pi pi-calendar-clock"
     />
   </div>
 </div>
+}
 
 <!-- Alert with modules that dont have teacher assigned -->
 <app-message
