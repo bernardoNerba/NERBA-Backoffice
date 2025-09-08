@@ -31,6 +31,8 @@ import { PdfActionsComponent } from '../../../shared/components/pdf-actions/pdf-
 import { ActionEnrollmentTableComponent } from '../../../shared/components/tables/action-enrollment-table/action-enrollment-table.component';
 import { ActionEnrollmentService } from '../../../core/services/action-enrollment.service';
 import { ActionEnrollment } from '../../../core/models/actionEnrollment';
+import { Card } from 'primeng/card';
+import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -44,6 +46,7 @@ import { ActionEnrollment } from '../../../core/models/actionEnrollment';
     SessionsSchedulerComponent,
     PdfActionsComponent,
     ActionEnrollmentTableComponent,
+    KpiCardComponent,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',
@@ -349,12 +352,12 @@ export class ViewActionsComponent implements IView, OnInit {
   onAddStudentModal(): void {
     const initialState = {
       id: 0, // 0 indicates create mode
-      actionId: this.id
+      actionId: this.id,
     };
-    
+
     this.modalService.show(UpsertActionEnrollmentComponent, {
       initialState,
-      class: 'modal-lg'
+      class: 'modal-lg',
     });
   }
 

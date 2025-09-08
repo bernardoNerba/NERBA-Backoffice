@@ -1,6 +1,33 @@
 @if (action$ | async; as action) {
 <app-title [title]="action.title" [isDropdown]="true" [menuItems]="menuItems" />
 
+<div class="row">
+  <div class="col-sm-3">
+    <app-kpi-card
+      title="Total de Formandos"
+      value="2222"
+      icon="pi pi-graduation-cap"
+    />
+  </div>
+  <div class="col-sm-3">
+    <app-kpi-card
+      title="Total de Certificados"
+      value="100/120"
+      icon="pi pi-verified"
+    />
+  </div>
+  <div class="col-sm-3">
+    <app-kpi-card title="Volume Total (horas)" value="90h" icon="pi pi-clock" />
+  </div>
+  <div class="col-sm-3">
+    <app-kpi-card
+      title="Volume Total (dias)"
+      value="30 dias"
+      icon="pi pi-calendar-clock"
+    />
+  </div>
+</div>
+
 <!-- Alert with modules that dont have teacher assigned -->
 <app-message
   [severity]="'warn'"

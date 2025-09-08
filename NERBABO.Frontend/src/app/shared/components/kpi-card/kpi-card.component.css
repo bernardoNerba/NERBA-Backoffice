@@ -1,0 +1,15 @@
+.kpi-icon {
+  background-color: var(--p-primary-200);
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-radius: 90px;
+  color: var(--p-surface-950);
+  cursor: pointer;
+}
+
+.kpi-icon:hover {
+  background-color: var(--p-primary-100);
+  color: black;
+}
