@@ -13,12 +13,23 @@ export class StudentsService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private updatedSource = new Subject<number>();
   private deletedSource = new Subject<number>();
+  private studentsSubject = new BehaviorSubject<Student[]>([]);
 
   loading$ = this.loadingSubject.asObservable();
   updatedSource$ = this.updatedSource.asObservable();
   deletedSource$ = this.deletedSource.asObservable();
+  students$ = this.studentsSubject.asObservable();
 
-  constructor(private http: HttpClient, private peopleService: PeopleService) {}
+  constructor(private http: HttpClient, private peopleService: PeopleService) {
+    this.loadStudents();
+  }
+
+  private loadStudents(): void {
+    this.http.get<Student[]>(API_ENDPOINTS.students).subscribe({
+      next: (students) => this.studentsSubject.next(students),
+      error: (error) => console.error('Error loading students:', error)
+    });
+  }
 
   getByPersonId(personId: number): Observable<Student> {
     return this.http.get<Student>(
@@ -61,6 +72,10 @@ export class StudentsService {
           this.peopleService.notifyPersonUpdate(model.personId);
         })
       );
+  }
+
+  getAvailableForAction(actionId: number): Observable<Student[]> {
+    return this.http.get<Student[]>(`${API_ENDPOINTS.students}available-for-action/${actionId}`);
   }
 
   notifyStudentUpdate(id: number) {

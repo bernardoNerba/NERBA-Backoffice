@@ -125,6 +125,25 @@ public class StudentsController(
     }
 
     /// <summary>
+    /// Get students available for enrollment in a specific action (not yet enrolled)
+    /// </summary>
+    /// <param name="actionId">The action id to check available students for</param>
+    /// <response code="200">Available students found for the action.</response>
+    /// <response code="404">Action not found.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet("available-for-action/{actionId:long}")]
+    [Authorize(Policy = "ActiveUser")]
+    [ProducesResponseType(typeof(Result<IEnumerable<RetrieveStudentDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Result<IEnumerable<RetrieveStudentDto>>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetStudentsAvailableForActionAsync(long actionId)
+    {
+        Result<IEnumerable<RetrieveStudentDto>> result = await _studentService.GetStudentsAvailableForActionAsync(actionId);
+        return _responseHandler.HandleResult(result);
+    }
+
+    /// <summary>
     /// Delete a student by id
     /// </summary>
     /// <param name="id">The student id</param>

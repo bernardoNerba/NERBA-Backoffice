@@ -11,6 +11,7 @@ import { UpsertActionsComponent } from '../upsert-actions/upsert-actions.compone
 import { DeleteActionsComponent } from '../delete-actions/delete-actions.component';
 import { ChangeStatusActionsComponent } from '../change-status-actions/change-status-actions.component';
 import { UpsertModuleTeachingComponent } from '../upsert-module-teaching/upsert-module-teaching.component';
+import { UpsertActionEnrollmentComponent } from '../../enrollments/upsert-action-enrollment/upsert-action-enrollment.component';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
@@ -27,6 +28,9 @@ import { MessageComponent } from '../../../shared/components/message/message.com
 import { SessionsSchedulerComponent } from '../../../shared/components/sessions-scheduler/sessions-scheduler.component';
 import { MessageService } from 'primeng/api';
 import { PdfActionsComponent } from '../../../shared/components/pdf-actions/pdf-actions.component';
+import { ActionEnrollmentTableComponent } from '../../../shared/components/tables/action-enrollment-table/action-enrollment-table.component';
+import { ActionEnrollmentService } from '../../../core/services/action-enrollment.service';
+import { ActionEnrollment } from '../../../core/models/actionEnrollment';
 
 @Component({
   selector: 'app-view-actions',
@@ -39,6 +43,7 @@ import { PdfActionsComponent } from '../../../shared/components/pdf-actions/pdf-
     MessageComponent,
     SessionsSchedulerComponent,
     PdfActionsComponent,
+    ActionEnrollmentTableComponent,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',
@@ -53,6 +58,8 @@ export class ViewActionsComponent implements IView, OnInit {
   action?: Action;
   modulesWithoutTeacher: Module[] = [];
   modulesWithTeacher: ModuleTeacher[] = [];
+  actionEnrollments: ActionEnrollment[] = [];
+  enrollmentsLoading: boolean = false;
 
   ICONS = ICONS;
 
@@ -66,7 +73,8 @@ export class ViewActionsComponent implements IView, OnInit {
     private route: ActivatedRoute,
     private courseService: CoursesService,
     private modulesService: ModulesService,
-    private moduleTeachingService: ModuleTeachingService
+    private moduleTeachingService: ModuleTeachingService,
+    private actionEnrollmentService: ActionEnrollmentService
   ) {}
 
   ngOnInit(): void {
@@ -82,6 +90,7 @@ export class ViewActionsComponent implements IView, OnInit {
     this.deleteSourceSubscription();
     this.moduleTeachingCreatedSubscription();
     this.moduleChangesSubscription();
+    this.enrollmentChangesSubscription();
   }
 
   initializeEntity(): void {
@@ -108,6 +117,7 @@ export class ViewActionsComponent implements IView, OnInit {
           this.initializeCourse();
           this.loadModulesWithoutTeacher();
           this.loadModulesWithTeacher();
+          this.loadActionEnrollments();
         }
       })
     );
@@ -149,6 +159,21 @@ export class ViewActionsComponent implements IView, OnInit {
     });
   }
 
+  loadActionEnrollments(): void {
+    this.enrollmentsLoading = true;
+    this.actionEnrollmentService.getByActionId(this.id).subscribe({
+      next: (enrollments) => {
+        this.actionEnrollments = enrollments;
+        this.enrollmentsLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading action enrollments:', error);
+        this.actionEnrollments = [];
+        this.enrollmentsLoading = false;
+      },
+    });
+  }
+
   populateMenu(): void {
     const baseMenuItems = [
       {
@@ -174,7 +199,7 @@ export class ViewActionsComponent implements IView, OnInit {
       {
         label: 'Adicionar Formando',
         icon: 'pi pi-plus',
-        command: () => {}, // TODO: Implement add student to action
+        command: () => this.onAddStudentModal(),
       },
     ];
 
@@ -319,5 +344,37 @@ export class ViewActionsComponent implements IView, OnInit {
         actionTitle: this.title,
       },
     });
+  }
+
+  onAddStudentModal(): void {
+    const initialState = {
+      id: 0, // 0 indicates create mode
+      actionId: this.id
+    };
+    
+    this.modalService.show(UpsertActionEnrollmentComponent, {
+      initialState,
+      class: 'modal-lg'
+    });
+  }
+
+  enrollmentChangesSubscription(): void {
+    this.subscriptions.add(
+      this.actionEnrollmentService.createdSource$.subscribe(() => {
+        this.loadActionEnrollments();
+      })
+    );
+
+    this.subscriptions.add(
+      this.actionEnrollmentService.updatedSource$.subscribe(() => {
+        this.loadActionEnrollments();
+      })
+    );
+
+    this.subscriptions.add(
+      this.actionEnrollmentService.deletedSource$.subscribe(() => {
+        this.loadActionEnrollments();
+      })
+    );
   }
 }

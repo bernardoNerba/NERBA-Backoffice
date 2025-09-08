@@ -1,4 +1,6 @@
 ﻿using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Enrollments.Models;
+using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
 using NERBABO.ApiService.Core.Sessions.Dtos;
@@ -23,6 +25,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public required CourseAction Action { get; set; }
         public required Module Module { get; set; }
         public List<Session> Sessions { get; set; } = [];
+        public List<ModuleAvaliation> Avaliations = [];
 
         // Calculated properties
         public float AvaliationAvg =>

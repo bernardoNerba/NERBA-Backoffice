@@ -329,6 +329,35 @@ namespace NERBABO.ApiService.Core.Students.Services
                 "Formando Atualizado.", "Formando atualizado com sucesso.");
         }
 
+        public async Task<Result<IEnumerable<RetrieveStudentDto>>> GetStudentsAvailableForActionAsync(long actionId)
+        {
+            // Check if action exists
+            var existingAction = await _context.Actions.FirstOrDefaultAsync(a => a.Id == actionId);
+            if (existingAction is null)
+            {
+                _logger.LogWarning("Action with ID {ActionId} not found when retrieving available students.", actionId);
+                return Result<IEnumerable<RetrieveStudentDto>>
+                    .Fail("Não encontrado.", "Ação não encontrada.",
+                    StatusCodes.Status404NotFound);
+            }
+
+            // Get all students who are not enrolled in this specific action
+            var availableStudents = await _context.Students
+                .AsNoTracking()
+                .Include(s => s.Person)
+                .Include(s => s.Company)
+                .Where(s => !_context.ActionEnrollments.Any(ae => ae.ActionId == actionId && ae.StudentId == s.Id))
+                .OrderBy(s => s.Person.FirstName)
+                .ThenBy(s => s.Person.LastName)
+                .ToListAsync();
+
+            var retrieveStudents = availableStudents.Select(s => 
+                Student.ConvertEntityToRetrieveDto(s, s.Person, s.Company));
+
+            return Result<IEnumerable<RetrieveStudentDto>>
+                .Ok(retrieveStudents);
+        }
+
         private async Task RemoveRelatedCache(long? id = null, long? personId = null)
         {
             await _cache.RemoveStudentsCacheAsync(id);

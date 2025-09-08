@@ -1,6 +1,7 @@
 using Humanizer;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
+using NERBABO.ApiService.Core.SessionParticipations.Models;
 using NERBABO.ApiService.Core.Sessions.Dtos;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
@@ -19,6 +20,7 @@ public class Session : Entity<long>
 
     // Navigation properties
     public required ModuleTeaching ModuleTeaching { get; set; }
+    public List<SessionParticipation> Participants { get; set; } = [];
 
     // Calculated properties
     public TimeOnly End =>

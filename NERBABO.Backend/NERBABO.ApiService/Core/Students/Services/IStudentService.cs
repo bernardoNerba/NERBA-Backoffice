@@ -8,5 +8,6 @@ namespace NERBABO.ApiService.Core.Students.Services
     {
         Task<Result<RetrieveStudentDto>> GetByPersonIdAsync(long personId);
         Task<Result<IEnumerable<RetrieveStudentDto>>> GetByCompanyIdAsync(long companyId);
+        Task<Result<IEnumerable<RetrieveStudentDto>>> GetStudentsAvailableForActionAsync(long actionId);
     }
 }
