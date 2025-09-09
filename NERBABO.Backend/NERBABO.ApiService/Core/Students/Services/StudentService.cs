@@ -7,6 +7,7 @@ using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Models;
 using System;
+using ZLinq;
 
 namespace NERBABO.ApiService.Core.Students.Services
 {
@@ -332,7 +333,9 @@ namespace NERBABO.ApiService.Core.Students.Services
         public async Task<Result<IEnumerable<RetrieveStudentDto>>> GetStudentsAvailableForActionAsync(long actionId)
         {
             // Check if action exists
-            var existingAction = await _context.Actions.FirstOrDefaultAsync(a => a.Id == actionId);
+            var existingAction = await _context.Actions
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Teacher)
+                .FirstOrDefaultAsync(a => a.Id == actionId);
             if (existingAction is null)
             {
                 _logger.LogWarning("Action with ID {ActionId} not found when retrieving available students.", actionId);
@@ -351,8 +354,9 @@ namespace NERBABO.ApiService.Core.Students.Services
                 .ThenBy(s => s.Person.LastName)
                 .ToListAsync();
 
-            var retrieveStudents = availableStudents.Select(s => 
-                Student.ConvertEntityToRetrieveDto(s, s.Person, s.Company));
+            var retrieveStudents = availableStudents
+                .Where(s => !existingAction.ModuleTeachings.Any(mt => mt.Teacher.PersonId == s.PersonId))
+                .Select(s => Student.ConvertEntityToRetrieveDto(s, s.Person, s.Company));
 
             return Result<IEnumerable<RetrieveStudentDto>>
                 .Ok(retrieveStudents);

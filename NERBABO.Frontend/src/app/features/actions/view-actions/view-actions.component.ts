@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { catchError, Observable, of, Subscription, tap } from 'rxjs';
 import { IView } from '../../../core/interfaces/IView';
-import { Action } from '../../../core/models/action';
+import { Action, ActionKpi } from '../../../core/models/action';
 import { MenuItem } from 'primeng/api';
 import { ActionsService } from '../../../core/services/actions.service';
 import { SharedService } from '../../../core/services/shared.service';
@@ -31,6 +31,9 @@ import { PdfActionsComponent } from '../../../shared/components/pdf-actions/pdf-
 import { ActionEnrollmentTableComponent } from '../../../shared/components/tables/action-enrollment-table/action-enrollment-table.component';
 import { ActionEnrollmentService } from '../../../core/services/action-enrollment.service';
 import { ActionEnrollment } from '../../../core/models/actionEnrollment';
+import { Card } from 'primeng/card';
+import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
+import { SessionAttendanceComponent } from '../../../shared/components/session-attendance/session-attendance.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -44,6 +47,8 @@ import { ActionEnrollment } from '../../../core/models/actionEnrollment';
     SessionsSchedulerComponent,
     PdfActionsComponent,
     ActionEnrollmentTableComponent,
+    KpiRowComponent,
+    SessionAttendanceComponent,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',
@@ -60,6 +65,7 @@ export class ViewActionsComponent implements IView, OnInit {
   modulesWithTeacher: ModuleTeacher[] = [];
   actionEnrollments: ActionEnrollment[] = [];
   enrollmentsLoading: boolean = false;
+  kpis?: ActionKpi;
 
   ICONS = ICONS;
 
@@ -118,6 +124,7 @@ export class ViewActionsComponent implements IView, OnInit {
           this.loadModulesWithoutTeacher();
           this.loadModulesWithTeacher();
           this.loadActionEnrollments();
+          this.loadKpis();
         }
       })
     );
@@ -170,6 +177,21 @@ export class ViewActionsComponent implements IView, OnInit {
         console.error('Error loading action enrollments:', error);
         this.actionEnrollments = [];
         this.enrollmentsLoading = false;
+      },
+    });
+  }
+
+  loadKpis(): void {
+    console.log('Loading KPIs for action ID:', this.id);
+    this.actionsService.getKpis(this.id).subscribe({
+      next: (kpi: ActionKpi) => {
+        console.log('KPIs loaded successfully:', kpi);
+        this.kpis = kpi;
+      },
+      error: (error: any) => {
+        console.error('Error loading KPIs:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
       },
     });
   }
@@ -349,12 +371,12 @@ export class ViewActionsComponent implements IView, OnInit {
   onAddStudentModal(): void {
     const initialState = {
       id: 0, // 0 indicates create mode
-      actionId: this.id
+      actionId: this.id,
     };
-    
+
     this.modalService.show(UpsertActionEnrollmentComponent, {
       initialState,
-      class: 'modal-lg'
+      class: 'modal-lg',
     });
   }
 

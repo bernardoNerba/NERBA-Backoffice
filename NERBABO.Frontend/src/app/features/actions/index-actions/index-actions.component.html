@@ -5,10 +5,15 @@
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
   ></app-title>
+
+  <!-- KPI Cards -->
+  <app-kpi-row [kpis]="aggregatedKpis" layout="scroll" />
+
   <div class="card-body">
     <app-actions-table
       [actions]="(actions$ | async) ?? []"
       [loading]="(loading$ | async) ?? false"
+      (tableFilter)="onTableFilter($event)"
     />
   </div>
 </div>

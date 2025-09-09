@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, finalize, Observable, Subject, tap } from 'rxjs';
-import { Action } from '../models/action';
+import { Action, ActionKpi } from '../models/action';
 import { HttpClient } from '@angular/common/http';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
 import { OkResponse } from '../models/okResponse';
 import { ActionForm } from '../models/actionForm';
 import { SharedService } from './shared.service';
 import { CoursesService } from './courses.service';
+import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
 
 @Injectable({
   providedIn: 'root',
@@ -39,7 +40,9 @@ export class ActionsService {
   }
 
   getActionsByCoordinatorId(coordinatorId: string): Observable<Action[]> {
-    return this.http.get<Action[]>(`${API_ENDPOINTS.actionsByCoordinator}${coordinatorId}`);
+    return this.http.get<Action[]>(
+      `${API_ENDPOINTS.actionsByCoordinator}${coordinatorId}`
+    );
   }
 
   private fetchActions(): void {
@@ -126,5 +129,11 @@ export class ActionsService {
 
   getActiveActions(): Observable<Action[]> {
     return this.http.get<Action[]>(API_ENDPOINTS.actions);
+  }
+
+  getKpis(actionId: number): Observable<ActionKpi> {
+    const url = API_ENDPOINTS.actionsKpis + actionId;
+    console.log('KPI request URL:', url);
+    return this.http.get<ActionKpi>(url);
   }
 }

@@ -1,0 +1,69 @@
+@if (layout === 'scroll') {
+  <!-- Horizontal scroll layout for index pages -->
+  <div class="kpi-container mb-4 mx-3">
+    <div class="kpi-scroll-wrapper">
+      <div class="kpi-cards-row">
+        <div class="kpi-card-item">
+          <app-kpi-card
+            title="Total de Formandos"
+            value="{{ kpis.totalStudents }}"
+            icon="pi pi-graduation-cap"
+          />
+        </div>
+        <div class="kpi-card-item">
+          <app-kpi-card
+            title="Total de Certificados"
+            value="{{ kpis.totalApproved }}"
+            icon="pi pi-verified"
+          />
+        </div>
+        <div class="kpi-card-item">
+          <app-kpi-card
+            title="Volume de Horas"
+            value="{{ kpis.totalVolumeHours | number : '1.2-2' }} h"
+            icon="pi pi-clock"
+          />
+        </div>
+        <div class="kpi-card-item">
+          <app-kpi-card
+            title="Volume de Dias"
+            value="{{ kpis.totalVolumeDays }} dias"
+            icon="pi pi-calendar-clock"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+} @else {
+  <!-- Responsive grid layout for view pages -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-kpi-card
+        title="Total de Formandos"
+        value="{{ kpis.totalStudents }}"
+        icon="pi pi-graduation-cap"
+      />
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-kpi-card
+        title="Total de Certificados"
+        value="{{ kpis.totalApproved }}"
+        icon="pi pi-verified"
+      />
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-kpi-card
+        title="Volume Total (horas)"
+        value="{{ kpis.totalVolumeHours | number : '1.2-2' }} h"
+        icon="pi pi-clock"
+      />
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <app-kpi-card
+        title="Volume Total (dias)"
+        value="{{ kpis.totalVolumeDays }} dias"
+        icon="pi pi-calendar-clock"
+      />
+    </div>
+  </div>
+}

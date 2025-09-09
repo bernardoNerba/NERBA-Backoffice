@@ -122,7 +122,8 @@ public class PeopleService(
     public async Task<Result> DeleteAsync(long id)
     {
         // Check if person exists
-        var existingPerson = await _context.People.FindAsync(id);
+        var existingPerson = await _context.People
+            .FindAsync(id);
         if (existingPerson is null)
             return Result
                 .Fail("Não encontrado.", $"Pessoa não encontrada.",
@@ -151,6 +152,25 @@ public class PeopleService(
                 _context.Students.Remove(existingStudent);
             }
 
+            // remove pdf files from database and from wwwroot
+            var habilitationComprovative = await _pdfService.GetSavedPdfAsync(PdfTypes.HabilitationComprovative, existingPerson.Id);
+            if (habilitationComprovative.Data is not null)
+            {
+                await _pdfService.DeleteSavedPdfAsync(habilitationComprovative.Data.Id);
+            }
+
+            var ibanComprovative = await _pdfService.GetSavedPdfAsync(PdfTypes.IbanComprovative, existingPerson.Id);
+            if (ibanComprovative.Data is not null)
+            {
+                await _pdfService.DeleteSavedPdfAsync(ibanComprovative.Data.Id);
+            }
+
+            var identificationDocument = await _pdfService.GetSavedPdfAsync(PdfTypes.IdentificationDocument, existingPerson.Id);
+            if (identificationDocument.Data is not null)
+            {
+                await _pdfService.DeleteSavedPdfAsync(identificationDocument.Data.Id);
+            }
+            
             // remove from database
             _context.People.Remove(existingPerson);
             await _context.SaveChangesAsync();

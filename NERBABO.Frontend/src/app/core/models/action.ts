@@ -22,3 +22,10 @@ export interface Action {
   paymentsProcessed: string;
   modulesHaveTeacher: string;
 }
+
+export interface ActionKpi {
+  totalStudents: number;
+  totalApproved: number;
+  totalVolumeHours: number;
+  totalVolumeDays: number;
+}

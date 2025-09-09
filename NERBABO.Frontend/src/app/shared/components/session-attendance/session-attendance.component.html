@@ -1,0 +1,256 @@
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Carregando presenças...</p>
+</div>
+} @else { @if (sessionsWithAttendance.length === 0) {
+<div class="text-center py-4">
+  <i class="pi pi-calendar-times text-muted" style="font-size: 2rem"></i>
+  <p class="mt-2 mb-0 text-muted">Não existem sessões para esta ação.</p>
+</div>
+} @else {
+<div class="accordion" id="sessions-attendance-accordion">
+  @for (session of sessionsWithAttendance; track session.sessionId; let i =
+  $index) {
+  <div class="accordion-item">
+    <h2 class="accordion-header" [id]="'heading-session-' + session.sessionId">
+      <button
+        class="accordion-button collapsed"
+        type="button"
+        data-bs-toggle="collapse"
+        [attr.data-bs-target]="'#session-' + session.sessionId + '-content'"
+        aria-expanded="false"
+        [attr.aria-controls]="'session-' + session.sessionId + '-content'"
+      >
+        <div
+          class="d-flex justify-content-between align-items-center w-100 me-3"
+        >
+          <div class="d-flex align-items-center gap-2">
+            <div>
+              <strong>{{ session.sessionDate | date : "dd/MM/yyyy" }}</strong>
+            </div>
+            <p-tag
+              [value]="session.moduleName"
+              severity="info"
+              icon="pi pi-book"
+              class="ms-2"
+            />
+            <p-tag
+              [severity]="
+                isSessionPresenceComplete(session.sessionId)
+                  ? 'success'
+                  : 'warn'
+              "
+              [icon]="
+                isSessionPresenceComplete(session.sessionId)
+                  ? 'pi pi-check'
+                  : 'pi pi-exclamation-triangle'
+              "
+              [value]="
+                isSessionPresenceComplete(session.sessionId)
+                  ? 'Presenças definidas'
+                  : 'Presenças por definir'
+              "
+              class="ms-1"
+            />
+            <p-tag
+              [value]="session.durationHours + 'h'"
+              severity="secondary"
+              icon="pi pi-clock"
+              class="ms-1"
+            />
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <small class="text-muted"
+              >Formador: {{ session.teacherName }}</small
+            >
+            @if (hasUnsavedChanges(session.sessionId)) {
+            <p-tag
+              value="Alterações não guardadas"
+              severity="warn"
+              icon="pi pi-exclamation-triangle"
+              class="unsaved-indicator"
+            />
+            }
+          </div>
+        </div>
+      </button>
+    </h2>
+    <div
+      [id]="'session-' + session.sessionId + '-content'"
+      class="accordion-collapse collapse"
+      [attr.aria-labelledby]="'heading-session-' + session.sessionId"
+    >
+      <div class="accordion-body">
+        @if (attendanceForms[session.sessionId]) {
+        <form [formGroup]="attendanceForms[session.sessionId]">
+          <div class="table-responsive">
+            <p-table
+              #sessionTable
+              [value]="session.attendances"
+              stripedRows
+              size="small"
+              [tableStyle]="{ 'min-width': '50rem' }"
+            >
+              <ng-template #header>
+                <tr>
+                  <th style="min-width: 250px">Formando</th>
+                  <th style="width: 200px">Presença</th>
+                  <th style="width: 200px">Horas Frequência</th>
+                  <th style="width: 150px">Minutos Frequência</th>
+                </tr>
+              </ng-template>
+
+              <ng-template #body let-student let-rowIndex="rowIndex">
+                <tr formArrayName="students">
+                  <td [formGroupName]="rowIndex">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="pi pi-user text-muted"></i>
+                      <strong>{{ student.studentName }}</strong>
+                    </div>
+                  </td>
+                  <td [formGroupName]="rowIndex">
+                    <p-select
+                      formControlName="presence"
+                      [options]="presenceOptions"
+                      optionLabel="value"
+                      optionValue="value"
+                      placeholder="Selecione..."
+                      styleClass="w-100"
+                      [appendTo]="'body'"
+                      (onChange)="
+                        onPresenceChange(
+                          session.sessionId,
+                          rowIndex,
+                          $event.value
+                        )
+                      "
+                    />
+                  </td>
+                  <td [formGroupName]="rowIndex">
+                    <p-inputnumber
+                      formControlName="attendanceHours"
+                      [min]="0"
+                      [max]="getSessionDurationHours(session.sessionId)"
+                      [step]="1"
+                      suffix=" h"
+                      placeholder="0"
+                      [styleClass]="
+                        'w-100' +
+                        (hasAttendanceTimeError(session.sessionId, rowIndex)
+                          ? ' p-invalid'
+                          : '')
+                      "
+                      [showButtons]="true"
+                      buttonLayout="horizontal"
+                      decrementButtonClass="p-button-secondary p-button-sm"
+                      incrementButtonClass="p-button-secondary p-button-sm"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                    />
+                  </td>
+                  <td [formGroupName]="rowIndex">
+                    <p-inputnumber
+                      formControlName="attendanceMinutes"
+                      [min]="0"
+                      [max]="59"
+                      [step]="1"
+                      suffix=" min"
+                      placeholder="0"
+                      [styleClass]="
+                        'w-100' +
+                        (hasAttendanceTimeError(session.sessionId, rowIndex)
+                          ? ' p-invalid'
+                          : '')
+                      "
+                      [showButtons]="true"
+                      buttonLayout="horizontal"
+                      decrementButtonClass="p-button-secondary p-button-sm"
+                      incrementButtonClass="p-button-secondary p-button-sm"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                    />
+                  </td>
+                </tr>
+                @if (hasAttendanceTimeError(session.sessionId, rowIndex)) {
+                <tr>
+                  <td colspan="4" class="border-0 pt-0">
+                    <div class="text-danger text-center py-2">
+                      <small>
+                        <i class="pi pi-exclamation-triangle me-1"></i>
+                        {{
+                          getAttendanceTimeErrorMessage(
+                            session.sessionId,
+                            rowIndex
+                          )
+                        }}
+                      </small>
+                    </div>
+                  </td>
+                </tr>
+                } @else if (isAttendanceLowForSession(session.sessionId,
+                rowIndex)) {
+                <tr>
+                  <td colspan="4" class="border-0 pt-0">
+                    <div class="text-warning text-center py-2">
+                      <small>
+                        <i class="pi pi-exclamation-triangle me-1"></i>
+                        Frequência inferior a metade da sessão ({{
+                          session.durationHours / 2
+                        }}h)
+                      </small>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </ng-template>
+
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="4">
+                    <div class="text-center py-4">
+                      <i
+                        class="pi pi-users text-muted"
+                        style="font-size: 2rem"
+                      ></i>
+                      <p class="mt-2 mb-0">
+                        Não há formandos inscritos nesta ação.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
+            <p-button
+              label="Repor"
+              icon="pi pi-refresh"
+              severity="secondary"
+              [outlined]="true"
+              size="small"
+              [disabled]="saving"
+              (onClick)="resetForm(session.sessionId)"
+            />
+            <p-button
+              label="Guardar Presenças"
+              icon="pi pi-save"
+              severity="primary"
+              size="small"
+              [disabled]="saving || attendanceForms[session.sessionId].invalid"
+              [loading]="saving"
+              (onClick)="saveSessionAttendance(session.sessionId)"
+            />
+          </div>
+        </form>
+        }
+      </div>
+    </div>
+  </div>
+  }
+</div>
+} }
+
+<!-- Toast notifications -->
+<p-toast />

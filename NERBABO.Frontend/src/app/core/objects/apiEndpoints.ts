@@ -85,12 +85,14 @@ export const API_ENDPOINTS = {
   // Courses endpoints
   courses: `${BASE_URL}/api/courses/`,
   courses_active: `${BASE_URL}/api/courses/active/`,
+  coursesKpis: `${BASE_URL}/api/courses/kpis/`,
 
   // Actions endpoints
   actions: `${BASE_URL}/api/actions/`,
   actionsByModule: `${BASE_URL}/api/actions/module/`,
   actionsByCourse: `${BASE_URL}/api/actions/course/`,
   actionsByCoordinator: `${BASE_URL}/api/actions/coordenator/`,
+  actionsKpis: `${BASE_URL}/api/actions/kpis/`,
 
   // Frames endpoints
   frames: `${BASE_URL}/api/frame/`,
@@ -118,4 +120,10 @@ export const API_ENDPOINTS = {
 
   // ActionEnrollments endpoints
   actionEnrollments: `${BASE_URL}/api/ActionEnrollment/`,
+
+  // SessionParticipations endpoints
+  sessionParticipations: `${BASE_URL}/api/SessionParticipations/`,
+  sessionParticipationsBySession: `${BASE_URL}/api/SessionParticipations/session/`,
+  sessionParticipationsByAction: `${BASE_URL}/api/SessionParticipations/action/`,
+  upsertSessionAttendance: `${BASE_URL}/api/SessionParticipations/upsert-attendance`,
 };

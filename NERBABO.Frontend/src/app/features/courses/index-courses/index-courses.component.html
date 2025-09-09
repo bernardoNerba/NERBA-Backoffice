@@ -5,6 +5,8 @@
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
   ></app-title>
+
+
   <div class="card-body">
     <app-courses-table
       [courses]="(courses$ | async) ?? []"

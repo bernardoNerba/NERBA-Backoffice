@@ -6,7 +6,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CoursesService } from '../../../core/services/courses.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
@@ -28,6 +27,7 @@ export class IndexCoursesComponent implements IIndex, OnInit {
   loading$!: Observable<boolean>;
   ICONS = ICONS;
 
+
   constructor(
     private coursesService: CoursesService,
     private modalService: BsModalService,
@@ -40,6 +40,7 @@ export class IndexCoursesComponent implements IIndex, OnInit {
   ngOnInit(): void {
     this.updateBreadcrumbs();
   }
+
 
   onCreateModal() {
     this.modalService.show(UpsertCoursesComponent, {
@@ -64,4 +65,5 @@ export class IndexCoursesComponent implements IIndex, OnInit {
       },
     ]);
   }
+
 }

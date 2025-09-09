@@ -21,6 +21,7 @@ import { TagModule } from 'primeng/tag';
 import { ApprovalStatus } from '../../../enums/approval-status.enum';
 import { UpsertActionEnrollmentComponent } from '../../../../features/enrollments/upsert-action-enrollment/upsert-action-enrollment.component';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
+import { DeleteActionEnrollmentsComponent } from '../../../../features/enrollments/delete-action-enrollments/delete-action-enrollments.component';
 
 @Component({
   selector: 'app-action-enrollment-table',
@@ -160,21 +161,15 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
   }
 
   onDeleteModal(enrollment: ActionEnrollment) {
-    if (
-      confirm(
-        `Tem a certeza que deseja eliminar a inscrição de ${enrollment.studentFullName}?`
-      )
-    ) {
-      this.actionEnrollmentService.delete(enrollment.enrollmentId).subscribe({
-        next: (response) => {
-          // Service already emits the deletedSource event
-          console.log('Enrollment deleted successfully');
-        },
-        error: (error) => {
-          console.error('Error deleting enrollment:', error);
-        },
-      });
-    }
+    const initialState = {
+      id: enrollment.enrollmentId,
+      name: enrollment.studentFullName,
+    };
+
+    this.modalService.show(DeleteActionEnrollmentsComponent, {
+      initialState,
+      class: 'modal-md',
+    });
   }
 
   next() {

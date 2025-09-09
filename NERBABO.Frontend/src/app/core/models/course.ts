@@ -17,3 +17,10 @@ export interface Course {
   actionsQnt: number;
   modulesQnt: number;
 }
+
+export interface CourseKpi {
+  totalStudents: number;
+  totalApproved: number;
+  totalVolumeHours: number;
+  totalVolumeDays: number;
+}

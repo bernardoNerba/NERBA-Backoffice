@@ -20,6 +20,7 @@
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     (onPage)="pageChange($event)"
     (onSort)="onSort($event)"
+    (onFilter)="onTableFilter($event)"
     [rowsPerPageOptions]="[10, 25, 50]"
   >
     >

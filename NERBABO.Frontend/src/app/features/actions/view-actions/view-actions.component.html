@@ -1,6 +1,10 @@
 @if (action$ | async; as action) {
 <app-title [title]="action.title" [isDropdown]="true" [menuItems]="menuItems" />
 
+@if (kpis){
+<app-kpi-row [kpis]="kpis" layout="scroll" />
+}
+
 <!-- Alert with modules that dont have teacher assigned -->
 <app-message
   [severity]="'warn'"
@@ -339,6 +343,33 @@
       </div>
     </div>
     <!-- END SESSIONS ACCORDION -->
+
+    <!-- SESSION ATTENDANCE ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-session-attendance">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#session-attendance-content"
+          aria-expanded="false"
+          aria-controls="session-attendance-content"
+        >
+          <app-icon [icon]="ICONS.student" [marginEnd]="3" />
+          <h5>Presenças de Sessões</h5>
+        </button>
+      </h2>
+      <div
+        id="session-attendance-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-session-attendance"
+      >
+        <div class="accordion-body">
+          <app-session-attendance [actionId]="id" />
+        </div>
+      </div>
+    </div>
+    <!-- END SESSION ATTENDANCE ACCORDION -->
 
     <!-- FILE LIST ACCORDION-->
     <div class="accordion-item">

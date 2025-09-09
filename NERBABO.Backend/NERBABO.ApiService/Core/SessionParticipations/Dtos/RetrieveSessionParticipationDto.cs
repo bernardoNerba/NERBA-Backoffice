@@ -9,4 +9,6 @@ public class RetrieveSessionParticipationDto
     public long ActionEnrollmentId { get; set; }
     public string Presence { get; set; } = string.Empty;
     public double Attendance { get; set; }
+    public int AttendanceHours { get; set; }
+    public int AttendanceMinutes { get; set; }
 }

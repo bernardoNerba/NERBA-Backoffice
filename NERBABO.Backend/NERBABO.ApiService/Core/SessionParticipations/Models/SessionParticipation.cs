@@ -14,6 +14,9 @@ public class SessionParticipation : Entity<long>
     public PresenceEnum Presence { get; set; } = PresenceEnum.Unknown;
     public double Attendance { get; set; }
 
+    // Calculated properties for display purposes
+    public int AttendanceHours => (int)Math.Floor(Attendance);
+    public int AttendanceMinutes => (int)Math.Round((Attendance - Math.Floor(Attendance)) * 60);
 
     // Navigation Properties
     public required Session Session { get; set; }
@@ -27,8 +30,9 @@ public class SessionParticipation : Entity<long>
             SessionId = sp.SessionId,
             ActionEnrollmentId = sp.ActionEnrollmentId,
             Presence = sp.Presence.Humanize(LetterCasing.Title),
-            Attendance = sp.Attendance
+            Attendance = sp.Attendance,
+            AttendanceHours = sp.AttendanceHours,
+            AttendanceMinutes = sp.AttendanceMinutes
         };
-        
     }
 }

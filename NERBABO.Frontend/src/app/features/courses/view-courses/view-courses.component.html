@@ -2,6 +2,10 @@
 
 <app-title [title]="course.title" [isDropdown]="true" [menuItems]="menuItems" />
 
+@if (kpis){
+<app-kpi-row [kpis]="kpis" layout="scroll" />
+}
+
 <!-- MESSAGE FOR COURSE NOT COMPLETED-->
 <app-message
   [show]="course.remainingDuration !== 0"
@@ -125,7 +129,9 @@
               <!-- Course MinLvl -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <div class="bg-green-white fw-bold">Nível Min. Habilitações</div>
+                  <div class="bg-green-white fw-bold">
+                    Nível Min. Habilitações
+                  </div>
                   <p class="text-break mb-0">
                     {{ course.minHabilitationLevel }}
                   </p>

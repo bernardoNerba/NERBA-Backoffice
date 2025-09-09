@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, ViewChild, Output, EventEmitter } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -46,9 +46,10 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
   ],
   templateUrl: './actions-table.component.html',
 })
-export class ActionsTableComponent implements OnInit {
+export class ActionsTableComponent implements OnInit, OnChanges {
   @Input({ required: true }) actions!: Action[];
   @Input({ required: true }) loading!: boolean;
+  @Output() tableFilter = new EventEmitter<Action[]>();
   @ViewChild('dt') dt!: Table;
   menuItems: MenuItem[] | undefined;
   searchValue: string = '';
@@ -105,6 +106,7 @@ export class ActionsTableComponent implements OnInit {
 
     // Initialize filteredActions
     this.filteredActions = this.actions;
+    this.tableFilter.emit(this.filteredActions);
 
     // Subscribe to action updates
     this.subscriptions.add(
@@ -123,7 +125,9 @@ export class ActionsTableComponent implements OnInit {
 
   // Update filtered actions when inputs change
   ngOnChanges(): void {
-    this.applyFilters();
+    if (this.actions) {
+      this.applyFilters();
+    }
   }
 
   // Apply search and date range filters
@@ -163,6 +167,7 @@ export class ActionsTableComponent implements OnInit {
     }
 
     this.filteredActions = filtered;
+    this.tableFilter.emit(this.filteredActions);
   }
 
   // Handle date range change

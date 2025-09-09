@@ -13,5 +13,6 @@ namespace NERBABO.ApiService.Core.Actions.Services
         Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllByCourseIdAsync(long courseId);
         Task<Result> ChangeActionStatusAsync(long id, string status);
         Task<Result<IEnumerable<RetrieveCourseActionDto>>> GetAllByCoordenatorAsync(string coordenatorId);
+        Task<Result<KpisActionDto>> GetKpisAsync(long actionId);
     }
 }

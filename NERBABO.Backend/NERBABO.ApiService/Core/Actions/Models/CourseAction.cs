@@ -1,11 +1,10 @@
-﻿using System.Reflection;
-using Humanizer;
+﻿using Humanizer;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
-using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 
@@ -37,17 +36,33 @@ namespace NERBABO.ApiService.Core.Actions.Models
             Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
 
 
-        public string AllDiferentSessionTeachers() {
+        public string AllDiferentSessionTeachers()
+        {
             var teachers = ModuleTeachings.Select(mt => mt.Teacher.Person.FirstName).ToHashSet();
             return String.Join(" | ", teachers);
         }
 
-        public string AllDiferentSessionTimes() {
+        public string AllDiferentSessionTimes()
+        {
             var times = ModuleTeachings.SelectMany(mt => mt.Sessions.Select(s => s.Time)).ToHashSet();
             return String.Join(" | ", times);
         }
-        
+
+        public bool AllSessionsScheduled =>
+            ModuleTeachings.All(mt => mt.ScheduledPercent() == 100);
+
         public string Title => $"{ActionNumber} - {Locality}";
+
+        public int TotalStudents => ActionEnrollments.Count;
+        public int TotalApproved => ActionEnrollments.Count(ae => ae.ApprovalStatus == ApprovalStatusEnum.Approved);
+        // Updated KPI calculations based on actual attendance
+        public double TotalVolumeHours => ActionEnrollments
+            .SelectMany(ae => ae.Participants)
+            .Sum(sp => sp.Attendance);
+            
+        public int TotalVolumeDays => ActionEnrollments
+            .SelectMany(ae => ae.Participants)
+            .Count(sp => sp.Presence == PresenceEnum.Present);
 
         // Navigation properties
         public required Course Course { get; set; }
@@ -55,6 +70,16 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
         public List<ActionEnrollment> ActionEnrollments { get; set; } = [];
 
+        public KpisActionDto ConvertEntityToKpiDto()
+        {
+            return new KpisActionDto
+            {
+                TotalStudents = TotalStudents,
+                TotalApproved = TotalApproved,
+                TotalVolumeDays = TotalVolumeDays,
+                TotalVolumeHours = TotalVolumeHours
+            };
+        }
 
         public static RetrieveCourseActionDto ConvertEntityToRetrieveDto(CourseAction ca, User u, Course c)
         {
@@ -106,5 +131,6 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 Course = c
             };
         }
+
     }
 }
