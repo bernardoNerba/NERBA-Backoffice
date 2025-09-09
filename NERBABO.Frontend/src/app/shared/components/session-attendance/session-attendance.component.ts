@@ -451,4 +451,27 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
     const error = studentControl?.getError('totalAttendanceExceeded');
     return error?.message || '';
   }
+
+  // Check if all attendances for a session have presence set (not Unknown)
+  isSessionPresenceComplete(sessionId: number): boolean {
+    const session = this.sessionsWithAttendance.find(
+      (s) => s.sessionId === sessionId
+    );
+    if (!session || session.attendances.length === 0) return false;
+
+    const form = this.attendanceForms[sessionId];
+    if (!form) return false;
+
+    const studentsArray = this.getStudentsFormArray(sessionId);
+    
+    // Check if all students have presence set (not Unknown)
+    for (let i = 0; i < studentsArray.length; i++) {
+      const studentControl = studentsArray.at(i);
+      const presence = studentControl.get('presence')?.value;
+      if (presence === PresenceEnum.Unknown) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

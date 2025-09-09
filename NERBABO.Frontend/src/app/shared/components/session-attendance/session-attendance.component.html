@@ -28,13 +28,30 @@
           <div class="d-flex align-items-center gap-2">
             <div>
               <strong>{{ session.sessionDate | date : "dd/MM/yyyy" }}</strong>
-              <span class="text-muted ms-2">{{ session.sessionTime }}</span>
             </div>
             <p-tag
               [value]="session.moduleName"
               severity="info"
               icon="pi pi-book"
               class="ms-2"
+            />
+            <p-tag
+              [severity]="
+                isSessionPresenceComplete(session.sessionId)
+                  ? 'success'
+                  : 'warn'
+              "
+              [icon]="
+                isSessionPresenceComplete(session.sessionId)
+                  ? 'pi pi-check'
+                  : 'pi pi-exclamation-triangle'
+              "
+              [value]="
+                isSessionPresenceComplete(session.sessionId)
+                  ? 'Presenças definidas'
+                  : 'Presenças por definir'
+              "
+              class="ms-1"
             />
             <p-tag
               [value]="session.durationHours + 'h'"
@@ -79,9 +96,7 @@
                 <tr>
                   <th style="min-width: 250px">Formando</th>
                   <th style="width: 200px">Presença</th>
-                  <th style="width: 200px">
-                    Horas Frequência (máx: {{ session.durationHours }}h)
-                  </th>
+                  <th style="width: 200px">Horas Frequência</th>
                   <th style="width: 150px">Minutos Frequência</th>
                 </tr>
               </ng-template>
@@ -120,7 +135,12 @@
                       [step]="1"
                       suffix=" h"
                       placeholder="0"
-                      [styleClass]="'w-100' + (hasAttendanceTimeError(session.sessionId, rowIndex) ? ' p-invalid' : '')"
+                      [styleClass]="
+                        'w-100' +
+                        (hasAttendanceTimeError(session.sessionId, rowIndex)
+                          ? ' p-invalid'
+                          : '')
+                      "
                       [showButtons]="true"
                       buttonLayout="horizontal"
                       decrementButtonClass="p-button-secondary p-button-sm"
@@ -137,7 +157,12 @@
                       [step]="1"
                       suffix=" min"
                       placeholder="0"
-                      [styleClass]="'w-100' + (hasAttendanceTimeError(session.sessionId, rowIndex) ? ' p-invalid' : '')"
+                      [styleClass]="
+                        'w-100' +
+                        (hasAttendanceTimeError(session.sessionId, rowIndex)
+                          ? ' p-invalid'
+                          : '')
+                      "
                       [showButtons]="true"
                       buttonLayout="horizontal"
                       decrementButtonClass="p-button-secondary p-button-sm"
@@ -153,12 +178,18 @@
                     <div class="text-danger text-center py-2">
                       <small>
                         <i class="pi pi-exclamation-triangle me-1"></i>
-                        {{ getAttendanceTimeErrorMessage(session.sessionId, rowIndex) }}
+                        {{
+                          getAttendanceTimeErrorMessage(
+                            session.sessionId,
+                            rowIndex
+                          )
+                        }}
                       </small>
                     </div>
                   </td>
                 </tr>
-                } @else if (isAttendanceLowForSession(session.sessionId, rowIndex)) {
+                } @else if (isAttendanceLowForSession(session.sessionId,
+                rowIndex)) {
                 <tr>
                   <td colspan="4" class="border-0 pt-0">
                     <div class="text-warning text-center py-2">
