@@ -1,0 +1,48 @@
+.kpi-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.kpi-scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f0f0f0;
+}
+
+.kpi-scroll-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.kpi-scroll-wrapper::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.kpi-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.kpi-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.kpi-cards-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  min-width: max-content;
+}
+
+.kpi-card-item {
+  flex: 0 0 280px;
+  min-width: 280px;
+  max-width: 280px;
+}
+
+.kpi-card-item:last-child {
+  margin-right: 1rem;
+}

@@ -3,36 +3,7 @@
 <app-title [title]="course.title" [isDropdown]="true" [menuItems]="menuItems" />
 
 @if (kpis){
-<div class="row g-3 mb-4">
-  <div class="col-12 col-sm-6 col-lg-3">
-    <app-kpi-card
-      title="Total de Formandos"
-      value="{{ kpis.totalStudents }}"
-      icon="pi pi-graduation-cap"
-    />
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <app-kpi-card
-      title="Total de Certificados"
-      value="{{ kpis.totalApproved }}"
-      icon="pi pi-verified"
-    />
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <app-kpi-card
-      title="Volume Total (horas)"
-      value="{{ kpis.totalVolumeHours }} h"
-      icon="pi pi-clock"
-    />
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <app-kpi-card
-      title="Volume Total (dias)"
-      value="{{ kpis.totalVolumeDays }} dias"
-      icon="pi pi-calendar-clock"
-    />
-  </div>
-</div>
+<app-kpi-row [kpis]="kpis" layout="scroll" />
 }
 
 <!-- MESSAGE FOR COURSE NOT COMPLETED-->
@@ -158,7 +129,9 @@
               <!-- Course MinLvl -->
               <div class="col-md-4 col-sm-6">
                 <div class="property">
-                  <div class="bg-green-white fw-bold">Nível Min. Habilitações</div>
+                  <div class="bg-green-white fw-bold">
+                    Nível Min. Habilitações
+                  </div>
                   <p class="text-break mb-0">
                     {{ course.minHabilitationLevel }}
                   </p>

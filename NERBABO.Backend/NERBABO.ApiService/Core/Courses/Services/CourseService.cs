@@ -814,6 +814,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var existingCourse = await _context.Courses
                 .Include(c => c.Actions)
                     .ThenInclude(a => a.ActionEnrollments)
+                        .ThenInclude(ae => ae.Participants)
                 .Include(c => c.Actions)
                     .ThenInclude(a => a.ModuleTeachings)
                         .ThenInclude(mt => mt.Sessions)

@@ -120,4 +120,10 @@ export const API_ENDPOINTS = {
 
   // ActionEnrollments endpoints
   actionEnrollments: `${BASE_URL}/api/ActionEnrollment/`,
+
+  // SessionParticipations endpoints
+  sessionParticipations: `${BASE_URL}/api/SessionParticipations/`,
+  sessionParticipationsBySession: `${BASE_URL}/api/SessionParticipations/session/`,
+  sessionParticipationsByAction: `${BASE_URL}/api/SessionParticipations/action/`,
+  upsertSessionAttendance: `${BASE_URL}/api/SessionParticipations/upsert-attendance`,
 };

@@ -11,11 +11,11 @@ import { UpsertActionsComponent } from '../upsert-actions/upsert-actions.compone
 import { SharedService } from '../../../core/services/shared.service';
 import { CommonModule } from '@angular/common';
 import { TitleComponent } from '../../../shared/components/title/title.component';
-import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.component';
+import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
 
 @Component({
   selector: 'app-index-actions',
-  imports: [ActionsTableComponent, CommonModule, TitleComponent, KpiCardComponent],
+  imports: [ActionsTableComponent, CommonModule, TitleComponent, KpiRowComponent],
   templateUrl: './index-actions.component.html',
   styleUrl: './index-actions.component.css',
 })

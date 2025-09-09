@@ -466,3 +466,15 @@ a.nav-link:hover {
 .bg-orange-white {
   background-color: #fdb85d20 !important;
 }
+
+/* Fix for Bootstrap table-responsive overflow hiding PrimeNG dropdown panels */
+.table-responsive {
+  overflow: visible !important;
+}
+
+/* Ensure PrimeNG dropdown panels are positioned correctly */
+.p-component .p-dropdown-panel,
+.p-component .p-multiselect-panel,
+.p-component .p-menu {
+  z-index: 9999 !important;
+}

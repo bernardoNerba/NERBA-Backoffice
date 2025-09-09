@@ -632,6 +632,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
         {
             var existingAction = await _context.Actions
                 .Include(a => a.ActionEnrollments)
+                    .ThenInclude(ae => ae.Participants)
                 .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
                 .FirstOrDefaultAsync(a => a.Id == actionId);
             if (existingAction is null)

@@ -32,6 +32,7 @@ using NERBABO.ApiService.Core.People.Services;
 using NERBABO.ApiService.Core.Reports.Composers;
 using NERBABO.ApiService.Core.Reports.Services;
 using NERBABO.ApiService.Core.Sessions.Services;
+using NERBABO.ApiService.Core.SessionParticipations.Services;
 using NERBABO.ApiService.Core.Students.Cache;
 using NERBABO.ApiService.Core.Students.Models;
 using NERBABO.ApiService.Core.Students.Services;
@@ -79,6 +80,7 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseActionService, CourseActionService>();
 builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<ISessionParticipationService, SessionParticipationService>();
 builder.Services.AddScoped<IActionEnrollmentService, ActionEnrollmentService>();
 
 builder.Services.AddScoped<IPdfService, PdfService>();

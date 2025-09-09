@@ -2,36 +2,7 @@
 <app-title [title]="action.title" [isDropdown]="true" [menuItems]="menuItems" />
 
 @if (kpis){
-<div class="row g-3 mb-4">
-  <div class="col-12 col-sm-6 col-lg-3">
-    <app-kpi-card
-      title="Total de Formandos"
-      value="{{ kpis.totalStudents }}"
-      icon="pi pi-graduation-cap"
-    />
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <app-kpi-card
-      title="Total de Certificados"
-      value="{{ kpis.totalApproved }}"
-      icon="pi pi-verified"
-    />
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <app-kpi-card
-      title="Volume Total (horas)"
-      value="{{ kpis.totalVolumeHours }} h"
-      icon="pi pi-clock"
-    />
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <app-kpi-card
-      title="Volume Total (dias)"
-      value="{{ kpis.totalVolumeDays }} dias"
-      icon="pi pi-calendar-clock"
-    />
-  </div>
-</div>
+<app-kpi-row [kpis]="kpis" layout="scroll" />
 }
 
 <!-- Alert with modules that dont have teacher assigned -->
@@ -372,6 +343,33 @@
       </div>
     </div>
     <!-- END SESSIONS ACCORDION -->
+
+    <!-- SESSION ATTENDANCE ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-session-attendance">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#session-attendance-content"
+          aria-expanded="false"
+          aria-controls="session-attendance-content"
+        >
+          <app-icon [icon]="ICONS.student" [marginEnd]="3" />
+          <h5>Presenças de Sessões</h5>
+        </button>
+      </h2>
+      <div
+        id="session-attendance-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-session-attendance"
+      >
+        <div class="accordion-body">
+          <app-session-attendance [actionId]="id" />
+        </div>
+      </div>
+    </div>
+    <!-- END SESSION ATTENDANCE ACCORDION -->
 
     <!-- FILE LIST ACCORDION-->
     <div class="accordion-item">

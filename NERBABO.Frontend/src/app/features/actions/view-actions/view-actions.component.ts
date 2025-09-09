@@ -32,7 +32,8 @@ import { ActionEnrollmentTableComponent } from '../../../shared/components/table
 import { ActionEnrollmentService } from '../../../core/services/action-enrollment.service';
 import { ActionEnrollment } from '../../../core/models/actionEnrollment';
 import { Card } from 'primeng/card';
-import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.component';
+import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
+import { SessionAttendanceComponent } from '../../../shared/components/session-attendance/session-attendance.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -46,7 +47,8 @@ import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.c
     SessionsSchedulerComponent,
     PdfActionsComponent,
     ActionEnrollmentTableComponent,
-    KpiCardComponent,
+    KpiRowComponent,
+    SessionAttendanceComponent,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',

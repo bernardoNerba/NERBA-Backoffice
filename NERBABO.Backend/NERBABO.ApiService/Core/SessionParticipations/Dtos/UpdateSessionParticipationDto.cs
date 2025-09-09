@@ -2,8 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NERBABO.ApiService.Core.SessionParticipations.Dtos;
 
-public class CreateSessionParticipationDto
+public class UpdateSessionParticipationDto
 {
+    [Required]
+    public long SessionParticipationId { get; set; }
+    
     [Required]
     public long SessionId { get; set; }
     

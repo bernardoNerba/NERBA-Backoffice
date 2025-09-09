@@ -27,7 +27,7 @@ import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.compone
 import { UpsertActionsComponent } from '../../actions/upsert-actions/upsert-actions.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
 import { MessageComponent } from '../../../shared/components/message/message.component';
-import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.component';
+import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
 
 @Component({
   selector: 'app-view-courses',
@@ -39,7 +39,7 @@ import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.c
     ActionsTableComponent,
     TitleComponent,
     MessageComponent,
-    KpiCardComponent,
+    KpiRowComponent,
   ],
   templateUrl: './view-courses.component.html',
 })
