@@ -5,10 +5,48 @@
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
   ></app-title>
+
+  <!-- KPI Cards - Non-responsive with horizontal scroll -->
+  <div class="kpi-container mb-4 mx-3">
+    <div class="kpi-scroll-wrapper">
+      <div class="kpi-cards-row">
+        <div class="kpi-card-item">
+          <app-kpi-card
+            title="Total de Formandos"
+            value="{{ aggregatedKpis.totalStudents }}"
+            icon="pi pi-graduation-cap"
+          />
+        </div>
+        <div class="kpi-card-item">
+          <app-kpi-card
+            title="Total de Certificados"
+            value="{{ aggregatedKpis.totalApproved }}"
+            icon="pi pi-verified"
+          />
+        </div>
+        <div class="kpi-card-item">
+          <app-kpi-card
+            title="Volume de Horas"
+            value="{{ aggregatedKpis.totalVolumeHours }} h"
+            icon="pi pi-clock"
+          />
+        </div>
+        <div class="kpi-card-item">
+          <app-kpi-card
+            title="Volume de Dias"
+            value="{{ aggregatedKpis.totalVolumeDays }} dias"
+            icon="pi pi-calendar-clock"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="card-body">
     <app-actions-table
       [actions]="(actions$ | async) ?? []"
       [loading]="(loading$ | async) ?? false"
+      (tableFilter)="onTableFilter($event)"
     />
   </div>
 </div>

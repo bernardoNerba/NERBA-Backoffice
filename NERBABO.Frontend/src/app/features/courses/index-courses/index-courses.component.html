@@ -6,43 +6,11 @@
     (buttonClick)="onCreateModal()"
   ></app-title>
 
-  <!-- KPI Cards -->
-  <div class="row g-3 mb-4 mx-3">
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-kpi-card
-        title="Total de Formandos"
-        value="{{ aggregatedKpis.totalStudents }}"
-        icon="pi pi-graduation-cap"
-      />
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-kpi-card
-        title="Total de Certificados"
-        value="{{ aggregatedKpis.totalApproved }}"
-        icon="pi pi-verified"
-      />
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-kpi-card
-        title="Volume Total (horas)"
-        value="{{ aggregatedKpis.totalVolumeHours }} h"
-        icon="pi pi-clock"
-      />
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <app-kpi-card
-        title="Volume Total (dias)"
-        value="{{ aggregatedKpis.totalVolumeDays }} dias"
-        icon="pi pi-calendar-clock"
-      />
-    </div>
-  </div>
 
   <div class="card-body">
     <app-courses-table
       [courses]="(courses$ | async) ?? []"
       [loading]="(loading$ | async) ?? false"
-      (tableFilter)="onTableFilter($event)"
     />
   </div>
 </div>
