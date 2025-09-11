@@ -36,6 +36,7 @@ import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BadgeModule } from 'primeng/badge';
 import { SpinnerComponent } from '../spinner/spinner.component';
+import { convertHoursMinutesToDecimal } from '../../utils';
 
 @Component({
   selector: 'app-session-attendance',
@@ -107,7 +108,6 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
   loading = false;
   saving = false;
   activeIndex = -1; // For accordion control
-  openAccordions: Set<number> = new Set(); // Track which accordions are open
 
   ICONS = ICONS;
   PresenceEnum = PresenceEnum;
@@ -260,20 +260,6 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
     return this.attendanceForms[sessionId]?.get('students') as FormArray;
   }
 
-  // Helper methods to convert between decimal and hour/minute format
-  private convertDecimalToHoursMinutes(decimal: number): {
-    hours: number;
-    minutes: number;
-  } {
-    const hours = Math.floor(decimal);
-    const minutes = Math.round((decimal - hours) * 60);
-    return { hours, minutes };
-  }
-
-  private convertHoursMinutesToDecimal(hours: number, minutes: number): number {
-    return hours + minutes / 60;
-  }
-
   // Check if attendance is less than half of session duration
   isAttendanceLowForSession(sessionId: number, studentIndex: number): boolean {
     const session = this.sessionsWithAttendance.find(
@@ -290,7 +276,7 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
 
     if (presence !== PresenceEnum.Present) return false;
 
-    const totalAttendance = this.convertHoursMinutesToDecimal(hours, minutes);
+    const totalAttendance = convertHoursMinutesToDecimal(hours, minutes);
     const halfSessionDuration = session.durationHours / 2;
 
     return totalAttendance > 0 && totalAttendance < halfSessionDuration;
@@ -316,7 +302,7 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
         actionEnrollmentId: student.actionEnrollmentId,
         studentName: student.studentName,
         presence: student.presence,
-        attendance: this.convertHoursMinutesToDecimal(
+        attendance: convertHoursMinutesToDecimal(
           student.attendanceHours || 0,
           student.attendanceMinutes || 0
         ),
@@ -334,7 +320,6 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
             detail: 'Presenças guardadas com sucesso',
           });
           this.saving = false;
-          this.loadDataWithStatePreservation();
         },
         error: (error) => {
           console.error('Error saving session attendance:', error);
@@ -405,26 +390,7 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
     const form = this.attendanceForms[sessionId];
     if (form) {
       form.reset();
-      this.loadDataWithStatePreservation(); // Reload original data while preserving accordion state
     }
-  }
-
-  loadDataWithStatePreservation(): void {
-    // Store current accordion state before reloading data
-    this.preserveAccordionState();
-    this.loadData();
-  }
-
-  private preserveAccordionState(): void {
-    // Capture which accordions are currently open
-    this.openAccordions.clear();
-    const openElements = document.querySelectorAll('.accordion-collapse.show');
-    openElements.forEach((element) => {
-      const sessionId = element.id.match(/session-(\d+)-content/);
-      if (sessionId) {
-        this.openAccordions.add(parseInt(sessionId[1]));
-      }
-    });
   }
 
   getSessionDurationHours(sessionId: number): number {
@@ -463,7 +429,7 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
     if (!form) return false;
 
     const studentsArray = this.getStudentsFormArray(sessionId);
-    
+
     // Check if all students have presence set (not Unknown)
     for (let i = 0; i < studentsArray.length; i++) {
       const studentControl = studentsArray.at(i);

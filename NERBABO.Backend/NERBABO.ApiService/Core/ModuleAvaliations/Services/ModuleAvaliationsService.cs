@@ -29,7 +29,6 @@ public class ModuleAvaliationsService(
         var groupedAvaliations = existingAvaliations
             .AsValueEnumerable()
             .GroupBy(ma => new { 
-                ma.Id,
                 ma.ActionEnrollment.ActionId, 
                 ma.ModuleTeaching.ModuleId,
                 ma.ModuleTeaching.Module.Name,
