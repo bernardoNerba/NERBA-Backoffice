@@ -29,7 +29,7 @@ public class ActionEnrollment : Entity<long>
         Avaliations.Count != 0
         ? Avaliations.Sum(a => a.Grade) / Avaliations.Count 
         : 0;
-    public bool StudentAvaliated => Avaliations.All(a => a.Grade > 0);
+    public bool StudentAvaliated => Avaliations.All(a => a.Evaluated);
     public int NumberOfParticipants => Participants.Count;
 
     public ApprovalStatusEnum ApprovalStatus =>

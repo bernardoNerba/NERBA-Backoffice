@@ -2,6 +2,7 @@ namespace NERBABO.ApiService.Core.ModuleAvaliations.Dtos;
 
 public class RetrieveModuleAvaliationDto
 {
+    public long Id { get; set; }
     public long ActionId { get; set; }
     public long ModuleId { get; set; }
     public long StudentPersonId { get; set; }

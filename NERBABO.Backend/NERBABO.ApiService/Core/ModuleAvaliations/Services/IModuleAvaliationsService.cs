@@ -6,4 +6,5 @@ namespace NERBABO.ApiService.Core.ModuleAvaliations.Services;
 public interface IModuleAvaliationsService
 {
     Task<Result<IEnumerable<AvaliationsByModuleDto>>> GetByActionIdAsync(long actionId);
+    Task<Result<RetrieveModuleAvaliationDto>> UpdateAsync(UpdateModuleAvaliationDto dto);
 }

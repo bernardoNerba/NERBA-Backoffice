@@ -126,4 +126,8 @@ export const API_ENDPOINTS = {
   sessionParticipationsBySession: `${BASE_URL}/api/SessionParticipations/session/`,
   sessionParticipationsByAction: `${BASE_URL}/api/SessionParticipations/action/`,
   upsertSessionAttendance: `${BASE_URL}/api/SessionParticipations/upsert-attendance`,
+
+  // ModuleAvaliations endpoints
+  moduleAvaliations: `${BASE_URL}/api/moduleavaliations/`,
+  moduleAvaliationsByActionId: `${BASE_URL}/api/moduleavaliations/by-action/`,
 };

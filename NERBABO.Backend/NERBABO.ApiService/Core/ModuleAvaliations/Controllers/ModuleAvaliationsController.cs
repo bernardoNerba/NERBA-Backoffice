@@ -21,12 +21,25 @@ namespace NERBABO.ApiService.Core.ModuleAvaliations.Controllers
         /// Gets all avaliations records for a specific action.
         /// </summary>
         /// <param name="actionId">The action ID to get the avaliations for.</param>
-        /// <returns></returns>
+        /// <returns>A list of module avaliations grouped by module for the specified action</returns>
         [HttpGet("by-action/{actionId}")]
         [Authorize(Policy = "ActiveUser")]
         public async Task<IActionResult> GetModuleAvaliationsByActionIdAsync(long actionId)
         {
             Result<IEnumerable<AvaliationsByModuleDto>> result = await _moduleAvaliationsService.GetByActionIdAsync(actionId);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Updates a specific module avaliation record.
+        /// </summary>
+        /// <param name="dto">The update data containing the new grade</param>
+        /// <returns>The updated module avaliation record</returns>
+        [HttpPut]
+        [Authorize(Policy = "ActiveUser")]
+        public async Task<IActionResult> UpdateModuleAvaliationAsync([FromBody] UpdateModuleAvaliationDto dto)
+        {
+            Result<RetrieveModuleAvaliationDto> result = await _moduleAvaliationsService.UpdateAsync(dto);
             return _responseHandler.HandleResult(result);
         }
     }

@@ -7,14 +7,15 @@ public class AvaliationsByModuleDto
     public string ModuleName { get; set; } = string.Empty;
     public long TeacherPersonId { get; set; }
     public string TeacherName { get; set; } = string.Empty;
-
     public List<GradingInfoDto> Gradings { get; set; } = [];
 }
 
 public class GradingInfoDto
 {
+    public long Id { get; set; }
     public long StudentPersonId { get; set; }
     public string StudentName { get; set; } = string.Empty;
     public int Grade { get; set; }
     public bool Evaluated { get; set; }
+    public long ModuleAvaliationId { get; set; }
 }

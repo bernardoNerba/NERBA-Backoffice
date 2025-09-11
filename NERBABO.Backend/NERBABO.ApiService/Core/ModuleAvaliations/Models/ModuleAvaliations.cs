@@ -10,16 +10,19 @@ public class ModuleAvaliation : Entity<long>
     public long ModuleTeachingId { get; set; }
     public long ActionEnrollmentId { get; set; }
     public int Grade { get; set; }
-    public bool Evaluated { get; set; }
 
     // Navigation Properties
     public required ModuleTeaching ModuleTeaching { get; set; }
     public required ActionEnrollment ActionEnrollment { get; set; }
 
+    // Calculated Properties
+    public bool Evaluated => Grade != 0;
+    
     public static RetrieveModuleAvaliationDto ConvertEntityToEntityDto(ModuleAvaliation ma)
     {
         return new RetrieveModuleAvaliationDto
         {
+            Id = ma.Id,
             ActionId = ma.ActionEnrollment.ActionId,
             ModuleId = ma.ModuleTeaching.ModuleId,
             StudentPersonId = ma.ActionEnrollment.Student.PersonId,

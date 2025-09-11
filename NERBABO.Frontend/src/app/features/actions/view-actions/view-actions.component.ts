@@ -23,7 +23,6 @@ import { IconAnchorComponent } from '../../../shared/components/anchors/icon-anc
 import { ModulesService } from '../../../core/services/modules.service';
 import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
 import { Module, ModuleTeacher } from '../../../core/models/module';
-import { Message } from 'primeng/message';
 import { MessageComponent } from '../../../shared/components/message/message.component';
 import { SessionsSchedulerComponent } from '../../../shared/components/sessions-scheduler/sessions-scheduler.component';
 import { MessageService } from 'primeng/api';
@@ -31,9 +30,9 @@ import { PdfActionsComponent } from '../../../shared/components/pdf-actions/pdf-
 import { ActionEnrollmentTableComponent } from '../../../shared/components/tables/action-enrollment-table/action-enrollment-table.component';
 import { ActionEnrollmentService } from '../../../core/services/action-enrollment.service';
 import { ActionEnrollment } from '../../../core/models/actionEnrollment';
-import { Card } from 'primeng/card';
 import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
 import { SessionAttendanceComponent } from '../../../shared/components/session-attendance/session-attendance.component';
+import { ModuleAvaliationComponent } from '../../../shared/components/module-avaliation/module-avaliation.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -49,6 +48,7 @@ import { SessionAttendanceComponent } from '../../../shared/components/session-a
     ActionEnrollmentTableComponent,
     KpiRowComponent,
     SessionAttendanceComponent,
+    ModuleAvaliationComponent,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',

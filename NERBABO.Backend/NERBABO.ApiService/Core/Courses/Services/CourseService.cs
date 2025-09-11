@@ -10,8 +10,6 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using System;
-using System.Linq;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Courses.Services
