@@ -40,7 +40,6 @@
 </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Core/ModuleAvaliations/Controllers/" />
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
 

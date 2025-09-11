@@ -10,6 +10,7 @@ public class ModuleAvaliation : Entity<long>
     public long ModuleTeachingId { get; set; }
     public long ActionEnrollmentId { get; set; }
     public int Grade { get; set; }
+    public bool Evaluated { get; set; }
 
     // Navigation Properties
     public required ModuleTeaching ModuleTeaching { get; set; }
@@ -26,7 +27,8 @@ public class ModuleAvaliation : Entity<long>
             ModuleName = ma.ModuleTeaching.Module.Name,
             StudentName = ma.ActionEnrollment.Student.Person.FullName,
             TeacherName = ma.ModuleTeaching.Teacher.Person.FullName,
-            Grade = ma.Grade
+            Grade = ma.Grade,
+            Evaluated = ma.Evaluated
         };
     }
 }

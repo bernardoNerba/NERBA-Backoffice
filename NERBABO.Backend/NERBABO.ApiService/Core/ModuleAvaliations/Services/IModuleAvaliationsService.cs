@@ -1,11 +1,9 @@
-using System;
 using NERBABO.ApiService.Core.ModuleAvaliations.Dtos;
-using NERBABO.ApiService.Shared.Services;
+using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.ModuleAvaliations.Services;
 
 public interface IModuleAvaliationsService
-: IGenericService<RetrieveModuleAvaliationDto, CreateModuleAvaliationDto, UpdateModuleAvaliationDto, long>
 {
-
+    Task<Result<IEnumerable<AvaliationsByModuleDto>>> GetByActionIdAsync(long actionId);
 }

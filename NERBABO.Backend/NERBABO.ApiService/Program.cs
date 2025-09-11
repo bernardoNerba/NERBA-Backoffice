@@ -45,6 +45,7 @@ using NERBABO.ApiService.Shared.Cache;
 using NERBABO.ApiService.Shared.Middleware;
 using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;
+using NERBABO.ApiService.Core.ModuleAvaliations.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +83,7 @@ builder.Services.AddScoped<IModuleTeachingService, ModuleTeachingService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ISessionParticipationService, SessionParticipationService>();
 builder.Services.AddScoped<IActionEnrollmentService, ActionEnrollmentService>();
+builder.Services.AddScoped<IModuleAvaliationsService, ModuleAvaliationsService>();
 
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
