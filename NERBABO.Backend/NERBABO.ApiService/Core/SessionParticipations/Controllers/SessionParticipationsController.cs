@@ -17,70 +17,6 @@ public class SessionParticipationsController(
     private readonly ISessionParticipationService _sessionParticipationService = sessionParticipationService;
     private readonly IResponseHandler _responseHandler = responseHandler;
 
-    /// <summary>
-    /// Creates a new session participation record.
-    /// </summary>
-    /// <param name="createDto">The data for the new session participation.</param>
-    /// <response code="201">Session participation created successfully. Returns a RetrieveSessionParticipationDto.</response>
-    /// <response code="400">Invalid session participation data provided.</response>
-    /// <response code="404">Related Session or ActionEnrollment not found.</response>
-    /// <response code="409">Session participation already exists for this student and session.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-    /// <response code="500">Unexpected error occurred.</response>
-    [HttpPost]
-    [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
-    public async Task<IActionResult> CreateSessionParticipationAsync([FromBody] CreateSessionParticipationDto createDto)
-    {
-        Result<RetrieveSessionParticipationDto> result = await _sessionParticipationService.CreateAsync(createDto);
-        return _responseHandler.HandleResult(result);
-    }
-
-    /// <summary>
-    /// Updates an existing session participation record.
-    /// </summary>
-    /// <param name="updateDto">The data to update the session participation with.</param>
-    /// <response code="200">Session participation updated successfully. Returns a RetrieveSessionParticipationDto.</response>
-    /// <response code="400">Invalid session participation data provided.</response>
-    /// <response code="404">Session participation not found.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-    /// <response code="500">Unexpected error occurred.</response>
-    [HttpPut]
-    [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
-    public async Task<IActionResult> UpdateSessionParticipationAsync([FromBody] UpdateSessionParticipationDto updateDto)
-    {
-        Result<RetrieveSessionParticipationDto> result = await _sessionParticipationService.UpdateAsync(updateDto);
-        return _responseHandler.HandleResult(result);
-    }
-
-    /// <summary>
-    /// Gets all session participation records in the system.
-    /// </summary>
-    /// <response code="200">Session participations retrieved successfully. Returns a collection of RetrieveSessionParticipationDto.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-    /// <response code="500">Unexpected error occurred.</response>
-    [HttpGet]
-    [Authorize(Policy = "ActiveUser")]
-    public async Task<IActionResult> GetAllSessionParticipationsAsync()
-    {
-        Result<IEnumerable<RetrieveSessionParticipationDto>> result = await _sessionParticipationService.GetAllAsync();
-        return _responseHandler.HandleResult(result);
-    }
-
-    /// <summary>
-    /// Gets a specific session participation by its ID.
-    /// </summary>
-    /// <param name="id">The session participation ID to retrieve.</param>
-    /// <response code="200">Session participation retrieved successfully. Returns a RetrieveSessionParticipationDto.</response>
-    /// <response code="404">Session participation not found.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-    /// <response code="500">Unexpected error occurred.</response>
-    [HttpGet("{id:long}")]
-    [Authorize(Policy = "ActiveUser")]
-    public async Task<IActionResult> GetSessionParticipationByIdAsync(long id)
-    {
-        Result<RetrieveSessionParticipationDto> result = await _sessionParticipationService.GetByIdAsync(id);
-        return _responseHandler.HandleResult(result);
-    }
 
     /// <summary>
     /// Gets all session participation records for a specific session.
@@ -127,22 +63,6 @@ public class SessionParticipationsController(
     public async Task<IActionResult> UpsertSessionAttendanceAsync([FromBody] UpsertSessionAttendanceDto upsertDto)
     {
         Result<IEnumerable<RetrieveSessionParticipationDto>> result = await _sessionParticipationService.UpsertSessionAttendanceAsync(upsertDto);
-        return _responseHandler.HandleResult(result);
-    }
-
-    /// <summary>
-    /// Deletes a session participation record.
-    /// </summary>
-    /// <param name="id">The session participation ID to delete.</param>
-    /// <response code="200">Session participation deleted successfully.</response>
-    /// <response code="404">Session participation not found.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-    /// <response code="500">Unexpected error occurred.</response>
-    [HttpDelete("{id:long}")]
-    [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
-    public async Task<IActionResult> DeleteSessionParticipationAsync(long id)
-    {
-        Result result = await _sessionParticipationService.DeleteAsync(id);
         return _responseHandler.HandleResult(result);
     }
 }
