@@ -280,6 +280,33 @@
     } }
     <!-- END MODULES TABLE ACCORDION -->
 
+    <!-- SESSIONS ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-session-info">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#session-info-content"
+          aria-expanded="false"
+          aria-controls="session-info-content"
+        >
+          <app-icon [icon]="ICONS.session" [marginEnd]="3" />
+          <h5>Sessões</h5>
+        </button>
+      </h2>
+      <div
+        id="session-info-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-session-info"
+      >
+        <div class="accordion-body">
+          <app-sessions-scheduler [query]="'byActionId'" [action]="action" />
+        </div>
+      </div>
+    </div>
+    <!-- END SESSIONS ACCORDION -->
+
     <!-- STUDENT ENROLLMENTS ACCORDION-->
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-enrollments">
@@ -317,33 +344,6 @@
     </div>
     <!-- END STUDENT ENROLLMENTS ACCORDION -->
 
-    <!-- SESSIONS ACCORDION-->
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="heading-session-info">
-        <button
-          class="accordion-button fw-bold collapsed"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#session-info-content"
-          aria-expanded="false"
-          aria-controls="session-info-content"
-        >
-          <app-icon [icon]="ICONS.session" [marginEnd]="3" />
-          <h5>Sessões</h5>
-        </button>
-      </h2>
-      <div
-        id="session-info-content"
-        class="accordion-collapse collapse"
-        aria-labelledby="heading-session-info"
-      >
-        <div class="accordion-body">
-          <app-sessions-scheduler [query]="'byActionId'" [action]="action" />
-        </div>
-      </div>
-    </div>
-    <!-- END SESSIONS ACCORDION -->
-
     <!-- SESSION ATTENDANCE ACCORDION-->
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-session-attendance">
@@ -355,7 +355,7 @@
           aria-expanded="false"
           aria-controls="session-attendance-content"
         >
-          <app-icon [icon]="ICONS.student" [marginEnd]="3" />
+          <app-icon [icon]="ICONS.sessionPresence" [marginEnd]="3" />
           <h5>Presenças de Sessões</h5>
         </button>
       </h2>
@@ -370,6 +370,33 @@
       </div>
     </div>
     <!-- END SESSION ATTENDANCE ACCORDION -->
+
+    <!-- MODULE AVALIATION ACCORDION-->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-module-avaliation">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#module-avaliation-content"
+          aria-expanded="false"
+          aria-controls="module-avaliation-content"
+        >
+          <app-icon [icon]="ICONS.squareCheck" [marginEnd]="3" />
+          <h5>Avaliações por Módulo</h5>
+        </button>
+      </h2>
+      <div
+        id="module-avaliation-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-module-avaliation"
+      >
+        <div class="accordion-body">
+          <app-module-avaliation [actionId]="id" />
+        </div>
+      </div>
+    </div>
+    <!-- END MODULE AVALIATION ACCORDION -->
 
     <!-- FILE LIST ACCORDION-->
     <div class="accordion-item">

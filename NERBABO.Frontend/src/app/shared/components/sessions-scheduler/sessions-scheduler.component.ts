@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { SessionsService } from '../../../core/services/sessions.service';
 import { Session } from '../../../core/objects/sessions';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -10,7 +16,6 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Tag } from 'primeng/tag';
 import { UpsertSessionsComponent } from '../../../features/sessions/upsert-sessions/upsert-sessions.component';
 import { Action } from '../../../core/models/action';
 import { DeleteSessionsComponent } from '../../../features/sessions/delete-sessions/delete-sessions.component';
@@ -18,7 +23,6 @@ import { ProgressBar } from 'primeng/progressbar';
 import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
 import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
 import { TruncatePipe } from '../../pipes/truncate.pipe';
-import { PdfActionsComponent } from '../pdf-actions/pdf-actions.component';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
@@ -75,7 +79,8 @@ export class SessionsSchedulerComponent implements OnInit, OnDestroy {
           this.minimalModuleTeachings = [];
         }
         break;
-      case "all": // TODO: Add logic for all sessions
+
+      case 'all': // TODO: Add logic for all sessions
         break;
     }
   }
@@ -88,7 +93,6 @@ export class SessionsSchedulerComponent implements OnInit, OnDestroy {
         this.filteredSessions = this.sessions;
         this.sessionsDates = sessions.map((s) => s.scheduledDate);
         console.log('Session dates for calendar:', this.sessionsDates);
-
 
         // Force change detection to update the UI
         this.cdr.detectChanges();

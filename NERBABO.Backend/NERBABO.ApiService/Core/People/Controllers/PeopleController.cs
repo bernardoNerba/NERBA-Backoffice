@@ -15,13 +15,11 @@ namespace NERBABO.ApiService.Core.People.Controllers
     public class PeopleController(
         IPeopleService peopleService,
         IResponseHandler responseHandler,
-        IPdfService pdfService,
         UserManager<User> userManager
         ) : ControllerBase
     {
         private readonly IPeopleService _peopleService = peopleService;
         private readonly IResponseHandler _responseHandler = responseHandler;
-        private readonly IPdfService _pdfService = pdfService;
         private readonly UserManager<User> _userManager = userManager;
 
         /// <summary>

@@ -4,7 +4,7 @@ namespace NERBABO.ApiService.Core.SessionParticipations.Dtos;
 
 public class UpsertSessionAttendanceDto
 {
-    [Required]
+    [Required(ErrorMessage = "Sessão é um campo obrigatório.")]
     public long SessionId { get; set; }
     
     [Required]
@@ -13,16 +13,16 @@ public class UpsertSessionAttendanceDto
 
 public class StudentAttendanceDto
 {
-    [Required]
+    [Required(ErrorMessage = "Inscrição na Ação é um campo obrigatório.")]
     public long ActionEnrollmentId { get; set; }
     
-    [Required]
+    [Required(ErrorMessage = "Nome do Formando é um campo obrigatório.")]
     public string StudentName { get; set; } = string.Empty;
     
-    [Required]
+    [Required(ErrorMessage = "Presença é um campo obrigatório.")]
     public string Presence { get; set; } = string.Empty;
     
-    [Required]
+    [Required(ErrorMessage = "Frequência é um campo obrigatório.")]
     [Range(0, 24)]
     public double Attendance { get; set; }
 }

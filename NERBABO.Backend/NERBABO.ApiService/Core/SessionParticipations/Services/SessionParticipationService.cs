@@ -24,20 +24,20 @@ public class SessionParticipationService(
             .Include(s => s.ModuleTeaching)
                 .ThenInclude(mt => mt.Action)
             .FirstOrDefaultAsync(s => s.Id == entityDto.SessionId);
-
         if (session is null)
         {
             _logger.LogWarning("Session not found with ID {SessionId} for participation creation", entityDto.SessionId);
             return Result<RetrieveSessionParticipationDto>
-                .Fail("Não encontrado.", "Sessão não encontrada", StatusCodes.Status404NotFound);
+                .Fail("Não encontrado.", "Sessão não encontrada",
+                StatusCodes.Status404NotFound);
         }
 
         // Check if action enrollment exists
         var actionEnrollment = await _context.ActionEnrollments
             .Include(ae => ae.Student)
                 .ThenInclude(s => s.Person)
-            .FirstOrDefaultAsync(ae => ae.Id == entityDto.ActionEnrollmentId && ae.ActionId == session.ModuleTeaching.Action.Id);
-
+            .FirstOrDefaultAsync(ae => ae.Id == entityDto.ActionEnrollmentId
+                && ae.ActionId == session.ModuleTeaching.Action.Id);
         if (actionEnrollment is null)
         {
             _logger.LogWarning("ActionEnrollment not found with ID {ActionEnrollmentId} for session {SessionId}", 
@@ -48,8 +48,8 @@ public class SessionParticipationService(
 
         // Check if participation already exists
         var existingParticipation = await _context.SessionParticipations
-            .FirstOrDefaultAsync(sp => sp.SessionId == entityDto.SessionId && sp.ActionEnrollmentId == entityDto.ActionEnrollmentId);
-
+            .FirstOrDefaultAsync(sp => sp.SessionId == entityDto.SessionId
+                && sp.ActionEnrollmentId == entityDto.ActionEnrollmentId);
         if (existingParticipation is not null)
         {
             _logger.LogWarning("SessionParticipation already exists for Session {SessionId} and ActionEnrollment {ActionEnrollmentId}",

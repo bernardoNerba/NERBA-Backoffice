@@ -1,5 +1,4 @@
 ﻿using NERBABO.ApiService.Core.Actions.Models;
-using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
