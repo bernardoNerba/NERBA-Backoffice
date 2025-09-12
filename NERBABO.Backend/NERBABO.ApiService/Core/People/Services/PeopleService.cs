@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using Humanizer;
 using Microsoft.AspNetCore.Identity;
@@ -132,44 +133,54 @@ public class PeopleService(
         // Check if person is associated with a user
         if (await _userManager.Users.AnyAsync(u => u.PersonId == id))
         {
-            _logger.LogWarning("Duplicated User association detected.");
+            _logger.LogWarning("Failed to delete the person with ID {personId} as colaborator is a User", id);
             return Result
                 .Fail("Erro de Validação.", "Não pode eliminar uma pessoa que é um utilizador.");
         }
 
+        // get and validate teacher deletion
+        var existingTeacher = await _context.Teachers
+            .FirstOrDefaultAsync(t => t.PersonId == id);
+        if (existingTeacher is not null && !existingTeacher.CanDelete)
+        {
+            _logger.LogWarning("Failed to delete the person with ID {personId} as teacher has instances on ModuleTeachings.", id);
+            return Result
+                .Fail("Erro de Validação.", "Não pode eliminar uma pessoa que é um Formador que já lecionou módulos em ações.");
+        }
+
+        // get and validate student deletion
+        var existingStudent = await _context.Students.FirstOrDefaultAsync(t => t.PersonId == id);
+        if (existingStudent is not null && existingStudent.CanDelete)
+        {
+            _logger.LogWarning("Failed to delete the person with ID {personId} as student has instances on ActionEnrollments.", id);
+            return Result
+                .Fail("Erro de Validação.", "Não pode eliminar uma pessoa que é um Formando que está inscrito em ações.");
+        }
+
+        // pdfs
+        var habilitationComprovative = await _pdfService.GetSavedPdfAsync(PdfTypes.HabilitationComprovative, existingPerson.Id);
+        var ibanComprovative = await _pdfService.GetSavedPdfAsync(PdfTypes.IbanComprovative, existingPerson.Id);
+        var identificationDocument = await _pdfService.GetSavedPdfAsync(PdfTypes.IdentificationDocument, existingPerson.Id);
+
+
         var transaction = _context.Database.BeginTransaction();
         try
         {
-            var existingTeacher = await _context.Teachers.FirstOrDefaultAsync(t => t.PersonId == id);
             if (existingTeacher is not null)
-            {
                 _context.Teachers.Remove(existingTeacher);
-            }
 
-            var existingStudent = await _context.Students.FirstOrDefaultAsync(t => t.PersonId == id);
             if (existingStudent is not null)
-            {
                 _context.Students.Remove(existingStudent);
-            }
 
             // remove pdf files from database and from wwwroot
-            var habilitationComprovative = await _pdfService.GetSavedPdfAsync(PdfTypes.HabilitationComprovative, existingPerson.Id);
             if (habilitationComprovative.Data is not null)
-            {
                 await _pdfService.DeleteSavedPdfAsync(habilitationComprovative.Data.Id);
-            }
 
-            var ibanComprovative = await _pdfService.GetSavedPdfAsync(PdfTypes.IbanComprovative, existingPerson.Id);
             if (ibanComprovative.Data is not null)
-            {
                 await _pdfService.DeleteSavedPdfAsync(ibanComprovative.Data.Id);
-            }
 
-            var identificationDocument = await _pdfService.GetSavedPdfAsync(PdfTypes.IdentificationDocument, existingPerson.Id);
             if (identificationDocument.Data is not null)
-            {
                 await _pdfService.DeleteSavedPdfAsync(identificationDocument.Data.Id);
-            }
             
             // remove from database
             _context.People.Remove(existingPerson);

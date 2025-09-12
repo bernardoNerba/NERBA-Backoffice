@@ -6,8 +6,6 @@ using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using NERBABO.ApiService.Shared.Services;
-using System;
 
 namespace NERBABO.ApiService.Core.Teachers.Services;
 
@@ -93,7 +91,6 @@ public class TeacherService(
 
     public async Task<Result> DeleteAsync(long teacherId)
     {
-        // TODO: Implemente deletion logic when ready
         var existingTeacher = await _context.Teachers.FindAsync(teacherId);
         if (existingTeacher is null)
         {
@@ -101,6 +98,17 @@ public class TeacherService(
             return Result
                 .Fail("Não encontrado", "Formador não encontraod.",
                 StatusCodes.Status404NotFound);
+        }
+
+        // check if the teacher has records of module teaching
+        var existsModuleTeaching = await _context.ModuleTeachings
+            .Where(mt => mt.TeacherId == teacherId)
+            .AnyAsync();
+        if (existsModuleTeaching)
+        {
+            _logger.LogWarning("Teacher with ID {teacherId} has records related with module teaching.", teacherId);
+            return Result
+                .Fail("Erro de Validação", "Não é possível a eliminação, pois existem módulos em ações lecionadas por este formador.");
         }
 
         _context.Teachers.Remove(existingTeacher);

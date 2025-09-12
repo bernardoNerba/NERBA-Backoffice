@@ -64,19 +64,22 @@ namespace NERBABO.ApiService.Core.Courses.Services
                         .Fail("Não encontrado.", "Módulo não encontrado.",
                         StatusCodes.Status404NotFound);
                 }
+
                 if (!m.IsActive)
                 {
                     _logger.LogWarning("Module is not active for the given ModuleId: {id}", id);
                     return Result<RetrieveCourseDto>
                         .Fail("Erro de Validação", "O módulo fornecido não está ativo.");
                 }
+
                 // Verify if the course can accommodate the module's hours
                 if (!Course.CanAddModule(currentDuration, m.Hours, existingCourse.TotalDuration))
                 {
                     _logger.LogWarning("Total duration exceeded for course ID: {CourseId}", courseId);
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours} quando {existingCourse.CurrentDuration}/{existingCourse.TotalDuration}");
+                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
                 }
+                
                 if (!modules.Contains(m))
                 {
                     modules.Add(m);
@@ -150,7 +153,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             {
                 _logger.LogWarning("Total duration exceeded for course ID: {CourseId}", courseId);
                 return Result<RetrieveCourseDto>
-                    .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {existingModule.Hours} quando {existingCourse.CurrentDuration}/{existingCourse.TotalDuration}");
+                    .Fail("Erro de Validação.", $"Duração total excedida. Adicionar este módulo excede o limite de horas do curso.");
             }
 
             // Assign the module to the course
@@ -287,7 +290,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Total duration exceeded for course total duration");
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours}h quando {currentDuration}h/{entityDto.TotalDuration}h");
+                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
                 }
 
                 modules.Add(m);
@@ -694,7 +697,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Total duration exceeded for course total duration");
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. Tentou adicionar {m.Hours}h quando {currentDuration}h/{entityDto.TotalDuration}h");
+                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
                 }
 
                 modules.Add(m);
