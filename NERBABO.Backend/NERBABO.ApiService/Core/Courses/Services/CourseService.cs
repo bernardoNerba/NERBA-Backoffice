@@ -10,6 +10,7 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
+using OpenTelemetry.Trace;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Courses.Services
@@ -172,7 +173,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
         public async Task<Result> ChangeCourseStatusAsync(long id, string status)
         {
-            var existingCourse = await _context.Courses.FindAsync(id);
+            var existingCourse = await _context.Courses
+            .Include(c => c.Actions)
+            .FirstOrDefaultAsync(c => c.Id == id);
             if (existingCourse is null)
             {
                 _logger.LogWarning("Course with given id {id} not found.", id);
@@ -200,6 +203,24 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 _logger.LogWarning("Tryed to perfom a update but nothing changed.");
                 return Result
                     .Fail("Erro de Validação.", "Não alterou nenhum dado. Modifique os dados e tente novamente.");
+            }
+
+            // check if all actions of the course are completed before set the course as completed
+            if (s.Equals(StatusEnum.Completed)
+                && !existingCourse.Actions.All(a => a.Status.Equals(StatusEnum.Completed)))
+            {
+                _logger.LogWarning("Not all actions of the course with id {courseId} are completed.", id);
+                return Result
+                    .Fail("Erro de Validação.", "Nem todas as ações do curso estão concluídas. Concluía primeiro todas as ações registadas.");
+            }
+
+            // check if all actions of the course are canceled before set the course as canceled
+            if (s.Equals(StatusEnum.Cancelled)
+                && !existingCourse.Actions.All(a => a.Status.Equals(StatusEnum.Cancelled)))
+            {
+                _logger.LogWarning("Not all actions of the course with id {courseId} are canceled.", id);
+                return Result
+                    .Fail("Erro de Validação.", "Nem todas as ações do curso estão canceladas. Cancele primeiro todas as ações registadas.");
             }
 
             existingCourse.Status = s;
@@ -740,6 +761,23 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var newStatus = entityDto.Status.DehumanizeTo<StatusEnum>();
             if (existingCourse.Status != newStatus)
             {
+                // check if all actions of the course are completed before set the course as completed
+                if (newStatus.Equals(StatusEnum.Completed)
+                    && !existingCourse.Actions.All(a => a.Status.Equals(StatusEnum.Completed)))
+                {
+                    _logger.LogWarning("Not all actions of the course with id {courseId} are completed.", entityDto.Id);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação.", "Nem todas as ações do curso estão concluídas. Concluía primeiro todas as ações registadas.");
+                }
+
+                // check if all actions of the course are canceled before set the course as canceled
+                if (newStatus.Equals(StatusEnum.Cancelled)
+                    && !existingCourse.Actions.All(a => a.Status.Equals(StatusEnum.Cancelled)))
+                {
+                    _logger.LogWarning("Not all actions of the course with id {courseId} are canceled.", entityDto.Id);
+                    return Result<RetrieveCourseDto>
+                        .Fail("Erro de Validação.", "Nem todas as ações do curso estão canceladas. Cancele primeiro todas as ações registadas.");
+                }
                 existingCourse.Status = newStatus;
                 hasChanges = true;
             }
