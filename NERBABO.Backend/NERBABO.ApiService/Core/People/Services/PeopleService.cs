@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using Humanizer;
 using Microsoft.AspNetCore.Identity;
@@ -582,23 +581,26 @@ public class PeopleService(
         {
             // Validate person exists
             var person = await _context.People.FindAsync(personId);
-            if (person == null)
+            if (person is null)
             {
                 return Result<RetrievePersonDto>
-                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Pessoa não encontrada.",
+                        StatusCodes.Status404NotFound);
             }
 
             // Validate file
-            if (file == null || file.Length == 0)
+            if (file is null || file.Length == 0)
             {
                 return Result<RetrievePersonDto>
-                    .Fail("Arquivo inválido.", "Nenhum arquivo foi fornecido ou o arquivo está vazio.", StatusCodes.Status400BadRequest);
+                    .Fail("Arquivo inválido.", "Nenhum arquivo foi fornecido ou o arquivo está vazio.",
+                        StatusCodes.Status400BadRequest);
             }
 
             if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
             {
                 return Result<RetrievePersonDto>
-                    .Fail("Tipo de arquivo inválido.", "Apenas arquivos PDF são permitidos.", StatusCodes.Status400BadRequest);
+                    .Fail("Tipo de arquivo inválido.", "Apenas arquivos PDF são permitidos.",
+                        StatusCodes.Status400BadRequest);
             }
 
             // Read file content
@@ -632,7 +634,8 @@ public class PeopleService(
         {
             _logger.LogError(ex, "Error uploading habilitation PDF for person {PersonId}", personId);
             return Result<RetrievePersonDto>
-                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -641,16 +644,18 @@ public class PeopleService(
         try
         {
             var person = await _context.People.FindAsync(personId);
-            if (person == null)
+            if (person is null)
             {
                 return Result<FileDownloadResult>
-                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Pessoa não encontrada.",
+                        StatusCodes.Status404NotFound);
             }
 
             if (!person.HabilitationComprovativePdfId.HasValue)
             {
                 return Result<FileDownloadResult>
-                    .Fail("Não encontrado.", "Nenhum PDF de certificado de habilitações encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Nenhum PDF de certificado de habilitações encontrado para esta pessoa.",
+                        StatusCodes.Status404NotFound);
             }
 
             var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.HabilitationComprovativePdfId.Value);
@@ -668,13 +673,15 @@ public class PeopleService(
                 ContentType = "application/pdf"
             };
 
-            return Result<FileDownloadResult>.Ok(fileResult);
+            return Result<FileDownloadResult>
+                .Ok(fileResult);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error downloading habilitation PDF for person {PersonId}", personId);
             return Result<FileDownloadResult>
-                .Fail("Erro interno.", "Ocorreu um erro ao baixar o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao baixar o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -686,13 +693,15 @@ public class PeopleService(
             if (person == null)
             {
                 return Result
-                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Pessoa não encontrada.",
+                        StatusCodes.Status404NotFound);
             }
 
             if (!person.HabilitationComprovativePdfId.HasValue)
             {
                 return Result
-                    .Fail("Não encontrado.", "Nenhum PDF de certificado de habilitações encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Nenhum PDF de certificado de habilitações encontrado para esta pessoa.",
+                        StatusCodes.Status404NotFound);
             }
 
             // Delete PDF using PdfService
@@ -718,7 +727,8 @@ public class PeopleService(
         {
             _logger.LogError(ex, "Error deleting habilitation PDF for person {PersonId}", personId);
             return Result
-                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -732,13 +742,15 @@ public class PeopleService(
             if (person == null)
             {
                 return Result<RetrievePersonDto>
-                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Pessoa não encontrada.",
+                        StatusCodes.Status404NotFound);
             }
 
             if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
             {
                 return Result<RetrievePersonDto>
-                    .Fail("Tipo de arquivo inválido.", "Apenas arquivos PDF são permitidos.", StatusCodes.Status400BadRequest);
+                    .Fail("Tipo de arquivo inválido.", "Apenas arquivos PDF são permitidos.",
+                        StatusCodes.Status400BadRequest);
             }
 
             // Read file content
@@ -772,7 +784,8 @@ public class PeopleService(
         {
             _logger.LogError(ex, "Error uploading IBAN PDF for person {PersonId}", personId);
             return Result<RetrievePersonDto>
-                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -784,13 +797,15 @@ public class PeopleService(
             if (person == null)
             {
                 return Result<FileDownloadResult>
-                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Pessoa não encontrada.",
+                        StatusCodes.Status404NotFound);
             }
 
             if (!person.IbanComprovativePdfId.HasValue)
             {
                 return Result<FileDownloadResult>
-                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de IBAN encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de IBAN encontrado para esta pessoa.",
+                        StatusCodes.Status404NotFound);
             }
 
             var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.IbanComprovativePdfId.Value);
@@ -812,7 +827,8 @@ public class PeopleService(
         {
             _logger.LogError(ex, "Error getting IBAN PDF for person {PersonId}", personId);
             return Result<FileDownloadResult>
-                .Fail("Erro interno.", "Ocorreu um erro ao obter o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao obter o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -824,13 +840,15 @@ public class PeopleService(
             if (person == null)
             {
                 return Result
-                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Pessoa não encontrada.",
+                        StatusCodes.Status404NotFound);
             }
 
             if (!person.IbanComprovativePdfId.HasValue)
             {
                 return Result
-                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de IBAN encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Nenhum PDF de comprovativo de IBAN encontrado para esta pessoa.",
+                        StatusCodes.Status404NotFound);
             }
 
             // Delete PDF using PdfService
@@ -856,7 +874,8 @@ public class PeopleService(
         {
             _logger.LogError(ex, "Error deleting IBAN PDF for person {PersonId}", personId);
             return Result
-                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -910,7 +929,8 @@ public class PeopleService(
         {
             _logger.LogError(ex, "Error uploading identification document PDF for person {PersonId}", personId);
             return Result<RetrievePersonDto>
-                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao carregar o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -922,13 +942,15 @@ public class PeopleService(
             if (person == null)
             {
                 return Result<FileDownloadResult>
-                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Pessoa não encontrada.",
+                        StatusCodes.Status404NotFound);
             }
 
             if (!person.IdentificationDocumentPdfId.HasValue)
             {
                 return Result<FileDownloadResult>
-                    .Fail("Não encontrado.", "Nenhum PDF de documento de identificação encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Nenhum PDF de documento de identificação encontrado para esta pessoa.",
+                        StatusCodes.Status404NotFound);
             }
 
             var pdfContentResult = await _pdfService.GetSavedPdfContentAsync(person.IdentificationDocumentPdfId.Value);
@@ -950,7 +972,8 @@ public class PeopleService(
         {
             _logger.LogError(ex, "Error getting identification document PDF for person {PersonId}", personId);
             return Result<FileDownloadResult>
-                .Fail("Erro interno.", "Ocorreu um erro ao obter o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao obter o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -962,13 +985,15 @@ public class PeopleService(
             if (person == null)
             {
                 return Result
-                    .Fail("Não encontrado.", "Pessoa não encontrada.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Pessoa não encontrada.",
+                        StatusCodes.Status404NotFound);
             }
 
             if (!person.IdentificationDocumentPdfId.HasValue)
             {
                 return Result
-                    .Fail("Não encontrado.", "Nenhum PDF de documento de identificação encontrado para esta pessoa.", StatusCodes.Status404NotFound);
+                    .Fail("Não encontrado.", "Nenhum PDF de documento de identificação encontrado para esta pessoa.",
+                        StatusCodes.Status404NotFound);
             }
 
             // Delete PDF using PdfService
@@ -994,7 +1019,8 @@ public class PeopleService(
         {
             _logger.LogError(ex, "Error deleting identification document PDF for person {PersonId}", personId);
             return Result
-                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao eliminar o PDF.",
+                    StatusCodes.Status500InternalServerError);
         }
     }
 }

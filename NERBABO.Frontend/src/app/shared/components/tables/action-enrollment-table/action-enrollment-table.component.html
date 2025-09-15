@@ -57,6 +57,13 @@
               pTooltip="Limpar filtros"
               class="flex-shrink-0"
             />
+            <p-button
+              (onClick)="onStudentEnrollment()"
+              label="Adicionar Formando"
+              icon="pi pi-plus"
+              size="small"
+            >
+            </p-button>
           </div>
         </div>
       </div>
@@ -188,6 +195,13 @@
             <p class="mt-2 mb-0">
               Não foram encontradas inscrições nesta ação.
             </p>
+            <p-button
+              (onClick)="onStudentEnrollment()"
+              label="Adicionar Formando"
+              icon="pi pi-plus"
+              size="small"
+              severity="secondary"
+            />
           </div>
         </td>
       </tr>
