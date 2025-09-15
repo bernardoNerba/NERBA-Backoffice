@@ -155,5 +155,14 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
             Result<IEnumerable<MinimalModuleTeachingDto>> result = await _moduleTeachingService.GetByActionIdMinimalAsync(actionId);
             return _responseHandler.HandleResult(result);
         }
+
+
+        [HttpGet("mt-payments-by-action/{actionId}")]
+        [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
+        public async Task<IActionResult> GetAllModuleTeachingPaymentsAsync(long actionId)
+        {
+            Result<IEnumerable<ProcessModuleTeachingPaymentDto>> result = await _moduleTeachingService.GetAllModuleTeachingPaymentAsync(actionId);
+            return _responseHandler.HandleResult(result);
+        }
     }
 }

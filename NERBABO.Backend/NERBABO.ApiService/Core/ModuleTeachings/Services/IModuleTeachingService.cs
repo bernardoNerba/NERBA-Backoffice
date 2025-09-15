@@ -11,4 +11,5 @@ public interface IModuleTeachingService
 {
     Task<Result<RetrieveModuleTeachingDto>> GetByActionAndModuleAsync(long actionId, long moduleId);
     Task<Result<IEnumerable<MinimalModuleTeachingDto>>> GetByActionIdMinimalAsync(long actionId);
+    Task<Result<IEnumerable<ProcessModuleTeachingPaymentDto>>> GetAllModuleTeachingPaymentAsync(long actionId);
 }

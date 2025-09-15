@@ -6,6 +6,7 @@ using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Core.Sessions.Dtos;
 using NERBABO.ApiService.Core.Teachers.Models;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Exceptions;
 using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.ModuleTeachings.Services;
@@ -344,5 +345,24 @@ public class ModuleTeachingService(
 
         return Result<IEnumerable<MinimalModuleTeachingDto>>
             .Ok(retrieveModuleTeachings);
+    }
+
+    public async Task<Result<IEnumerable<ProcessModuleTeachingPaymentDto>>> GetAllModuleTeachingPaymentAsync(long actionId)
+    {
+        var generalInfo = await _context.GeneralInfo.FirstOrDefaultAsync()
+            ?? throw new ObjectNullException("Sem Informações Gerais Disponíveis.");
+
+        var action = await _context.Actions.FindAsync(actionId)
+            ?? throw new ObjectNullException("Ação não encontrada.");
+
+        var existingPayments = await _context.ModuleTeachings
+            .Include(mt => mt.Sessions)
+            .Include(mt => mt.Module)
+            .Where(mt => mt.ActionId == actionId)
+            .Select(mt => ModuleTeaching.ConvertEntityToProcessPaymentDto(mt, generalInfo))
+            .ToListAsync();
+
+        return Result<IEnumerable<ProcessModuleTeachingPaymentDto>>
+            .Ok(existingPayments);
     }
 }
