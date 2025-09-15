@@ -45,6 +45,9 @@ namespace NERBABO.ApiService.Core.Students.Models
         public Company? Company { get; set; }
         public List<ActionEnrollment> ActionEnrollments { get; set; } = [];
 
+        // Calculated Properties
+        public bool CanDelete => ActionEnrollments.Count == 0;
+
 
         public static RetrieveStudentDto ConvertEntityToRetrieveDto(Student s, Person p, Company? c)
         {

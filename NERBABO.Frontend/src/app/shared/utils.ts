@@ -91,12 +91,19 @@ export function getWeekDayPT(date: Date): string {
  */
 export function hoursToTimeFormat(hours: number): string {
   if (hours < 0) return '00:00';
-  
+
   const wholeHours = Math.floor(hours);
   const minutes = Math.round((hours - wholeHours) * 60);
-  
+
   const paddedHours = wholeHours.toString().padStart(2, '0');
   const paddedMinutes = minutes.toString().padStart(2, '0');
-  
+
   return `${paddedHours}:${paddedMinutes}`;
+}
+
+export function convertHoursMinutesToDecimal(
+  hours: number,
+  minutes: number
+): number {
+  return hours + minutes / 60;
 }

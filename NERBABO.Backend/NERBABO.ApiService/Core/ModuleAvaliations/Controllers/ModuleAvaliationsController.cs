@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.ModuleAvaliations.Dtos;
@@ -36,9 +37,14 @@ namespace NERBABO.ApiService.Core.ModuleAvaliations.Controllers
         /// <param name="dto">The update data containing the new grade</param>
         /// <returns>The updated module avaliation record</returns>
         [HttpPut]
-        [Authorize(Policy = "ActiveUser")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> UpdateModuleAvaliationAsync([FromBody] UpdateModuleAvaliationDto dto)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("Efetue autenticação");
+
+            dto.UserId = userId;
+
             Result<RetrieveModuleAvaliationDto> result = await _moduleAvaliationsService.UpdateAsync(dto);
             return _responseHandler.HandleResult(result);
         }

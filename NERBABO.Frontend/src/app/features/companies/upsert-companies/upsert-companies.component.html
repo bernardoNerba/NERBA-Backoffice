@@ -39,6 +39,58 @@
       </div>
       <!-- END NAME FORM FIELD -->
 
+      <!-- ativitySector FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="ativitySector">Setor de Atividade</label>
+          <p-select
+            formControlName="ativitySector"
+            [options]="activitySectors"
+            optionLabel="value"
+            tooltipPosition="top"
+            optionValue="value"
+            placeholder="Selecione um setor de atividade..."
+            styleClass="w-100"
+            [class.is-invalid]="submitted && form.get('ativitySector')?.errors"
+            class="{{
+              submitted && form.get('ativitySector')?.errors
+                ? 'ng-invalid ng-dirty'
+                : ''
+            }}"
+          />
+          @if (submitted && form.get('ativitySector')?.hasError("required")) {
+          <span class="text-danger">
+            Setor de Atividade é um campo obrigatório.
+          </span>
+          }
+        </div>
+      </div>
+      <!-- END ativitySector FORM FIELD -->
+
+      <!-- size FORM FIELD -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label for="size">Tamanho</label>
+          <p-select
+            formControlName="size"
+            [options]="companySizes"
+            optionLabel="value"
+            optionValue="value"
+            placeholder="Selecione um setor de atividade..."
+            styleClass="w-100"
+            tooltipPosition="top"
+            [class.is-invalid]="submitted && form.get('size')?.errors"
+            class="{{
+              submitted && form.get('size')?.errors ? 'ng-invalid ng-dirty' : ''
+            }}"
+          />
+          @if (submitted && form.get('size')?.hasError("required")) {
+          <span class="text-danger"> Tamanho é um campo obrigatório. </span>
+          }
+        </div>
+      </div>
+      <!-- END size FORM FIELD -->
+
       <!-- phoneNumber FORM FIELD -->
       <div class="col-md-12">
         <div class="mb-3">
@@ -164,58 +216,6 @@
         </div>
       </div>
       <!-- END email FORM FIELD -->
-
-      <!-- ativitySector FORM FIELD -->
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label for="ativitySector">Setor de Atividade</label>
-          <p-select
-            formControlName="ativitySector"
-            [options]="activitySectors"
-            optionLabel="value"
-            tooltipPosition="top"
-            optionValue="value"
-            placeholder="Selecione um setor de atividade..."
-            styleClass="w-100"
-            [class.is-invalid]="submitted && form.get('ativitySector')?.errors"
-            class="{{
-              submitted && form.get('ativitySector')?.errors
-                ? 'ng-invalid ng-dirty'
-                : ''
-            }}"
-          />
-          @if (submitted && form.get('ativitySector')?.hasError("required")) {
-          <span class="text-danger">
-            Setor de Atividade é um campo obrigatório.
-          </span>
-          }
-        </div>
-      </div>
-      <!-- END ativitySector FORM FIELD -->
-
-      <!-- size FORM FIELD -->
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label for="size">Tamanho</label>
-          <p-select
-            formControlName="size"
-            [options]="companySizes"
-            optionLabel="value"
-            optionValue="value"
-            placeholder="Selecione um setor de atividade..."
-            styleClass="w-100"
-            tooltipPosition="top"
-            [class.is-invalid]="submitted && form.get('size')?.errors"
-            class="{{
-              submitted && form.get('size')?.errors ? 'ng-invalid ng-dirty' : ''
-            }}"
-          />
-          @if (submitted && form.get('size')?.hasError("required")) {
-          <span class="text-danger"> Tamanho é um campo obrigatório. </span>
-          }
-        </div>
-      </div>
-      <!-- END size FORM FIELD -->
     </div>
     <app-error-card [errors]="errorMessages" [submitted]="submitted" />
   </form>

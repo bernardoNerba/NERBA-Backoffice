@@ -49,6 +49,7 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
   @Input({ required: true }) loading!: boolean;
   @Input() showActionColumn: boolean = false;
   @Input() showMenuActions: boolean = true;
+  @Input({ required: true }) actionId?: number;
   @ViewChild('dt') dt!: Table;
 
   menuItems: MenuItem[] | undefined;
@@ -202,6 +203,17 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
   clearFilters() {
     this.searchValue = '';
     this.dt.reset();
+  }
+
+  onStudentEnrollment() {
+    const initialState = {
+      id: 0,
+      actionId: this.actionId,
+    };
+    this.modalService.show(UpsertActionEnrollmentComponent, {
+      initialState,
+      class: 'modal-md',
+    });
   }
 
   getApprovalStatusSeverity(

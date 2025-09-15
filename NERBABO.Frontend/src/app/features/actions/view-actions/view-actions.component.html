@@ -334,6 +334,7 @@
       >
         <div class="accordion-body">
           <app-action-enrollment-table
+            [actionId]="action.id"
             [actionEnrollments]="actionEnrollments"
             [loading]="enrollmentsLoading"
             [showActionColumn]="false"

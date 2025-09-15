@@ -120,7 +120,6 @@ namespace NERBABO.ApiService.Core.Teachers.Controllers
         /// <response code="404">The teacher to perfom deletion was not found.</response>
         /// <response code="401">The user is not authorized, invalid jwt, user has not the 'Admin', 'CQ', 'FM' role or user is not active.</response>
         /// <response code="500">Unexpected error occurred.</response>
-        // TODO: Missing some delete validation when future constrains added
         [Authorize(Roles = "Admin, CQ, FM", Policy = "ActiveUser")]
         [HttpDelete("delete/{id:long}")]
         public async Task<IActionResult> DeleteTeacherAsync(long id)

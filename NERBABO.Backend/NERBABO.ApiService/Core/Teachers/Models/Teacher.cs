@@ -26,13 +26,13 @@ public class Teacher : Entity<long>
     public required Tax IvaRegime { get; set; }
     public required Tax IrsRegime { get; set; }
     public required Person Person { get; set; }
-    public List<CourseAction> Action { get; set; } = [];
     public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
 
     // Calculated properties
-    public string CommaSeparatedCompetences => 
+    public string CommaSeparatedCompetences =>
         string.Join(", ", Competences);
 
+    public bool CanDelete => ModuleTeachings.Count == 0;
 
     public Teacher() { }
 

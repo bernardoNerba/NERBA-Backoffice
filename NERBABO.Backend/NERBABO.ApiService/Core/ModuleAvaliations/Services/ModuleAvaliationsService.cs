@@ -29,7 +29,6 @@ public class ModuleAvaliationsService(
         var groupedAvaliations = existingAvaliations
             .AsValueEnumerable()
             .GroupBy(ma => new { 
-                ma.Id,
                 ma.ActionEnrollment.ActionId, 
                 ma.ModuleTeaching.ModuleId,
                 ma.ModuleTeaching.Module.Name,
@@ -65,6 +64,7 @@ public class ModuleAvaliationsService(
     {
         var existingAvaliation = await _context.ModuleAvaliations
             .Include(ma => ma.ActionEnrollment).ThenInclude(ae => ae.Student).ThenInclude(s => s.Person)
+            .Include(ma => ma.ActionEnrollment).ThenInclude(ae => ae.Action)
             .Include(ma => ma.ModuleTeaching).ThenInclude(mt => mt.Module)
             .Include(ma => ma.ModuleTeaching).ThenInclude(mt => mt.Teacher).ThenInclude(t => t.Person)
             .FirstOrDefaultAsync(ma => ma.Id == dto.Id);
@@ -74,6 +74,14 @@ public class ModuleAvaliationsService(
             _logger.LogWarning("Module avaliation with id {id} not found", dto.Id);
             return Result<RetrieveModuleAvaliationDto>.Fail("Não encontrado.", 
                 "Avaliação de módulo não encontrada", StatusCodes.Status404NotFound);
+        }
+
+        if (existingAvaliation.ActionEnrollment.Action.CoordenatorId != dto.UserId)
+        {
+            _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");
+            return Result<RetrieveModuleAvaliationDto>.Fail("Não pode efetuar esta ação.", 
+                "Apenas o coordenador da Ação pode realizar esta ação.",
+                StatusCodes.Status401Unauthorized);
         }
 
         existingAvaliation.Grade = dto.Grade;
