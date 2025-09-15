@@ -79,7 +79,6 @@
                   <th style="width: 200px">Total do Pagamento</th>
                   <th style="width: 200px">Total Calculado</th>
                   <th style="width: 180px">Data do Pagamento</th>
-                  <th style="width: 120px">Estado</th>
                 </tr>
               </ng-template>
 
@@ -117,15 +116,6 @@
                       type="date"
                       formControlName="paymentDate"
                       class="form-control"
-                    />
-                  </td>
-                  <td>
-                    <p-tag
-                      [severity]="getPaymentSeverity(paymentRow.isPayed)"
-                      [icon]="
-                        paymentRow.isPayed ? 'pi pi-check' : 'pi pi-clock'
-                      "
-                      [value]="getPaymentStatus(paymentRow.isPayed)"
                     />
                   </td>
                 </tr>
