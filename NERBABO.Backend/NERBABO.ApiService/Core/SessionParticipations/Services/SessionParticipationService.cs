@@ -74,12 +74,19 @@ public class SessionParticipationService(
                 .Include(s => s.ModuleTeaching)
                     .ThenInclude(mt => mt.Action)
                 .FirstOrDefaultAsync(s => s.Id == upsertDto.SessionId);
-
             if (session is null)
             {
                 _logger.LogWarning("Session not found with ID {SessionId} for attendance upsert", upsertDto.SessionId);
                 return Result<IEnumerable<RetrieveSessionParticipationDto>>
                     .Fail("Não encontrado.", "Sessão não encontrada", StatusCodes.Status404NotFound);
+            }
+
+            if (session.ModuleTeaching.Action.CoordenatorId != upsertDto.UserId)
+            {
+                _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");
+                return Result<IEnumerable<RetrieveSessionParticipationDto>>
+                    .Fail("Não pode efetuar esta ação.", "Apenas o coordenador da Ação pode realizar esta ação.",
+                    StatusCodes.Status401Unauthorized);
             }
 
             var results = new List<SessionParticipation>();

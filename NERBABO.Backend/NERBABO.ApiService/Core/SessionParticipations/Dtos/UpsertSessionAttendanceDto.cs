@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using NERBABO.ApiService.Core.Account.Models;
 
 namespace NERBABO.ApiService.Core.SessionParticipations.Dtos;
 
@@ -6,6 +8,9 @@ public class UpsertSessionAttendanceDto
 {
     [Required(ErrorMessage = "Sessão é um campo obrigatório.")]
     public long SessionId { get; set; }
+
+    [JsonIgnore]
+    public string UserId { get; set; } = string.Empty;
     
     [Required]
     public List<StudentAttendanceDto> StudentAttendances { get; set; } = [];

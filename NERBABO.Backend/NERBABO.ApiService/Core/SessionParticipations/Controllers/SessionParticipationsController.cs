@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.SessionParticipations.Dtos;
@@ -62,6 +63,14 @@ public class SessionParticipationsController(
     [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
     public async Task<IActionResult> UpsertSessionAttendanceAsync([FromBody] UpsertSessionAttendanceDto upsertDto)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+            {
+                return Unauthorized("Efetue autenticação.");
+            }
+
+            upsertDto.UserId = userId;
+    
         Result<IEnumerable<RetrieveSessionParticipationDto>> result = await _sessionParticipationService.UpsertSessionAttendanceAsync(upsertDto);
         return _responseHandler.HandleResult(result);
     }

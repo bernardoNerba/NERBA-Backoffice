@@ -26,6 +26,7 @@ import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BadgeModule } from 'primeng/badge';
 import { SpinnerComponent } from '../spinner/spinner.component';
+import { SharedService } from '../../../core/services/shared.service';
 
 @Component({
   selector: 'app-module-avaliation',
@@ -64,7 +65,7 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
   constructor(
     private moduleAvaliationService: ModuleAvaliationsService,
     private formBuilder: FormBuilder,
-    private messageService: MessageService
+    private sharedService: SharedService
   ) {}
 
   ngOnInit(): void {
@@ -100,11 +101,7 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading module avaliations:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao carregar dados de avaliações',
-          });
+          this.sharedService.showError(error.error.detail);
           this.loading = false;
         },
       });
@@ -141,11 +138,10 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
   saveModuleAvaliations(moduleId: number): void {
     const form = this.avaliationForms[moduleId];
     if (!form || form.invalid) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Aviso',
-        detail: 'Por favor, verifique os dados inseridos',
-      });
+      form.markAllAsTouched();
+      this.sharedService.showError(
+        'Os dados fornecidos não estão de acordo com as diretrizes.'
+      );
       return;
     }
 
@@ -166,11 +162,7 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
 
     if (updateRequests.length === 0) {
       this.saving = false;
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Aviso',
-        detail: 'Não há avaliações para guardar',
-      });
+      this.sharedService.showError('Não há avaliações para guardar');
       return;
     }
 
@@ -178,21 +170,13 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Avaliações guardadas com sucesso',
-          });
+          this.sharedService.showSuccess('Avaliações guardadas com sucesso');
           this.saving = false;
           this.loadDataWithStatePreservation();
         },
         error: (error) => {
           console.error('Error saving module avaliations:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao guardar avaliações',
-          });
+          this.sharedService.showError(error.error.detail);
           this.saving = false;
         },
       });

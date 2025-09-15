@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.Enrollments.Dtos;
@@ -79,30 +80,15 @@ namespace NERBABO.ApiService.Core.Enrollments.Controllers
         /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
         /// <response code="500">Unexpected error occurred during transaction. All changes are rolled back.</response>
         [HttpPost("create")]
-        [Authorize(Policy = "ActiveUser")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> CreateActionEnrollmentAsync([FromBody] CreateActionEnrollmentDto enrollment)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("Efetue autenticação.");
+
+            enrollment.UserId = userId;
+
             Result<RetrieveActionEnrollmentDto> result = await _actionEnrollmentService.CreateAsync(enrollment);
-            return _responseHandler.HandleResult(result);
-        }
-
-        /// <summary>
-        /// Updates an existing Action enrollment.
-        /// </summary>
-        /// <param name="id">The ID of the Action enrollment to be updated.</param>
-        /// <param name="enrollment">The UpdateActionEnrollmentDto object containing the updated details of the Action enrollment.</param>
-        /// <response code="200">Action enrollment updated successfully. Returns the updated Action enrollment details.</response>
-        /// <response code="400">Validation error.</response>
-        /// <response code="404">Action enrollment not found.</response>
-        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-        /// <response code="500">Unexpected error occurred.</response>
-        [HttpPut("update/{id:long}")]
-        [Authorize(Policy = "ActiveUser")]
-        public async Task<IActionResult> UpdateActionEnrollmentAsync(long id, [FromBody] UpdateActionEnrollmentDto enrollment)
-        {
-            if (id != enrollment.Id) return BadRequest("ID mismatch");
-
-            Result<RetrieveActionEnrollmentDto> result = await _actionEnrollmentService.UpdateAsync(enrollment);
             return _responseHandler.HandleResult(result);
         }
 
@@ -118,10 +104,13 @@ namespace NERBABO.ApiService.Core.Enrollments.Controllers
         /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
         /// <response code="500">Unexpected error occurred during deletion.</response>
         [HttpDelete("delete/{id:long}")]
-        [Authorize(Policy = "ActiveUser")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> DeleteActionEnrollmentAsync(long id)
         {
-            Result result = await _actionEnrollmentService.DeleteAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("Efetue autenticação.");
+
+            Result result = await _actionEnrollmentService.DeleteIfCoordenatorAsync(id, userId);
             return _responseHandler.HandleResult(result);
         }
     }

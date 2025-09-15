@@ -37,6 +37,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BadgeModule } from 'primeng/badge';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { convertHoursMinutesToDecimal } from '../../utils';
+import { SharedService } from '../../../core/services/shared.service';
 
 @Component({
   selector: 'app-session-attendance',
@@ -107,8 +108,6 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
   attendanceForms: { [sessionId: number]: FormGroup } = {};
   loading = false;
   saving = false;
-  activeIndex = -1; // For accordion control
-
   ICONS = ICONS;
   PresenceEnum = PresenceEnum;
 
@@ -117,7 +116,7 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
     private sessionParticipationService: SessionParticipationService,
     private actionEnrollmentService: ActionEnrollmentService,
     private formBuilder: FormBuilder,
-    private messageService: MessageService
+    private sharedService: SharedService
   ) {}
 
   ngOnInit(): void {
@@ -164,11 +163,7 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading session attendance data:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao carregar dados de presenças',
-          });
+          this.sharedService.showWarning(error.error.detail);
           this.loading = false;
         },
       });
@@ -285,11 +280,9 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
   saveSessionAttendance(sessionId: number): void {
     const form = this.attendanceForms[sessionId];
     if (!form || form.invalid) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Aviso',
-        detail: 'Por favor, verifique os dados inseridos',
-      });
+      this.sharedService.showError(
+        'Os dados fornecidos não estão de acordo com as diretrizes.'
+      );
       return;
     }
 
@@ -314,20 +307,12 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Presenças guardadas com sucesso',
-          });
+          this.sharedService.showSuccess('Presenças guardadas com sucesso.');
           this.saving = false;
         },
         error: (error) => {
           console.error('Error saving session attendance:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao guardar presenças',
-          });
+          this.sharedService.showWarning(error.error.detail);
           this.saving = false;
         },
       });
