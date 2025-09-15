@@ -358,6 +358,7 @@ public class ModuleTeachingService(
         var existingPayments = await _context.ModuleTeachings
             .Include(mt => mt.Sessions)
             .Include(mt => mt.Module)
+            .Include(mt => mt.Teacher).ThenInclude(t => t.Person)
             .Where(mt => mt.ActionId == actionId)
             .Select(mt => ModuleTeaching.ConvertEntityToProcessPaymentDto(mt, generalInfo))
             .ToListAsync();

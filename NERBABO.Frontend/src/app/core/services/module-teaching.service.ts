@@ -19,6 +19,7 @@ export class ModuleTeachingService {
   private deletedSource = new Subject<number>();
   private createdSource = new Subject<ModuleTeaching>();
 
+  updated$ = this.updatedSource.asObservable();
   updatedSource$ = this.updatedSource.asObservable();
   deletedSource$ = this.deletedSource.asObservable();
   createdSource$ = this.createdSource.asObservable();
@@ -101,6 +102,25 @@ export class ModuleTeachingService {
     return this.http.get<ProcessModuleTeachingPayment[]>(
       `${API_ENDPOINTS.processModuleTeachingPayment}${actionId}/`
     );
+  }
+
+  getPaymentsByActionId(
+    actionId: number
+  ): Observable<ProcessModuleTeachingPayment[]> {
+    return this.getAllProcessModuleTeachingPayments(actionId);
+  }
+
+  processPayment(moduleId: number, paymentData: any): Observable<OkResponse> {
+    return this.http
+      .put<OkResponse>(
+        `${API_ENDPOINTS.processModuleTeachingPayment}process/${moduleId}`,
+        paymentData
+      )
+      .pipe(
+        tap(() => {
+          this.notifyModuleTeachingUpdate(moduleId);
+        })
+      );
   }
 
   notifyModuleTeachingCreated() {

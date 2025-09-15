@@ -39,7 +39,7 @@ export interface UpdateModuleTeaching {
 
 export interface ProcessModuleTeachingPayment {
   moduleId: number;
-  moduleName: string;
+  moduleTeacherName: string;
   paymentTotal: number;
   calculatedTotal: number;
   paymentDate: string;

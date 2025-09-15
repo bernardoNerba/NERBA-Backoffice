@@ -106,7 +106,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
             return new ProcessModuleTeachingPaymentDto
             {
                 ModuleId = mt.ModuleId,
-                ModuleName = mt.Module.Name,
+                ModuleTeacherName = $"{mt.Teacher.Person.FullName} ({mt.Module.Name})",
                 PaymentTotal = mt.PaymentTotal,
                 CalculatedTotal = mt.CalculatedTotal(info.HourValueTeacher),
                 PaymentDate = mt.PaymentDate?.ToString("yyyy-MM-dd") ?? "",
