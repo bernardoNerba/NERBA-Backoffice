@@ -105,6 +105,7 @@ export const API_ENDPOINTS = {
   moduleTeachings: `${BASE_URL}/api/ModuleTeachings/`,
   modulesWithoutTeacher: `${BASE_URL}/api/ModuleTeachings/action/`,
   modulesTeachingByAction: `${BASE_URL}/api/ModuleTeachings/action/`,
+  processModuleTeachingPayment: `${BASE_URL}/api/ModuleTeachings/mt-payments-by-action/`,
 
   // Health check endpoint
   health: `${BASE_URL}/health`,

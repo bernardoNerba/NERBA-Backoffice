@@ -33,6 +33,7 @@ import { ActionEnrollment } from '../../../core/models/actionEnrollment';
 import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
 import { SessionAttendanceComponent } from '../../../shared/components/session-attendance/session-attendance.component';
 import { ModuleAvaliationComponent } from '../../../shared/components/module-avaliation/module-avaliation.component';
+import { ProcessMtPaymentsComponent } from '../../../shared/features/process-mt-payments/process-mt-payments.component';
 
 @Component({
   selector: 'app-view-actions',
@@ -49,6 +50,7 @@ import { ModuleAvaliationComponent } from '../../../shared/components/module-ava
     KpiRowComponent,
     SessionAttendanceComponent,
     ModuleAvaliationComponent,
+    ProcessMtPaymentsComponent,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',

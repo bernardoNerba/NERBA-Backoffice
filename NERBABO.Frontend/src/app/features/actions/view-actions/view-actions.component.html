@@ -399,6 +399,33 @@
     </div>
     <!-- END MODULE AVALIATION ACCORDION -->
 
+    <!-- PROCESS MODULE TEACHING PAYMENTS -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-proccess-mt-payments">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#proccess-mt-payments-content"
+          aria-expanded="false"
+          aria-controls="proccess-mt-payments-content"
+        >
+          <app-icon [icon]="ICONS.payments" [marginEnd]="3" />
+          <h5>Processamento de Pagamentos (Formadores)</h5>
+        </button>
+      </h2>
+      <div
+        id="proccess-mt-payments-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-proccess-mt-payments"
+      >
+        <div class="accordion-body">
+          <app-process-mt-payments [actionId]="id" />
+        </div>
+      </div>
+    </div>
+    <!-- END PROCESS MODULE TEACHING PAYMENTS -->
+
     <!-- FILE LIST ACCORDION-->
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-file-actions">

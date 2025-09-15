@@ -8,6 +8,7 @@ import {
   CreateModuleTeaching,
   UpdateModuleTeaching,
   MinimalModuleTeaching,
+  ProcessModuleTeachingPayment,
 } from '../models/moduleTeaching';
 
 @Injectable({
@@ -91,6 +92,14 @@ export class ModuleTeachingService {
   ): Observable<MinimalModuleTeaching[]> {
     return this.http.get<MinimalModuleTeaching[]>(
       `${API_ENDPOINTS.moduleTeachings}action/${actionId}/`
+    );
+  }
+
+  getAllProcessModuleTeachingPayments(
+    actionId: number
+  ): Observable<ProcessModuleTeachingPayment[]> {
+    return this.http.get<ProcessModuleTeachingPayment[]>(
+      `${API_ENDPOINTS.processModuleTeachingPayment}${actionId}/`
     );
   }
 
