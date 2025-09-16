@@ -7,6 +7,8 @@ using NERBABO.ApiService.Core.Modules.Services;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 using NERBABO.ApiService.Core.Sessions.Dtos;
+using System.Security.Claims;
+using NERBABO.ApiService.Core.Authentication.Services;
 
 namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
 {
@@ -15,12 +17,14 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
     public class ModuleTeachingsController(
         IModuleTeachingService moduleTeachingService,
         IModuleService moduleService,
-        IResponseHandler responseHandler
+        IResponseHandler responseHandler,
+        IJwtService jwtService
         ) : ControllerBase
     {
         private readonly IModuleTeachingService _moduleTeachingService = moduleTeachingService;
         private readonly IModuleService _moduleService = moduleService;
         private readonly IResponseHandler _responseHandler = responseHandler;
+        private readonly IJwtService _jwtService = jwtService;
 
         /// <summary>
         /// Gets all the module teachings (teacher-module-action associations).
@@ -61,12 +65,19 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
         /// <response code="201">Module teaching created successfully. Returns the created association details.</response>
         /// <response code="400">Validation error. Module not associated with action's course, or teacher already assigned to this module in this action.</response>
         /// <response code="404">Teacher, Module, or Action not found.</response>
-        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM. Is not Action coordenator.</response>
         /// <response code="500">Unexpected error occurred.</response>
         [HttpPost("create")]
         [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
         public async Task<IActionResult> CreateModuleTeachingAsync([FromBody] CreateModuleTeachingDto moduleTeaching)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionAsync(moduleTeaching.ActionId, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
             Result<RetrieveModuleTeachingDto> result = await _moduleTeachingService.CreateAsync(moduleTeaching);
             return _responseHandler.HandleResult(result);
         }
@@ -79,13 +90,20 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
         /// <response code="200">Module teaching updated successfully. Returns the updated association details.</response>
         /// <response code="400">Validation error. ID mismatch, no changes detected, module not associated with action's course, or another teacher already assigned to this module in this action.</response>
         /// <response code="404">Module teaching, Teacher, Module, or Action not found.</response>
-        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM. Is not Action coordenator.</response>
         /// <response code="500">Unexpected error occurred.</response>
         [HttpPut("update/{id:long}")]
         [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
         public async Task<IActionResult> UpdateModuleTeachingAsync(long id, [FromBody] UpdateModuleTeachingDto moduleTeaching)
         {
             if (id != moduleTeaching.Id) return BadRequest("ID mismatch");
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionAsync(moduleTeaching.ActionId, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
 
             Result<RetrieveModuleTeachingDto> result = await _moduleTeachingService.UpdateAsync(moduleTeaching);
             return _responseHandler.HandleResult(result);
@@ -97,12 +115,19 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
         /// <param name="id">The ID of the module teaching to be deleted.</param>
         /// <response code="200">Module teaching deleted successfully.</response>
         /// <response code="404">Module teaching not found.</response>
-        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM. Is not Action coordenator.</response>
         /// <response code="500">Unexpected error occurred.</response>
         [HttpDelete("delete/{id:long}")]
         [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
         public async Task<IActionResult> DeleteModuleTeachingAsync(long id)
         {
+                        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaMTAsync(id, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
             Result result = await _moduleTeachingService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
         }

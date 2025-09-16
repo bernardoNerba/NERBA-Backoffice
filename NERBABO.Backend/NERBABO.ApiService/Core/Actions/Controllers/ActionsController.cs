@@ -98,11 +98,8 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> CreateActionAsync([FromBody] CreateCourseActionDto createCourseActionDto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId is null)
-            {
-                return Unauthorized("Efetue autenticação.");
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
 
             createCourseActionDto.CoordenatorId = userId;
 
