@@ -132,37 +132,6 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 StatusCodes.Status201Created);
         }
 
-        public async Task<Result> DeleteIfCoordenatorAsync(long id, string userId)
-        {
-            var existingCourseAction = await _context.Actions
-                .Include(a => a.Coordenator)
-                .Include(a => a.Course)
-                .FirstOrDefaultAsync(a => a.Id == id);
-            if (existingCourseAction is null)
-            {
-                _logger.LogWarning("Course action not found for given ID: {id}", id);
-                return Result.Fail("Não encontrado.", "Ação não encontrada.",
-                    StatusCodes.Status404NotFound);
-            }
-
-            if (existingCourseAction.CoordenatorId != userId)
-            {
-                _logger.LogWarning("User {userId} is not the coordinator of the action with ID {actionId}.", userId, id);
-                return Result.Fail("Não autorizado.", "Não é o coordenador desta ação formativa.",
-                    StatusCodes.Status403Forbidden);
-            }
-
-            await DeleteTransactionAsync(existingCourseAction);
-
-            // update cache
-            await _cache.RemoveActionCacheAsync(id);
-            await _cacheCourse.RemoveCourseCacheAsync();
-            await _cacheModule.RemoveModuleCacheAsync();
-
-            return Result
-                .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
-        }
-
         public async Task<Result> DeleteAsync(long id)
         {
             // Check if the action exists
@@ -550,7 +519,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .Ok(orderedActions);
         }
 
-        public async Task<Result> ChangeActionStatusAsync(long id, string status)
+        public async Task<Result> ChangeActionStatusAsync(long id, string status, string userId)
         {
             var existingAction = await _context.Actions
                 .Include(a => a.Coordenator)
@@ -561,6 +530,14 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 _logger.LogWarning("Action with ID {id} not found.", id);
                 return Result.Fail("Não encontrado.", "Ação Formação não encontrada.",
                     StatusCodes.Status404NotFound);
+            }
+
+            // Validate authorization
+            if (existingAction.CoordenatorId != userId)
+            {
+                _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");
+                return Result.Fail("Não pode efetuar esta ação.", "Apenas o coordenador da Ação pode realizar esta ação.",
+                    StatusCodes.Status401Unauthorized);
             }
 
             if (!string.IsNullOrEmpty(status)

@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Exceptions;
 using NERBABO.ApiService.Shared.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -32,7 +33,7 @@ public class JwtService : IJwtService
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _jwtKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["JWT:Key"]
-            ?? throw new ("JWT:Key is not configured"))
+            ?? throw new("JWT:Key is not configured"))
         );
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _context = context;
@@ -108,6 +109,30 @@ public class JwtService : IJwtService
             .Ok(await GetPersonAndBuildJwt(user));
     }
 
+    /// <summary>
+    /// Verifies user Authorization as a coordenator of given action or admin role system
+    /// </summary>
+    /// <param name="actionId">The ID of the action that needs to be verified if the user is coordenator of.</param>
+    /// <param name="userId">The request user that will be verified.</param>
+    /// <returns>The result of type boolean. True if the user is Coordenator of the action or Admin of the system. False if not.</returns>
+    /// <exception cref="ObjectNullException">Action with given actionId not found.</exception>
+    /// <exception cref="ObjectNullException">User with given userId not found.</exception>
+    public async Task<bool> IsCoordOrAdminOfActionAsync(long actionId, string userId)
+    {
+        var action = await _context.Actions.FindAsync(actionId)
+            ?? throw new ObjectNullException("Ação não encontrada.");
+
+        // check if the user is the action coordenator
+        if (action.CoordenatorId == userId)
+            return true;
+
+        // since is not coordenator check if is Admin
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new ObjectNullException("Utilizador não encontrado.");
+
+        return await _userManager.IsInRoleAsync(user, "Admin");
+    }
+
     public async Task<Result<LoggedInUserDto>> GenerateJwtOnLoginAsync(LoginDto model)
     {
         // Try to find user by username first, then fall back to email
@@ -119,12 +144,12 @@ public class JwtService : IJwtService
             return Result<LoggedInUserDto>
                 .Fail("Erro de Validação", "Email/Username ou password inválidos.");
         }
-        
+
         if (!user.IsActive)
         {
             _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User is blocked.", model.UsernameOrEmail);
             return Result<LoggedInUserDto>
-                .Fail("Não Autorizado.", "Utilizador bloqueado.", 
+                .Fail("Não Autorizado.", "Utilizador bloqueado.",
                 StatusCodes.Status401Unauthorized);
         }
 

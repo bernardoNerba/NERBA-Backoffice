@@ -81,6 +81,7 @@ public class SessionParticipationService(
                     .Fail("Não encontrado.", "Sessão não encontrada", StatusCodes.Status404NotFound);
             }
 
+            // Validate authorization
             if (session.ModuleTeaching.Action.CoordenatorId != upsertDto.UserId)
             {
                 _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");

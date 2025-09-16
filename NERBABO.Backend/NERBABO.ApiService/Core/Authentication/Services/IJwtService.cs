@@ -8,4 +8,5 @@ public interface IJwtService
 {
     Task<Result<LoggedInUserDto>> GenerateJwtOnLoginAsync(LoginDto model);
     Task<Result<LoggedInUserDto>> GenerateRefreshTokenAsync(string userId);
+    Task<bool> IsCoordOrAdminOfActionAsync(long actionId, string userId);
 }

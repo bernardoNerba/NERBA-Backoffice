@@ -16,11 +16,11 @@ public class User : IdentityUser
 
 
     public long PersonId { get; set; }
-    
+
     // Navigation properties
     public Person? Person { get; set; }
     public List<CourseAction> Actions { get; set; } = [];
-    
+
     public User() { }
 
     public User(string userName, string email, long personId) // Create user from account controller

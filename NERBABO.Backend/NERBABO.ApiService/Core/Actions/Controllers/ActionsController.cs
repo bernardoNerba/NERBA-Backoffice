@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Services;
+using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Shared.Services;
 using System.Security.Claims;
 
@@ -11,11 +12,13 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
     [ApiController]
     public class ActionsController(
         ICourseActionService courseActionService,
-        IResponseHandler responseHandler
+        IResponseHandler responseHandler,
+        IJwtService jwtService
         ) : ControllerBase
     {
         private readonly ICourseActionService _courseActionService = courseActionService;
         private readonly IResponseHandler _responseHandler = responseHandler;
+        private readonly IJwtService _jwtService = jwtService;
 
         /// <summary>
         /// Gets all the actions.
@@ -112,7 +115,7 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         /// </summary>
         /// <param name="id">Id of the action that the delete will be perfomed.</param>
         /// <response code="200">Action was deleted successfully.</response>
-        /// <response code="403">Request user is not the coordenator of this course action.</response>
+        /// <response code="403">Request user is not the coordenator of this course action nor admin of the system.</response>
         /// <response code="404">Course not found.</response>
         /// <response code="401">Unauthorized access. Invalid jwt, user is not active or user is not Admin nor FM.</response>
         /// <response code="500">Unexpected error occurred.</response>
@@ -120,13 +123,14 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> DeleteActionIfCoordenatorAsync(long id)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId is null)
-            {
-                return Unauthorized("Efetue autenticação.");
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
 
-            var result = await _courseActionService.DeleteIfCoordenatorAsync(id, userId);
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionAsync(id, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
+            var result = await _courseActionService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
         }
 
@@ -149,6 +153,13 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         {
             if (updateCourseActionDto.Id != id)
                 return BadRequest("ID Missmatch");
+            
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionAsync(id, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
 
             var result = await _courseActionService.UpdateAsync(updateCourseActionDto);
             return _responseHandler.HandleResult(result);
@@ -168,7 +179,14 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
         [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> ChangeActionStatusAsync(long id, [FromQuery] string status)
         {
-            var result = await _courseActionService.ChangeActionStatusAsync(id, status);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionAsync(id, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
+            var result = await _courseActionService.ChangeActionStatusAsync(id, status, userId);
             return _responseHandler.HandleResult(result);
         }
 
