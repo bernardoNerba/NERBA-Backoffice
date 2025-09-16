@@ -121,7 +121,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
         [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
         public async Task<IActionResult> DeleteModuleTeachingAsync(long id)
         {
-                        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
                 ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
 
             var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaMTAsync(id, userId);

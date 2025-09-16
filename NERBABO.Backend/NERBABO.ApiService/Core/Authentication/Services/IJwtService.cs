@@ -1,4 +1,3 @@
-using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Shared.Models;
 
@@ -10,4 +9,5 @@ public interface IJwtService
     Task<Result<LoggedInUserDto>> GenerateRefreshTokenAsync(string userId);
     Task<bool> IsCoordOrAdminOfActionAsync(long actionId, string userId);
     Task<bool> IsCoordOrAdminOfActionViaMTAsync(long moduleTeachingId, string userId);
+    Task<bool> IsCoordOrAdminOfActionViaSessionAsync(long sessionId, string userId);
 }

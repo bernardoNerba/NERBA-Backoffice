@@ -146,7 +146,7 @@ public class JwtService : IJwtService
         var mt = await _context.ModuleTeachings
             .Include(mt => mt.Action)
             .FirstOrDefaultAsync(mt => mt.Id == moduleTeachingId)
-            ?? throw new ObjectNullException("Ação não encontrada.");
+            ?? throw new ObjectNullException("ModuleTeaching não encontrado.");
 
         // check if the user is the action coordenator
         if (mt.Action.CoordenatorId == userId)
@@ -158,6 +158,33 @@ public class JwtService : IJwtService
 
         return await _userManager.IsInRoleAsync(user, "Admin");
     }
+
+    /// <summary>
+    /// Verifies user Authorization as a coordenator of related action or admin role system using session entity.
+    /// </summary>
+    /// <param name="sessionId">The ID of the session that needs to be verified if the user is coordenator of the action associated.</param>
+    /// <param name="userId">The request user that will be verified.</param>
+    /// <returns>The result of type boolean. True if the user is Coordenator of the action or Admin of the system. False otherwise.</returns>
+    /// <exception cref="ObjectNullException">Session with given ID not found.</exception>
+    /// <exception cref="ObjectNullException">User with given ID not found.</exception>
+    public async Task<bool> IsCoordOrAdminOfActionViaSessionAsync(long sessionId, string userId)
+    {
+        var session = await _context.Sessions
+            .Include(s => s.ModuleTeaching).ThenInclude(mt => mt.Action)
+            .FirstOrDefaultAsync(s => s.Id == sessionId)
+            ?? throw new ObjectNullException("Sessão não encontrada.");
+
+        // check if the user is the action coordenator
+        if (session.ModuleTeaching.Action.CoordenatorId == userId)
+            return true;
+
+        // since is not coordenator check if is Admin
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new ObjectNullException("Utilizador não encontrado.");
+
+        return await _userManager.IsInRoleAsync(user, "Admin");
+    }
+
 
     public async Task<Result<LoggedInUserDto>> GenerateJwtOnLoginAsync(LoginDto model)
     {

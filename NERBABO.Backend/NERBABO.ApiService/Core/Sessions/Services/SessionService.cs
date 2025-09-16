@@ -14,13 +14,11 @@ namespace NERBABO.ApiService.Core.Sessions.Services;
 
 public class SessionService(
     AppDbContext context,
-    ILogger<SessionService> logger,
-    UserManager<User> userManager
+    ILogger<SessionService> logger
 ) : ISessionService
 {
     private readonly AppDbContext _context = context;
     private readonly ILogger<SessionService> _logger = logger;
-    private readonly UserManager<User> _userManager = userManager;
 
     public async Task<Result<RetrieveSessionDto>> CreateAsync(CreateSessionDto entityDto)
     {
@@ -39,7 +37,7 @@ public class SessionService(
         if (moduleTeaching is null)
         {
             _logger.LogWarning("ModuleTeaching not found with ID {ModuleTeachingId} for session creation by user {UserId}", 
-                entityDto.ModuleTeachingId, entityDto.User.Id);
+                entityDto.ModuleTeachingId, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Não encontrado.", "Relação entre Formador e Módulo da Ação não encontrada",
                 StatusCodes.Status404NotFound);
@@ -47,23 +45,11 @@ public class SessionService(
 
         var action = moduleTeaching.Action;
 
-        // check if the user that made the request is the coordenator of the action or is admin
-        if ((action.CoordenatorId != entityDto.User.Id)
-            && !(await _userManager.GetRolesAsync(entityDto.User)).Contains("Admin"))
-        {
-            _logger.LogWarning("Unauthorized session creation attempt by user {UserId} for action {ActionId}. User is not coordinator or admin", 
-                entityDto.User.Id, action.Id);
-            return Result<RetrieveSessionDto>
-                .Fail("Erro de Validação.",
-                    "Apenas o coordenador pode realizar esta ação.",
-                    StatusCodes.Status401Unauthorized);
-        }
-
         // check the action is active
         if (!action.IsActionActive)
         {
             _logger.LogWarning("Attempted to create session for inactive action {ActionId} by user {UserId}", 
-                action.Id, entityDto.User.Id);
+                action.Id, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.",
                 "Não é possível marcar uma sessão quando a ação está inativa.");
@@ -83,7 +69,7 @@ public class SessionService(
         if (!EnumHelp.IsValidEnum<WeekDaysEnum>(entityDto.Weekday))
         {
             _logger.LogWarning("Invalid weekday '{Weekday}' provided for session creation by user {UserId}", 
-                entityDto.Weekday, entityDto.User.Id);
+                entityDto.Weekday, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.",
                 "O dia da semana inserido não é válido");
@@ -116,7 +102,7 @@ public class SessionService(
         if (!validStartTime)
         {
             _logger.LogWarning("Invalid start time '{StartTime}' provided for session creation by user {UserId}", 
-                entityDto.Start, entityDto.User.Id);
+                entityDto.Start, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.", "Hora de início inválida.");
         }
@@ -141,52 +127,6 @@ public class SessionService(
                 .Ok(retrieveSession, "Sessão criada.", 
                 "A sessão foi agendada com sucesso.");
 
-    }
-
-    public async Task<Result> DeleteIfActionCoordenatorAsync(long id, User user)
-    {
-        // TODO: Handle relationships deletes
-        var existingSession = await _context.Sessions
-            .Include(s => s.ModuleTeaching)
-                .ThenInclude(mt => mt.Action)
-            .FirstOrDefaultAsync(s => s.Id == id);
-        if (existingSession is null)
-        {
-            _logger.LogWarning("Session with ID {SessionId} not found for deletion by user {UserId}", id, user.Id);
-            return Result
-            .Fail("Não encontrado", "Sessão não encontrada.",
-            StatusCodes.Status404NotFound);
-        }
-
-        if (!(await _userManager.GetRolesAsync(user)).Contains("Admin"))
-        {
-            if (existingSession.ModuleTeaching.Action.CoordenatorId != user.Id)
-            {
-                _logger.LogWarning("Unauthorized session deletion attempt by user {UserId} for session {SessionId}. User is not the action coordinator", 
-                    user.Id, id);
-                return Result
-                    .Fail("Erro de Validação.",
-                        "Apenas o coordenador do curso pode realizar esta ação.",
-                        StatusCodes.Status401Unauthorized);
-            }
-        }
-
-        // Check if the session was already lecture
-        if (existingSession.TeacherPresence.Equals(PresenceEnum.Present))
-        {
-            _logger.LogWarning("Attempted to delete session {SessionId} that was already taught (teacher present)", id);
-            return Result
-            .Fail("Erro de Validação", "A sessão já foi lecionada, não é possível eliminar.");
-        }
-
-        // Check if is action coordenator
-
-        _context.Sessions.Remove(existingSession);
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Session deleted successfully with ID: {SessionId}", id);
-        return Result
-            .Ok("Sessão eliminada.", "Sessão eliminada com sucesso.");
     }
 
     public async Task<Result> DeleteAsync(long id)
@@ -326,7 +266,7 @@ public class SessionService(
         if (existingSession is null)
         {
             _logger.LogWarning("Session with ID {SessionId} not found for update by user {UserId}", 
-                entityDto.Id, entityDto.User.Id);
+                entityDto.Id, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Não encontrado.", "Sessão para atualizar não encontrada.",
                 StatusCodes.Status404NotFound);
@@ -334,23 +274,11 @@ public class SessionService(
 
         var action = existingSession.ModuleTeaching.Action;
 
-        // check if the user that made the request is the coordenator of the action or is admin
-        if ((action.CoordenatorId != entityDto.User.Id)
-            && !(await _userManager.GetRolesAsync(entityDto.User)).Contains("Admin"))
-        {
-            _logger.LogWarning("Unauthorized session update attempt by user {UserId} for session {SessionId}. User is not coordinator or admin", 
-                entityDto.User.Id, entityDto.Id);
-            return Result<RetrieveSessionDto>
-                .Fail("Erro de Validação.",
-                    "Apenas o coordenador pode realizar esta ação.",
-                    StatusCodes.Status401Unauthorized);
-        }
-
         // check if the action is active
         if (!action.IsActionActive)
         {
             _logger.LogWarning("Attempted to update session {SessionId} for inactive action {ActionId} by user {UserId}", 
-                entityDto.Id, action.Id, entityDto.User.Id);
+                entityDto.Id, action.Id, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.",
                 "Não é possível modificar uma sessão quando a ação está inativa.");
@@ -370,7 +298,7 @@ public class SessionService(
         if (!EnumHelp.IsValidEnum<WeekDaysEnum>(entityDto.Weekday))
         {
             _logger.LogWarning("Invalid weekday '{Weekday}' provided for session {SessionId} update by user {UserId}", 
-                entityDto.Weekday, entityDto.Id, entityDto.User.Id);
+                entityDto.Weekday, entityDto.Id, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.",
                 "O dia da semana inserido não é válido");
@@ -403,7 +331,7 @@ public class SessionService(
         if (!validStartTime)
         {
             _logger.LogWarning("Invalid start time '{StartTime}' provided for session {SessionId} update by user {UserId}", 
-                entityDto.Start, entityDto.Id, entityDto.User.Id);
+                entityDto.Start, entityDto.Id, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.", "Hora de início inválida.");
         }
@@ -433,7 +361,7 @@ public class SessionService(
             && !EnumHelp.IsValidEnum<PresenceEnum>(entityDto.TeacherPresence))
         {
             _logger.LogWarning("Invalid teacher presence '{TeacherPresence}' provided for session {SessionId} update by user {UserId}", 
-                entityDto.TeacherPresence, entityDto.Id, entityDto.User.Id);
+                entityDto.TeacherPresence, entityDto.Id, entityDto.UserId);
             return Result<RetrieveSessionDto>
                 .Fail("Erro de Validação.",
                 "O estado de presença do formador inserido não é válido.");

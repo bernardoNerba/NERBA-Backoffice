@@ -8,5 +8,4 @@ namespace NERBABO.ApiService.Core.Sessions.Services;
 public interface ISessionService : IGenericService<RetrieveSessionDto, CreateSessionDto, UpdateSessionDto, long>
 {
     Task<Result<IEnumerable<RetrieveSessionDto>>> GetAllByActionIdAsync(long actionId);
-    Task<Result> DeleteIfActionCoordenatorAsync(long id, User user);
 }
