@@ -8,5 +8,4 @@ public interface IActionEnrollmentService
 : IGenericService<RetrieveActionEnrollmentDto, CreateActionEnrollmentDto, UpdateActionEnrollmentDto, long>
 {
     Task<Result<IEnumerable<RetrieveActionEnrollmentDto>>> GetAllByActionId(long actionId);
-    Task<Result> DeleteIfCoordenatorAsync(long id, string userId);
 }

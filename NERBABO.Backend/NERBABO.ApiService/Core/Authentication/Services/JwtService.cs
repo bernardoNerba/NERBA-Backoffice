@@ -109,14 +109,6 @@ public class JwtService : IJwtService
             .Ok(await GetPersonAndBuildJwt(user));
     }
 
-    /// <summary>
-    /// Verifies user Authorization as a coordenator of given action or admin role system
-    /// </summary>
-    /// <param name="actionId">The ID of the action that needs to be verified if the user is coordenator of.</param>
-    /// <param name="userId">The request user that will be verified.</param>
-    /// <returns>The result of type boolean. True if the user is Coordenator of the action or Admin of the system. False if not.</returns>
-    /// <exception cref="ObjectNullException">Action with given actionId not found.</exception>
-    /// <exception cref="ObjectNullException">User with given userId not found.</exception>
     public async Task<bool> IsCoordOrAdminOfActionAsync(long actionId, string userId)
     {
         var action = await _context.Actions.FindAsync(actionId)
@@ -133,14 +125,6 @@ public class JwtService : IJwtService
         return await _userManager.IsInRoleAsync(user, "Admin");
     }
 
-    /// <summary>
-    /// Verifies user Authorization as a coordenator of given action or admin role system
-    /// </summary>
-    /// <param name="moduleTeachingId">The ID of the module teaching that needs to be verified if the user is coordenator of the action associated.</param>
-    /// <param name="userId">The request user that will be verified.</param>
-    /// <returns>The result of type boolean. True if the user is Coordenator of the action or Admin of the system. False otherwise.</returns>
-    /// <exception cref="ObjectNullException">ModuleTeaching with given moduleTeachingId not found.</exception>
-    /// <exception cref="ObjectNullException">User with given userId not found.</exception>
     public async Task<bool> IsCoordOrAdminOfActionViaMTAsync(long moduleTeachingId, string userId)
     {
         var mt = await _context.ModuleTeachings
@@ -159,14 +143,6 @@ public class JwtService : IJwtService
         return await _userManager.IsInRoleAsync(user, "Admin");
     }
 
-    /// <summary>
-    /// Verifies user Authorization as a coordenator of related action or admin role system using session entity.
-    /// </summary>
-    /// <param name="sessionId">The ID of the session that needs to be verified if the user is coordenator of the action associated.</param>
-    /// <param name="userId">The request user that will be verified.</param>
-    /// <returns>The result of type boolean. True if the user is Coordenator of the action or Admin of the system. False otherwise.</returns>
-    /// <exception cref="ObjectNullException">Session with given ID not found.</exception>
-    /// <exception cref="ObjectNullException">User with given ID not found.</exception>
     public async Task<bool> IsCoordOrAdminOfActionViaSessionAsync(long sessionId, string userId)
     {
         var session = await _context.Sessions
@@ -176,6 +152,24 @@ public class JwtService : IJwtService
 
         // check if the user is the action coordenator
         if (session.ModuleTeaching.Action.CoordenatorId == userId)
+            return true;
+
+        // since is not coordenator check if is Admin
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new ObjectNullException("Utilizador não encontrado.");
+
+        return await _userManager.IsInRoleAsync(user, "Admin");
+    }
+
+    public async Task<bool> IsCoordOrAdminOfActionViaEnrollmentAsync(long enrollmentId, string userId)
+    {
+        var enrollment = await _context.ActionEnrollments
+            .Include(ae => ae.Action)
+            .FirstOrDefaultAsync(ae => ae.Id == enrollmentId)
+            ?? throw new ObjectNullException("Sessão não encontrada.");
+
+        // check if the user is the action coordenator
+        if (enrollment.Action.CoordenatorId == userId)
             return true;
 
         // since is not coordenator check if is Admin

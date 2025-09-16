@@ -34,14 +34,6 @@ public class ActionEnrollmentService(
                 StatusCodes.Status404NotFound);
         }
 
-        if (existingAction.CoordenatorId != entityDto.UserId)
-        {
-            _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");
-            return Result<RetrieveActionEnrollmentDto>
-                .Fail("Não pode efetuar esta ação.", "Apenas o coordenador da Ação pode realizar esta ação.",
-                StatusCodes.Status401Unauthorized);
-        }
-
         // Check if student exists
             var existingStudent = await _context.Students
             .Include(s => s.Person)
@@ -191,24 +183,7 @@ public class ActionEnrollmentService(
             await transaction.CommitAsync();
         }
     }
-
-    public async Task<Result> DeleteIfCoordenatorAsync(long id, string userId)
-    {
-        var existingEnrollment = await _context.ActionEnrollments
-            .Include(ae => ae.Action)
-            .FirstOrDefaultAsync(ae => ae.Id == id)
-            ?? throw new ObjectNullException("Inscrição não encontrada.");
-
-        if (existingEnrollment.Action.CoordenatorId != userId)
-        {
-            _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");
-            return Result<RetrieveActionEnrollmentDto>
-                .Fail("Não pode efetuar esta ação.", "Apenas o coordenador da Ação pode realizar esta ação.",
-                StatusCodes.Status401Unauthorized);
-        }
-
-        return await DeleteAsync(id);
-    }
+    
     public async Task<Result> DeleteAsync(long id)
     {
         var existingEnrollment = await _context.ActionEnrollments
