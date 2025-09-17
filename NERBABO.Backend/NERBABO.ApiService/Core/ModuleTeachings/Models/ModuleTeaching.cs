@@ -45,11 +45,12 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public bool IsPayed => PaymentDate != null;
 
 
-        public double CalculatedTotal(double hourRate)
+        private double CalculatedTotal(double hourRate)
         {
-            return Sessions.Where(s => s.TeacherPresence.Equals(PresenceEnum.Present)).Sum(s => s.DurationHours)
-                    * hourRate;
-            
+            return Math.Round(Sessions
+                .Where(s => s.TeacherPresence.Equals(PresenceEnum.Present))
+                .Sum(s => s.DurationHours)
+                * hourRate, 2);
         }
 
         public double ScheduledPercent()

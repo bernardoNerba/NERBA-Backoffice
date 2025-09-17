@@ -122,5 +122,22 @@ namespace NERBABO.ApiService.Core.Enrollments.Controllers
             Result result = await _actionEnrollmentService.DeleteAsync(id);
             return _responseHandler.HandleResult(result);
         }
+
+
+        /// <summary>
+        /// Gets all student payment details for a specific action.
+        /// </summary>
+        /// <param name="actionId">The ID of the action to retrieve payment details.</param>
+        /// <response code="200">student payments found. Returns a List of ProcessModuleTeachingPaymentDto.</response>
+        /// <response code="404">Action not found or no student payments available for this action.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("student-payments-by-action/{actionId}")]
+        [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
+        public async Task<IActionResult> GetAllStudentPaymentsAsync(long actionId)
+        {
+            Result<IEnumerable<ProcessStudentsPaymentDto>> result = await _actionEnrollmentService.GetAllStudentPaymentsAsync(actionId);
+            return _responseHandler.HandleResult(result);
+        }
     }
 }

@@ -35,7 +35,7 @@ public class SessionParticipationConfiguration : IEntityTypeConfiguration<Sessio
             .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasOne(sp => sp.ActionEnrollment)
-            .WithMany(ae => ae.Participants)
+            .WithMany(ae => ae.Participations)
             .HasForeignKey(sp => sp.ActionEnrollmentId)
             .OnDelete(DeleteBehavior.Cascade);
     }

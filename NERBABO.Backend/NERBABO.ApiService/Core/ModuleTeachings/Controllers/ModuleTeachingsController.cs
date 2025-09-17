@@ -185,7 +185,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
         /// <summary>
         /// Gets all module teaching payment details for a specific action.
         /// </summary>
-        /// <param name="actionId">The ID of the action to retrieve payment details for.</param>
+        /// <param name="actionId">The ID of the action to retrieve payment details.</param>
         /// <response code="200">Module teaching payments found. Returns a List of ProcessModuleTeachingPaymentDto.</response>
         /// <response code="404">Action not found or no module teaching payments available for this action.</response>
         /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM.</response>

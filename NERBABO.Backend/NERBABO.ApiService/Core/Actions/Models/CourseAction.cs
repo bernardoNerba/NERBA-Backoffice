@@ -56,11 +56,11 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public int TotalApproved => ActionEnrollments.Count(ae => ae.ApprovalStatus == ApprovalStatusEnum.Approved);
         // Updated KPI calculations based on actual attendance
         public double TotalVolumeHours => ActionEnrollments
-            .SelectMany(ae => ae.Participants)
+            .SelectMany(ae => ae.Participations)
             .Sum(sp => sp.Attendance);
             
         public int TotalVolumeDays => ActionEnrollments
-            .SelectMany(ae => ae.Participants)
+            .SelectMany(ae => ae.Participations)
             .Count(sp => sp.Presence == PresenceEnum.Present);
 
         // Navigation properties

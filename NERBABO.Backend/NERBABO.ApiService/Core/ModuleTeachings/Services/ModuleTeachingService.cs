@@ -361,9 +361,9 @@ public class ModuleTeachingService(
         var action = await _context.Actions.FindAsync(actionId);
         if (action is null)
         {
-            _logger.LogWarning("No action found with given {actionId}.", actionId);
+            _logger.LogWarning("No action found with given {actionId} when trying to get all module teachings payments.", actionId);
             return Result<IEnumerable<ProcessModuleTeachingPaymentDto>>
-                .Fail("Não encontrado", "Não foi encontrada ação com a especificação.",
+                .Fail("Não encontrado", "Não foi encontrada ação com a especificação fornecida.",
                     StatusCodes.Status404NotFound);
         }
 
