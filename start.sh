@@ -47,23 +47,25 @@ echo -e "${YELLOW}📍 Detected IP address: $LOCAL_IP${NC}"
 # Create or update .env file
 ENV_FILE=".env"
 
-# Backup existing .env if it exists
-if [ -f "$ENV_FILE" ]; then
-    cp "$ENV_FILE" "$ENV_FILE.backup.$(date +%Y%m%d_%H%M%S)"
-    echo -e "${YELLOW}📋 Backed up existing .env file${NC}"
-fi
+# Function to create .env file
+create_env_file() {
+    # Backup existing .env if it exists
+    if [ -f "$ENV_FILE" ]; then
+        cp "$ENV_FILE" "$ENV_FILE.backup.$(date +%Y%m%d_%H%M%S)"
+        echo -e "${YELLOW}📋 Backed up existing .env file${NC}"
+    fi
 
-# Create .env file with dynamic values
-cat > "$ENV_FILE" << EOF
+    # Create .env file with dynamic values
+    cat > "$ENV_FILE" << EOF
 # Auto-generated configuration - $(date)
 # Server IP: $LOCAL_IP
 
 # Database Configuration
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)}
-REDIS_PASSWORD=${REDIS_PASSWORD:-$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-$(openssl rand -base64 32 | tr -d "=+/")}
+REDIS_PASSWORD=${REDIS_PASSWORD:-$(openssl rand -base64 32 | tr -d "=+/")}
 
 # JWT Configuration
-JWT_KEY=${JWT_KEY:-$(openssl rand -base64 64 | tr -d "=+/" | cut -c1-64)}
+JWT_KEY=${JWT_KEY:-$(openssl rand -base64 64 | tr -d "=+/")}
 JWT_EXPIRES_DAYS=7
 JWT_ISSUER=http://$LOCAL_IP:5001
 CLIENT_URL=http://$LOCAL_IP:4200
@@ -81,7 +83,28 @@ PGADMIN_PASSWORD=${PGADMIN_PASSWORD:-admin123}
 ASPNETCORE_ENVIRONMENT=Production
 EOF
 
-echo -e "${GREEN}✅ Generated .env file with IP: $LOCAL_IP${NC}"
+    echo -e "${GREEN}✅ Generated .env file with IP: $LOCAL_IP${NC}"
+}
+
+# Check if .env file exists and prompt user
+if [ -f "$ENV_FILE" ]; then
+    echo -e "${YELLOW}🤔 An existing .env file was found.${NC}"
+    read -p "Do you want to use the existing .env file? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${GREEN}👍 Using existing .env file.${NC}"
+        # Extract IP from existing .env to use in health checks
+        if grep -q "CLIENT_URL" "$ENV_FILE"; then
+            LOCAL_IP=$(grep "CLIENT_URL" "$ENV_FILE" | cut -d'=' -f2 | sed 's|http://||' | cut -d':' -f1)
+            echo -e "${YELLOW}📍 Detected IP address from .env: $LOCAL_IP${NC}"
+        fi
+    else
+        echo -e "${YELLOW}✨ Creating a new .env file...${NC}"
+        create_env_file
+    fi
+else
+    create_env_file
+fi
 
 # Check if Docker is running
 if ! docker info >/dev/null 2>&1; then
