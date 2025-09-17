@@ -81,7 +81,11 @@ services:
     networks:
       - nerbabo-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/generalinfo/health || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8080/swagger/index.html || exit 1",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3

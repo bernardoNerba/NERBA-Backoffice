@@ -237,6 +237,36 @@ server {
 
 ## 🔧 Start.sh Script Features
 
+### Interactive .env Configuration
+
+The script now interactively handles the `.env` file to prevent accidental overwrites.
+
+- **Existing .env File**: If an `.env` file is found, the script will prompt you to either use the existing file or create a new one.
+
+  ```bash
+  # Excerpt from start.sh
+  if [ -f "$ENV_FILE" ]; then
+      echo -e "${YELLOW}🤔 An existing .env file was found.${NC}"
+      read -p "Do you want to use the existing .env file? (y/n) " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+          echo -e "${GREEN}👍 Using existing .env file.${NC}"
+          # ... (uses existing file)
+      else
+          echo -e "${YELLOW}✨ Creating a new .env file...${NC}"
+          create_env_file
+      fi
+  else
+      create_env_file
+  fi
+  ```
+
+- **New .env File**: If no `.env` file exists or you choose to create a new one, the script will:
+
+  - Back up the old `.env` file (if it exists).
+  - Generate a new `.env` file with secure, random credentials for the database, Redis, and JWT.
+  - Dynamically set the server IP for CORS and other configurations.
+
 ### Intelligent IP Detection
 
 The script uses multiple methods to detect the server IP:
