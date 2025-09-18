@@ -38,6 +38,7 @@ import { BadgeModule } from 'primeng/badge';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { convertHoursMinutesToDecimal } from '../../utils';
 import { SharedService } from '../../../core/services/shared.service';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'app-session-attendance',
@@ -55,6 +56,7 @@ import { SharedService } from '../../../core/services/shared.service';
     ProgressSpinnerModule,
     BadgeModule,
     SpinnerComponent,
+    Card,
   ],
   providers: [MessageService],
   templateUrl: './session-attendance.component.html',
