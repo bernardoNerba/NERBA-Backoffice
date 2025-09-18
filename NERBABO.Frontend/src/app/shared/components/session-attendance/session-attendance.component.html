@@ -27,14 +27,12 @@
         >
           <div class="d-flex align-items-center gap-2">
             <div>
-              <strong>{{ session.sessionDate | date : "dd/MM/yyyy" }}</strong>
+              <strong
+                >{{ session.sessionDate | date : "dd/MM/yyyy" }} ({{
+                  session.moduleName
+                }})</strong
+              >
             </div>
-            <p-tag
-              [value]="session.moduleName"
-              severity="info"
-              icon="pi pi-book"
-              class="ms-2"
-            />
             <p-tag
               [severity]="
                 isSessionPresenceComplete(session.sessionId)
@@ -60,19 +58,6 @@
               class="ms-1"
             />
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <small class="text-muted"
-              >Formador: {{ session.teacherName }}</small
-            >
-            @if (hasUnsavedChanges(session.sessionId)) {
-            <p-tag
-              value="Alterações não guardadas"
-              severity="warn"
-              icon="pi pi-exclamation-triangle"
-              class="unsaved-indicator"
-            />
-            }
-          </div>
         </div>
       </button>
     </h2>
@@ -82,6 +67,17 @@
       [attr.aria-labelledby]="'heading-session-' + session.sessionId"
     >
       <div class="accordion-body">
+        <div class="d-flex align-items-center gap-2">
+          <small class="text-muted">Formador: {{ session.teacherName }}</small>
+          @if (hasUnsavedChanges(session.sessionId)) {
+          <p-tag
+            value="Alterações não guardadas"
+            severity="warn"
+            icon="pi pi-exclamation-triangle"
+            class="unsaved-indicator"
+          />
+          }
+        </div>
         @if (attendanceForms[session.sessionId]) {
         <form [formGroup]="attendanceForms[session.sessionId]">
           <div class="table-responsive">

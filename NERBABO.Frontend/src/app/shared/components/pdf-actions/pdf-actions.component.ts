@@ -41,6 +41,7 @@ interface PdfOption {
           severity="contrast"
           pTooltip="Gerar PDF"
           class="me-2"
+          tooltipPosition="top"
         />
         }
         <p-button
@@ -50,9 +51,10 @@ interface PdfOption {
           [loading]="isGeneratingReport"
           [disabled]="isGenerating"
           (onClick)="viewPdf()"
-          severity="contrast"
+          severity="warn"
           [text]="true"
-          pTooltip="Ver PDF no browser"
+          pTooltip="Ver PDF"
+          tooltipPosition="top"
           class="me-2"
         />
         <p-button
@@ -62,9 +64,10 @@ interface PdfOption {
           [loading]="isGeneratingReport"
           [disabled]="isGenerating"
           (onClick)="printPdf()"
-          severity="contrast"
+          severity="danger"
           [text]="true"
-          pTooltip="Imprimir PDF no browser"
+          pTooltip="Imprimir PDF"
+          tooltipPosition="top"
           class="me-2"
         />
       </div>

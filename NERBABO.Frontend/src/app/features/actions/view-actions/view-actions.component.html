@@ -451,7 +451,8 @@
           @if (action?.id) {
           <div class="mb-3">
             <ol class="list-group list-group-flush">
-              <li class="list-group-item bg-green-white">
+              <!-- Cronograma -->
+              <li class="list-group-item bg-green-white border rounded mb-2">
                 <app-pdf-actions
                   [actionId]="action!.id"
                   [title]="'Cronograma'"

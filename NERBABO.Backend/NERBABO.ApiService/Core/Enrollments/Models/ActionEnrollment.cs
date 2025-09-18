@@ -33,6 +33,7 @@ public class ActionEnrollment : Entity<long>
         Avaliations.Count != 0
         ? Avaliations.Sum(a => a.Grade) / Avaliations.Count
         : 0;
+
     public bool StudentAvaliated => Avaliations.All(a => a.Evaluated);
 
     public bool IsPayed => PaymentDate != null;
