@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using Humanizer;
-using NERBABO.ApiService.Core.Actions.Models;
+﻿using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -45,7 +43,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public bool IsPayed => PaymentDate != null;
 
 
-        private double CalculatedTotal(double hourRate)
+        public double CalculatedTotal(double hourRate)
         {
             return Math.Round(Sessions
                 .Where(s => s.TeacherPresence.Equals(PresenceEnum.Present))
@@ -73,7 +71,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
                 AvaliationStudents = mt.AvaliationStudents,
                 AvaliationAvg = mt.AvaliationAvg,
                 PaymentTotal = mt.PaymentTotal,
-                PaymentDate = mt.PaymentDate?.ToString("yyyy-MM-dd") ?? "",
+                PaymentDate = mt.PaymentDate?.ToString("dd/MM/yyyy") ?? "",
                 PaymentProcessed = mt.PaymentProcessed
             };
         }

@@ -46,6 +46,7 @@ using NERBABO.ApiService.Shared.Middleware;
 using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;
 using NERBABO.ApiService.Core.ModuleAvaliations.Services;
+using NERBABO.ApiService.Core.Payments.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,6 +85,7 @@ builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ISessionParticipationService, SessionParticipationService>();
 builder.Services.AddScoped<IActionEnrollmentService, ActionEnrollmentService>();
 builder.Services.AddScoped<IModuleAvaliationsService, ModuleAvaliationsService>();
+builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
@@ -185,7 +187,8 @@ builder.Services.AddCors(options =>
                 
                 // Allow local network IPs with Angular port
                 var localIPs = DnsHelper.GetAllLocalIPAddresses();
-                return localIPs.Contains(uri.Host) && (uri.Port == 4200 || uri.Port == 80 || uri.Port == 443);
+                return localIPs.Contains(uri.Host)
+                    && (uri.Port == 4200 || uri.Port == 80 || uri.Port == 443);
             })
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -194,9 +197,9 @@ builder.Services.AddCors(options =>
         else
         {
             // In production, use strict origin checking
-            if (allowedOrigins.Any())
+            if (allowedOrigins.Count != 0)
             {
-                policy.WithOrigins(allowedOrigins.ToArray());
+                policy.WithOrigins([.. allowedOrigins]);
             }
             else
             {
