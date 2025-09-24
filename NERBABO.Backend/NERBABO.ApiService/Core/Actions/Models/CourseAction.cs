@@ -56,6 +56,13 @@ namespace NERBABO.ApiService.Core.Actions.Models
 
         public int TotalApproved => ActionEnrollments.Count(ae => ae.ApprovalStatus == ApprovalStatusEnum.Approved);
 
+        // Display flags for UI
+        public bool ShowSessions => AllModulesOfActionHaveTeacher;
+        public bool ShowStudentsEnrollment => AllSessionsScheduled;
+        public bool ShowStudentsPresence => AllSessionsScheduled && ActionEnrollments.Count > 0;
+        public bool ShowStudentsModuleAvaliations => ActionEnrollments.Count > 0;
+        public bool ShowPaymentProcessments => AllSessionsScheduled && AllModulesOfActionHaveTeacher;
+
 
         // Updated KPI calculations based on actual attendance
         public double TotalVolumeHours => ActionEnrollments
