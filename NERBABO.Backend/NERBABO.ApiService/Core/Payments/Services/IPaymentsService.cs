@@ -7,4 +7,4 @@ public interface IPaymentsService
 {
     Task<Result<IEnumerable<TeacherPaymentsDto>>> GetAllTeacherPaymentsByActionIdAsync(long actionId);
     Task<Result> UpdateTeacherPaymentsByIdAsync(UpdateTeacherPaymentsDto dto);
-}
+}   

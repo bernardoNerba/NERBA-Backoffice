@@ -32,6 +32,7 @@ public class PaymentsService(
             .Where(mt => mt.ActionId == actionId)
             .Select(mt => new TeacherPaymentsDto
             {
+                ModuleTeachingId = mt.Id,
                 ModuleId = mt.ModuleId,
                 ModuleName = mt.Module.Name,
                 TeacherPersonId = mt.Teacher.PersonId,

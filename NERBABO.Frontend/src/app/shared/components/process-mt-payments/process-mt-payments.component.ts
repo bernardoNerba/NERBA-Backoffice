@@ -9,10 +9,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
-import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
-import { ProcessModuleTeachingPayment } from '../../../core/models/moduleTeaching';
+import { PaymentsService, TeacherPayment, UpdateTeacherPayment } from '../../../core/services/payments.service';
 import { MessageService } from 'primeng/api';
 import { ICONS } from '../../../core/objects/icons';
+import { convertDateOnlyToPtDate, matchDateOnly } from '../../utils';
 
 // PrimeNG imports
 import { TableModule, Table } from 'primeng/table';
@@ -22,6 +22,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BadgeModule } from 'primeng/badge';
+import { TooltipModule } from 'primeng/tooltip';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { SharedService } from '../../../core/services/shared.service';
 
@@ -39,6 +40,7 @@ import { SharedService } from '../../../core/services/shared.service';
     ToastModule,
     ProgressSpinnerModule,
     BadgeModule,
+    TooltipModule,
     SpinnerComponent,
   ],
   providers: [MessageService],
@@ -50,17 +52,16 @@ export class ProcessMtPaymentsComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  payments: ProcessModuleTeachingPayment[] = [];
-  paymentForms: { [moduleId: number]: FormGroup } = {};
+  payments: TeacherPayment[] = [];
+  paymentForms: { [key: string]: FormGroup } = {};
   loading = false;
   processing = false;
-  activeIndex = -1;
-  openAccordions: Set<number> = new Set();
+  savingAll = false;
 
   ICONS = ICONS;
 
   constructor(
-    private moduleTeachingService: ModuleTeachingService,
+    private paymentsService: PaymentsService,
     private formBuilder: FormBuilder,
     private sharedService: SharedService
   ) {}
@@ -76,7 +77,7 @@ export class ProcessMtPaymentsComponent implements OnInit, OnDestroy {
   }
 
   private setupSubscriptions(): void {
-    this.moduleTeachingService.updated$
+    this.paymentsService.updated$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.loadData();
@@ -86,19 +87,18 @@ export class ProcessMtPaymentsComponent implements OnInit, OnDestroy {
   private loadData(): void {
     this.loading = true;
 
-    this.moduleTeachingService
-      .getPaymentsByActionId(this.actionId)
+    this.paymentsService
+      .getTeacherPaymentsByActionId(this.actionId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (payments: ProcessModuleTeachingPayment[]) => {
+        next: (payments: TeacherPayment[]) => {
           this.payments = payments;
           this.createForms();
           this.loading = false;
           console.log(this.payments);
         },
         error: (error) => {
-          console.error('Error loading module teaching payments:', error);
-          this.sharedService.showError(error.error.detail);
+          console.error('Error loading teacher payments:', error);
           this.loading = false;
         },
       });
@@ -108,86 +108,33 @@ export class ProcessMtPaymentsComponent implements OnInit, OnDestroy {
     this.paymentForms = {};
 
     this.payments.forEach((payment) => {
-      this.paymentForms[payment.moduleId] = this.formBuilder.group({
-        moduleId: [payment.moduleId],
-        moduleName: [payment.moduleTeacherName],
+      const key = `${payment.moduleId}-${payment.teacherPersonId}`;
+      this.paymentForms[key] = this.formBuilder.group({
+        moduleTeachingId: [payment.moduleTeachingId],
         paymentTotal: [
           payment.paymentTotal,
           [Validators.required, Validators.min(0)],
         ],
-        calculatedTotal: [payment.calculatedTotal],
-        paymentDate: [payment.paymentDate, [Validators.required]],
-        isPayed: [payment.isPayed],
+        paymentDate: [this.getFormattedPaymentDate(payment.paymentDate), [Validators.required]],
       });
     });
   }
 
-  processPayment(moduleId: number): void {
-    const form = this.paymentForms[moduleId];
-    if (!form || form.invalid) {
-      form.markAllAsTouched();
-      this.sharedService.showError(
-        'Os dados fornecidos não estão de acordo com as diretrizes.'
-      );
-      return;
-    }
 
-    this.processing = true;
-    const formValue = form.value;
-
-    this.moduleTeachingService
-      .processPayment(moduleId, formValue)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.sharedService.showSuccess('Pagamento processado com sucesso');
-          this.processing = false;
-          this.loadDataWithStatePreservation();
-        },
-        error: (error) => {
-          console.error('Error processing payment:', error);
-          this.sharedService.showError(error.error.detail);
-          this.processing = false;
-        },
-      });
+  getPaymentSeverity(isProcessed: boolean): 'success' | 'warn' | 'danger' {
+    return isProcessed ? 'success' : 'warn';
   }
 
-  getPaymentSeverity(isPayed: boolean): 'success' | 'warn' | 'danger' {
-    return isPayed ? 'success' : 'warn';
+  getPaymentStatus(isProcessed: boolean): 'Pago' | 'Pendente' {
+    return isProcessed ? 'Pago' : 'Pendente';
   }
 
-  getPaymentStatus(isPayed: boolean): 'Pago' | 'Pendente' {
-    return isPayed ? 'Pago' : 'Pendente';
-  }
-
-  hasUnsavedChanges(moduleId: number): boolean {
-    const form = this.paymentForms[moduleId];
+  hasUnsavedChanges(payment: TeacherPayment): boolean {
+    const key = `${payment.moduleId}-${payment.teacherPersonId}`;
+    const form = this.paymentForms[key];
     return form ? form.dirty : false;
   }
 
-  resetForm(moduleId: number): void {
-    const form = this.paymentForms[moduleId];
-    if (form) {
-      form.reset();
-      this.loadDataWithStatePreservation();
-    }
-  }
-
-  loadDataWithStatePreservation(): void {
-    this.preserveAccordionState();
-    this.loadData();
-  }
-
-  private preserveAccordionState(): void {
-    this.openAccordions.clear();
-    const openElements = document.querySelectorAll('.accordion-collapse.show');
-    openElements.forEach((element) => {
-      const moduleId = element.id.match(/module-(\d+)-content/);
-      if (moduleId) {
-        this.openAccordions.add(parseInt(moduleId[1]));
-      }
-    });
-  }
 
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-PT', {
@@ -197,6 +144,123 @@ export class ProcessMtPaymentsComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('pt-PT');
+    // If the date is already in dd/MM/yyyy format, return as is
+    // If it's in yyyy-MM-dd format, convert to dd/MM/yyyy
+    if (dateString.includes('/')) {
+      return dateString;
+    }
+    return convertDateOnlyToPtDate(dateString);
+  }
+
+  getFormattedPaymentDate(paymentDate: string): string {
+    // Check if the date is null, empty, or the default date (01/01/0001)
+    if (!paymentDate || paymentDate === '01/01/0001' || paymentDate.includes('0001')) {
+      return ''; // Return empty string for HTML date input
+    }
+    return matchDateOnly(paymentDate);
+  }
+
+  getTotalCalculated(): number {
+    return this.payments.reduce((total, payment) => total + payment.calculatedTotal, 0);
+  }
+
+  hasAnyUnsavedChanges(): boolean {
+    return this.payments.some(payment => this.hasUnsavedChanges(payment));
+  }
+
+  resetAllForms(): void {
+    Object.keys(this.paymentForms).forEach(key => {
+      const form = this.paymentForms[key];
+      if (form && form.dirty) {
+        form.reset();
+      }
+    });
+    this.loadData();
+  }
+
+  saveAllChanges(): void {
+    if (!this.hasAnyUnsavedChanges()) {
+      this.sharedService.showInfo('Não há alterações para guardar.');
+      return;
+    }
+
+    const changedPayments = this.payments.filter(payment => this.hasUnsavedChanges(payment));
+    const invalidForms = changedPayments.filter(payment => {
+      const key = `${payment.moduleId}-${payment.teacherPersonId}`;
+      const form = this.paymentForms[key];
+      return form && form.invalid;
+    });
+
+    if (invalidForms.length > 0) {
+      changedPayments.forEach(payment => {
+        const key = `${payment.moduleId}-${payment.teacherPersonId}`;
+        const form = this.paymentForms[key];
+        if (form && form.invalid) {
+          form.markAllAsTouched();
+        }
+      });
+      this.sharedService.showError(
+        `Existem ${invalidForms.length} formulário(s) com dados inválidos. Por favor, corrija os erros antes de guardar.`
+      );
+      return;
+    }
+
+    this.savingAll = true;
+    let savedCount = 0;
+    let errorCount = 0;
+
+    changedPayments.forEach((payment, index) => {
+      const key = `${payment.moduleId}-${payment.teacherPersonId}`;
+      const form = this.paymentForms[key];
+      if (!form) return;
+
+      const formValue = form.value;
+      const updatePayment: UpdateTeacherPayment = {
+        moduleTeachingId: formValue.moduleTeachingId,
+        paymentTotal: formValue.paymentTotal,
+        paymentDate: formValue.paymentDate, // HTML date input provides yyyy-MM-dd format that backend expects
+      };
+
+      this.paymentsService
+        .updateTeacherPayments(updatePayment)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            savedCount++;
+            if (savedCount + errorCount === changedPayments.length) {
+              this.finalizeBulkSave(savedCount, errorCount);
+            }
+          },
+          error: (error) => {
+            console.error('Error processing payment:', error);
+            errorCount++;
+            if (savedCount + errorCount === changedPayments.length) {
+              this.finalizeBulkSave(savedCount, errorCount);
+            }
+          },
+        });
+    });
+  }
+
+  private finalizeBulkSave(savedCount: number, errorCount: number): void {
+    this.savingAll = false;
+
+    if (errorCount === 0) {
+      this.sharedService.showSuccess(`${savedCount} pagamento(s) guardado(s) com sucesso.`);
+    } else if (savedCount > 0) {
+      this.sharedService.showWarning(
+        `${savedCount} pagamento(s) guardado(s) com sucesso. ${errorCount} pagamento(s) falharam.`
+      );
+    } else {
+      this.sharedService.showError(
+        `Falha ao guardar todos os pagamentos. ${errorCount} erro(s) ocorreram.`
+      );
+    }
+
+    this.loadData();
+  }
+
+  getModifiedFormsCount(): number {
+    return this.payments.filter(payment => this.hasUnsavedChanges(payment)).length;
   }
 }

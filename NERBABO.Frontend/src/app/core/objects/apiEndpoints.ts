@@ -131,4 +131,8 @@ export const API_ENDPOINTS = {
   // ModuleAvaliations endpoints
   moduleAvaliations: `${BASE_URL}/api/moduleavaliations/`,
   moduleAvaliationsByActionId: `${BASE_URL}/api/moduleavaliations/by-action/`,
+
+  // Payments endpoints
+  payments: `${BASE_URL}/api/payments/`,
+  teacherPayments: `${BASE_URL}/api/payments/teachers/`,
 };

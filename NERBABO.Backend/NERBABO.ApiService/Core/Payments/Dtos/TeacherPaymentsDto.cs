@@ -2,6 +2,7 @@ namespace NERBABO.ApiService.Core.Payments.Dtos;
 
 public class TeacherPaymentsDto
 {
+    public long ModuleTeachingId { get; set; }
     public long ModuleId { get; set; }
     public string ModuleName { get; set; } = string.Empty;
     public long TeacherPersonId { get; set; }

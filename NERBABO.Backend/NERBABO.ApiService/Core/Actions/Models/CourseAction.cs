@@ -53,7 +53,10 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public string Title => $"{ActionNumber} - {Locality}";
 
         public int TotalStudents => ActionEnrollments.Count;
+
         public int TotalApproved => ActionEnrollments.Count(ae => ae.ApprovalStatus == ApprovalStatusEnum.Approved);
+
+
         // Updated KPI calculations based on actual attendance
         public double TotalVolumeHours => ActionEnrollments
             .SelectMany(ae => ae.Participations)

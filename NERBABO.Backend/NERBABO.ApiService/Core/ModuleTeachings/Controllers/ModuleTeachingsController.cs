@@ -182,20 +182,5 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Controllers
         }
 
 
-        /// <summary>
-        /// Gets all module teaching payment details for a specific action.
-        /// </summary>
-        /// <param name="actionId">The ID of the action to retrieve payment details.</param>
-        /// <response code="200">Module teaching payments found. Returns a List of ProcessModuleTeachingPaymentDto.</response>
-        /// <response code="404">Action not found or no module teaching payments available for this action.</response>
-        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM.</response>
-        /// <response code="500">Unexpected error occurred.</response>
-        [HttpGet("mt-payments-by-action/{actionId}")]
-        [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
-        public async Task<IActionResult> GetAllModuleTeachingPaymentsAsync(long actionId)
-        {
-            Result<IEnumerable<ProcessModuleTeachingPaymentDto>> result = await _moduleTeachingService.GetAllModuleTeachingPaymentAsync(actionId);
-            return _responseHandler.HandleResult(result);
-        }
     }
 }

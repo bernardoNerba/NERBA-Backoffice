@@ -347,36 +347,4 @@ public class ModuleTeachingService(
             .Ok(retrieveModuleTeachings);
     }
 
-    public async Task<Result<IEnumerable<ProcessModuleTeachingPaymentDto>>> GetAllModuleTeachingPaymentAsync(long actionId)
-    {
-        var generalInfo = await _context.GeneralInfo.FirstOrDefaultAsync();
-        if (generalInfo is null)
-        {
-            _logger.LogCritical("No GeneralInfo data.");
-            return Result<IEnumerable<ProcessModuleTeachingPaymentDto>>
-                .Fail("Não encontrado", "Não foram encontradas Informações Gerais do sistema",
-                    StatusCodes.Status404NotFound);
-        }
-
-        var action = await _context.Actions.FindAsync(actionId);
-        if (action is null)
-        {
-            _logger.LogWarning("No action found with given {actionId} when trying to get all module teachings payments.", actionId);
-            return Result<IEnumerable<ProcessModuleTeachingPaymentDto>>
-                .Fail("Não encontrado", "Não foi encontrada ação com a especificação fornecida.",
-                    StatusCodes.Status404NotFound);
-        }
-
-        var existingPayments = await _context.ModuleTeachings
-            .Include(mt => mt.Sessions)
-            .Include(mt => mt.Module)
-            .Include(mt => mt.Teacher).ThenInclude(t => t.Person)
-            .Where(mt => mt.ActionId == actionId)
-            .Select(mt => ModuleTeaching.ConvertEntityToProcessPaymentDto(mt, generalInfo))
-            .ToListAsync()
-            ?? [];
-
-        return Result<IEnumerable<ProcessModuleTeachingPaymentDto>>
-            .Ok(existingPayments);
-    }
 }
