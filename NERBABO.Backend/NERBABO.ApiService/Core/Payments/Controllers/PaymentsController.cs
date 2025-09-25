@@ -56,8 +56,25 @@ namespace NERBABO.ApiService.Core.Payments.Controllers
             var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaMTAsync(dto.ModuleTeachingId, userId);
             if (!isAuthorized)
                 throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
-            
+
             var result = await _paymentsService.UpdateTeacherPaymentsByIdAsync(dto);
+            return _responseHandler.HandleResult(result);
+        }
+        
+
+        /// <summary>
+        /// Gets all student payments associated with a given action.
+        /// </summary>
+        /// <param name="actionId">The ID of the action to retrieve student payments for.</param>
+        /// <response code="200">student payments found for the given action. Returns a list of student payment objects.</response>
+        /// <response code="404">Action not found or no student payments exist for the given action.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or user is not Admin nor FM.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("students/{actionId}")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> GetAllStudentPaymentsByActionIdAsync(long actionId)
+        {
+            var result = await _paymentsService.GetAllStudentPaymentsByActionIdAsync(actionId);
             return _responseHandler.HandleResult(result);
         }
     }

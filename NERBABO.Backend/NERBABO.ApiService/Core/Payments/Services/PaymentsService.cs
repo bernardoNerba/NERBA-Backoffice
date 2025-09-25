@@ -26,6 +26,7 @@ public class PaymentsService(
         }
 
         var existingTeacherPayments = await _context.ModuleTeachings
+            .AsNoTracking()
             .Include(mt => mt.Module)
             .Include(mt => mt.Teacher).ThenInclude(t => t.Person)
             .Include(mt => mt.Sessions)
@@ -78,5 +79,48 @@ public class PaymentsService(
 
         return Result
             .Ok("Pagamentos Atualizados", "Foram atualizados os pagamentos dos Formadores.");
+    }
+
+    public async Task<Result<IEnumerable<StudentPaymentsDto>>> GetAllStudentPaymentsByActionIdAsync(long actionId)
+    {
+        var generalInfo = await _context.GeneralInfo.FirstOrDefaultAsync();
+        if (generalInfo is null)
+        {
+            _logger.LogWarning("There is no GeneralInfo instances to fetch Student Payment.");
+            return Result<IEnumerable<StudentPaymentsDto>>
+                .Fail("Não encontrar", "Não existe informações gerais no sistema.",
+                    StatusCodes.Status404NotFound);
+        }
+
+        var existingStudentPayments = await _context.ActionEnrollments
+            .AsNoTracking()
+            .Include(ae => ae.Action)
+            .Include(ae => ae.Student).ThenInclude(s => s.Person)
+            .Include(ae => ae.Participations)
+            .Where(ae => ae.ActionId == actionId)
+            .Select(ae => new StudentPaymentsDto
+            {
+                ActionEnrollmentId = ae.Id,
+                ActionId = ae.ActionId,
+                ActionTitle = ae.Action.Title,
+                StudentPersonId = ae.Student.PersonId,
+                StudentName = ae.Student.Person.FullName,
+                PaymentTotal = ae.PaymentTotal,
+                CalculatedTotal = ae.CalculatedTotal(generalInfo.HourValueAlimentation),
+                PaymentDate = ae.PaymentDate.GetValueOrDefault().ToString("dd/MM/yyyy"),
+                PaymentProcessed = ae.PaymentProcessed
+            })
+            .ToListAsync()
+            ?? [];
+
+        if (existingStudentPayments is null || existingStudentPayments.Count == 0)
+        {
+            return Result<IEnumerable<StudentPaymentsDto>>
+                .Fail("Não encontrado.", "Não foram encontrados pagamentos dos formandos desta ação",
+                    StatusCodes.Status404NotFound);
+        }
+
+        return Result<IEnumerable<StudentPaymentsDto>>
+            .Ok(existingStudentPayments);
     }
 }

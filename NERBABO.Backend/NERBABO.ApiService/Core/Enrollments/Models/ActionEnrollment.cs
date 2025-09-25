@@ -21,6 +21,8 @@ public class ActionEnrollment : Entity<long>
 
     public double PaymentTotal { get; set; }
     public DateOnly? PaymentDate { get; set; }
+    public bool PaymentProcessed => PaymentDate.HasValue;
+
 
     // Navigation Properties
     public required CourseAction Action { get; set; }
@@ -43,7 +45,7 @@ public class ActionEnrollment : Entity<long>
         ? AvgEvaluation >= 3 ? ApprovalStatusEnum.Approved : ApprovalStatusEnum.Rejected
         : ApprovalStatusEnum.NotSpecified;
 
-    private double CalculatedTotal(double hourRate)
+    public double CalculatedTotal(double hourRate)
     {
         return Math.Round(Participations
             .Where(p => p.Presence.Equals(PresenceEnum.Present))
