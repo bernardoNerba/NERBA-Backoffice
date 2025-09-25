@@ -4,6 +4,8 @@ using NERBABO.ApiService.Core.Actions.Cache;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Courses.Cache;
+using NERBABO.ApiService.Core.Enrollments.Models;
+using NERBABO.ApiService.Core.Enrollments.Services;
 using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Reports.Models;
 using NERBABO.ApiService.Core.Reports.Services;
@@ -233,15 +235,18 @@ namespace NERBABO.ApiService.Core.Actions.Services
         public async Task<Result<RetrieveCourseActionDto>> GetByIdAsync(long id)
         {
             // Check if entry exists in cache
-            var cacheAction = await _cache.GetSingleActionCacheAsync(id);
-            if (cacheAction is not null)
-                return Result<RetrieveCourseActionDto>
-                    .Ok(cacheAction);
+            // var cacheAction = await _cache.GetSingleActionCacheAsync(id);
+            // if (cacheAction is not null)
+            //     return Result<RetrieveCourseActionDto>
+            //         .Ok(cacheAction);
 
             // If not in cache, retrieve from database
             var existingAction = await _context.Actions
+                .Include(a => a.ActionEnrollments)
                 .Include(a => a.Coordenator)
-                .Include(a => a.Course)
+                .Include(a => a.Course).ThenInclude(a => a.Modules)
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Module)
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
                 .FirstOrDefaultAsync(a => a.Id == id);
             if (existingAction is null)
             {
@@ -253,8 +258,18 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             var retrieveAction = CourseAction.ConvertEntityToRetrieveDto(existingAction, existingAction.Coordenator, existingAction.Course);
 
+
+            // Update Display flags for UI
+            bool sessionsFullAndEnrollment = existingAction.TotalStudents > 0;
+
+            retrieveAction.ShowSessions = existingAction.AllModulesOfActionHaveTeacher;
+            retrieveAction.ShowStudentsEnrollment = existingAction.AllModulesOfActionHaveTeacher && existingAction.AllSessionsScheduled;
+            retrieveAction.ShowStudentsPresence = sessionsFullAndEnrollment;
+            retrieveAction.ShowStudentsModuleAvaliations = sessionsFullAndEnrollment;
+            retrieveAction.ShowPaymentProcessments = sessionsFullAndEnrollment;
+
             // Update cache
-            await _cache.SetSingleActionCacheAsync(retrieveAction);
+            // await _cache.SetSingleActionCacheAsync(retrieveAction);
 
             _logger.LogInformation("Course action retrieved successfully with ID: {id}", id);
             return Result<RetrieveCourseActionDto>
@@ -270,7 +285,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .FirstOrDefaultAsync(a => a.Id == entityDto.Id);
             if (existingCourseAction is null)
             {
-                _logger.LogWarning("");
+                _logger.LogWarning("Action with given {actionId} not found", entityDto.Id);
                 return Result<RetrieveCourseActionDto>
                 .Fail("Não encontrado.", "Ação formativa não encontrada.",
                 StatusCodes.Status404NotFound);
@@ -280,10 +295,10 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .FindAsync(entityDto.CourseId);
             if (existingCourse is null)
             {
-                _logger.LogWarning("");
+                _logger.LogWarning("Course with give {courseId} not found", entityDto.CourseId);
                 return Result<RetrieveCourseActionDto>
                 .Fail("Não encontrado.", "Curso não encontrado.",
-                StatusCodes.Status404NotFound);
+                    StatusCodes.Status404NotFound);
             }
 
             if (!string.IsNullOrEmpty(entityDto.AdministrationCode)

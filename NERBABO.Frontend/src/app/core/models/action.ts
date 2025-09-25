@@ -21,6 +21,12 @@ export interface Action {
   regiment: string;
   paymentsProcessed: string;
   modulesHaveTeacher: string;
+
+  showSessions: boolean;
+  showStudentsEnrollment: boolean;
+  showStudentsPresence: boolean;
+  showStudentsModuleAvaliations: boolean;
+  showPaymentProcessments: boolean;
 }
 
 export interface ActionKpi {
