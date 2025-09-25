@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Enrollments.Dtos;
 using NERBABO.ApiService.Core.Enrollments.Services;
 using NERBABO.ApiService.Shared.Models;
@@ -12,11 +13,13 @@ namespace NERBABO.ApiService.Core.Enrollments.Controllers
     [ApiController]
     public class ActionEnrollmentController(
         IActionEnrollmentService actionEnrollmentService,
-        IResponseHandler responseHandler
+        IResponseHandler responseHandler,
+        IJwtService jwtService
         ) : ControllerBase
     {
         private readonly IActionEnrollmentService _actionEnrollmentService = actionEnrollmentService;
         private readonly IResponseHandler _responseHandler = responseHandler;
+        private readonly IJwtService _jwtService = jwtService;
 
         /// <summary>
         /// Gets all Action enrollments.
@@ -83,10 +86,12 @@ namespace NERBABO.ApiService.Core.Enrollments.Controllers
         [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> CreateActionEnrollmentAsync([FromBody] CreateActionEnrollmentDto enrollment)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return Unauthorized("Efetue autenticação.");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
 
-            enrollment.UserId = userId;
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionAsync(enrollment.ActionId, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
 
             Result<RetrieveActionEnrollmentDto> result = await _actionEnrollmentService.CreateAsync(enrollment);
             return _responseHandler.HandleResult(result);
@@ -107,10 +112,31 @@ namespace NERBABO.ApiService.Core.Enrollments.Controllers
         [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
         public async Task<IActionResult> DeleteActionEnrollmentAsync(long id)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return Unauthorized("Efetue autenticação.");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
 
-            Result result = await _actionEnrollmentService.DeleteIfCoordenatorAsync(id, userId);
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaEnrollmentAsync(id, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
+            Result result = await _actionEnrollmentService.DeleteAsync(id);
+            return _responseHandler.HandleResult(result);
+        }
+
+
+        /// <summary>
+        /// Gets all student payment details for a specific action.
+        /// </summary>
+        /// <param name="actionId">The ID of the action to retrieve payment details.</param>
+        /// <response code="200">student payments found. Returns a List of ProcessModuleTeachingPaymentDto.</response>
+        /// <response code="404">Action not found or no student payments available for this action.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or doesnt have role Admin nor FM.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("student-payments-by-action/{actionId}")]
+        [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
+        public async Task<IActionResult> GetAllStudentPaymentsAsync(long actionId)
+        {
+            Result<IEnumerable<ProcessStudentsPaymentDto>> result = await _actionEnrollmentService.GetAllStudentPaymentsAsync(actionId);
             return _responseHandler.HandleResult(result);
         }
     }

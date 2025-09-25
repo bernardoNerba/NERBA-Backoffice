@@ -281,6 +281,7 @@
     <!-- END MODULES TABLE ACCORDION -->
 
     <!-- SESSIONS ACCORDION-->
+    @if (action.showSessions) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-session-info">
         <button
@@ -305,9 +306,11 @@
         </div>
       </div>
     </div>
+    }
     <!-- END SESSIONS ACCORDION -->
 
     <!-- STUDENT ENROLLMENTS ACCORDION-->
+    @if (action.showStudentsEnrollment) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-enrollments">
         <button
@@ -343,9 +346,11 @@
         </div>
       </div>
     </div>
+    }
     <!-- END STUDENT ENROLLMENTS ACCORDION -->
 
     <!-- SESSION ATTENDANCE ACCORDION-->
+    @if (action.showStudentsPresence) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-session-attendance">
         <button
@@ -370,9 +375,11 @@
         </div>
       </div>
     </div>
+    }
     <!-- END SESSION ATTENDANCE ACCORDION -->
 
     <!-- MODULE AVALIATION ACCORDION-->
+    @if (action.showStudentsModuleAvaliations) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-module-avaliation">
         <button
@@ -397,8 +404,37 @@
         </div>
       </div>
     </div>
+    }
     <!-- END MODULE AVALIATION ACCORDION -->
 
+    <!-- PROCESS MODULE TEACHING PAYMENTS -->
+    @if (action.showPaymentProcessments) {
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-proccess-mt-payments">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#proccess-mt-payments-content"
+          aria-expanded="false"
+          aria-controls="proccess-mt-payments-content"
+        >
+          <app-icon [icon]="ICONS.payments" [marginEnd]="3" />
+          <h5>Processamento de Pagamentos (Formadores)</h5>
+        </button>
+      </h2>
+      <div
+        id="proccess-mt-payments-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-proccess-mt-payments"
+      >
+        <div class="accordion-body">
+          <app-process-mt-payments [actionId]="id" />
+        </div>
+      </div>
+    </div>
+    <!-- END PROCESS MODULE TEACHING PAYMENTS -->
+    }
     <!-- FILE LIST ACCORDION-->
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-file-actions">
@@ -424,7 +460,8 @@
           @if (action?.id) {
           <div class="mb-3">
             <ol class="list-group list-group-flush">
-              <li class="list-group-item bg-green-white">
+              <!-- Cronograma -->
+              <li class="list-group-item bg-green-white border rounded mb-2">
                 <app-pdf-actions
                   [actionId]="action!.id"
                   [title]="'Cronograma'"

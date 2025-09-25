@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
@@ -345,4 +346,5 @@ public class ModuleTeachingService(
         return Result<IEnumerable<MinimalModuleTeachingDto>>
             .Ok(retrieveModuleTeachings);
     }
+
 }

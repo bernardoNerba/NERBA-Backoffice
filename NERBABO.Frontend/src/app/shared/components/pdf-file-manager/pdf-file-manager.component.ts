@@ -33,6 +33,7 @@ export interface PdfFileActions {
   standalone: true,
   imports: [CommonModule, Button, TooltipModule, ProgressBarModule],
   templateUrl: './pdf-file-manager.component.html',
+  styleUrl: './pdf-file-manager.component.css',
 })
 export class PdfFileManagerComponent implements OnInit, AfterViewInit {
   @Input() config!: PdfFileConfig;
@@ -193,7 +194,7 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
 
   openFileDialog(): void {
     if (this.disabled) return;
-    
+
     const fileInput = document.getElementById(
       this.getFileInputId()
     ) as HTMLInputElement;
@@ -215,7 +216,7 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
   onUploadSuccess(): void {
     // Clear the selected file after successful upload
     this.selectedFile = null;
-    
+
     // Clear the file input value
     const fileInput = document.getElementById(
       this.getFileInputId()
@@ -223,7 +224,7 @@ export class PdfFileManagerComponent implements OnInit, AfterViewInit {
     if (fileInput) {
       fileInput.value = '';
     }
-    
+
     // Update the display to show the new file exists
     this.updateFileInputDisplay();
   }

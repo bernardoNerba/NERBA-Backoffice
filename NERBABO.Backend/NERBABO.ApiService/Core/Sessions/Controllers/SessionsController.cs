@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Sessions.Dtos;
 using NERBABO.ApiService.Core.Sessions.Services;
 using NERBABO.ApiService.Shared.Models;
@@ -16,13 +17,15 @@ namespace NERBABO.ApiService.Core.Sessions.Controllers;
 public class SessionsController(
     ISessionService sessionService,
     IResponseHandler responseHandler,
-    UserManager<User> userManager
+    UserManager<User> userManager,
+    IJwtService jwtService
     ) : ControllerBase
 {
     private readonly ISessionService _sessionService = sessionService;
 
     private readonly IResponseHandler _responseHandler = responseHandler;
     private readonly UserManager<User> _userManager = userManager;
+    private readonly IJwtService _jwtService = jwtService;
 
     /// <summary>
     /// Creates a new session.
@@ -31,18 +34,25 @@ public class SessionsController(
     /// <response code="201">Session created successfully. Returns a RetrieveSessionDto.</response>
     /// <response code="400">Invalid session data provided.</response>
     /// <response code="404">Related ModuleTeaching not found.</response>
-    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active. User is not Action coordenator nor Admin.</response>
     /// <response code="500">Unexpected error occurred.</response>
     [HttpPost]
     [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
     public async Task<IActionResult> CreateSessionAsync([FromBody] CreateSessionDto createSessionDto)
     {
-        // pick the user id from the claims and assing it to the create session dto
-        // the service will need to check if user is the action coordenator
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+        var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaMTAsync(createSessionDto.ModuleTeachingId, userId);
+        if (!isAuthorized)
+            throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
             return BadRequest("Invalid User");
-        createSessionDto.User = user;
+        
+        createSessionDto.UserId = userId;
+
         Result<RetrieveSessionDto> result = await _sessionService.CreateAsync(createSessionDto);
         return _responseHandler.HandleResult(result);
     }
@@ -60,12 +70,18 @@ public class SessionsController(
     [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
     public async Task<IActionResult> UpdateSessionAsync([FromBody] UpdateSessionDto updateSessionDto)
     {
-        // pick the user id from the claims and assign it to the update session dto
-        // the service will need to check if user is the action coordinator
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+        var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaSessionAsync(updateSessionDto.Id, userId);
+        if (!isAuthorized)
+            throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
             return BadRequest("Invalid User");
-        updateSessionDto.User = user;
+        
+        updateSessionDto.UserId = userId;
         
         Result<RetrieveSessionDto> result = await _sessionService.UpdateAsync(updateSessionDto);
         return _responseHandler.HandleResult(result);
@@ -114,13 +130,18 @@ public class SessionsController(
     [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
     public async Task<IActionResult> DeleteSessionIfActionCoordenatorAsync(long id)
     {
-        // pick the user id from the claims and assign it to the delete operation
-        // the service will need to check if user is the action coordinator
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+        var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaSessionAsync(id, userId);
+        if (!isAuthorized)
+            throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
             return BadRequest("Invalid User");
 
-        Result result = await _sessionService.DeleteIfActionCoordenatorAsync(id, user);
+        Result result = await _sessionService.DeleteAsync(id);
         return _responseHandler.HandleResult(result);
     }
     

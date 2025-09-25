@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Global.Dtos;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Data;
-using NERBABO.ApiService.Shared.Dtos;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;

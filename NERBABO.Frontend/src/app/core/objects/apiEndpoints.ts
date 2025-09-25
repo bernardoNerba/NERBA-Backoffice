@@ -105,6 +105,7 @@ export const API_ENDPOINTS = {
   moduleTeachings: `${BASE_URL}/api/ModuleTeachings/`,
   modulesWithoutTeacher: `${BASE_URL}/api/ModuleTeachings/action/`,
   modulesTeachingByAction: `${BASE_URL}/api/ModuleTeachings/action/`,
+  processModuleTeachingPayment: `${BASE_URL}/api/ModuleTeachings/mt-payments-by-action/`,
 
   // Health check endpoint
   health: `${BASE_URL}/health`,
@@ -130,4 +131,8 @@ export const API_ENDPOINTS = {
   // ModuleAvaliations endpoints
   moduleAvaliations: `${BASE_URL}/api/moduleavaliations/`,
   moduleAvaliationsByActionId: `${BASE_URL}/api/moduleavaliations/by-action/`,
+
+  // Payments endpoints
+  payments: `${BASE_URL}/api/payments/`,
+  teacherPayments: `${BASE_URL}/api/payments/teachers/`,
 };

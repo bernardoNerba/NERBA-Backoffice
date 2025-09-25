@@ -38,6 +38,12 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
             ? "Todos os modulos com Formador" 
             : "Faltam Formadores";
 
+        public bool ShowSessions { get; set; }
+        public bool ShowStudentsEnrollment { get; set; }
+        public bool ShowStudentsPresence { get; set; }
+        public bool ShowStudentsModuleAvaliations { get; set; }
+        public bool ShowPaymentProcessments { get; set; }
+
 
 
         [JsonIgnore]

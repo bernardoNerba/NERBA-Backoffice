@@ -7,7 +7,6 @@ using NERBABO.ApiService.Core.SessionParticipations.Models;
 using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Shared.Enums;
 using Humanizer;
-using NERBABO.ApiService.Shared.Exceptions;
 
 namespace NERBABO.ApiService.Core.Enrollments.Services;
 
@@ -34,18 +33,10 @@ public class ActionEnrollmentService(
                 StatusCodes.Status404NotFound);
         }
 
-        if (existingAction.CoordenatorId != entityDto.UserId)
-        {
-            _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");
-            return Result<RetrieveActionEnrollmentDto>
-                .Fail("Não pode efetuar esta ação.", "Apenas o coordenador da Ação pode realizar esta ação.",
-                StatusCodes.Status401Unauthorized);
-        }
-
         // Check if student exists
-            var existingStudent = await _context.Students
-            .Include(s => s.Person)
-            .FirstOrDefaultAsync(s => s.Id == entityDto.StudentId);
+        var existingStudent = await _context.Students
+        .Include(s => s.Person)
+        .FirstOrDefaultAsync(s => s.Id == entityDto.StudentId);
         if (existingStudent is null)
         {
             _logger.LogWarning("Student with ID {StudentId} not found during Action enrollment creation.", entityDto.StudentId);
@@ -192,23 +183,6 @@ public class ActionEnrollmentService(
         }
     }
 
-    public async Task<Result> DeleteIfCoordenatorAsync(long id, string userId)
-    {
-        var existingEnrollment = await _context.ActionEnrollments
-            .Include(ae => ae.Action)
-            .FirstOrDefaultAsync(ae => ae.Id == id)
-            ?? throw new ObjectNullException("Inscrição não encontrada.");
-
-        if (existingEnrollment.Action.CoordenatorId != userId)
-        {
-            _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");
-            return Result<RetrieveActionEnrollmentDto>
-                .Fail("Não pode efetuar esta ação.", "Apenas o coordenador da Ação pode realizar esta ação.",
-                StatusCodes.Status401Unauthorized);
-        }
-
-        return await DeleteAsync(id);
-    }
     public async Task<Result> DeleteAsync(long id)
     {
         var existingEnrollment = await _context.ActionEnrollments
@@ -269,7 +243,7 @@ public class ActionEnrollmentService(
             .Include(e => e.Student).ThenInclude(s => s.Person)
             .Include(e => e.Action)
             .Include(e => e.Avaliations)
-            .Include(e => e.Participants)
+            .Include(e => e.Participations)
             .ToListAsync()
             ?? [];
 
@@ -296,7 +270,7 @@ public class ActionEnrollmentService(
             .Include(e => e.Student).ThenInclude(s => s.Person)
             .Include(e => e.Action)
             .Include(e => e.Avaliations)
-            .Include(e => e.Participants)
+            .Include(e => e.Participations)
             .Where(e => e.ActionId == actionId)
             .ToListAsync()
             ?? [];
@@ -314,7 +288,7 @@ public class ActionEnrollmentService(
             .Include(e => e.Student).ThenInclude(s => s.Person)
             .Include(e => e.Action)
             .Include(e => e.Avaliations)
-            .Include(e => e.Participants)
+            .Include(e => e.Participations)
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (enrollment is null)
@@ -357,4 +331,35 @@ public class ActionEnrollmentService(
             StatusCodes.Status200OK);
     }
 
+    public async Task<Result<IEnumerable<ProcessStudentsPaymentDto>>> GetAllStudentPaymentsAsync(long actionId)
+    {
+        var generalInfo = await _context.GeneralInfo.FirstOrDefaultAsync();
+        if (generalInfo is null)
+        {
+            _logger.LogCritical("No GeneralInfo data.");
+            return Result<IEnumerable<ProcessStudentsPaymentDto>>
+                .Fail("Não encontrado", "Não foram encontradas Informações Gerais do sistema",
+                    StatusCodes.Status404NotFound);
+        }
+
+        var action = await _context.Actions.FindAsync(actionId);
+        if (action is null)
+        {
+            _logger.LogWarning("No action found with given {actionId} when trying to get all students payments.", actionId);
+            return Result<IEnumerable<ProcessStudentsPaymentDto>>
+                .Fail("Não encontrado", "Não foi encontrada ação com a especificação fornecida",
+                    StatusCodes.Status404NotFound);
+        }
+
+        var existingPayments = await _context.ActionEnrollments
+            .Include(ae => ae.Student).ThenInclude(s => s.Person)
+            .Include(ae => ae.Participations)
+            .Where(ae => ae.ActionId == actionId)
+            .Select(ae => ActionEnrollment.ConvertEntityToProcessPaymentDto(ae, generalInfo))
+            .ToListAsync()
+            ?? [];
+
+        return Result<IEnumerable<ProcessStudentsPaymentDto>>
+                .Ok(existingPayments);
+    }
 }

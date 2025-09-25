@@ -1,7 +1,7 @@
 <!-- upsert-students.component.html -->
 <div class="modal-header">
   <h4 class="modal-title">
-    {{ isUpdate ? "Atualizar" : "Registar" }} Estudante
+    {{ isUpdate ? "Atualizar" : "Registar" }} Formando
   </h4>
   <button
     type="button"
@@ -18,7 +18,7 @@
         <div class="col-md-12">
           <div class="mb-3">
             @if (personId !== null || isUpdate) {
-            <label for="personInfo">Estudante</label>
+            <label for="personInfo">Formando</label>
             <input
               type="text"
               pInputText
@@ -46,7 +46,7 @@
               }}"
             />
             @if (submitted && form.get('personId')?.hasError('required')) {
-            <span class="text-danger"> Estudante é um campo obrigatório. </span>
+            <span class="text-danger"> Formando é um campo obrigatório. </span>
             } }
           </div>
         </div>

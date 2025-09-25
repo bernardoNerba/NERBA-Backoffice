@@ -11,7 +11,4 @@ public class CreateActionEnrollmentDto
 
     [Required(ErrorMessage = "Formando é um campo obrigatório.")]
     public long StudentId { get; set; }
-
-    [JsonIgnore]
-    public string UserId { get; set; } = string.Empty;
 }

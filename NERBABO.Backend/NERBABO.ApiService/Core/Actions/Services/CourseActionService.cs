@@ -4,6 +4,8 @@ using NERBABO.ApiService.Core.Actions.Cache;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Courses.Cache;
+using NERBABO.ApiService.Core.Enrollments.Models;
+using NERBABO.ApiService.Core.Enrollments.Services;
 using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Reports.Models;
 using NERBABO.ApiService.Core.Reports.Services;
@@ -132,37 +134,6 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 StatusCodes.Status201Created);
         }
 
-        public async Task<Result> DeleteIfCoordenatorAsync(long id, string userId)
-        {
-            var existingCourseAction = await _context.Actions
-                .Include(a => a.Coordenator)
-                .Include(a => a.Course)
-                .FirstOrDefaultAsync(a => a.Id == id);
-            if (existingCourseAction is null)
-            {
-                _logger.LogWarning("Course action not found for given ID: {id}", id);
-                return Result.Fail("Não encontrado.", "Ação não encontrada.",
-                    StatusCodes.Status404NotFound);
-            }
-
-            if (existingCourseAction.CoordenatorId != userId)
-            {
-                _logger.LogWarning("User {userId} is not the coordinator of the action with ID {actionId}.", userId, id);
-                return Result.Fail("Não autorizado.", "Não é o coordenador desta ação formativa.",
-                    StatusCodes.Status403Forbidden);
-            }
-
-            await DeleteTransactionAsync(existingCourseAction);
-
-            // update cache
-            await _cache.RemoveActionCacheAsync(id);
-            await _cacheCourse.RemoveCourseCacheAsync();
-            await _cacheModule.RemoveModuleCacheAsync();
-
-            return Result
-                .Ok("Ação Formativa Eliminada.", "Ação Formativa eliminada com sucesso.");
-        }
-
         public async Task<Result> DeleteAsync(long id)
         {
             // Check if the action exists
@@ -264,15 +235,18 @@ namespace NERBABO.ApiService.Core.Actions.Services
         public async Task<Result<RetrieveCourseActionDto>> GetByIdAsync(long id)
         {
             // Check if entry exists in cache
-            var cacheAction = await _cache.GetSingleActionCacheAsync(id);
-            if (cacheAction is not null)
-                return Result<RetrieveCourseActionDto>
-                    .Ok(cacheAction);
+            // var cacheAction = await _cache.GetSingleActionCacheAsync(id);
+            // if (cacheAction is not null)
+            //     return Result<RetrieveCourseActionDto>
+            //         .Ok(cacheAction);
 
             // If not in cache, retrieve from database
             var existingAction = await _context.Actions
+                .Include(a => a.ActionEnrollments)
                 .Include(a => a.Coordenator)
-                .Include(a => a.Course)
+                .Include(a => a.Course).ThenInclude(a => a.Modules)
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Module)
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
                 .FirstOrDefaultAsync(a => a.Id == id);
             if (existingAction is null)
             {
@@ -284,8 +258,18 @@ namespace NERBABO.ApiService.Core.Actions.Services
 
             var retrieveAction = CourseAction.ConvertEntityToRetrieveDto(existingAction, existingAction.Coordenator, existingAction.Course);
 
+
+            // Update Display flags for UI
+            bool sessionsFullAndEnrollment = existingAction.TotalStudents > 0;
+
+            retrieveAction.ShowSessions = existingAction.AllModulesOfActionHaveTeacher;
+            retrieveAction.ShowStudentsEnrollment = existingAction.AllModulesOfActionHaveTeacher && existingAction.AllSessionsScheduled;
+            retrieveAction.ShowStudentsPresence = sessionsFullAndEnrollment;
+            retrieveAction.ShowStudentsModuleAvaliations = sessionsFullAndEnrollment;
+            retrieveAction.ShowPaymentProcessments = sessionsFullAndEnrollment;
+
             // Update cache
-            await _cache.SetSingleActionCacheAsync(retrieveAction);
+            // await _cache.SetSingleActionCacheAsync(retrieveAction);
 
             _logger.LogInformation("Course action retrieved successfully with ID: {id}", id);
             return Result<RetrieveCourseActionDto>
@@ -301,7 +285,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .FirstOrDefaultAsync(a => a.Id == entityDto.Id);
             if (existingCourseAction is null)
             {
-                _logger.LogWarning("");
+                _logger.LogWarning("Action with given {actionId} not found", entityDto.Id);
                 return Result<RetrieveCourseActionDto>
                 .Fail("Não encontrado.", "Ação formativa não encontrada.",
                 StatusCodes.Status404NotFound);
@@ -311,10 +295,10 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .FindAsync(entityDto.CourseId);
             if (existingCourse is null)
             {
-                _logger.LogWarning("");
+                _logger.LogWarning("Course with give {courseId} not found", entityDto.CourseId);
                 return Result<RetrieveCourseActionDto>
                 .Fail("Não encontrado.", "Curso não encontrado.",
-                StatusCodes.Status404NotFound);
+                    StatusCodes.Status404NotFound);
             }
 
             if (!string.IsNullOrEmpty(entityDto.AdministrationCode)
@@ -550,7 +534,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .Ok(orderedActions);
         }
 
-        public async Task<Result> ChangeActionStatusAsync(long id, string status)
+        public async Task<Result> ChangeActionStatusAsync(long id, string status, string userId)
         {
             var existingAction = await _context.Actions
                 .Include(a => a.Coordenator)
@@ -561,6 +545,14 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 _logger.LogWarning("Action with ID {id} not found.", id);
                 return Result.Fail("Não encontrado.", "Ação Formação não encontrada.",
                     StatusCodes.Status404NotFound);
+            }
+
+            // Validate authorization
+            if (existingAction.CoordenatorId != userId)
+            {
+                _logger.LogWarning("Not possible to process the action since the request user is not the action coordenator.");
+                return Result.Fail("Não pode efetuar esta ação.", "Apenas o coordenador da Ação pode realizar esta ação.",
+                    StatusCodes.Status401Unauthorized);
             }
 
             if (!string.IsNullOrEmpty(status)
@@ -632,7 +624,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
         {
             var existingAction = await _context.Actions
                 .Include(a => a.ActionEnrollments)
-                    .ThenInclude(ae => ae.Participants)
+                    .ThenInclude(ae => ae.Participations)
                 .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
                 .FirstOrDefaultAsync(a => a.Id == actionId);
             if (existingAction is null)

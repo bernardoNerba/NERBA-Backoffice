@@ -31,6 +31,6 @@ namespace NERBABO.ApiService.Core.Sessions.Dtos
         public string Note { get; set; } = string.Empty;
 
         [JsonIgnore]
-        public User User { get; set; } = new User();
+        public string UserId { get; set; } = string.Empty;
     }
 }

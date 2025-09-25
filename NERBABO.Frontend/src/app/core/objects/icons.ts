@@ -28,6 +28,7 @@ import {
   faUserGraduate,
   faSquareCheck,
   faPenToSquare,
+  faFileInvoiceDollar,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const ICONS = {
@@ -60,4 +61,5 @@ export const ICONS = {
   student: faUserGraduate,
   squareCheck: faSquareCheck,
   sessionPresence: faPenToSquare,
+  payments: faFileInvoiceDollar,
 };

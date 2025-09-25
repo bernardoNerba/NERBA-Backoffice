@@ -6,7 +6,6 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using System;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Global.Services;
@@ -158,7 +157,6 @@ public class TaxService(
 
     public async Task<Result<IEnumerable<RetrieveTaxDto>>> GetByTypeAndIsActiveAsync(string type)
     {
-
         if (!EnumHelp.IsValidEnum<TaxEnum>(type))
             return Result<IEnumerable<RetrieveTaxDto>>
                 .Fail("Erro de Validação.", "Tipo de Taxa inválida.");
@@ -190,6 +188,4 @@ public class TaxService(
         return Result<RetrieveTaxDto>
             .Ok(Tax.ConvertEntityToRetrieveDto(existingTax));
     }
-
-
 }

@@ -53,14 +53,16 @@ namespace NERBABO.ApiService.Core.Actions.Models
         public string Title => $"{ActionNumber} - {Locality}";
 
         public int TotalStudents => ActionEnrollments.Count;
+
         public int TotalApproved => ActionEnrollments.Count(ae => ae.ApprovalStatus == ApprovalStatusEnum.Approved);
+
         // Updated KPI calculations based on actual attendance
         public double TotalVolumeHours => ActionEnrollments
-            .SelectMany(ae => ae.Participants)
+            .SelectMany(ae => ae.Participations)
             .Sum(sp => sp.Attendance);
             
         public int TotalVolumeDays => ActionEnrollments
-            .SelectMany(ae => ae.Participants)
+            .SelectMany(ae => ae.Participations)
             .Count(sp => sp.Presence == PresenceEnum.Present);
 
         // Navigation properties
@@ -105,7 +107,7 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 StartDate = ca.StartDate.ToString("yyyy-MM-dd"),
                 EndDate = ca.EndDate.ToString("yyyy-MM-dd"),
                 Status = ca.Status.Humanize().Transform(To.TitleCase),
-                Regiment = ca.Regiment.Humanize().Transform(To.TitleCase)
+                Regiment = ca.Regiment.Humanize().Transform(To.TitleCase),
             };
         }
 
@@ -130,6 +132,5 @@ namespace NERBABO.ApiService.Core.Actions.Models
                 Course = c
             };
         }
-
     }
 }

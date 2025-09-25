@@ -36,3 +36,12 @@ export interface UpdateModuleTeaching {
   actionId: number;
   moduleId: number;
 }
+
+export interface ProcessModuleTeachingPayment {
+  moduleId: number;
+  moduleTeacherName: string;
+  paymentTotal: number;
+  calculatedTotal: number;
+  paymentDate: string;
+  isPayed: boolean;
+}

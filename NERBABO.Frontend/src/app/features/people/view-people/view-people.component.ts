@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { Observable, of, Subscription, BehaviorSubject } from 'rxjs';
+import { of, Subscription, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -10,7 +10,6 @@ import { SharedService } from '../../../core/services/shared.service';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
 import { ICONS } from '../../../core/objects/icons';
 import { MenuItem } from 'primeng/api';
-import { Button } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
@@ -22,12 +21,22 @@ import { TeachersService } from '../../../core/services/teachers.service';
 import { TitleComponent } from '../../../shared/components/title/title.component';
 import { StudentsService } from '../../../core/services/students.service';
 import { AccService } from '../../../core/services/acc.service';
-import { PdfFileManagerComponent, PdfFileConfig } from '../../../shared/components/pdf-file-manager/pdf-file-manager.component';
+import {
+  PdfFileManagerComponent,
+  PdfFileConfig,
+} from '../../../shared/components/pdf-file-manager/pdf-file-manager.component';
 
 @Component({
   selector: 'app-detail-person',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavHeaderComponent, TitleComponent, TooltipModule, PdfFileManagerComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    NavHeaderComponent,
+    TitleComponent,
+    TooltipModule,
+    PdfFileManagerComponent,
+  ],
   templateUrl: './view-people.component.html',
 })
 export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
@@ -49,21 +58,21 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     title: 'Certificado de Habilitações',
     description: 'Nenhum certificado de habilitações foi carregado.',
     icon: 'bi bi-file-earmark-pdf',
-    fileNamePrefix: 'Certificado_de_Habilitacoes'
+    fileNamePrefix: 'Certificado_de_Habilitacoes',
   };
 
   ibanPdfConfig: PdfFileConfig = {
     title: 'Comprovativo de IBAN',
     description: 'Nenhum comprovativo de IBAN foi carregado.',
     icon: 'bi bi-file-earmark-pdf',
-    fileNamePrefix: 'Comprovativo_IBAN'
+    fileNamePrefix: 'Comprovativo_IBAN',
   };
 
   identificationDocumentPdfConfig: PdfFileConfig = {
     title: 'Cópia do Documento de Identificação',
     description: 'Nenhuma cópia do documento de identificação foi carregada.',
     icon: 'bi bi-file-earmark-pdf',
-    fileNamePrefix: 'Documento_Identificacao'
+    fileNamePrefix: 'Documento_Identificacao',
   };
 
   // Loading states
@@ -172,30 +181,33 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
   }
 
   initializeEntity() {
-    this.peopleService.getSinglePerson(this.id).pipe(
-      catchError((error) => {
-        if (error.status === 401 || error.status === 403) {
-          this.sharedService.redirectUser();
-        } else {
-          this.router.navigate(['/people']);
-          this.sharedService.showWarning('Informação não foi encontrada.');
-        }
-        return of(null);
-      }),
-      tap((person) => {
-        if (person) {
-          this.fullName = person.fullName;
-          this.id = person.id;
-          this.personId = person.id;
-          this.isColaborator = person.isColaborator ?? false;
-          this.isStudent = person.isStudent ?? false;
-          this.isTeacher = person.isTeacher ?? false;
-          this.updateBreadcrumbs();
-          this.populateMenu();
-          this.personSubject.next(person);
-        }
-      })
-    ).subscribe();
+    this.peopleService
+      .getSinglePerson(this.id)
+      .pipe(
+        catchError((error) => {
+          if (error.status === 401 || error.status === 403) {
+            this.sharedService.redirectUser();
+          } else {
+            this.router.navigate(['/people']);
+            this.sharedService.showWarning('Informação não foi encontrada.');
+          }
+          return of(null);
+        }),
+        tap((person) => {
+          if (person) {
+            this.fullName = person.fullName;
+            this.id = person.id;
+            this.personId = person.id;
+            this.isColaborator = person.isColaborator ?? false;
+            this.isStudent = person.isStudent ?? false;
+            this.isTeacher = person.isTeacher ?? false;
+            this.updateBreadcrumbs();
+            this.populateMenu();
+            this.personSubject.next(person);
+          }
+        })
+      )
+      .subscribe();
   }
 
   populateMenu(): void {
@@ -325,25 +337,29 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     }
 
     this.isUploadingHabilitation = true;
-    
-    this.peopleService.uploadHabilitationPdf(this.id, this.habilitationSelectedFile).subscribe({
-      next: (response) => {
-        this.sharedService.showSuccess('PDF carregado com sucesso.');
-        this.habilitationSelectedFile = null;
-        this.refreshPersonData();
-      },
-      error: (error) => {
-        console.error('Error uploading habilitation PDF:', error);
-        if (error.status === 401 || error.status === 403) {
-          this.sharedService.redirectUser();
-        } else {
-          this.sharedService.showError('Erro ao carregar o PDF. Tente novamente.');
-        }
-      },
-      complete: () => {
-        this.isUploadingHabilitation = false;
-      }
-    });
+
+    this.peopleService
+      .uploadHabilitationPdf(this.id, this.habilitationSelectedFile)
+      .subscribe({
+        next: (response) => {
+          this.sharedService.showSuccess('PDF carregado com sucesso.');
+          this.habilitationSelectedFile = null;
+          this.refreshPersonData();
+        },
+        error: (error) => {
+          console.error('Error uploading habilitation PDF:', error);
+          if (error.status === 401 || error.status === 403) {
+            this.sharedService.redirectUser();
+          } else {
+            this.sharedService.showError(
+              'Erro ao carregar o PDF. Tente novamente.'
+            );
+          }
+        },
+        complete: () => {
+          this.isUploadingHabilitation = false;
+        },
+      });
   }
 
   downloadHabilitationPdf(): void {
@@ -352,14 +368,17 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Certificado_Habilitacoes_${this.fullName.replace(/\s+/g, '_')}.pdf`;
+        link.download = `Certificado_Habilitacoes_${this.fullName.replace(
+          /\s+/g,
+          '_'
+        )}.pdf`;
         link.click();
         window.URL.revokeObjectURL(url);
         this.sharedService.showSuccess('PDF descarregado com sucesso.');
       },
       error: (error) => {
         this.handlePdfError(error, 'descarregar');
-      }
+      },
     });
   }
 
@@ -372,12 +391,16 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
       error: (error) => {
         this.handlePdfError(error, 'visualizar');
-      }
+      },
     });
   }
 
   deleteHabilitationPdf(): void {
-    if (!confirm('Tem a certeza que deseja eliminar este PDF? Esta ação não pode ser desfeita.')) {
+    if (
+      !confirm(
+        'Tem a certeza que deseja eliminar este PDF? Esta ação não pode ser desfeita.'
+      )
+    ) {
       return;
     }
 
@@ -388,7 +411,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
       error: (error) => {
         this.handlePdfError(error, 'eliminar');
-      }
+      },
     });
   }
 
@@ -406,7 +429,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     }
 
     this.isUploadingIban = true;
-    
+
     this.peopleService.uploadIbanPdf(this.id, this.ibanSelectedFile).subscribe({
       next: (response) => {
         this.sharedService.showSuccess('PDF carregado com sucesso.');
@@ -418,7 +441,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
       complete: () => {
         this.isUploadingIban = false;
-      }
+      },
     });
   }
 
@@ -428,14 +451,17 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Comprovativo_IBAN_${this.fullName.replace(/\s+/g, '_')}.pdf`;
+        link.download = `Comprovativo_IBAN_${this.fullName.replace(
+          /\s+/g,
+          '_'
+        )}.pdf`;
         link.click();
         window.URL.revokeObjectURL(url);
         this.sharedService.showSuccess('PDF descarregado com sucesso.');
       },
       error: (error) => {
         this.handlePdfError(error, 'descarregar');
-      }
+      },
     });
   }
 
@@ -448,12 +474,16 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
       error: (error) => {
         this.handlePdfError(error, 'visualizar');
-      }
+      },
     });
   }
 
   deleteIbanPdf(): void {
-    if (!confirm('Tem a certeza que deseja eliminar este PDF? Esta ação não pode ser desfeita.')) {
+    if (
+      !confirm(
+        'Tem a certeza que deseja eliminar este PDF? Esta ação não pode ser desfeita.'
+      )
+    ) {
       return;
     }
 
@@ -464,7 +494,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
       error: (error) => {
         this.handlePdfError(error, 'eliminar');
-      }
+      },
     });
   }
 
@@ -482,20 +512,25 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     }
 
     this.isUploadingIdentification = true;
-    
-    this.peopleService.uploadIdentificationDocumentPdf(this.id, this.identificationDocumentSelectedFile).subscribe({
-      next: (response) => {
-        this.sharedService.showSuccess('PDF carregado com sucesso.');
-        this.identificationDocumentSelectedFile = null;
-        this.refreshPersonData();
-      },
-      error: (error) => {
-        this.handlePdfError(error, 'carregar');
-      },
-      complete: () => {
-        this.isUploadingIdentification = false;
-      }
-    });
+
+    this.peopleService
+      .uploadIdentificationDocumentPdf(
+        this.id,
+        this.identificationDocumentSelectedFile
+      )
+      .subscribe({
+        next: (response) => {
+          this.sharedService.showSuccess('PDF carregado com sucesso.');
+          this.identificationDocumentSelectedFile = null;
+          this.refreshPersonData();
+        },
+        error: (error) => {
+          this.handlePdfError(error, 'carregar');
+        },
+        complete: () => {
+          this.isUploadingIdentification = false;
+        },
+      });
   }
 
   downloadIdentificationDocumentPdf(): void {
@@ -504,14 +539,17 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Documento_Identificacao_${this.fullName.replace(/\s+/g, '_')}.pdf`;
+        link.download = `Documento_Identificacao_${this.fullName.replace(
+          /\s+/g,
+          '_'
+        )}.pdf`;
         link.click();
         window.URL.revokeObjectURL(url);
         this.sharedService.showSuccess('PDF descarregado com sucesso.');
       },
       error: (error) => {
         this.handlePdfError(error, 'descarregar');
-      }
+      },
     });
   }
 
@@ -524,12 +562,16 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
       error: (error) => {
         this.handlePdfError(error, 'visualizar');
-      }
+      },
     });
   }
 
   deleteIdentificationDocumentPdf(): void {
-    if (!confirm('Tem a certeza que deseja eliminar este PDF? Esta ação não pode ser desfeita.')) {
+    if (
+      !confirm(
+        'Tem a certeza que deseja eliminar este PDF? Esta ação não pode ser desfeita.'
+      )
+    ) {
       return;
     }
 
@@ -540,26 +582,32 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
       },
       error: (error) => {
         this.handlePdfError(error, 'eliminar');
-      }
+      },
     });
   }
 
   // Helper method for refreshing person data without full component reload
   private refreshPersonData(): void {
-    this.peopleService.getSinglePerson(this.id).pipe(
-      catchError((error) => {
-        console.error('Error refreshing person data:', error);
-        return of(null);
-      })
-    ).subscribe((person) => {
-      if (person) {
-        this.personSubject.next(person);
-      }
-    });
+    this.peopleService
+      .getSinglePerson(this.id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error refreshing person data:', error);
+          return of(null);
+        })
+      )
+      .subscribe((person) => {
+        if (person) {
+          this.personSubject.next(person);
+        }
+      });
   }
 
   // Helper method for updating person PDF properties without full reload
-  private updatePersonPdfProperty(property: keyof Person, value: number | null): void {
+  private updatePersonPdfProperty(
+    property: keyof Person,
+    value: number | null
+  ): void {
     const currentPerson = this.personSubject.value;
     if (currentPerson) {
       const updatedPerson = { ...currentPerson, [property]: value };

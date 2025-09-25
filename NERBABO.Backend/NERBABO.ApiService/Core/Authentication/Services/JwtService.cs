@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Authentication.Dtos;
 using NERBABO.ApiService.Data;
+using NERBABO.ApiService.Shared.Exceptions;
 using NERBABO.ApiService.Shared.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -32,7 +33,7 @@ public class JwtService : IJwtService
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _jwtKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["JWT:Key"]
-            ?? throw new ("JWT:Key is not configured"))
+            ?? throw new("JWT:Key is not configured"))
         );
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _context = context;
@@ -108,6 +109,77 @@ public class JwtService : IJwtService
             .Ok(await GetPersonAndBuildJwt(user));
     }
 
+    public async Task<bool> IsCoordOrAdminOfActionAsync(long actionId, string userId)
+    {
+        var action = await _context.Actions.FindAsync(actionId)
+            ?? throw new ObjectNullException("Ação não encontrada.");
+
+        // check if the user is the action coordenator
+        if (action.CoordenatorId == userId)
+            return true;
+
+        // since is not coordenator check if is Admin
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new ObjectNullException("Utilizador não encontrado.");
+
+        return await _userManager.IsInRoleAsync(user, "Admin");
+    }
+
+    public async Task<bool> IsCoordOrAdminOfActionViaMTAsync(long moduleTeachingId, string userId)
+    {
+        var mt = await _context.ModuleTeachings
+            .Include(mt => mt.Action)
+            .FirstOrDefaultAsync(mt => mt.Id == moduleTeachingId)
+            ?? throw new ObjectNullException("ModuleTeaching não encontrado.");
+
+        // check if the user is the action coordenator
+        if (mt.Action.CoordenatorId == userId)
+            return true;
+
+        // since is not coordenator check if is Admin
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new ObjectNullException("Utilizador não encontrado.");
+
+        return await _userManager.IsInRoleAsync(user, "Admin");
+    }
+
+    public async Task<bool> IsCoordOrAdminOfActionViaSessionAsync(long sessionId, string userId)
+    {
+        var session = await _context.Sessions
+            .Include(s => s.ModuleTeaching).ThenInclude(mt => mt.Action)
+            .FirstOrDefaultAsync(s => s.Id == sessionId)
+            ?? throw new ObjectNullException("Sessão não encontrada.");
+
+        // check if the user is the action coordenator
+        if (session.ModuleTeaching.Action.CoordenatorId == userId)
+            return true;
+
+        // since is not coordenator check if is Admin
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new ObjectNullException("Utilizador não encontrado.");
+
+        return await _userManager.IsInRoleAsync(user, "Admin");
+    }
+
+    public async Task<bool> IsCoordOrAdminOfActionViaEnrollmentAsync(long enrollmentId, string userId)
+    {
+        var enrollment = await _context.ActionEnrollments
+            .Include(ae => ae.Action)
+            .FirstOrDefaultAsync(ae => ae.Id == enrollmentId)
+            ?? throw new ObjectNullException("Sessão não encontrada.");
+
+        // check if the user is the action coordenator
+        if (enrollment.Action.CoordenatorId == userId)
+            return true;
+
+        // since is not coordenator check if is Admin
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new ObjectNullException("Utilizador não encontrado.");
+
+        return await _userManager.IsInRoleAsync(user, "Admin");
+    }
+
+
     public async Task<Result<LoggedInUserDto>> GenerateJwtOnLoginAsync(LoginDto model)
     {
         // Try to find user by username first, then fall back to email
@@ -119,12 +191,12 @@ public class JwtService : IJwtService
             return Result<LoggedInUserDto>
                 .Fail("Erro de Validação", "Email/Username ou password inválidos.");
         }
-        
+
         if (!user.IsActive)
         {
             _logger.LogWarning("Login attempt failed for {UsernameOrEmail}. User is blocked.", model.UsernameOrEmail);
             return Result<LoggedInUserDto>
-                .Fail("Não Autorizado.", "Utilizador bloqueado.", 
+                .Fail("Não Autorizado.", "Utilizador bloqueado.",
                 StatusCodes.Status401Unauthorized);
         }
 

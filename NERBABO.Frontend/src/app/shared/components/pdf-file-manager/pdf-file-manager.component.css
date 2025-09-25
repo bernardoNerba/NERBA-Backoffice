@@ -1,0 +1,22 @@
+.file-input-wrapper {
+  position: relative;
+}
+
+.file-input-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.file-input-display {
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.file-input-display:hover {
+  border-color: #86b7fe;
+}
+
+.file-input-display.has-file {
+  color: #212529;
+}

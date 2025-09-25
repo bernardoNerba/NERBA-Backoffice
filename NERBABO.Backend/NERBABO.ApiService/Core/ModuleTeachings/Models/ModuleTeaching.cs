@@ -1,10 +1,12 @@
 ﻿using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
 using NERBABO.ApiService.Core.Sessions.Dtos;
 using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Core.Teachers.Models;
+using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.ModuleTeachings.Models
@@ -38,11 +40,22 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
         public bool IsModuleHoursScheduled =>
             ScheduledSessionsTime == Module.Hours;
 
+        public bool IsPayed => PaymentDate != null;
+
+
+        public double CalculatedTotal(double hourRate)
+        {
+            return Math.Round(Sessions
+                .Where(s => s.TeacherPresence.Equals(PresenceEnum.Present))
+                .Sum(s => s.DurationHours)
+                * hourRate, 2);
+        }
+
         public double ScheduledPercent()
         {
             if (Module.Hours != 0)
                 return Math.Round((ScheduledSessionsTime * 100) / Module.Hours, 2);
-        
+
             return 0;
         }
 
@@ -58,7 +71,7 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
                 AvaliationStudents = mt.AvaliationStudents,
                 AvaliationAvg = mt.AvaliationAvg,
                 PaymentTotal = mt.PaymentTotal,
-                PaymentDate = mt.PaymentDate?.ToString("yyyy-MM-dd") ?? "",
+                PaymentDate = mt.PaymentDate?.ToString("dd/MM/yyyy") ?? "",
                 PaymentProcessed = mt.PaymentProcessed
             };
         }
@@ -84,6 +97,19 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
                 ModuleTeachingId = mt.Id,
                 ModuleName = mt.Module.Name,
                 ScheduledPercent = mt.ScheduledPercent()
+            };
+        }
+
+        public static ProcessModuleTeachingPaymentDto ConvertEntityToProcessPaymentDto(ModuleTeaching mt, GeneralInfo info)
+        {
+            return new ProcessModuleTeachingPaymentDto
+            {
+                ModuleId = mt.ModuleId,
+                ModuleTeacherName = $"{mt.Teacher.Person.FullName} ({mt.Module.Name})",
+                PaymentTotal = mt.PaymentTotal,
+                CalculatedTotal = mt.CalculatedTotal(info.HourValueTeacher),
+                PaymentDate = mt.PaymentDate?.ToString("yyyy-MM-dd") ?? "",
+                IsPayed = mt.IsPayed
             };
         }
     }
