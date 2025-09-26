@@ -34,6 +34,9 @@ import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.comp
 import { SessionAttendanceComponent } from '../../../shared/components/session-attendance/session-attendance.component';
 import { ModuleAvaliationComponent } from '../../../shared/components/module-avaliation/module-avaliation.component';
 import { ProcessMtPaymentsComponent } from '../../../shared/components/process-mt-payments/process-mt-payments.component';
+import { ProcessAePaymentsComponent } from '../../../shared/components/process-ae-payments/process-ae-payments.component';
+import { PaymentsService, TeacherPayment, StudentPayment } from '../../../core/services/payments.service';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-view-actions',
@@ -51,6 +54,8 @@ import { ProcessMtPaymentsComponent } from '../../../shared/components/process-m
     SessionAttendanceComponent,
     ModuleAvaliationComponent,
     ProcessMtPaymentsComponent,
+    ProcessAePaymentsComponent,
+    TagModule,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',
@@ -68,6 +73,9 @@ export class ViewActionsComponent implements IView, OnInit {
   actionEnrollments: ActionEnrollment[] = [];
   enrollmentsLoading: boolean = false;
   kpis?: ActionKpi;
+  teacherPayments: TeacherPayment[] = [];
+  studentPayments: StudentPayment[] = [];
+  paymentsLoading: boolean = false;
 
   ICONS = ICONS;
 
@@ -82,7 +90,8 @@ export class ViewActionsComponent implements IView, OnInit {
     private courseService: CoursesService,
     private modulesService: ModulesService,
     private moduleTeachingService: ModuleTeachingService,
-    private actionEnrollmentService: ActionEnrollmentService
+    private actionEnrollmentService: ActionEnrollmentService,
+    private paymentsService: PaymentsService
   ) {}
 
   ngOnInit(): void {
@@ -99,6 +108,7 @@ export class ViewActionsComponent implements IView, OnInit {
     this.moduleTeachingCreatedSubscription();
     this.moduleChangesSubscription();
     this.enrollmentChangesSubscription();
+    this.paymentChangesSubscription();
   }
 
   initializeEntity(): void {
@@ -127,6 +137,7 @@ export class ViewActionsComponent implements IView, OnInit {
           this.loadModulesWithTeacher();
           this.loadActionEnrollments();
           this.loadKpis();
+          this.loadPayments();
         }
       })
     );
@@ -196,6 +207,58 @@ export class ViewActionsComponent implements IView, OnInit {
         console.error('Error message:', error.message);
       },
     });
+  }
+
+  loadPayments(): void {
+    this.paymentsLoading = true;
+
+    // Load teacher payments
+    this.paymentsService.getTeacherPaymentsByActionId(this.id).subscribe({
+      next: (payments: TeacherPayment[]) => {
+        this.teacherPayments = payments;
+        this.checkPaymentsLoadingComplete();
+      },
+      error: (error) => {
+        console.error('Error loading teacher payments:', error);
+        this.teacherPayments = [];
+        this.checkPaymentsLoadingComplete();
+      },
+    });
+
+    // Load student payments
+    this.paymentsService.getStudentPaymentsByActionId(this.id).subscribe({
+      next: (payments: StudentPayment[]) => {
+        this.studentPayments = payments;
+        this.checkPaymentsLoadingComplete();
+      },
+      error: (error) => {
+        console.error('Error loading student payments:', error);
+        this.studentPayments = [];
+        this.checkPaymentsLoadingComplete();
+      },
+    });
+  }
+
+  private checkPaymentsLoadingComplete(): void {
+    // Simple check to see if both calls have completed
+    // This is a basic implementation - you might want to use forkJoin for better control
+    setTimeout(() => {
+      this.paymentsLoading = false;
+    }, 100);
+  }
+
+  getTeacherPaymentStatus(): 'Pago' | 'Pendente' {
+    if (this.teacherPayments.length === 0) return 'Pendente';
+    return this.teacherPayments.every(payment => payment.paymentProcessed) ? 'Pago' : 'Pendente';
+  }
+
+  getStudentPaymentStatus(): 'Pago' | 'Pendente' {
+    if (this.studentPayments.length === 0) return 'Pendente';
+    return this.studentPayments.every(payment => payment.paymentProcessed) ? 'Pago' : 'Pendente';
+  }
+
+  getPaymentSeverity(status: string): 'success' | 'warn' {
+    return status === 'Pago' ? 'success' : 'warn';
   }
 
   populateMenu(): void {
@@ -398,6 +461,14 @@ export class ViewActionsComponent implements IView, OnInit {
     this.subscriptions.add(
       this.actionEnrollmentService.deletedSource$.subscribe(() => {
         this.loadActionEnrollments();
+      })
+    );
+  }
+
+  paymentChangesSubscription(): void {
+    this.subscriptions.add(
+      this.paymentsService.updated$.subscribe(() => {
+        this.loadPayments();
       })
     );
   }

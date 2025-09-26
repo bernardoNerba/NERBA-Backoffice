@@ -256,9 +256,6 @@
         >
           <app-icon [icon]="ICONS.modules" [marginEnd]="3" />
           <h5>Módulos | Formadores</h5>
-          <span class="badge bg-success">
-            {{ modulesWithTeacher.length }}x
-          </span>
         </button>
       </h2>
       <div
@@ -323,11 +320,6 @@
         >
           <app-icon [icon]="ICONS.student" [marginEnd]="3" />
           <h5>Formandos Inscritos | Avaliação Final</h5>
-          @if (!enrollmentsLoading) {
-          <span class="badge bg-success ms-2">
-            {{ actionEnrollments.length }}x
-          </span>
-          }
         </button>
       </h2>
       <div
@@ -407,33 +399,118 @@
     }
     <!-- END MODULE AVALIATION ACCORDION -->
 
-    <!-- PROCESS MODULE TEACHING PAYMENTS -->
+    <!-- PROCESS PAYMENTS -->
     @if (action.showPaymentProcessments) {
     <div class="accordion-item">
-      <h2 class="accordion-header" id="heading-proccess-mt-payments">
+      <h2 class="accordion-header" id="heading-process-payments">
         <button
           class="accordion-button fw-bold collapsed"
           type="button"
           data-bs-toggle="collapse"
-          data-bs-target="#proccess-mt-payments-content"
+          data-bs-target="#process-payments-content"
           aria-expanded="false"
-          aria-controls="proccess-mt-payments-content"
+          aria-controls="process-payments-content"
         >
           <app-icon [icon]="ICONS.payments" [marginEnd]="3" />
-          <h5>Processamento de Pagamentos (Formadores)</h5>
+          <h5>Processamento de Pagamentos</h5>
         </button>
       </h2>
       <div
-        id="proccess-mt-payments-content"
+        id="process-payments-content"
         class="accordion-collapse collapse"
-        aria-labelledby="heading-proccess-mt-payments"
+        aria-labelledby="heading-process-payments"
       >
         <div class="accordion-body">
-          <app-process-mt-payments [actionId]="id" />
+          <!-- Nested accordion for payment types -->
+          <div class="accordion" id="payments-nested-accordion">
+            <!-- Teachers Payments Accordion Item -->
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-teachers-payments">
+                <button
+                  class="accordion-button fw-semibold collapsed d-flex justify-content-between align-items-center w-100"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#teachers-payments-content"
+                  aria-expanded="false"
+                  aria-controls="teachers-payments-content"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center w-100 me-3"
+                  >
+                    <div class="d-flex align-items-center">
+                      <app-icon [icon]="ICONS.user" [marginEnd]="2" />
+                      Formadores
+                    </div>
+                    <p-tag
+                      [severity]="getPaymentSeverity(getTeacherPaymentStatus())"
+                      [icon]="
+                        getTeacherPaymentStatus() === 'Pago'
+                          ? 'pi pi-check'
+                          : 'pi pi-clock'
+                      "
+                      [value]="getTeacherPaymentStatus()"
+                      styleClass="me-2"
+                    />
+                  </div>
+                </button>
+              </h2>
+              <div
+                id="teachers-payments-content"
+                class="accordion-collapse collapse"
+                aria-labelledby="heading-teachers-payments"
+              >
+                <div class="accordion-body">
+                  <app-process-mt-payments [actionId]="id" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Students Payments Accordion Item -->
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-students-payments">
+                <button
+                  class="accordion-button fw-semibold collapsed d-flex justify-content-between align-items-center w-100"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#students-payments-content"
+                  aria-expanded="false"
+                  aria-controls="students-payments-content"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center w-100 me-3"
+                  >
+                    <div class="d-flex align-items-center">
+                      <app-icon [icon]="ICONS.student" [marginEnd]="2" />
+                      Formandos
+                    </div>
+                    <p-tag
+                      [severity]="getPaymentSeverity(getStudentPaymentStatus())"
+                      [icon]="
+                        getStudentPaymentStatus() === 'Pago'
+                          ? 'pi pi-check'
+                          : 'pi pi-clock'
+                      "
+                      [value]="getStudentPaymentStatus()"
+                      styleClass="me-2"
+                    />
+                  </div>
+                </button>
+              </h2>
+              <div
+                id="students-payments-content"
+                class="accordion-collapse collapse"
+                aria-labelledby="heading-students-payments"
+              >
+                <div class="accordion-body">
+                  <app-process-ae-payments [actionId]="id" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <!-- END PROCESS MODULE TEACHING PAYMENTS -->
+    <!-- END PROCESS PAYMENTS -->
     }
     <!-- FILE LIST ACCORDION-->
     <div class="accordion-item">

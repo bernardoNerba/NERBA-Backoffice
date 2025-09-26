@@ -56,8 +56,50 @@ namespace NERBABO.ApiService.Core.Payments.Controllers
             var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaMTAsync(dto.ModuleTeachingId, userId);
             if (!isAuthorized)
                 throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
-            
+
             var result = await _paymentsService.UpdateTeacherPaymentsByIdAsync(dto);
+            return _responseHandler.HandleResult(result);
+        }
+        
+
+        /// <summary>
+        /// Gets all student payments associated with a given action.
+        /// </summary>
+        /// <param name="actionId">The ID of the action to retrieve student payments for.</param>
+        /// <response code="200">student payments found for the given action. Returns a list of student payment objects.</response>
+        /// <response code="404">Action not found or no student payments exist for the given action.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or user is not Admin nor FM.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpGet("students/{actionId}")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> GetAllStudentPaymentsByActionIdAsync(long actionId)
+        {
+            var result = await _paymentsService.GetAllStudentPaymentsByActionIdAsync(actionId);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Updates student payments for a specific action enrollment.
+        /// </summary>
+        /// <param name="dto">The UpdateStudentPaymentsDto object containing the payment details to be updated.</param>
+        /// <response code="200">Student payments updated successfully.</response>
+        /// <response code="400">Validation error in the provided payment data.</response>
+        /// <response code="403">User is not authorized to update payments for this action enrollment.</response>
+        /// <response code="404">Action enrollment not found.</response>
+        /// <response code="401">Unauthorized access. Invalid jwt, user is not active or user is not Admin nor FM.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPut("students/")]
+        [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+        public async Task<IActionResult> UpdateStudentPaymentsAsync(UpdateStudentPaymentsDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+            var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaEnrollmentAsync(dto.ActionEnrollmentId, userId);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
+            var result = await _paymentsService.UpdateStudentPaymentsByIdAsync(dto);
             return _responseHandler.HandleResult(result);
         }
     }
