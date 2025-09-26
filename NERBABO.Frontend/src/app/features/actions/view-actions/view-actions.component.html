@@ -427,22 +427,37 @@
             <div class="accordion-item">
               <h2 class="accordion-header" id="heading-teachers-payments">
                 <button
-                  class="accordion-button fw-semibold collapsed"
+                  class="accordion-button fw-semibold collapsed d-flex justify-content-between align-items-center w-100"
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target="#teachers-payments-content"
                   aria-expanded="false"
                   aria-controls="teachers-payments-content"
                 >
-                  <app-icon [icon]="ICONS.user" [marginEnd]="2" />
-                  Formadores
+                  <div
+                    class="d-flex justify-content-between align-items-center w-100 me-3"
+                  >
+                    <div class="d-flex align-items-center">
+                      <app-icon [icon]="ICONS.user" [marginEnd]="2" />
+                      Formadores
+                    </div>
+                    <p-tag
+                      [severity]="getPaymentSeverity(getTeacherPaymentStatus())"
+                      [icon]="
+                        getTeacherPaymentStatus() === 'Pago'
+                          ? 'pi pi-check'
+                          : 'pi pi-clock'
+                      "
+                      [value]="getTeacherPaymentStatus()"
+                      styleClass="me-2"
+                    />
+                  </div>
                 </button>
               </h2>
               <div
                 id="teachers-payments-content"
                 class="accordion-collapse collapse"
                 aria-labelledby="heading-teachers-payments"
-                data-bs-parent="#payments-nested-accordion"
               >
                 <div class="accordion-body">
                   <app-process-mt-payments [actionId]="id" />
@@ -454,22 +469,37 @@
             <div class="accordion-item">
               <h2 class="accordion-header" id="heading-students-payments">
                 <button
-                  class="accordion-button fw-semibold collapsed"
+                  class="accordion-button fw-semibold collapsed d-flex justify-content-between align-items-center w-100"
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target="#students-payments-content"
                   aria-expanded="false"
                   aria-controls="students-payments-content"
                 >
-                  <app-icon [icon]="ICONS.student" [marginEnd]="2" />
-                  Formandos
+                  <div
+                    class="d-flex justify-content-between align-items-center w-100 me-3"
+                  >
+                    <div class="d-flex align-items-center">
+                      <app-icon [icon]="ICONS.student" [marginEnd]="2" />
+                      Formandos
+                    </div>
+                    <p-tag
+                      [severity]="getPaymentSeverity(getStudentPaymentStatus())"
+                      [icon]="
+                        getStudentPaymentStatus() === 'Pago'
+                          ? 'pi pi-check'
+                          : 'pi pi-clock'
+                      "
+                      [value]="getStudentPaymentStatus()"
+                      styleClass="me-2"
+                    />
+                  </div>
                 </button>
               </h2>
               <div
                 id="students-payments-content"
                 class="accordion-collapse collapse"
                 aria-labelledby="heading-students-payments"
-                data-bs-parent="#payments-nested-accordion"
               >
                 <div class="accordion-body">
                   <app-process-ae-payments [actionId]="id" />

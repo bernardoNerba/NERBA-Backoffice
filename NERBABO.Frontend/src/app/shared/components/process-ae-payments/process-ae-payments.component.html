@@ -10,7 +10,6 @@
 </div>
 } @else {
 
-
 <div class="table-responsive">
   <p-table
     #paymentsTable
@@ -23,8 +22,7 @@
   >
     <ng-template #header>
       <tr>
-        <th style="width: 200px">Ação</th>
-        <th style="width: 200px">Formando</th>
+        <th style="width: 400px">Formando</th>
         <th style="width: 120px">Status</th>
         <th style="width: 150px">Total Calculado</th>
         <th style="width: 150px">Total Pagamento</th>
@@ -34,10 +32,11 @@
 
     <ng-template #body let-payment>
       @if (paymentForms[payment.actionId + '-' + payment.studentPersonId]) {
-      <tr [formGroup]="paymentForms[payment.actionId + '-' + payment.studentPersonId]">
-        <td>
-          <div class="fw-semibold">{{ payment.actionTitle }}</div>
-        </td>
+      <tr
+        [formGroup]="
+          paymentForms[payment.actionId + '-' + payment.studentPersonId]
+        "
+      >
         <td>
           <div class="fw-semibold">{{ payment.studentName }}</div>
         </td>
@@ -91,10 +90,7 @@
       <tr>
         <td colspan="5">
           <div class="text-center py-4">
-            <i
-              class="pi pi-credit-card text-muted"
-              style="font-size: 2rem"
-            ></i>
+            <i class="pi pi-credit-card text-muted" style="font-size: 2rem"></i>
             <p class="mt-2 mb-0">
               Não há informações de pagamento disponíveis.
             </p>
@@ -112,7 +108,10 @@
       <div class="d-flex flex-column gap-1">
         <small class="text-muted">
           <i class="pi pi-info-circle me-1"></i>
-          {{ payments.length }} pagamento{{ payments.length !== 1 ? 's' : '' }} encontrado{{ payments.length !== 1 ? 's' : '' }}
+          {{ payments.length }} pagamento{{
+            payments.length !== 1 ? "s" : ""
+          }}
+          encontrado{{ payments.length !== 1 ? "s" : "" }}
         </small>
         <small class="text-muted">
           <i class="pi pi-calculator me-1"></i>
@@ -121,7 +120,8 @@
         @if (getModifiedFormsCount() > 0) {
         <small class="text-warning">
           <i class="pi pi-exclamation-triangle me-1"></i>
-          {{ getModifiedFormsCount() }} pagamento(s) com alterações não guardadas
+          {{ getModifiedFormsCount() }} pagamento(s) com alterações não
+          guardadas
         </small>
         } @else {
         <small class="text-success">
@@ -159,6 +159,4 @@
     </div>
   </div>
 </div>
-}
-
-} }
+} } }
