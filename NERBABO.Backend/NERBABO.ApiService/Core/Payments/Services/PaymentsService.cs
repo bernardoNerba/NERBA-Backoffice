@@ -1,3 +1,4 @@
+using System.Runtime.Intrinsics.Arm;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Payments.Dtos;
@@ -69,6 +70,7 @@ public class PaymentsService(
         // check if payment date passed is valid DateOnly
         if (!DateOnly.TryParse(dto.PaymentDate, out DateOnly date))
         {
+            _logger.LogWarning("Invalid payment date passed when updating student payments: {InvalidDate}", dto.PaymentDate);
             return Result.Fail("Erro de Validação", "Data de Pagamento fornecida é inválida.");
         }
 
@@ -122,5 +124,31 @@ public class PaymentsService(
 
         return Result<IEnumerable<StudentPaymentsDto>>
             .Ok(existingStudentPayments);
+    }
+
+    public async Task<Result> UpdateStudentPaymentsByIdAsync(UpdateStudentPaymentsDto dto)
+    {
+        var existingActionEnrollment = await _context.ActionEnrollments
+            .FirstOrDefaultAsync(ae => ae.Id == dto.ActionEnrollmentId);
+        if (existingActionEnrollment is null)
+        {
+            _logger.LogWarning("Enrollment with given ID {InvalidId} not found", dto.ActionEnrollmentId);
+            return Result.Fail("Não encontrado", "Inscrição não encontrada.",
+                StatusCodes.Status404NotFound);
+        }
+
+        // check if payment date passed is valid DateOnly
+        if (!DateOnly.TryParse(dto.PaymentDate, out DateOnly date))
+        {
+            _logger.LogWarning("Invalid payment date passed when updating student payments: {InvalidDate}", dto.PaymentDate);
+            return Result.Fail("Erro de Validação", "Data de Pagamento fornecida é inválida");
+        }
+
+        // update existing student payment properties with the dto data
+        existingActionEnrollment.PaymentTotal = dto.PaymentTotal;
+        existingActionEnrollment.PaymentDate = date;
+        await _context.SaveChangesAsync();
+
+        return Result.Ok("Pagamentos Atualizados", "Foram atualizados os pagamentos dos Formandos");
     }
 }

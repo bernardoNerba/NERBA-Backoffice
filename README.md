@@ -79,7 +79,7 @@ This will:
 
 6. Access the Applications, once running, you can access:
 
-- **Frontend(Angular)**: [http://localhost:4200](http://localhost:4200)
+- **Frontend (Angular)**: [http://localhost:4200](http://localhost:4200)
 - **Backend (Web API)**: [http://localhost:8080](http://localhost:8080)
 - **Swagger (Web API Documentation)**: [http://localhost:8080/swagger](http://localhost:8080/swagger/index.html)
 - **Postgres** with **PgAdmin**
@@ -156,7 +156,6 @@ If you're interested in contributing, please feel free to open a pull request or
 - [ ] Add new Integration tests project to the Backend;
 - [ ] Document, with comments, critical methods, classes and interfaces;
 - [ ] Optimize Services Queries;
-- [ ] Refactor Delete logic to handle all related entities;
 - [ ] Refactor Authorization and Authentication logic to apply additional security;
 - [ ] Add volumes presistente storage and automated backup logic, for production.
 

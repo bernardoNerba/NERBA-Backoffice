@@ -22,6 +22,24 @@ export interface UpdateTeacherPayment {
   paymentDate: string;
 }
 
+export interface StudentPayment {
+  actionEnrollmentId: number;
+  actionId: number;
+  actionTitle: string;
+  studentPersonId: number;
+  studentName: string;
+  paymentTotal: number;
+  calculatedTotal: number;
+  paymentDate: string;
+  paymentProcessed: boolean;
+}
+
+export interface UpdateStudentPayment {
+  actionEnrollmentId: number;
+  paymentTotal: number;
+  paymentDate: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -47,6 +65,31 @@ export class PaymentsService {
     return this.http
       .put<OkResponse>(
         API_ENDPOINTS.teacherPayments,
+        payment
+      )
+      .pipe(
+        tap(() => {
+          this.notifyPaymentUpdated();
+        })
+      );
+  }
+
+  /**
+   * Gets all student payments for a specific action
+   */
+  getStudentPaymentsByActionId(actionId: number): Observable<StudentPayment[]> {
+    return this.http.get<StudentPayment[]>(
+      `${API_ENDPOINTS.payments}students/${actionId}`
+    );
+  }
+
+  /**
+   * Updates student payment information
+   */
+  updateStudentPayments(payment: UpdateStudentPayment): Observable<OkResponse> {
+    return this.http
+      .put<OkResponse>(
+        `${API_ENDPOINTS.payments}students/`,
         payment
       )
       .pipe(

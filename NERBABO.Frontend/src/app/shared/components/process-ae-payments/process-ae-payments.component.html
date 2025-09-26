@@ -1,0 +1,164 @@
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Carregando pagamentos...</p>
+</div>
+} @else { @if (payments.length === 0) {
+<div class="text-center py-4">
+  <i class="pi pi-credit-card text-muted" style="font-size: 2rem"></i>
+  <p class="mt-2 mb-0 text-muted">Não existem pagamentos para esta ação.</p>
+</div>
+} @else {
+
+
+<div class="table-responsive">
+  <p-table
+    #paymentsTable
+    [value]="payments"
+    stripedRows
+    size="small"
+    [tableStyle]="{ 'min-width': '60rem' }"
+    [paginator]="false"
+    [showCurrentPageReport]="false"
+  >
+    <ng-template #header>
+      <tr>
+        <th style="width: 200px">Ação</th>
+        <th style="width: 200px">Formando</th>
+        <th style="width: 120px">Status</th>
+        <th style="width: 150px">Total Calculado</th>
+        <th style="width: 150px">Total Pagamento</th>
+        <th style="width: 150px">Data Pagamento</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-payment>
+      @if (paymentForms[payment.actionId + '-' + payment.studentPersonId]) {
+      <tr [formGroup]="paymentForms[payment.actionId + '-' + payment.studentPersonId]">
+        <td>
+          <div class="fw-semibold">{{ payment.actionTitle }}</div>
+        </td>
+        <td>
+          <div class="fw-semibold">{{ payment.studentName }}</div>
+        </td>
+        <td>
+          <p-tag
+            [severity]="getPaymentSeverity(payment.paymentProcessed)"
+            [icon]="payment.paymentProcessed ? 'pi pi-check' : 'pi pi-clock'"
+            [value]="getPaymentStatus(payment.paymentProcessed)"
+          />
+        </td>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <i class="pi pi-calculator text-secondary"></i>
+            <span class="fw-semibold">{{
+              formatCurrency(payment.calculatedTotal)
+            }}</span>
+          </div>
+        </td>
+        <td>
+          <p-inputnumber
+            formControlName="paymentTotal"
+            [min]="0"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            mode="currency"
+            currency="EUR"
+            locale="pt-PT"
+            placeholder="0,00 €"
+            styleClass="w-100"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            decrementButtonClass="p-button-secondary p-button-sm"
+            incrementButtonClass="p-button-secondary p-button-sm"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+          />
+        </td>
+        <td>
+          <input
+            type="date"
+            formControlName="paymentDate"
+            class="form-control form-control-sm"
+            placeholder="dd/MM/yyyy"
+          />
+        </td>
+      </tr>
+      }
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5">
+          <div class="text-center py-4">
+            <i
+              class="pi pi-credit-card text-muted"
+              style="font-size: 2rem"
+            ></i>
+            <p class="mt-2 mb-0">
+              Não há informações de pagamento disponíveis.
+            </p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+@if (payments.length > 0) {
+<div class="mt-3 pt-3 border-top">
+  <div class="row align-items-center">
+    <div class="col-md-6">
+      <div class="d-flex flex-column gap-1">
+        <small class="text-muted">
+          <i class="pi pi-info-circle me-1"></i>
+          {{ payments.length }} pagamento{{ payments.length !== 1 ? 's' : '' }} encontrado{{ payments.length !== 1 ? 's' : '' }}
+        </small>
+        <small class="text-muted">
+          <i class="pi pi-calculator me-1"></i>
+          Total calculado: {{ formatCurrency(getTotalCalculated()) }}
+        </small>
+        @if (getModifiedFormsCount() > 0) {
+        <small class="text-warning">
+          <i class="pi pi-exclamation-triangle me-1"></i>
+          {{ getModifiedFormsCount() }} pagamento(s) com alterações não guardadas
+        </small>
+        } @else {
+        <small class="text-success">
+          <i class="pi pi-check me-1"></i>
+          Todos os pagamentos estão guardados
+        </small>
+        }
+      </div>
+    </div>
+    <div class="col-md-6 text-end">
+      <div class="d-flex gap-2 justify-content-end">
+        <p-button
+          label="Repor"
+          icon="pi pi-refresh"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          [disabled]="processing || savingAll || !hasAnyUnsavedChanges()"
+          (onClick)="resetAllForms()"
+          pTooltip="Repor todas as alterações não guardadas"
+          tooltipPosition="top"
+        />
+        <p-button
+          label="Guardar Pagamentos"
+          icon="pi pi-save"
+          severity="primary"
+          size="small"
+          [disabled]="processing || savingAll || !hasAnyUnsavedChanges()"
+          [loading]="savingAll"
+          (onClick)="saveAllChanges()"
+          pTooltip="Guardar todas as alterações"
+          tooltipPosition="top"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+} }
