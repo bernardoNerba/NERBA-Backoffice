@@ -33,6 +33,7 @@ import { ActionEnrollment } from '../../../core/models/actionEnrollment';
 import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
 import { SessionAttendanceComponent } from '../../../shared/components/session-attendance/session-attendance.component';
 import { ModuleAvaliationComponent } from '../../../shared/components/module-avaliation/module-avaliation.component';
+import { TeacherPresenceComponent } from '../../../shared/components/teacher-presence/teacher-presence.component';
 import { ProcessMtPaymentsComponent } from '../../../shared/components/process-mt-payments/process-mt-payments.component';
 import { ProcessAePaymentsComponent } from '../../../shared/components/process-ae-payments/process-ae-payments.component';
 import { PaymentsService, TeacherPayment, StudentPayment } from '../../../core/services/payments.service';
@@ -58,6 +59,7 @@ import { SessionParticipationService } from '../../../core/services/session-part
     KpiRowComponent,
     SessionAttendanceComponent,
     ModuleAvaliationComponent,
+    TeacherPresenceComponent,
     ProcessMtPaymentsComponent,
     ProcessAePaymentsComponent,
     TagModule,
