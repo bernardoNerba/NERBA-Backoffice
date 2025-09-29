@@ -15,6 +15,48 @@
   [items]="getModulesWithoutTeacherNames()"
 />
 
+<!-- Alert with modules that have unscheduled sessions -->
+<app-message
+  [severity]="'warn'"
+  [show]="modulesWithUnscheduledSessions.length > 0"
+  description="{{ modulesWithUnscheduledSessions.length }} módulo{{
+    modulesWithUnscheduledSessions.length > 1 ? 's' : ''
+  }} com sessões por agendar:"
+  [items]="getModulesWithUnscheduledSessionsNames()"
+/>
+
+<!-- Alert for no enrolled students -->
+@if (actionEnrollments.length === 0) {
+<div class="alert-container my-3">
+  <p-message severity="warn" closable>
+    <div>
+      <!-- Warning icon + "Cuidado!" -->
+      <div class="d-flex align-items-center mb-2">
+        <i class="pi pi-exclamation-triangle me-2"></i>
+        <span class="fw-bold">Cuidado!</span>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-2">
+        <strong>Não existem formandos associados a esta ação.</strong>
+      </div>
+
+      <!-- Button -->
+      <div class="d-flex justify-content-start">
+        <p-button
+          label="Adicionar Formando"
+          icon="pi pi-plus"
+          severity="secondary"
+          size="small"
+          outlined="true"
+          (onClick)="onAddStudentFromAlert()"
+        />
+      </div>
+    </div>
+  </p-message>
+</div>
+}
+
 <div class="container-fluid px-0 my-4">
   <div class="accordion" id="general-info-accordion">
     <!-- GENERAL INFO ACCORDION-->
@@ -319,7 +361,7 @@
           aria-controls="enrollments-content"
         >
           <app-icon [icon]="ICONS.student" [marginEnd]="3" />
-          <h5>Formandos Inscritos | Avaliação Final</h5>
+          <h5>Inscritos | Avaliações</h5>
         </button>
       </h2>
       <div
@@ -354,7 +396,7 @@
           aria-controls="session-attendance-content"
         >
           <app-icon [icon]="ICONS.sessionPresence" [marginEnd]="3" />
-          <h5>Presenças de Sessões</h5>
+          <h5>Presenças</h5>
         </button>
       </h2>
       <div
@@ -363,7 +405,60 @@
         aria-labelledby="heading-session-attendance"
       >
         <div class="accordion-body">
-          <app-session-attendance [actionId]="id" />
+          <!-- Nested accordion for presence types -->
+          <div class="accordion" id="presence-nested-accordion">
+            <!-- Teachers Presence Accordion Item -->
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-teachers-presence">
+                <button
+                  class="accordion-button fw-semibold collapsed"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#teachers-presence-content"
+                  aria-expanded="false"
+                  aria-controls="teachers-presence-content"
+                >
+                  <app-icon [icon]="ICONS.user" [marginEnd]="2" />
+                  Formadores
+                </button>
+              </h2>
+              <div
+                id="teachers-presence-content"
+                class="accordion-collapse collapse"
+                aria-labelledby="heading-teachers-presence"
+              >
+                <div class="accordion-body">
+                  <app-teacher-presence [actionId]="id" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Students Presence Accordion Item -->
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-students-presence">
+                <button
+                  class="accordion-button fw-semibold collapsed"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#students-presence-content"
+                  aria-expanded="false"
+                  aria-controls="students-presence-content"
+                >
+                  <app-icon [icon]="ICONS.student" [marginEnd]="2" />
+                  Formandos
+                </button>
+              </h2>
+              <div
+                id="students-presence-content"
+                class="accordion-collapse collapse"
+                aria-labelledby="heading-students-presence"
+              >
+                <div class="accordion-body">
+                  <app-session-attendance [actionId]="id" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -383,7 +478,7 @@
           aria-controls="module-avaliation-content"
         >
           <app-icon [icon]="ICONS.squareCheck" [marginEnd]="3" />
-          <h5>Avaliações por Módulo</h5>
+          <h5>Avaliações</h5>
         </button>
       </h2>
       <div
@@ -412,7 +507,7 @@
           aria-controls="process-payments-content"
         >
           <app-icon [icon]="ICONS.payments" [marginEnd]="3" />
-          <h5>Processamento de Pagamentos</h5>
+          <h5>Pagamentos</h5>
         </button>
       </h2>
       <div

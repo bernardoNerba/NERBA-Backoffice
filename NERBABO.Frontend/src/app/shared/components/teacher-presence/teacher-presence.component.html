@@ -1,0 +1,153 @@
+@if (loading) {
+<div class="text-center py-5">
+  <app-spinner />
+  <p class="mt-2">Carregando presenças dos formadores...</p>
+</div>
+} @else { @if (sessions.length === 0) {
+<div class="text-center py-4">
+  <i class="pi pi-calendar-times text-muted" style="font-size: 2rem"></i>
+  <p class="mt-2 mb-0 text-muted">Não existem sessões para esta ação.</p>
+</div>
+} @else {
+<div class="accordion" id="teacher-presence-accordion">
+  @for (session of sessions; track session.id; let i = $index) {
+  <div class="accordion-item">
+    <h2 class="accordion-header" [id]="'heading-teacher-session-' + session.id">
+      <button
+        class="accordion-button collapsed"
+        type="button"
+        data-bs-toggle="collapse"
+        [attr.data-bs-target]="'#teacher-session-' + session.id + '-content'"
+        aria-expanded="false"
+        [attr.aria-controls]="'teacher-session-' + session.id + '-content'"
+      >
+        <div
+          class="d-flex justify-content-between align-items-center w-100 me-3"
+        >
+          <!-- Title -->
+          <div>
+            <strong>{{ session.scheduledDate | date : "dd/MM/yyyy" }}</strong>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <p-tag
+              [severity]="getPresenceSeverity(session.teacherPresence || PresenceEnum.Unknown)"
+              [icon]="getPresenceIcon(session.teacherPresence || PresenceEnum.Unknown)"
+              [value]="session.teacherPresence || PresenceEnum.Unknown"
+              class="ms-1"
+            />
+          </div>
+        </div>
+      </button>
+    </h2>
+    <div
+      [id]="'teacher-session-' + session.id + '-content'"
+      class="accordion-collapse collapse"
+      [attr.aria-labelledby]="'heading-teacher-session-' + session.id"
+    >
+      <div class="accordion-body">
+        <!-- Basic Information -->
+        <div class="py-3">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="property">
+                <div class="bg-green-white fw-bold">Formador</div>
+                <p class="text-break mb-0">
+                  {{ session.teacherPersonName }}
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="property">
+                <div class="bg-green-white fw-bold">Módulo</div>
+                <p class="text-break mb-0">
+                  {{ session.moduleName }}
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="property">
+                <div class="bg-green-white fw-bold">Duração Total</div>
+                <p class="text-break mb-0">{{ session.durationHours }}h</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORM -->
+        @if (presenceForms[session.id]) {
+        <form [formGroup]="presenceForms[session.id]">
+          <div class="table-responsive">
+            <p-table
+              #teacherTable
+              [value]="[{ teacherName: session.teacherPersonName, sessionId: session.id }]"
+              stripedRows
+              size="small"
+              [tableStyle]="{ 'min-width': '30rem' }"
+            >
+              <ng-template #header>
+                <tr>
+                  <th style="min-width: 250px">Formador</th>
+                  <th style="width: 200px">Presença</th>
+                </tr>
+              </ng-template>
+
+              <ng-template #body let-teacher let-rowIndex="rowIndex">
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="pi pi-user text-muted"></i>
+                      <strong>{{ teacher.teacherName }}</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <p-select
+                      formControlName="teacherPresence"
+                      [options]="presenceOptions"
+                      optionLabel="value"
+                      optionValue="value"
+                      placeholder="Selecione..."
+                      styleClass="w-100"
+                      [appendTo]="'body'"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <p-button
+              label="Restaurar"
+              icon="pi pi-refresh"
+              severity="secondary"
+              size="small"
+              [disabled]="saving || !hasFormChanged(session.id)"
+              (onClick)="resetForm(session.id)"
+            />
+            <p-button
+              label="Guardar"
+              icon="pi pi-check"
+              severity="success"
+              size="small"
+              [disabled]="saving || !hasFormChanged(session.id)"
+              (onClick)="updateTeacherPresence(session.id)"
+            />
+          </div>
+        </form>
+        } @else {
+        <div class="text-center py-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+          <p class="mt-2 mb-0">Carregando formulário...</p>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+</div>
+
+<p-toast></p-toast>
+} }

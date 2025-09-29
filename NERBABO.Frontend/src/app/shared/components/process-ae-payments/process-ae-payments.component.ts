@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { PaymentsService, StudentPayment, UpdateStudentPayment } from '../../../core/services/payments.service';
+import { ActionEnrollmentService } from '../../../core/services/action-enrollment.service';
 import { MessageService } from 'primeng/api';
 import { ICONS } from '../../../core/objects/icons';
 import { convertDateOnlyToPtDate, matchDateOnly } from '../../utils';
@@ -62,6 +63,7 @@ export class ProcessAePaymentsComponent implements OnInit, OnDestroy {
 
   constructor(
     private paymentsService: PaymentsService,
+    private actionEnrollmentService: ActionEnrollmentService,
     private formBuilder: FormBuilder,
     private sharedService: SharedService
   ) {}
@@ -77,9 +79,32 @@ export class ProcessAePaymentsComponent implements OnInit, OnDestroy {
   }
 
   private setupSubscriptions(): void {
+    // Listen to payment service updates
     this.paymentsService.updated$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
+        this.loadData();
+      });
+
+    // Listen to enrollment changes to refresh student payment data
+    this.actionEnrollmentService.createdSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Student payments: Enrollment created, reloading data');
+        this.loadData();
+      });
+
+    this.actionEnrollmentService.updatedSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Student payments: Enrollment updated, reloading data');
+        this.loadData();
+      });
+
+    this.actionEnrollmentService.deletedSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Student payments: Enrollment deleted, reloading data');
         this.loadData();
       });
   }

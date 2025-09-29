@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { catchError, Observable, of, Subscription, tap } from 'rxjs';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { catchError, Observable, of, Subscription, tap, BehaviorSubject } from 'rxjs';
 import { IView } from '../../../core/interfaces/IView';
 import { Action, ActionKpi } from '../../../core/models/action';
 import { MenuItem } from 'primeng/api';
@@ -33,10 +33,16 @@ import { ActionEnrollment } from '../../../core/models/actionEnrollment';
 import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
 import { SessionAttendanceComponent } from '../../../shared/components/session-attendance/session-attendance.component';
 import { ModuleAvaliationComponent } from '../../../shared/components/module-avaliation/module-avaliation.component';
+import { TeacherPresenceComponent } from '../../../shared/components/teacher-presence/teacher-presence.component';
 import { ProcessMtPaymentsComponent } from '../../../shared/components/process-mt-payments/process-mt-payments.component';
 import { ProcessAePaymentsComponent } from '../../../shared/components/process-ae-payments/process-ae-payments.component';
 import { PaymentsService, TeacherPayment, StudentPayment } from '../../../core/services/payments.service';
 import { TagModule } from 'primeng/tag';
+import { Message } from 'primeng/message';
+import { ButtonModule } from 'primeng/button';
+import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
+import { SessionsService } from '../../../core/services/sessions.service';
+import { SessionParticipationService } from '../../../core/services/session-participation.service';
 
 @Component({
   selector: 'app-view-actions',
@@ -53,18 +59,22 @@ import { TagModule } from 'primeng/tag';
     KpiRowComponent,
     SessionAttendanceComponent,
     ModuleAvaliationComponent,
+    TeacherPresenceComponent,
     ProcessMtPaymentsComponent,
     ProcessAePaymentsComponent,
     TagModule,
+    Message,
+    ButtonModule,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',
 })
-export class ViewActionsComponent implements IView, OnInit {
+export class ViewActionsComponent implements IView, OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
   title!: string;
   courseId!: number;
   action$?: Observable<Action | null>;
+  private actionSubject = new BehaviorSubject<Action | null>(null);
   course$?: Observable<Course | null>;
   menuItems: MenuItem[] | undefined;
   action?: Action;
@@ -76,6 +86,8 @@ export class ViewActionsComponent implements IView, OnInit {
   teacherPayments: TeacherPayment[] = [];
   studentPayments: StudentPayment[] = [];
   paymentsLoading: boolean = false;
+  minimalModuleTeachings: MinimalModuleTeaching[] = [];
+  modulesWithUnscheduledSessions: MinimalModuleTeaching[] = [];
 
   ICONS = ICONS;
 
@@ -91,7 +103,9 @@ export class ViewActionsComponent implements IView, OnInit {
     private modulesService: ModulesService,
     private moduleTeachingService: ModuleTeachingService,
     private actionEnrollmentService: ActionEnrollmentService,
-    private paymentsService: PaymentsService
+    private paymentsService: PaymentsService,
+    private sessionsService: SessionsService,
+    private sessionParticipationService: SessionParticipationService
   ) {}
 
   ngOnInit(): void {
@@ -109,10 +123,12 @@ export class ViewActionsComponent implements IView, OnInit {
     this.moduleChangesSubscription();
     this.enrollmentChangesSubscription();
     this.paymentChangesSubscription();
+    this.sessionChangesSubscription();
+    this.sessionParticipationChangesSubscription();
   }
 
   initializeEntity(): void {
-    this.action$ = this.actionsService.getActionById(this.id).pipe(
+    this.actionsService.getActionById(this.id).pipe(
       catchError((error) => {
         console.error(error);
         if (error.status === 401 || error.status === 403) {
@@ -131,6 +147,9 @@ export class ViewActionsComponent implements IView, OnInit {
           this.action = action;
           this.courseId = action.courseId;
 
+          // Update the BehaviorSubject with the new action
+          this.actionSubject.next(action);
+
           this.updateBreadcrumbs();
           this.initializeCourse();
           this.loadModulesWithoutTeacher();
@@ -138,9 +157,13 @@ export class ViewActionsComponent implements IView, OnInit {
           this.loadActionEnrollments();
           this.loadKpis();
           this.loadPayments();
+          this.loadMinimalModuleTeachings();
         }
       })
-    );
+    ).subscribe();
+
+    // Set up the action observable to use the BehaviorSubject
+    this.action$ = this.actionSubject.asObservable();
   }
   getModulesWithoutTeacherNames(): string[] {
     return this.modulesWithoutTeacher.map(
@@ -245,6 +268,54 @@ export class ViewActionsComponent implements IView, OnInit {
     setTimeout(() => {
       this.paymentsLoading = false;
     }, 100);
+  }
+
+  loadMinimalModuleTeachings(): void {
+    this.moduleTeachingService.getModuleTeachingByActionMinimal(this.id).subscribe({
+      next: (mt: MinimalModuleTeaching[] | MinimalModuleTeaching) => {
+        // Handle both array and single object responses
+        if (Array.isArray(mt)) {
+          this.minimalModuleTeachings = mt;
+        } else if (mt && typeof mt === 'object') {
+          this.minimalModuleTeachings = [mt as MinimalModuleTeaching];
+        } else {
+          this.minimalModuleTeachings = [];
+        }
+        this.updateUnscheduledSessionsAlert();
+      },
+      error: (error) => {
+        console.error('Error loading minimal module teachings:', error);
+        this.minimalModuleTeachings = [];
+        this.modulesWithUnscheduledSessions = [];
+      },
+    });
+  }
+
+  updateUnscheduledSessionsAlert(): void {
+    this.modulesWithUnscheduledSessions = this.minimalModuleTeachings.filter(
+      (mt) => mt.scheduledPercent < 100
+    );
+  }
+
+  getModulesWithUnscheduledSessionsNames(): string[] {
+    return this.modulesWithUnscheduledSessions.map(
+      (module) => `${module.moduleName} - ${module.scheduledPercent}% agendado`
+    );
+  }
+
+  refreshActionDataOnly(): void {
+    this.actionsService.getActionById(this.id).subscribe({
+      next: (action) => {
+        if (action) {
+          // Update the action properties and the BehaviorSubject
+          this.action = action;
+          this.actionSubject.next(action);
+        }
+      },
+      error: (error) => {
+        console.error('Error refreshing action data:', error);
+      }
+    });
   }
 
   getTeacherPaymentStatus(): 'Pago' | 'Pendente' {
@@ -361,6 +432,10 @@ export class ViewActionsComponent implements IView, OnInit {
         // Reload both module lists when a new module teaching is created
         this.loadModulesWithoutTeacher();
         this.loadModulesWithTeacher();
+        this.loadMinimalModuleTeachings();
+        this.loadKpis();
+        // Refresh only action data without reinitializing the observable
+        this.refreshActionDataOnly();
       })
     );
 
@@ -370,6 +445,10 @@ export class ViewActionsComponent implements IView, OnInit {
         // Reload both module lists when a module teaching is updated
         this.loadModulesWithoutTeacher();
         this.loadModulesWithTeacher();
+        this.loadMinimalModuleTeachings();
+        this.loadKpis();
+        // Refresh only action data without reinitializing the observable
+        this.refreshActionDataOnly();
       })
     );
   }
@@ -445,22 +524,36 @@ export class ViewActionsComponent implements IView, OnInit {
     });
   }
 
+  onAddStudentFromAlert(): void {
+    // Same functionality as onAddStudentModal but called from the alert
+    this.onAddStudentModal();
+  }
+
   enrollmentChangesSubscription(): void {
     this.subscriptions.add(
       this.actionEnrollmentService.createdSource$.subscribe(() => {
         this.loadActionEnrollments();
+        this.loadKpis();
+        // Refresh action data to update accordion visibility properties
+        this.refreshActionDataOnly();
       })
     );
 
     this.subscriptions.add(
       this.actionEnrollmentService.updatedSource$.subscribe(() => {
         this.loadActionEnrollments();
+        this.loadKpis();
+        // Refresh action data to update accordion visibility properties
+        this.refreshActionDataOnly();
       })
     );
 
     this.subscriptions.add(
       this.actionEnrollmentService.deletedSource$.subscribe(() => {
         this.loadActionEnrollments();
+        this.loadKpis();
+        // Refresh action data to update accordion visibility properties
+        this.refreshActionDataOnly();
       })
     );
   }
@@ -469,7 +562,56 @@ export class ViewActionsComponent implements IView, OnInit {
     this.subscriptions.add(
       this.paymentsService.updated$.subscribe(() => {
         this.loadPayments();
+        this.loadKpis();
       })
     );
+  }
+
+  sessionChangesSubscription(): void {
+    this.subscriptions.add(
+      this.sessionsService.updatedSource$.subscribe(() => {
+        this.loadMinimalModuleTeachings();
+        this.loadKpis();
+        // Refresh only action data without reinitializing the observable
+        this.refreshActionDataOnly();
+      })
+    );
+
+    this.subscriptions.add(
+      this.sessionsService.deletedSource$.subscribe(() => {
+        this.loadMinimalModuleTeachings();
+        this.loadKpis();
+        // Refresh only action data without reinitializing the observable
+        this.refreshActionDataOnly();
+      })
+    );
+  }
+
+  sessionParticipationChangesSubscription(): void {
+    this.subscriptions.add(
+      this.sessionParticipationService.createdSource$.subscribe(() => {
+        // Refresh KPIs when attendance/presences are created
+        this.loadKpis();
+      })
+    );
+
+    this.subscriptions.add(
+      this.sessionParticipationService.updatedSource$.subscribe(() => {
+        // Refresh KPIs when attendance/presences are updated
+        this.loadKpis();
+      })
+    );
+
+    this.subscriptions.add(
+      this.sessionParticipationService.deletedSource$.subscribe(() => {
+        // Refresh KPIs when attendance/presences are deleted
+        this.loadKpis();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.actionSubject.complete();
   }
 }
