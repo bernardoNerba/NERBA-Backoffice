@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { ModuleAvaliationsService } from '../../../core/services/module-avaliations.service';
+import { ActionEnrollmentService } from '../../../core/services/action-enrollment.service';
 import {
   AvaliationByModule,
   UpdateModuleAvaliation,
@@ -64,6 +65,7 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
 
   constructor(
     private moduleAvaliationService: ModuleAvaliationsService,
+    private actionEnrollmentService: ActionEnrollmentService,
     private formBuilder: FormBuilder,
     private sharedService: SharedService
   ) {}
@@ -82,6 +84,28 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
     this.moduleAvaliationService.updated$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
+        this.loadData();
+      });
+
+    // Listen to enrollment changes to refresh module evaluation data
+    this.actionEnrollmentService.createdSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Module evaluations: Enrollment created, reloading data');
+        this.loadData();
+      });
+
+    this.actionEnrollmentService.updatedSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Module evaluations: Enrollment updated, reloading data');
+        this.loadData();
+      });
+
+    this.actionEnrollmentService.deletedSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Module evaluations: Enrollment deleted, reloading data');
         this.loadData();
       });
   }

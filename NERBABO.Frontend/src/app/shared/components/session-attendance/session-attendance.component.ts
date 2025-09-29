@@ -141,6 +141,28 @@ export class SessionAttendanceComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.loadData();
       });
+
+    // Listen to enrollment changes to refresh session attendance data
+    this.actionEnrollmentService.createdSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Session attendance: Enrollment created, reloading data');
+        this.loadData();
+      });
+
+    this.actionEnrollmentService.updatedSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Session attendance: Enrollment updated, reloading data');
+        this.loadData();
+      });
+
+    this.actionEnrollmentService.deletedSource$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('Session attendance: Enrollment deleted, reloading data');
+        this.loadData();
+      });
   }
 
   private loadData(): void {
