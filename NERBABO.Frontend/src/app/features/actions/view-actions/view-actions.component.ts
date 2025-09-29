@@ -361,6 +361,8 @@ export class ViewActionsComponent implements IView, OnInit {
         // Reload both module lists when a new module teaching is created
         this.loadModulesWithoutTeacher();
         this.loadModulesWithTeacher();
+        // Refresh action data to update showSessions and other properties
+        this.initializeEntity();
       })
     );
 
@@ -370,6 +372,8 @@ export class ViewActionsComponent implements IView, OnInit {
         // Reload both module lists when a module teaching is updated
         this.loadModulesWithoutTeacher();
         this.loadModulesWithTeacher();
+        // Refresh action data to update showSessions and other properties
+        this.initializeEntity();
       })
     );
   }
