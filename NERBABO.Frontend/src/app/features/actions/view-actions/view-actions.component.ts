@@ -37,8 +37,11 @@ import { ProcessMtPaymentsComponent } from '../../../shared/components/process-m
 import { ProcessAePaymentsComponent } from '../../../shared/components/process-ae-payments/process-ae-payments.component';
 import { PaymentsService, TeacherPayment, StudentPayment } from '../../../core/services/payments.service';
 import { TagModule } from 'primeng/tag';
+import { Message } from 'primeng/message';
+import { ButtonModule } from 'primeng/button';
 import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
 import { SessionsService } from '../../../core/services/sessions.service';
+import { SessionParticipationService } from '../../../core/services/session-participation.service';
 
 @Component({
   selector: 'app-view-actions',
@@ -58,6 +61,8 @@ import { SessionsService } from '../../../core/services/sessions.service';
     ProcessMtPaymentsComponent,
     ProcessAePaymentsComponent,
     TagModule,
+    Message,
+    ButtonModule,
   ],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',
@@ -97,7 +102,8 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     private moduleTeachingService: ModuleTeachingService,
     private actionEnrollmentService: ActionEnrollmentService,
     private paymentsService: PaymentsService,
-    private sessionsService: SessionsService
+    private sessionsService: SessionsService,
+    private sessionParticipationService: SessionParticipationService
   ) {}
 
   ngOnInit(): void {
@@ -116,6 +122,7 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     this.enrollmentChangesSubscription();
     this.paymentChangesSubscription();
     this.sessionChangesSubscription();
+    this.sessionParticipationChangesSubscription();
   }
 
   initializeEntity(): void {
@@ -424,6 +431,7 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
         this.loadModulesWithoutTeacher();
         this.loadModulesWithTeacher();
         this.loadMinimalModuleTeachings();
+        this.loadKpis();
         // Refresh only action data without reinitializing the observable
         this.refreshActionDataOnly();
       })
@@ -436,6 +444,7 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
         this.loadModulesWithoutTeacher();
         this.loadModulesWithTeacher();
         this.loadMinimalModuleTeachings();
+        this.loadKpis();
         // Refresh only action data without reinitializing the observable
         this.refreshActionDataOnly();
       })
@@ -513,10 +522,16 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     });
   }
 
+  onAddStudentFromAlert(): void {
+    // Same functionality as onAddStudentModal but called from the alert
+    this.onAddStudentModal();
+  }
+
   enrollmentChangesSubscription(): void {
     this.subscriptions.add(
       this.actionEnrollmentService.createdSource$.subscribe(() => {
         this.loadActionEnrollments();
+        this.loadKpis();
         // Refresh action data to update accordion visibility properties
         this.refreshActionDataOnly();
       })
@@ -525,6 +540,7 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     this.subscriptions.add(
       this.actionEnrollmentService.updatedSource$.subscribe(() => {
         this.loadActionEnrollments();
+        this.loadKpis();
         // Refresh action data to update accordion visibility properties
         this.refreshActionDataOnly();
       })
@@ -533,6 +549,7 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     this.subscriptions.add(
       this.actionEnrollmentService.deletedSource$.subscribe(() => {
         this.loadActionEnrollments();
+        this.loadKpis();
         // Refresh action data to update accordion visibility properties
         this.refreshActionDataOnly();
       })
@@ -543,6 +560,7 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     this.subscriptions.add(
       this.paymentsService.updated$.subscribe(() => {
         this.loadPayments();
+        this.loadKpis();
       })
     );
   }
@@ -551,6 +569,7 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     this.subscriptions.add(
       this.sessionsService.updatedSource$.subscribe(() => {
         this.loadMinimalModuleTeachings();
+        this.loadKpis();
         // Refresh only action data without reinitializing the observable
         this.refreshActionDataOnly();
       })
@@ -559,8 +578,32 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     this.subscriptions.add(
       this.sessionsService.deletedSource$.subscribe(() => {
         this.loadMinimalModuleTeachings();
+        this.loadKpis();
         // Refresh only action data without reinitializing the observable
         this.refreshActionDataOnly();
+      })
+    );
+  }
+
+  sessionParticipationChangesSubscription(): void {
+    this.subscriptions.add(
+      this.sessionParticipationService.createdSource$.subscribe(() => {
+        // Refresh KPIs when attendance/presences are created
+        this.loadKpis();
+      })
+    );
+
+    this.subscriptions.add(
+      this.sessionParticipationService.updatedSource$.subscribe(() => {
+        // Refresh KPIs when attendance/presences are updated
+        this.loadKpis();
+      })
+    );
+
+    this.subscriptions.add(
+      this.sessionParticipationService.deletedSource$.subscribe(() => {
+        // Refresh KPIs when attendance/presences are deleted
+        this.loadKpis();
       })
     );
   }
