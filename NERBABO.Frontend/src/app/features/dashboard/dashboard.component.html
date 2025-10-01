@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="row align-items-center">
     <div class="col-8">
-      <h3 class="text-truncate mb-1">
+      <h3 class="text-truncate mb-2">
         {{ title }}
       </h3>
     </div>
@@ -9,56 +9,64 @@
 </div>
 <div class="container-fluid p-1">
   <div class="row g-3 mb-4">
-    <!-- First Row - 3 small KPI cards + 1 medium -->
-    <!-- KPIS -->
-    <div class="col-12 col-sm-6 col-md-3 col-lg-6">
+    <!-- KPI Cards Section -->
+    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
       <div class="kpi">
         <app-kpi-card
-          title="Total Formandos"
-          [value]="dashboardKpis.totalStudents"
+          title="Pagamento Formadores (este mês)"
+          [value]="dashboardKpis.totalStudents + '€'"
           icon="pi pi-users"
         />
       </div>
       <div class="kpi">
         <app-kpi-card
-          title="Certificados"
-          [value]="dashboardKpis.totalApproved"
-          icon="pi pi-verified"
+          title="Pagamento Formandos (este mês)"
+          [value]="dashboardKpis.totalApproved + '€'"
+          icon="pi pi-graduation-cap"
         />
       </div>
       <div class="kpi">
         <app-kpi-card
-          title="Volume (dias)"
+          title="Total de Empresas (2025)"
           [value]="dashboardKpis.totalVolumeDays"
-          icon="pi pi-calendar"
+          icon="pi pi-building"
         />
       </div>
     </div>
 
-    <!-- Top 5 Companies Card -->
-    <div class="col-12 col-sm-6 col-md-3 col-lg-6">
+    <!-- Top 5 Tabbed Card (Empresas, Ações, Formandos) -->
+    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
       <div class="card shadow border h-100" style="min-height: 150px">
         <div class="card-body">
-          <h6 class="color-secondary mb-3">Top 5 Empresas</h6>
-          <div class="list-group list-group-flush">
-            @for (company of top5Companies; track company.name) {
-            <div
-              class="d-flex justify-content-between align-items-center py-2 border-bottom"
-            >
-              <span class="text-truncate me-2">{{ company.name }}</span>
-              <span class="badge bg-primary rounded-pill">{{
-                company.count
-              }}</span>
-            </div>
-            }
-          </div>
+          <p-tabs value="0">
+            <p-tablist>
+              @for (tab of tabs; track tab.value) {
+              <p-tab [value]="tab.value">{{ tab.title }}</p-tab>
+              }
+            </p-tablist>
+            <p-tabpanels>
+              @for (tab of tabs; track tab.value) {
+              <p-tabpanel [value]="tab.value">
+                <div class="list-group list-group-flush">
+                  @for (item of tab.content; track item.name) {
+                  <div
+                    class="d-flex justify-content-between align-items-center py-2 border-bottom"
+                  >
+                    <span class="text-truncate me-2">{{ item.name }}</span>
+                    <p-tag severity="primary" value="{{ item.count }}" />
+                  </div>
+                  }
+                </div>
+              </p-tabpanel>
+              }
+            </p-tabpanels>
+          </p-tabs>
         </div>
       </div>
     </div>
 
-    <!-- Third Row - Charts -->
+    <!-- Line Chart - Students by Education Level -->
     <div class="col-12 col-lg-12">
-      <!--  Chart -->
       <div class="card shadow border" style="height: 250px">
         <div class="card-body d-flex flex-column h-100">
           <app-year-students-education-lvl-chart
@@ -68,8 +76,8 @@
       </div>
     </div>
 
+    <!-- Doughnut Chart - Student Results -->
     <div class="col-12 col-lg-6">
-      <!--  Chart -->
       <div class="card shadow border" style="height: 420px">
         <div class="card-body d-flex flex-column h-100">
           <app-year-students-result-chart
@@ -79,8 +87,8 @@
       </div>
     </div>
 
+    <!-- Doughnut Chart - Actions by Level -->
     <div class="col-12 col-lg-6">
-      <!--  Chart -->
       <div class="card shadow border" style="height: 420px">
         <div class="card-body d-flex flex-column h-100">
           <app-total-action-lvl-chart class="flex-grow-1 d-flex flex-column" />
@@ -88,9 +96,8 @@
       </div>
     </div>
 
-    <!-- Second Row - Charts -->
+    <!-- Bar Chart - Students by Sex -->
     <div class="col-12 col-lg-12">
-      <!--  Chart -->
       <div class="card shadow border" style="height: 250px">
         <div class="card-body d-flex flex-column h-100">
           <app-year-students-sex-chart class="flex-grow-1 d-flex flex-column" />
