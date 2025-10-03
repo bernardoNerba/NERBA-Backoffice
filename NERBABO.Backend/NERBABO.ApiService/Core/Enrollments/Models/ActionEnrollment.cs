@@ -23,7 +23,6 @@ public class ActionEnrollment : Entity<long>
     public DateOnly? PaymentDate { get; set; }
     public bool PaymentProcessed => PaymentDate.HasValue;
 
-
     // Navigation Properties
     public required CourseAction Action { get; set; }
     public required Student Student { get; set; }

@@ -47,4 +47,12 @@ public class KpisController(
         var result = await _kpisService.StudentsByHabilitationLvl(intervale);
         return _responseHandler.HandleResult(result);
     }
+
+    [HttpGet("student-results/{intervale}")]
+    [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetStudentResultsAsync(TimeIntervalEnum intervale)
+    {
+        var result = await _kpisService.StudentResults(intervale);
+        return _responseHandler.HandleResult(result);
+    }
 }

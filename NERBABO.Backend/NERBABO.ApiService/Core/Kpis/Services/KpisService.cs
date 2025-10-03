@@ -136,6 +136,63 @@ public class KpisService(
             .Ok(data);
     }
 
+    public async Task<Result<Kpi<List<ChartDataPoint>>>> StudentResults(TimeIntervalEnum t)
+    {
+        string title = "Resultados de Formandos";
+        string refersTo; DateTime startDate;
+
+        (startDate, refersTo) = DefineTimeIntervaleAsync(t);
+
+        var studentResults = await _context.ActionEnrollments
+            .AsNoTracking()
+            .Where(ae => ae.CreatedAt >= startDate)
+            .Select(ae => new
+            {
+                ApprovalStatus = ae.ApprovalStatus
+            })
+            .ToListAsync();
+
+        // Group by approval status in memory (since ApprovalStatus is a calculated property)
+        var groupedResults = studentResults
+            .GroupBy(ae => ae.ApprovalStatus)
+            .Select(g => new
+            {
+                ApprovalStatus = g.Key,
+                Count = g.Count()
+            })
+            .ToList();
+
+        // Get all approval status enum values with their descriptions using Humanizer
+        var allApprovalStatuses = Enum.GetValues<ApprovalStatusEnum>()
+            .Select(a => new ChartDataPoint
+            {
+                Label = a.Humanize().Transform(To.TitleCase),
+                Value = 0
+            })
+            .ToList();
+
+        // Merge with actual data
+        foreach (var item in groupedResults)
+        {
+            var label = item.ApprovalStatus.Humanize().Transform(To.TitleCase);
+            var existing = allApprovalStatuses.FirstOrDefault(h => h.Label == label);
+
+            if (existing != null)
+            {
+                existing.Value = item.Count;
+            }
+        }
+
+        var data = new Kpi<List<ChartDataPoint>>
+        {
+            KpiTitle = title,
+            RefersTo = refersTo,
+            Value = allApprovalStatuses
+        };
+
+        return Result<Kpi<List<ChartDataPoint>>>
+            .Ok(data);
+    }
 
     private (DateTime d, string rf) DefineTimeIntervaleAsync(TimeIntervalEnum t)
     {

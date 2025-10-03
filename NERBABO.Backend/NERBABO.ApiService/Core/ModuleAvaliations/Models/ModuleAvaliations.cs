@@ -1,6 +1,7 @@
 using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.ModuleAvaliations.Dtos;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
+using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.ModuleAvaliations.Models;

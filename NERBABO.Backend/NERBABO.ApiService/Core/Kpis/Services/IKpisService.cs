@@ -33,4 +33,11 @@ public interface IKpisService
     /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
     /// <returns>KPI where the T is a list of chart data points representing the count of students per habilitation level.</returns>
     Task<Result<Kpi<List<ChartDataPoint>>>> StudentsByHabilitationLvl(TimeIntervalEnum t);
+
+    /// <summary>
+    /// Distribution of student results by approval status.
+    /// </summary>
+    /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
+    /// <returns>KPI where the T is a list of chart data points representing the count of students per approval status.</returns>
+    Task<Result<Kpi<List<ChartDataPoint>>>> StudentResults(TimeIntervalEnum t);
 }
