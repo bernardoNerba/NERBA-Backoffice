@@ -18,9 +18,33 @@ public class KpisController(
 
     [HttpGet("student-payments-kpi/{intervale}")]
     [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
-    public async Task<IActionResult> GetTeacherPaymentsKpiAsync(TimeIntervalEnum intervale)
+    public async Task<IActionResult> GetStudentPaymentsKpiAsync(TimeIntervalEnum intervale)
     {
         var result = await _kpisService.StudentPayments(intervale);
+        return _responseHandler.HandleResult(result);
+    }
+
+    [HttpGet("teacher-payments-kpi/{intervale}")]
+    [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetTeacherPaymentsKpiAsync(TimeIntervalEnum intervale)
+    {
+        var result = await _kpisService.TeacherPayments(intervale);
+        return _responseHandler.HandleResult(result);
+    }
+
+    [HttpGet("total-companies/{intervale}")]
+    [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetTotalCompaniesKpiAsync(TimeIntervalEnum intervale)
+    {
+        var result = await _kpisService.TotalCompanies(intervale);
+        return _responseHandler.HandleResult(result);
+    }
+
+    [HttpGet("students-by-habilitation/{intervale}")]
+    [Authorize(Roles = "Admin, FM", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetStudentsByHabilitationAsync(TimeIntervalEnum intervale)
+    {
+        var result = await _kpisService.StudentsByHabilitationLvl(intervale);
         return _responseHandler.HandleResult(result);
     }
 }

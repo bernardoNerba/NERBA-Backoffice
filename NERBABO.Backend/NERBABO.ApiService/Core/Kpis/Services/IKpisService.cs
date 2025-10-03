@@ -26,4 +26,11 @@ public interface IKpisService
     /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
     /// <returns>KPI where the T is a int representing the total companies registed during a time period.</returns>
     Task<Result<Kpi<int>>> TotalCompanies(TimeIntervalEnum t);
+
+    /// <summary>
+    /// Distribution of students by habilitation level.
+    /// </summary>
+    /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
+    /// <returns>KPI where the T is a list of chart data points representing the count of students per habilitation level.</returns>
+    Task<Result<Kpi<List<ChartDataPoint>>>> StudentsByHabilitationLvl(TimeIntervalEnum t);
 }
