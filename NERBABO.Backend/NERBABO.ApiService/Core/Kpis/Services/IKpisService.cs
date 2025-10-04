@@ -40,4 +40,18 @@ public interface IKpisService
     /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
     /// <returns>KPI where the T is a list of chart data points representing the count of students per approval status.</returns>
     Task<Result<Kpi<List<ChartDataPoint>>>> StudentResults(TimeIntervalEnum t);
+
+    /// <summary>
+    /// Distribution of actions by minimum habilitation level grouped into three levels (Nível 1, 2, 3).
+    /// </summary>
+    /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
+    /// <returns>KPI where the T is a list of chart data points representing the count of actions per habilitation level.</returns>
+    Task<Result<Kpi<List<ChartDataPoint>>>> ActionHabilitationsLvl(TimeIntervalEnum t);
+
+    /// <summary>
+    /// Distribution of students by gender over time, grouped by month within the time interval.
+    /// </summary>
+    /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
+    /// <returns>KPI where the T is a list of gender time series representing the count of students per gender per month.</returns>
+    Task<Result<Kpi<List<GenderTimeSeries>>>> StudentGenders(TimeIntervalEnum t);
 }

@@ -41,6 +41,11 @@ public class KpisService(
             .Ok(data);
     }
 
+    /// <summary>
+    /// Calculates the total payments made to teachers within a specified time interval.
+    /// </summary>
+    /// <param name="t">The time interval to filter the payments (Month, Year, or Ever).</param>
+    /// <returns>A KPI containing the total amount of teacher payments as an integer.</returns>
     public async Task<Result<Kpi<int>>> TeacherPayments(TimeIntervalEnum t)
     {
         string title = "Pagamentos a Formadores";
@@ -192,6 +197,157 @@ public class KpisService(
 
         return Result<Kpi<List<ChartDataPoint>>>
             .Ok(data);
+    }
+
+    public async Task<Result<Kpi<List<ChartDataPoint>>>> ActionHabilitationsLvl(TimeIntervalEnum t)
+    {
+        string title = "Ações por Nível de Habilitação Mínimo";
+        string refersTo; DateTime startDate;
+
+        (startDate, refersTo) = DefineTimeIntervaleAsync(t);
+
+        var actionsByHabilitation = await _context.Actions
+            .AsNoTracking()
+            .Include(a => a.Course)
+            .Where(a => a.CreatedAt >= startDate)
+            .Select(a => new
+            {
+                MinHabilitation = a.Course.MinHabilitationLevel
+            })
+            .ToListAsync();
+
+        // Group by habilitation level in memory
+        var groupedByLevel = actionsByHabilitation
+            .GroupBy(a => MapHabilitationToLevel(a.MinHabilitation))
+            .Select(g => new ChartDataPoint
+            {
+                Label = g.Key,
+                Value = g.Count()
+            })
+            .ToList();
+
+        // Ensure all levels are present, even if count is 0
+        var allLevels = new List<string> { "Nível 1", "Nível 2", "Nível 3" };
+        var result = allLevels.Select(level => new ChartDataPoint
+        {
+            Label = level,
+            Value = groupedByLevel.FirstOrDefault(g => g.Label == level)?.Value ?? 0
+        }).ToList();
+
+        var data = new Kpi<List<ChartDataPoint>>
+        {
+            KpiTitle = title,
+            RefersTo = refersTo,
+            Value = result
+        };
+
+        return Result<Kpi<List<ChartDataPoint>>>
+            .Ok(data);
+    }
+
+    public async Task<Result<Kpi<List<GenderTimeSeries>>>> StudentGenders(TimeIntervalEnum t)
+    {
+        string title = "Formandos por Género ao Longo do Tempo";
+        string refersTo; DateTime startDate;
+
+        (startDate, refersTo) = DefineTimeIntervaleAsync(t);
+
+        var students = await _context.People
+            .AsNoTracking()
+            .Where(p => p.Student != null && p.CreatedAt >= startDate)
+            .Select(p => new
+            {
+                Gender = p.Gender,
+                CreatedAt = p.CreatedAt
+            })
+            .ToListAsync();
+
+        // Get all gender enum values
+        var allGenders = Enum.GetValues<GenderEnum>();
+
+        // Generate list of months in the time interval
+        // For "Ever", use a reasonable time range (last 12 months) to avoid generating thousands of months
+        var effectiveStartDate = t == TimeIntervalEnum.Ever
+            ? DateTime.UtcNow.AddYears(-1)
+            : startDate;
+        var months = GenerateMonthsList(effectiveStartDate, DateTime.UtcNow);
+
+        // Group by gender and create time series for each
+        var genderTimeSeries = allGenders.Select(gender =>
+        {
+            var genderLabel = gender.Humanize().Transform(To.TitleCase);
+            var genderStudents = students.Where(s => s.Gender == gender);
+
+            var monthlyData = months.Select(month =>
+            {
+                var count = genderStudents.Count(s =>
+                    s.CreatedAt.Year == month.Year && s.CreatedAt.Month == month.Month);
+
+                return new MonthDataPoint
+                {
+                    Month = month.ToString("MMM yyyy", new CultureInfo("pt-PT")),
+                    Count = count
+                };
+            }).ToList();
+
+            return new GenderTimeSeries
+            {
+                Gender = genderLabel,
+                Data = monthlyData
+            };
+        }).ToList();
+
+        var data = new Kpi<List<GenderTimeSeries>>
+        {
+            KpiTitle = title,
+            RefersTo = refersTo,
+            Value = genderTimeSeries
+        };
+
+        return Result<Kpi<List<GenderTimeSeries>>>
+            .Ok(data);
+    }
+
+    private static string MapHabilitationToLevel(HabilitationEnum habilitation)
+    {
+        return habilitation switch
+        {
+            HabilitationEnum.WithoutProof => "Nível 1",
+            HabilitationEnum.WithoutHabilitation => "Nível 1",
+            HabilitationEnum.FirstYear => "Nível 1",
+            HabilitationEnum.SecondYear => "Nível 1",
+            HabilitationEnum.ThirdYear => "Nível 1",
+            HabilitationEnum.FourthYear => "Nível 1",
+            HabilitationEnum.FifthYear => "Nível 1",
+            HabilitationEnum.SixthYear => "Nível 1",
+            HabilitationEnum.SeventhYear => "Nível 1",
+            HabilitationEnum.EighthYear => "Nível 1",
+            HabilitationEnum.NinthYear => "Nível 1",
+            HabilitationEnum.TenthYear => "Nível 2",
+            HabilitationEnum.EleventhYear => "Nível 2",
+            HabilitationEnum.TwelfthYear => "Nível 2",
+            HabilitationEnum.PostSecondary => "Nível 3",
+            HabilitationEnum.Bachelors => "Nível 3",
+            HabilitationEnum.Undergraduate => "Nível 3",
+            HabilitationEnum.Masters => "Nível 3",
+            HabilitationEnum.Doctorate => "Nível 3",
+            _ => "Nível 1"
+        };
+    }
+
+    private static List<DateTime> GenerateMonthsList(DateTime startDate, DateTime endDate)
+    {
+        var months = new List<DateTime>();
+        var current = new DateTime(startDate.Year, startDate.Month, 1);
+        var end = new DateTime(endDate.Year, endDate.Month, 1);
+
+        while (current <= end)
+        {
+            months.Add(current);
+            current = current.AddMonths(1);
+        }
+
+        return months;
     }
 
     private (DateTime d, string rf) DefineTimeIntervaleAsync(TimeIntervalEnum t)
