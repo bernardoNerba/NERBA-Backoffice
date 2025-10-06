@@ -58,6 +58,14 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
 
   subscriptions: Subscription = new Subscription();
 
+  // buttons for alert
+  addModuleAction = {
+    label: 'Adicionar Módulo',
+    icon: 'pi pi-plus',
+    callback: () => this.onAssignModuleModal(),
+    severity: 'secondary' as const,
+  };
+
   constructor(
     private coursesService: CoursesService,
     private frameService: FrameService,
@@ -170,7 +178,7 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error loading course KPIs:', error);
-      }
+      },
     });
   }
 
