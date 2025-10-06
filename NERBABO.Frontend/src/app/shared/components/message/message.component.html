@@ -1,27 +1,41 @@
 @if (show){
-<div class="alert-container my-3">
-  <p-message severity="warn" closable>
-    <div>
-      <!-- First line: Warning icon + "Cuidado!" -->
-      <div class="d-flex align-items-center mb-2">
-        <i class="pi pi-exclamation-triangle me-2"></i>
-        <span class="fw-bold">Cuidado!</span>
+<div class="message-container my-3">
+  <p-message [severity]="severity" closable styleClass="custom-message">
+    <div class="message-content">
+      <!-- Header: Icon + Title -->
+      <div class="message-header">
+        <i [class]="severityIcon + ' message-icon'"></i>
+        <span class="message-title">{{ severityTitle }}</span>
       </div>
 
       <!-- Description -->
-      <div class="mb-2">
+      <div class="message-description">
         <strong>{{ description }}</strong>
       </div>
 
+      <!-- Items List -->
       @if (items.length > 0){
-      <ul class="mb-0">
+      <ul class="message-items">
         @for (item of items; track item) {
         <li>{{ item }}</li>
         }
       </ul>
       }
+
+      <!-- Action Button -->
+      @if (action) {
+      <div class="message-actions">
+        <p-button
+          [label]="action.label"
+          [icon]="action.icon || 'pi pi-arrow-right'"
+          [severity]="getActionSeverity()"
+          size="small"
+          [outlined]="true"
+          (onClick)="onActionClick()"
+        />
+      </div>
+      }
     </div>
   </p-message>
 </div>
-
 }
