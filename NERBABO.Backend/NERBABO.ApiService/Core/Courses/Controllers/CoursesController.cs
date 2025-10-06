@@ -236,20 +236,5 @@ namespace NERBABO.ApiService.Core.Courses.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        /// <summary>
-        /// Gets all the necessary information to display in the course kpis cards.
-        /// </summary>
-        /// <param name="courseId">The ID of the course to be calculated the kpis on.</param>
-        /// <response code="200">There is a course on the system with the given id.</response>
-        /// <response code="404">The course with the given id was not found on the system.</response>
-        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-        /// <response code="500">Unexpected error occurred.</response>
-        [HttpGet("kpis/{courseId}")]
-        [Authorize(Policy = "ActiveUser")]
-        public async Task<IActionResult> GetCourseKpisAsync(long courseId)
-        {
-            var result = await _courseService.GetKpisAsync(courseId);
-            return _responseHandler.HandleResult(result);
-        }
     }
 }

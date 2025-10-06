@@ -165,4 +165,38 @@ public class KpisController(
         var result = await _kpisService.Top5ActionsByStatus(intervale);
         return _responseHandler.HandleResult(result);
     }
+
+    /// <summary>
+    /// Gets aggregated KPIs for a specific course.
+    /// Includes total students, approved, volume hours and days across all actions of the course.
+    /// </summary>
+    /// <param name="courseId">The ID of the course.</param>
+    /// <response code="200">Returns the course KPIs.</response>
+    /// <response code="404">Course not found.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet("course/{courseId:long}")]
+    [Authorize(Roles = "Admin, User", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetCourseKpisAsync(long courseId)
+    {
+        var result = await _kpisService.GetCourseKpisAsync(courseId);
+        return _responseHandler.HandleResult(result);
+    }
+
+    /// <summary>
+    /// Gets KPIs for a specific action.
+    /// Includes total students, approved, volume hours and days for the action.
+    /// </summary>
+    /// <param name="actionId">The ID of the action.</param>
+    /// <response code="200">Returns the action KPIs.</response>
+    /// <response code="404">Action not found.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet("action/{actionId:long}")]
+    [Authorize(Roles = "Admin, User", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetActionKpisAsync(long actionId)
+    {
+        var result = await _kpisService.GetActionKpisAsync(actionId);
+        return _responseHandler.HandleResult(result);
+    }
 }

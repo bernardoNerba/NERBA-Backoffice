@@ -4,8 +4,6 @@ using NERBABO.ApiService.Core.Actions.Cache;
 using NERBABO.ApiService.Core.Actions.Dtos;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Courses.Cache;
-using NERBABO.ApiService.Core.Enrollments.Models;
-using NERBABO.ApiService.Core.Enrollments.Services;
 using NERBABO.ApiService.Core.Modules.Cache;
 using NERBABO.ApiService.Core.Reports.Models;
 using NERBABO.ApiService.Core.Reports.Services;
@@ -620,24 +618,5 @@ namespace NERBABO.ApiService.Core.Actions.Services
                 .Ok(existingActions);
         }
 
-        public async Task<Result<KpisActionDto>> GetKpisAsync(long actionId)
-        {
-            var existingAction = await _context.Actions
-                .Include(a => a.ActionEnrollments)
-                    .ThenInclude(ae => ae.Participations)
-                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
-                .FirstOrDefaultAsync(a => a.Id == actionId);
-            if (existingAction is null)
-            {
-                _logger.LogWarning("CourseAction with ID {id} not found.", actionId);
-                return Result<KpisActionDto>
-                    .Fail("Não encontrado.", "Ação não encontrada.",
-                    StatusCodes.Status404NotFound);
-            }
-
-            var kpis = existingAction.ConvertEntityToKpiDto();
-            return Result<KpisActionDto>
-                .Ok(kpis);
-        }
     }
 }

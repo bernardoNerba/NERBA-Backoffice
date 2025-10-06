@@ -14,6 +14,5 @@ namespace NERBABO.ApiService.Core.Courses.Services
         Task<Result<IEnumerable<RetrieveCourseDto>>> GetCoursesByModuleIdAsync(long moduleId);
         Task<Result> ChangeCourseStatusAsync(long id, string status);
         Task<Result<RetrieveCourseDto>> UpdateCourseModulesAsync(List<long> moduleIds, long courseId);
-        Task<Result<KpisCourseDto>> GetKpisAsync(long courseId);
     }
 }

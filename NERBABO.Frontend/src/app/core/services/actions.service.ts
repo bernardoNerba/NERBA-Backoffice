@@ -132,7 +132,7 @@ export class ActionsService {
   }
 
   getKpis(actionId: number): Observable<ActionKpi> {
-    const url = API_ENDPOINTS.actionsKpis + actionId;
+    const url = API_ENDPOINTS.kpisAction + actionId;
     console.log('KPI request URL:', url);
     return this.http.get<ActionKpi>(url);
   }

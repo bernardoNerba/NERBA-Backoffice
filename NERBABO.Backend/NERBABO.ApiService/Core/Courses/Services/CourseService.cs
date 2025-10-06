@@ -848,36 +848,5 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 .Ok(updatedCourse, "Curso Atualizado", "Curso atualizado com sucesso.");
         }
 
-        public async Task<Result<KpisCourseDto>> GetKpisAsync(long courseId)
-        {
-            var existingCourse = await _context.Courses
-                .Include(c => c.Actions)
-                    .ThenInclude(a => a.ActionEnrollments)
-                        .ThenInclude(ae => ae.Participations)
-                .Include(c => c.Actions)
-                    .ThenInclude(a => a.ModuleTeachings)
-                        .ThenInclude(mt => mt.Sessions)
-                .FirstOrDefaultAsync(c => c.Id == courseId);
-            
-            if (existingCourse is null)
-            {
-                _logger.LogWarning("Course with ID {id} not found.", courseId);
-                return Result<KpisCourseDto>
-                    .Fail("Não encontrado.", "Curso não encontrado.",
-                    StatusCodes.Status404NotFound);
-            }
-
-            // Calculate aggregated KPIs from all actions of this course
-            var kpis = new KpisCourseDto
-            {
-                TotalStudents = existingCourse.Actions.Sum(a => a.TotalStudents),
-                TotalApproved = existingCourse.Actions.Sum(a => a.TotalApproved),
-                TotalVolumeHours = existingCourse.Actions.Sum(a => a.TotalVolumeHours),
-                TotalVolumeDays = existingCourse.Actions.Sum(a => a.TotalVolumeDays)
-            };
-
-            return Result<KpisCourseDto>
-                .Ok(kpis);
-        }
     }
 }

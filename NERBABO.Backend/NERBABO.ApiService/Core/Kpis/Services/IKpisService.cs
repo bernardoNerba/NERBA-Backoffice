@@ -75,4 +75,20 @@ public interface IKpisService
     /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
     /// <returns>KPI where the T is a list of chart data points representing the top 5 statuses with most actions.</returns>
     Task<Result<Kpi<List<ChartDataPoint>>>> Top5ActionsByStatus(TimeIntervalEnum t);
+
+    /// <summary>
+    /// Gets aggregated KPIs for a specific course.
+    /// Includes total students, approved, volume hours and days across all actions of the course.
+    /// </summary>
+    /// <param name="courseId">The ID of the course.</param>
+    /// <returns>Aggregated KPI data for the course.</returns>
+    Task<Result<KpisCourseDto>> GetCourseKpisAsync(long courseId);
+
+    /// <summary>
+    /// Gets KPIs for a specific action.
+    /// Includes total students, approved, volume hours and days for the action.
+    /// </summary>
+    /// <param name="actionId">The ID of the action.</param>
+    /// <returns>KPI data for the action.</returns>
+    Task<Result<KpisActionDto>> GetActionKpisAsync(long actionId);
 }
