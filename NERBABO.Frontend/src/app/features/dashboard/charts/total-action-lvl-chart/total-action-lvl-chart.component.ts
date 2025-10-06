@@ -3,7 +3,9 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
+  Input,
   PLATFORM_ID,
+  SimpleChanges,
 } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 
@@ -45,6 +47,8 @@ import { ChartModule } from 'primeng/chart';
   ],
 })
 export class TotalActionLvlChartComponent {
+  @Input() chartData: { label: string; value: number }[] = [];
+
   title: string = 'Ações por nível de habilitações';
   data: any;
   options: any;
@@ -55,16 +59,22 @@ export class TotalActionLvlChartComponent {
     this.initChart();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['chartData'] && !changes['chartData'].firstChange) {
+      this.updateChartData();
+    }
+  }
+
   initChart() {
     if (isPlatformBrowser(this.platformId)) {
       const documentStyle = getComputedStyle(document.documentElement);
       const textColor = documentStyle.getPropertyValue('--p-text-color');
 
       this.data = {
-        labels: ['Nível 1', 'Nível 2', 'Nível 3'],
+        labels: this.chartData.map((d) => d.label),
         datasets: [
           {
-            data: [300, 50, 100],
+            data: this.chartData.map((d) => d.value),
             backgroundColor: [
               documentStyle.getPropertyValue('--p-lvl1-background'),
               documentStyle.getPropertyValue('--p-lvl2-background'),
@@ -90,6 +100,22 @@ export class TotalActionLvlChartComponent {
             },
           },
         },
+      };
+      this.cd.markForCheck();
+    }
+  }
+
+  updateChartData() {
+    if (this.data && this.chartData.length > 0) {
+      this.data = {
+        ...this.data,
+        labels: this.chartData.map((d) => d.label),
+        datasets: [
+          {
+            ...this.data.datasets[0],
+            data: this.chartData.map((d) => d.value),
+          },
+        ],
       };
       this.cd.markForCheck();
     }

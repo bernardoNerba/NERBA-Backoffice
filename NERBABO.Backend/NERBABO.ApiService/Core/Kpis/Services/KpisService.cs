@@ -5,6 +5,7 @@ using NERBABO.ApiService.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Shared.Models;
 using System.Globalization;
+using System.Linq.Expressions;
 using Humanizer;
 
 namespace NERBABO.ApiService.Core.Kpis.Services;
@@ -306,6 +307,106 @@ public class KpisService(
 
         return Result<Kpi<List<GenderTimeSeries>>>
             .Ok(data);
+    }
+
+    public async Task<Result<Kpi<List<ChartDataPoint>>>> Top5ActionsByLocality(TimeIntervalEnum t)
+    {
+        string title = "Top 5 Ações por Localidade";
+        string refersTo; DateTime startDate;
+
+        (startDate, refersTo) = DefineTimeIntervaleAsync(t);
+
+        var query = _context.Actions
+            .AsNoTracking()
+            .Where(a => a.CreatedAt >= startDate);
+
+        var result = await GetTop5Grouped(
+            query,
+            a => a.Locality,
+            title,
+            refersTo
+        );
+
+        return result;
+    }
+
+    public async Task<Result<Kpi<List<ChartDataPoint>>>> Top5ActionsByRegiment(TimeIntervalEnum t)
+    {
+        string title = "Top 5 Ações por Regime";
+        string refersTo; DateTime startDate;
+
+        (startDate, refersTo) = DefineTimeIntervaleAsync(t);
+
+        var query = _context.Actions
+            .AsNoTracking()
+            .Where(a => a.CreatedAt >= startDate);
+
+        var result = await GetTop5Grouped(
+            query,
+            a => a.Regiment.Humanize().Transform(To.TitleCase),
+            title,
+            refersTo
+        );
+
+        return result;
+    }
+
+    public async Task<Result<Kpi<List<ChartDataPoint>>>> Top5ActionsByStatus(TimeIntervalEnum t)
+    {
+        string title = "Top 5 Ações por Estado";
+        string refersTo; DateTime startDate;
+
+        (startDate, refersTo) = DefineTimeIntervaleAsync(t);
+
+        var query = _context.Actions
+            .AsNoTracking()
+            .Where(a => a.CreatedAt >= startDate);
+
+        var result = await GetTop5Grouped(
+            query,
+            a => a.Status.Humanize().Transform(To.TitleCase),
+            title,
+            refersTo
+        );
+
+        return result;
+    }
+
+    private async Task<Result<Kpi<List<ChartDataPoint>>>> GetTop5Grouped<TEntity, TKey>(
+        IQueryable<TEntity> query,
+        Expression<Func<TEntity, TKey>> groupBySelector,
+        string title,
+        string refersTo)
+    {
+        var compiled = groupBySelector.Compile();
+
+        var items = await query.ToListAsync();
+
+        var topResults = items
+            .GroupBy(item => compiled(item)?.ToString()?.ToLower() ?? "unknown")
+            .Select(g => new
+            {
+                // Use the first item's original casing for display
+                Label = compiled(g.First())?.ToString() ?? "Unknown",
+                Count = g.Count()
+            })
+            .OrderByDescending(x => x.Count)
+            .Take(5)
+            .Select(x => new ChartDataPoint
+            {
+                Label = x.Label,
+                Value = x.Count
+            })
+            .ToList();
+
+        var data = new Kpi<List<ChartDataPoint>>
+        {
+            KpiTitle = title,
+            RefersTo = refersTo,
+            Value = topResults
+        };
+
+        return Result<Kpi<List<ChartDataPoint>>>.Ok(data);
     }
 
     private static string MapHabilitationToLevel(HabilitationEnum habilitation)

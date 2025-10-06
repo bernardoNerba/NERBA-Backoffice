@@ -3,9 +3,12 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
+  Input,
   PLATFORM_ID,
+  SimpleChanges,
 } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
+import { GenderTimeSeries } from '../../../../core/models/dashboard';
 
 @Component({
   selector: 'app-year-students-sex-chart',
@@ -42,6 +45,8 @@ import { ChartModule } from 'primeng/chart';
   ],
 })
 export class YearStudentsSexChartComponent {
+  @Input() chartData: GenderTimeSeries[] = [];
+
   data: any;
   options: any;
   title: string = 'Formandos por Sexo';
@@ -52,6 +57,12 @@ export class YearStudentsSexChartComponent {
 
   ngOnInit() {
     this.initChart();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['chartData'] && !changes['chartData'].firstChange) {
+      this.updateChartData();
+    }
   }
 
   initChart() {
@@ -65,34 +76,26 @@ export class YearStudentsSexChartComponent {
         '--p-content-border-color'
       );
 
+      // Extract labels from first dataset (all should have same months)
+      const labels =
+        this.chartData.length > 0
+          ? this.chartData[0].data.map((d) => d.month)
+          : [];
+
+      // Create datasets for each gender with distinct colors
+      const datasets = this.chartData.map((genderSeries) => {
+        const colors = this.getGenderColors(genderSeries.gender);
+        return {
+          label: genderSeries.gender,
+          backgroundColor: colors.background,
+          borderColor: colors.border,
+          data: genderSeries.data.map((d) => d.count),
+        };
+      });
+
       this.data = {
-        labels: [
-          'Janeiro',
-          'Fevereiro',
-          'Março',
-          'Abril',
-          'Maio',
-          'Junho',
-          'Julho',
-        ],
-        datasets: [
-          {
-            label: 'Homens',
-            backgroundColor: documentStyle.getPropertyValue(
-              '--p-male-background'
-            ),
-            borderColor: documentStyle.getPropertyValue('--p-male'),
-            data: [65, 59, 80, 81, 56, 55, 40],
-          },
-          {
-            label: 'Mulheres',
-            backgroundColor: documentStyle.getPropertyValue(
-              '--p-female-background'
-            ),
-            borderColor: documentStyle.getPropertyValue('--p-female'),
-            data: [28, 48, 40, 19, 86, 27, 90],
-          },
-        ],
+        labels: labels,
+        datasets: datasets,
       };
 
       this.options = {
@@ -131,5 +134,55 @@ export class YearStudentsSexChartComponent {
       };
       this.cd.markForCheck();
     }
+  }
+
+  updateChartData() {
+    if (this.data && this.chartData.length > 0) {
+      const labels = this.chartData[0].data.map((d) => d.month);
+
+      const datasets = this.chartData.map((genderSeries) => {
+        const colors = this.getGenderColors(genderSeries.gender);
+        return {
+          label: genderSeries.gender,
+          backgroundColor: colors.background,
+          borderColor: colors.border,
+          data: genderSeries.data.map((d) => d.count),
+        };
+      });
+
+      this.data = {
+        ...this.data,
+        labels: labels,
+        datasets: datasets,
+      };
+      this.cd.markForCheck();
+    }
+  }
+
+  private getGenderColors(gender: string): {
+    background: string;
+    border: string;
+  } {
+    const normalizedGender = gender.toLowerCase();
+
+    // Masculino - Blue
+    if (normalizedGender.includes('masculino')) {
+      return {
+        background: 'rgba(59, 130, 246, 0.6)',
+        border: '#3b82f6',
+      };
+    }
+    // Feminino - Pink
+    if (normalizedGender.includes('feminino')) {
+      return {
+        background: 'rgba(236, 72, 153, 0.6)',
+        border: '#ec4899',
+      };
+    }
+    // Default - Gray
+    return {
+      background: 'rgba(156, 163, 175, 0.6)',
+      border: '#9ca3af',
+    };
   }
 }

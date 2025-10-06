@@ -65,7 +65,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ?? throw new InvalidOperationException("Redis connection string is not configured."));
 });
 
-
 // Dependency Injection Container
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<ICacheService, CacheService>();
@@ -89,9 +88,11 @@ builder.Services.AddScoped<IModuleAvaliationsService, ModuleAvaliationsService>(
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IKpisService, KpisService>();
 
+// Register Static Files Services
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
+// Register Pdf Composer Services
 builder.Services.AddScoped<SessionsTimelineComposer>();
 
 // Register HTTP context accessor for URL generation

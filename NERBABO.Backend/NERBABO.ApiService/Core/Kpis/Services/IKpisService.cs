@@ -54,4 +54,25 @@ public interface IKpisService
     /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
     /// <returns>KPI where the T is a list of gender time series representing the count of students per gender per month.</returns>
     Task<Result<Kpi<List<GenderTimeSeries>>>> StudentGenders(TimeIntervalEnum t);
+
+    /// <summary>
+    /// Top 5 actions by locality.
+    /// </summary>
+    /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
+    /// <returns>KPI where the T is a list of chart data points representing the top 5 localities with most actions.</returns>
+    Task<Result<Kpi<List<ChartDataPoint>>>> Top5ActionsByLocality(TimeIntervalEnum t);
+
+    /// <summary>
+    /// Top 5 actions by regiment type.
+    /// </summary>
+    /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
+    /// <returns>KPI where the T is a list of chart data points representing the top 5 regiments with most actions.</returns>
+    Task<Result<Kpi<List<ChartDataPoint>>>> Top5ActionsByRegiment(TimeIntervalEnum t);
+
+    /// <summary>
+    /// Top 5 actions by status.
+    /// </summary>
+    /// <param name="t">t is a TimeInterval that will be checked to make the query.</param>
+    /// <returns>KPI where the T is a list of chart data points representing the top 5 statuses with most actions.</returns>
+    Task<Result<Kpi<List<ChartDataPoint>>>> Top5ActionsByStatus(TimeIntervalEnum t);
 }

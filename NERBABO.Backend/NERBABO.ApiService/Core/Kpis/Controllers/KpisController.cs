@@ -120,4 +120,49 @@ public class KpisController(
         var result = await _kpisService.StudentGenders(intervale);
         return _responseHandler.HandleResult(result);
     }
+
+    /// <summary>
+    /// Gets the top 5 localities with the most actions for a specified time interval.
+    /// </summary>
+    /// <param name="intervale">The time interval to filter the actions (Month, Year, or Ever).</param>
+    /// <response code="200">Returns the top 5 actions by locality KPI as chart data points.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet("top5-actions-by-locality/{intervale}")]
+    [Authorize(Roles = "Admin, User", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetTop5ActionsByLocalityAsync(TimeIntervalEnum intervale)
+    {
+        var result = await _kpisService.Top5ActionsByLocality(intervale);
+        return _responseHandler.HandleResult(result);
+    }
+
+    /// <summary>
+    /// Gets the top 5 regiments with the most actions for a specified time interval.
+    /// </summary>
+    /// <param name="intervale">The time interval to filter the actions (Month, Year, or Ever).</param>
+    /// <response code="200">Returns the top 5 actions by regiment KPI as chart data points.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet("top5-actions-by-regiment/{intervale}")]
+    [Authorize(Roles = "Admin, User", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetTop5ActionsByRegimentAsync(TimeIntervalEnum intervale)
+    {
+        var result = await _kpisService.Top5ActionsByRegiment(intervale);
+        return _responseHandler.HandleResult(result);
+    }
+
+    /// <summary>
+    /// Gets the top 5 statuses with the most actions for a specified time interval.
+    /// </summary>
+    /// <param name="intervale">The time interval to filter the actions (Month, Year, or Ever).</param>
+    /// <response code="200">Returns the top 5 actions by status KPI as chart data points.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpGet("top5-actions-by-status/{intervale}")]
+    [Authorize(Roles = "Admin, User", Policy = "ActiveUser")]
+    public async Task<IActionResult> GetTop5ActionsByStatusAsync(TimeIntervalEnum intervale)
+    {
+        var result = await _kpisService.Top5ActionsByStatus(intervale);
+        return _responseHandler.HandleResult(result);
+    }
 }

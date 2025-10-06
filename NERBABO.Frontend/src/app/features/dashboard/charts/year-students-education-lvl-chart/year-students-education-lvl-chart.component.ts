@@ -3,10 +3,11 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
+  Input,
   PLATFORM_ID,
+  SimpleChanges,
 } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
-import { HABILITATIONS } from '../../../../core/objects/habilitations';
 
 @Component({
   selector: 'app-year-students-education-lvl-chart',
@@ -43,6 +44,8 @@ import { HABILITATIONS } from '../../../../core/objects/habilitations';
   ],
 })
 export class YearStudentsEducationLvlChartComponent {
+  @Input() chartData: { label: string; value: number }[] = [];
+
   data: any;
   options: any;
   title: string = 'Formandos pelos diferentes níveis de habilitações';
@@ -53,6 +56,12 @@ export class YearStudentsEducationLvlChartComponent {
 
   ngOnInit(): void {
     this.initChart();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['chartData'] && !changes['chartData'].firstChange) {
+      this.updateChartData();
+    }
   }
 
   initChart() {
@@ -67,14 +76,11 @@ export class YearStudentsEducationLvlChartComponent {
       );
 
       this.data = {
-        labels: [...HABILITATIONS.map((h) => h.value)],
+        labels: this.chartData.map((d) => d.label),
         datasets: [
           {
             label: 'Quantidade Formandos',
-            data: [
-              10, 15, 30, 35, 40, 38, 35, 33, 39, 40, 99, 40, 50, 200, 150, 50,
-              80, 30, 20,
-            ],
+            data: this.chartData.map((d) => d.value),
             fill: false,
             borderColor: '#000',
             tension: 0.4,
@@ -112,6 +118,22 @@ export class YearStudentsEducationLvlChartComponent {
             },
           },
         },
+      };
+      this.cd.markForCheck();
+    }
+  }
+
+  updateChartData() {
+    if (this.data && this.chartData.length > 0) {
+      this.data = {
+        ...this.data,
+        labels: this.chartData.map((d) => d.label),
+        datasets: [
+          {
+            ...this.data.datasets[0],
+            data: this.chartData.map((d) => d.value),
+          },
+        ],
       };
       this.cd.markForCheck();
     }
