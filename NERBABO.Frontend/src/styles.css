@@ -44,6 +44,31 @@
   --p-surface-800: #1e293b;
   --p-surface-900: #0f172a;
   --p-surface-950: #020617;
+
+  /* Chart colors - year students result */
+  --p-approved: #34ff63ff;
+  --p-approved-background: #63ff3443;
+  --p-not-approved: #ff3434ff;
+  --p-not-approved-background: #ff343443;
+
+  /* Chart colors - year students sex */
+  --p-male: #3482ffff;
+  --p-male-background: #3482ff5a;
+  --p-female: #f134ffff;
+  --p-female-background: #f134ff43;
+
+  /* Chart colors - other/shared */
+  --p-other: #94a3b8;
+  --p-other-background: #94a3b859;
+
+  --p-lvl1: #009241;
+  --p-lvl1-background: #0092425c;
+
+  --p-lvl2: #38b470;
+  --p-lvl2-background: #38b47057;
+
+  --p-lvl3: #95d5a3;
+  --p-lvl3-background: #95d5a357;
 }
 
 i {

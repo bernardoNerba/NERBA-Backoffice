@@ -47,6 +47,7 @@ using NERBABO.ApiService.Shared.Services;
 using StackExchange.Redis;
 using NERBABO.ApiService.Core.ModuleAvaliations.Services;
 using NERBABO.ApiService.Core.Payments.Services;
+using NERBABO.ApiService.Core.Kpis.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,7 +64,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(redisConnectionString
     ?? throw new InvalidOperationException("Redis connection string is not configured."));
 });
-
 
 // Dependency Injection Container
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -86,10 +86,13 @@ builder.Services.AddScoped<ISessionParticipationService, SessionParticipationSer
 builder.Services.AddScoped<IActionEnrollmentService, ActionEnrollmentService>();
 builder.Services.AddScoped<IModuleAvaliationsService, ModuleAvaliationsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
+builder.Services.AddScoped<IKpisService, KpisService>();
 
+// Register Static Files Services
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
+// Register Pdf Composer Services
 builder.Services.AddScoped<SessionsTimelineComposer>();
 
 // Register HTTP context accessor for URL generation

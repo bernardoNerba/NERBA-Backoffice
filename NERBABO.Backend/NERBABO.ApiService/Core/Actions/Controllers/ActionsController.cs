@@ -203,20 +203,5 @@ namespace NERBABO.ApiService.Core.Actions.Controllers
             return _responseHandler.HandleResult(result);
         }
 
-        /// <summary>
-        /// Gets all the necessary information to display in the action kpis cards.
-        /// </summary>
-        /// <param name="actionId">The ID of the action to be calculated the kpis on.</param>
-        /// <response code="200">There is a action on the system with the given id.</response>
-        /// <response code="404">The action with the given id was not found on the system.</response>
-        /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
-        /// <response code="500">Unexpected error occurred.</response>
-        [HttpGet("kpis/{actionId}")]
-        [Authorize(Policy = "ActiveUser")]
-        public async Task<IActionResult> GetActionKpisAsync(long actionId)
-        {
-            var result = await _courseActionService.GetKpisAsync(actionId);
-            return _responseHandler.HandleResult(result);
-        }
     }
 }

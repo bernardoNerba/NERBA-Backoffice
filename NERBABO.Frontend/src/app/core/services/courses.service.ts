@@ -109,7 +109,7 @@ export class CoursesService {
   }
 
   getKpis(courseId: number): Observable<CourseKpi> {
-    const url = API_ENDPOINTS.coursesKpis + courseId;
+    const url = API_ENDPOINTS.kpisCourse + courseId;
 
     return this.http.get<CourseKpi>(url);
   }

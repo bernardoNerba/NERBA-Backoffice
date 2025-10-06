@@ -1,6 +1,6 @@
-namespace NERBABO.ApiService.Core.Courses.Dtos;
+namespace NERBABO.ApiService.Core.Kpis.Models;
 
-public class KpisCourseDto
+public class KpisActionDto
 {
     public int TotalStudents { get; set; }
     public int TotalApproved { get; set; }

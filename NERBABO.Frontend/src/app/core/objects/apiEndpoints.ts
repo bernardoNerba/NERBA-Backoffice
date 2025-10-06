@@ -85,14 +85,16 @@ export const API_ENDPOINTS = {
   // Courses endpoints
   courses: `${BASE_URL}/api/courses/`,
   courses_active: `${BASE_URL}/api/courses/active/`,
-  coursesKpis: `${BASE_URL}/api/courses/kpis/`,
 
   // Actions endpoints
   actions: `${BASE_URL}/api/actions/`,
   actionsByModule: `${BASE_URL}/api/actions/module/`,
   actionsByCourse: `${BASE_URL}/api/actions/course/`,
   actionsByCoordinator: `${BASE_URL}/api/actions/coordenator/`,
-  actionsKpis: `${BASE_URL}/api/actions/kpis/`,
+
+  // KPIs endpoints
+  kpisCourse: `${BASE_URL}/api/kpis/course/`,
+  kpisAction: `${BASE_URL}/api/kpis/action/`,
 
   // Frames endpoints
   frames: `${BASE_URL}/api/frame/`,

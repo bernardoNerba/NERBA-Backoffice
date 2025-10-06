@@ -16,5 +16,8 @@ public enum ApprovalStatusEnum
     Approved,
 
     [Description("Reprovado")]
-    Rejected
+    Rejected,
+
+    [Description("Desistiu")]
+    Dropped
 }

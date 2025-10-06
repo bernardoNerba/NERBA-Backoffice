@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
-import { TruncatePipe } from '../../pipes/truncate.pipe';
 
 @Component({
   selector: 'app-title',

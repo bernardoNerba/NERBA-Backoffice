@@ -52,7 +52,9 @@ namespace NERBABO.ApiService.Core.Companies.Models
                 ZipCode = c.ZipCode,
                 Email = c.Email,
                 AtivitySector = c.AtivitySector.DehumanizeTo<AtivitySectorEnum>(),
-                Size = c.Size.DehumanizeTo<CompanySizeEnum>()
+                Size = c.Size.DehumanizeTo<CompanySizeEnum>(),
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
         }
     }
