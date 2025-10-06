@@ -1,5 +1,12 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { catchError, Observable, of, Subscription, tap, BehaviorSubject } from 'rxjs';
+import {
+  catchError,
+  Observable,
+  of,
+  Subscription,
+  tap,
+  BehaviorSubject,
+} from 'rxjs';
 import { IView } from '../../../core/interfaces/IView';
 import { Action, ActionKpi } from '../../../core/models/action';
 import { MenuItem } from 'primeng/api';
@@ -36,13 +43,18 @@ import { ModuleAvaliationComponent } from '../../../shared/components/module-ava
 import { TeacherPresenceComponent } from '../../../shared/components/teacher-presence/teacher-presence.component';
 import { ProcessMtPaymentsComponent } from '../../../shared/components/process-mt-payments/process-mt-payments.component';
 import { ProcessAePaymentsComponent } from '../../../shared/components/process-ae-payments/process-ae-payments.component';
-import { PaymentsService, TeacherPayment, StudentPayment } from '../../../core/services/payments.service';
+import {
+  PaymentsService,
+  TeacherPayment,
+  StudentPayment,
+} from '../../../core/services/payments.service';
 import { TagModule } from 'primeng/tag';
 import { Message } from 'primeng/message';
 import { ButtonModule } from 'primeng/button';
 import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
 import { SessionsService } from '../../../core/services/sessions.service';
 import { SessionParticipationService } from '../../../core/services/session-participation.service';
+import { CalendarStyle } from 'primeng/calendar';
 
 @Component({
   selector: 'app-view-actions',
@@ -63,7 +75,6 @@ import { SessionParticipationService } from '../../../core/services/session-part
     ProcessMtPaymentsComponent,
     ProcessAePaymentsComponent,
     TagModule,
-    Message,
     ButtonModule,
   ],
   providers: [MessageService],
@@ -90,6 +101,28 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
   modulesWithUnscheduledSessions: MinimalModuleTeaching[] = [];
 
   ICONS = ICONS;
+
+  // Action buttons for alerts
+  addTeacherAction = {
+    label: 'Adicionar Formador',
+    icon: 'pi pi-user-plus',
+    callback: () => this.onAddTeacherModal(),
+    severity: 'secondary' as const,
+  };
+
+  addStudentAction = {
+    label: 'Adicionar Formando',
+    icon: 'pi pi-graduation-cap',
+    callback: () => this.onAddStudentModal(),
+    severity: 'secondary' as const,
+  };
+
+  scheduleSessionsAction = {
+    label: 'Agendar Sessões',
+    icon: 'pi pi-calendar-plus',
+    callback: () => this.scrollToSessions(),
+    severity: 'secondary' as const,
+  };
 
   subscriptions: Subscription = new Subscription();
 
@@ -128,39 +161,42 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
   }
 
   initializeEntity(): void {
-    this.actionsService.getActionById(this.id).pipe(
-      catchError((error) => {
-        console.error(error);
-        if (error.status === 401 || error.status === 403) {
-          this.sharedService.redirectUser();
-        } else {
-          this.router.navigate(['/actions']);
-          this.sharedService.showWarning('Informação não encontrada.');
-        }
-        return of(null);
-      }),
-      tap((action) => {
-        console.log('Action' + action);
-        if (action) {
-          this.id = action.id;
-          this.title = action.title;
-          this.action = action;
-          this.courseId = action.courseId;
+    this.actionsService
+      .getActionById(this.id)
+      .pipe(
+        catchError((error) => {
+          console.error(error);
+          if (error.status === 401 || error.status === 403) {
+            this.sharedService.redirectUser();
+          } else {
+            this.router.navigate(['/actions']);
+            this.sharedService.showWarning('Informação não encontrada.');
+          }
+          return of(null);
+        }),
+        tap((action) => {
+          console.log('Action' + action);
+          if (action) {
+            this.id = action.id;
+            this.title = action.title;
+            this.action = action;
+            this.courseId = action.courseId;
 
-          // Update the BehaviorSubject with the new action
-          this.actionSubject.next(action);
+            // Update the BehaviorSubject with the new action
+            this.actionSubject.next(action);
 
-          this.updateBreadcrumbs();
-          this.initializeCourse();
-          this.loadModulesWithoutTeacher();
-          this.loadModulesWithTeacher();
-          this.loadActionEnrollments();
-          this.loadKpis();
-          this.loadPayments();
-          this.loadMinimalModuleTeachings();
-        }
-      })
-    ).subscribe();
+            this.updateBreadcrumbs();
+            this.initializeCourse();
+            this.loadModulesWithoutTeacher();
+            this.loadModulesWithTeacher();
+            this.loadActionEnrollments();
+            this.loadKpis();
+            this.loadPayments();
+            this.loadMinimalModuleTeachings();
+          }
+        })
+      )
+      .subscribe();
 
     // Set up the action observable to use the BehaviorSubject
     this.action$ = this.actionSubject.asObservable();
@@ -271,24 +307,26 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
   }
 
   loadMinimalModuleTeachings(): void {
-    this.moduleTeachingService.getModuleTeachingByActionMinimal(this.id).subscribe({
-      next: (mt: MinimalModuleTeaching[] | MinimalModuleTeaching) => {
-        // Handle both array and single object responses
-        if (Array.isArray(mt)) {
-          this.minimalModuleTeachings = mt;
-        } else if (mt && typeof mt === 'object') {
-          this.minimalModuleTeachings = [mt as MinimalModuleTeaching];
-        } else {
+    this.moduleTeachingService
+      .getModuleTeachingByActionMinimal(this.id)
+      .subscribe({
+        next: (mt: MinimalModuleTeaching[] | MinimalModuleTeaching) => {
+          // Handle both array and single object responses
+          if (Array.isArray(mt)) {
+            this.minimalModuleTeachings = mt;
+          } else if (mt && typeof mt === 'object') {
+            this.minimalModuleTeachings = [mt as MinimalModuleTeaching];
+          } else {
+            this.minimalModuleTeachings = [];
+          }
+          this.updateUnscheduledSessionsAlert();
+        },
+        error: (error) => {
+          console.error('Error loading minimal module teachings:', error);
           this.minimalModuleTeachings = [];
-        }
-        this.updateUnscheduledSessionsAlert();
-      },
-      error: (error) => {
-        console.error('Error loading minimal module teachings:', error);
-        this.minimalModuleTeachings = [];
-        this.modulesWithUnscheduledSessions = [];
-      },
-    });
+          this.modulesWithUnscheduledSessions = [];
+        },
+      });
   }
 
   updateUnscheduledSessionsAlert(): void {
@@ -314,18 +352,22 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error refreshing action data:', error);
-      }
+      },
     });
   }
 
   getTeacherPaymentStatus(): 'Pago' | 'Pendente' {
     if (this.teacherPayments.length === 0) return 'Pendente';
-    return this.teacherPayments.every(payment => payment.paymentProcessed) ? 'Pago' : 'Pendente';
+    return this.teacherPayments.every((payment) => payment.paymentProcessed)
+      ? 'Pago'
+      : 'Pendente';
   }
 
   getStudentPaymentStatus(): 'Pago' | 'Pendente' {
     if (this.studentPayments.length === 0) return 'Pendente';
-    return this.studentPayments.every(payment => payment.paymentProcessed) ? 'Pago' : 'Pendente';
+    return this.studentPayments.every((payment) => payment.paymentProcessed)
+      ? 'Pago'
+      : 'Pendente';
   }
 
   getPaymentSeverity(status: string): 'success' | 'warn' {
@@ -527,6 +569,26 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
   onAddStudentFromAlert(): void {
     // Same functionality as onAddStudentModal but called from the alert
     this.onAddStudentModal();
+  }
+
+  scrollToSessions(): void {
+    const sessionsAccordion = document.getElementById('heading-session-info');
+    if (sessionsAccordion) {
+      const button = sessionsAccordion.querySelector('button');
+
+      // First, scroll to the element
+      sessionsAccordion.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+
+      // Then expand the accordion if it's collapsed
+      setTimeout(() => {
+        if (button && button.classList.contains('collapsed')) {
+          button.click();
+        }
+      }, 500);
+    }
   }
 
   enrollmentChangesSubscription(): void {

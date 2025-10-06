@@ -13,6 +13,7 @@
     modulesWithoutTeacher.length > 1 ? 's' : ''
   }} sem formador atribuído:"
   [items]="getModulesWithoutTeacherNames()"
+  [action]="addTeacherAction"
 />
 
 <!-- Alert with modules that have unscheduled sessions -->
@@ -23,39 +24,20 @@
     modulesWithUnscheduledSessions.length > 1 ? 's' : ''
   }} com sessões por agendar:"
   [items]="getModulesWithUnscheduledSessionsNames()"
+  [action]="scheduleSessionsAction"
 />
 
 <!-- Alert for no enrolled students -->
-@if (actionEnrollments.length === 0) {
-<div class="alert-container my-3">
-  <p-message severity="warn" closable>
-    <div>
-      <!-- Warning icon + "Cuidado!" -->
-      <div class="d-flex align-items-center mb-2">
-        <i class="pi pi-exclamation-triangle me-2"></i>
-        <span class="fw-bold">Cuidado!</span>
-      </div>
-
-      <!-- Description -->
-      <div class="mb-2">
-        <strong>Não existem formandos associados a esta ação.</strong>
-      </div>
-
-      <!-- Button -->
-      <div class="d-flex justify-content-start">
-        <p-button
-          label="Adicionar Formando"
-          icon="pi pi-plus"
-          severity="secondary"
-          size="small"
-          outlined="true"
-          (onClick)="onAddStudentFromAlert()"
-        />
-      </div>
-    </div>
-  </p-message>
-</div>
-}
+<app-message
+  [severity]="'warn'"
+  [show]="
+    actionEnrollments.length === 0 &&
+    modulesWithoutTeacher.length === 0 &&
+    modulesWithUnscheduledSessions.length === 0
+  "
+  description="Não existem formandos associados a esta ação."
+  [action]="addStudentAction"
+/>
 
 <div class="container-fluid px-0 my-4">
   <div class="accordion" id="general-info-accordion">
