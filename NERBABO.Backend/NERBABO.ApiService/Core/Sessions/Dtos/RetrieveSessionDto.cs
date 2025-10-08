@@ -1,5 +1,3 @@
-using System;
-
 namespace NERBABO.ApiService.Core.Sessions.Dtos;
 
 public class RetrieveSessionDto
