@@ -1,0 +1,60 @@
+/* Make rows align items stretch so both columns match height */
+.row.g-3.mb-4 {
+  align-items: stretch;
+}
+
+/* Ensure columns stretch to fill row height */
+.row.g-3.mb-4 > [class*='col-'] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure the tabs component fills the available height */
+::ng-deep .p-tabs.h-100 {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+::ng-deep .p-tabs.h-100 .p-tablist {
+  flex-shrink: 0;
+}
+
+::ng-deep .p-tabs.h-100 .p-tabpanels {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  min-height: 0;
+}
+
+::ng-deep .p-tabs.h-100 .p-tabpanel {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Custom scrollbar styling for the list */
+.list-group-flush {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+.list-group-flush::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list-group-flush::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.list-group-flush::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.list-group-flush::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

@@ -122,7 +122,10 @@
         <!-- Week Days -->
         <div class="col-sm-6">
           <div class="mb-3">
-            <label for="weekDays">Dias da Semana</label>
+            <label for="weekDays">
+              Dias da Semana
+              <span class="text-danger">*</span>
+            </label>
             <p-multiselect
               [options]="WEEKDAYS"
               formControlName="weekDays"
@@ -130,9 +133,22 @@
               optionValue="value"
               placeholder="Selecione os dias da semana..."
               [maxSelectedLabels]="3"
-              class="w-100"
+              class="w-100 {{
+                submitted && form.get('weekDays')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
               [showClear]="true"
             />
+            @if (submitted && form.get('weekDays')?.hasError("required")) {
+            <span class="text-danger">
+              Dias da Semana é um campo obrigatório.
+            </span>
+            } @else if (submitted && form.get('weekDays')?.hasError("minLength")) {
+            <span class="text-danger">
+              Selecione pelo menos um dia da semana.
+            </span>
+            }
           </div>
         </div>
 
