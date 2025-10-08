@@ -255,6 +255,58 @@
         </div>
         <!-- END IBAN -->
 
+        <!-- Gender -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="gender">Gênero</label>
+            <p-select
+              formControlName="gender"
+              [options]="allGender"
+              optionLabel="value"
+              optionValue="value"
+              placeholder="Selecione um genero..."
+              styleClass="w-100"
+              [class.is-invalid]="submitted && form.get('gender')?.errors"
+              class="{{
+                submitted && form.get('gender')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
+            @if (submitted && form.get('gender')?.hasError("required")) {
+            <span class="text-danger"> Gênero é um campo obrigatório. </span>
+            }
+          </div>
+        </div>
+        <!-- END Gender -->
+
+        <!-- Habilitation -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="habilitation">Habilitação</label>
+            <p-select
+              formControlName="habilitation"
+              [options]="allHabilitations"
+              optionLabel="value"
+              optionValue="value"
+              placeholder="Selecione uma habilitação..."
+              styleClass="w-100"
+              [class.is-invalid]="submitted && form.get('habilitation')?.errors"
+              class="{{
+                submitted && form.get('habilitation')?.errors
+                  ? 'ng-invalid ng-dirty'
+                  : ''
+              }}"
+            />
+            @if (submitted && form.get('habilitation')?.hasError("required")) {
+            <span class="text-danger">
+              Habilitação é um campo obrigatório.
+            </span>
+            }
+          </div>
+        </div>
+        <!-- END Habilitation -->
+
         <!-- Address -->
         <div class="col-md-12">
           <div class="mb-3">
@@ -457,58 +509,6 @@
           </div>
         </div>
         <!-- END Nationality -->
-
-        <!-- Gender -->
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="gender">Gênero</label>
-            <p-select
-              formControlName="gender"
-              [options]="allGender"
-              optionLabel="value"
-              optionValue="value"
-              placeholder="Selecione um genero..."
-              styleClass="w-100"
-              [class.is-invalid]="submitted && form.get('gender')?.errors"
-              class="{{
-                submitted && form.get('gender')?.errors
-                  ? 'ng-invalid ng-dirty'
-                  : ''
-              }}"
-            />
-            @if (submitted && form.get('gender')?.hasError("required")) {
-            <span class="text-danger"> Gênero é um campo obrigatório. </span>
-            }
-          </div>
-        </div>
-        <!-- END Gender -->
-
-        <!-- Habilitation -->
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="habilitation">Habilitação</label>
-            <p-select
-              formControlName="habilitation"
-              [options]="allHabilitations"
-              optionLabel="value"
-              optionValue="value"
-              placeholder="Selecione uma habilitação..."
-              styleClass="w-100"
-              [class.is-invalid]="submitted && form.get('habilitation')?.errors"
-              class="{{
-                submitted && form.get('habilitation')?.errors
-                  ? 'ng-invalid ng-dirty'
-                  : ''
-              }}"
-            />
-            @if (submitted && form.get('habilitation')?.hasError("required")) {
-            <span class="text-danger">
-              Habilitação é um campo obrigatório.
-            </span>
-            }
-          </div>
-        </div>
-        <!-- END Habilitation -->
       </div>
     </div>
 

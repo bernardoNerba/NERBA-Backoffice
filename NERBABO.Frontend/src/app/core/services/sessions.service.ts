@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subject, tap } from "rxjs";
 import { SharedService } from "./shared.service";
 import { OkResponse } from "../models/okResponse";
 import { API_ENDPOINTS } from "../objects/apiEndpoints";
-import { CreateSession, Session, UpdateSession } from "../objects/sessions";
+import { CreateSession, Session, UpdateSession, UpdateSessionPresence } from "../objects/sessions";
 
 @Injectable({
   providedIn: "root",
@@ -42,6 +42,12 @@ export class SessionsService {
     return this.http
       .put<OkResponse>(API_ENDPOINTS.sessions, session)
       .pipe(tap(() => this.notifySessionUpdate(session.id)));
+  }
+
+  updatePresence(sessionPresence: UpdateSessionPresence): Observable<OkResponse> {
+    return this.http
+      .patch<OkResponse>(API_ENDPOINTS.sessions + 'presence', sessionPresence)
+      .pipe(tap(() => this.notifySessionUpdate(sessionPresence.id)));
   }
 
   delete(sessionId: number): Observable<OkResponse> {

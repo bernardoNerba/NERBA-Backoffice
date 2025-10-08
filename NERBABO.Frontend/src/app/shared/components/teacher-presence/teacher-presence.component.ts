@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { SessionsService } from '../../../core/services/sessions.service';
-import { Session, UpdateSession } from '../../../core/objects/sessions';
+import { Session, UpdateSessionPresence } from '../../../core/objects/sessions';
 import { PresenceEnum, PRESENCES } from '../../../core/objects/presence';
 import { MessageService } from 'primeng/api';
 import { ICONS } from '../../../core/objects/icons';
@@ -121,18 +121,13 @@ export class TeacherPresenceComponent implements OnInit, OnDestroy {
 
     this.saving = true;
 
-    const updateData: UpdateSession = {
+    const updateData: UpdateSessionPresence = {
       id: session.id,
-      weekday: session.weekday,
-      scheduledDate: session.scheduledDate,
-      start: session.time.split(' - ')[0], // Extract start time from time range
-      durationHours: session.durationHours,
       teacherPresence: form.value.teacherPresence,
-      note: session.note,
     };
 
     this.sessionsService
-      .update(updateData)
+      .updatePresence(updateData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {

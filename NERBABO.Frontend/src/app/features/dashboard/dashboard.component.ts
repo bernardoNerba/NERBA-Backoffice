@@ -77,7 +77,8 @@ export class DashboardComponent implements OnInit {
     this.totalCompaniesValue = data.kpis.totalCompanies.value;
 
     // Populate chart data
-    this.studentsByHabilitationData = data.charts.studentsByHabilitationLvl.value;
+    this.studentsByHabilitationData =
+      data.charts.studentsByHabilitationLvl.value;
     this.studentResultsData = data.charts.studentResults.value;
     this.actionHabilitationsData = data.charts.actionHabilitationsLvl.value;
     this.studentGendersData = data.charts.studentGenders.value;
@@ -86,7 +87,7 @@ export class DashboardComponent implements OnInit {
     this.tabs = [
       {
         value: '0',
-        title: 'Localidades',
+        title: 'Top Localidades',
         content: data.top5.actionsByLocality.value.map((item) => ({
           name: item.label,
           count: item.value,
@@ -94,7 +95,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         value: '1',
-        title: 'Regimes',
+        title: 'Top Regimes',
         content: data.top5.actionsByRegiment.value.map((item) => ({
           name: item.label,
           count: item.value,
@@ -102,7 +103,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         value: '2',
-        title: 'Estados',
+        title: 'Top Estados',
         content: data.top5.actionsByStatus.value.map((item) => ({
           name: item.label,
           count: item.value,
