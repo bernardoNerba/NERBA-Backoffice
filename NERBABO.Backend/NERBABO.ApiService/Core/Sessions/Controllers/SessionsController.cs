@@ -88,6 +88,36 @@ public class SessionsController(
     }
 
     /// <summary>
+    /// Updates only the teacher presence for a session.
+    /// </summary>
+    /// <param name="updateSessionPresenceDto">The data to update the session presence with.</param>
+    /// <response code="200">Session presence updated successfully. Returns a RetrieveSessionDto.</response>
+    /// <response code="400">Invalid presence data provided.</response>
+    /// <response code="404">Session not found.</response>
+    /// <response code="401">Unauthorized access. User is not the action coordinator or admin.</response>
+    /// <response code="500">Unexpected error occurred.</response>
+    [HttpPatch("presence")]
+    [Authorize(Policy = "ActiveUser", Roles = "Admin, FM")]
+    public async Task<IActionResult> UpdateSessionPresenceAsync([FromBody] UpdateSessionPresenceDto updateSessionPresenceDto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedAccessException("Efetue Autenticação para efetuar esta ação.");
+
+        var isAuthorized = await _jwtService.IsCoordOrAdminOfActionViaSessionAsync(updateSessionPresenceDto.Id, userId);
+        if (!isAuthorized)
+            throw new UnauthorizedAccessException("Não tem autorização para efetuar esta ação.");
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+            return BadRequest("Invalid User");
+
+        updateSessionPresenceDto.UserId = userId;
+
+        Result<RetrieveSessionDto> result = await _sessionService.UpdatePresenceAsync(updateSessionPresenceDto);
+        return _responseHandler.HandleResult(result);
+    }
+
+    /// <summary>
     /// Gets all sessions in the system.
     /// </summary>
     /// <response code="200">Sessions retrieved successfully. Returns a collection of RetrieveSessionDto.</response>
