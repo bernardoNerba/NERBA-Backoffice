@@ -16,8 +16,11 @@ import { ErrorCardComponent } from '../../../shared/components/error-card/error-
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
-import { ACTIVITY_SECTOR } from '../../../core/objects/ativitySector';
-import { COMPANY_SIZE } from '../../../core/objects/companySize';
+import {
+  ACTIVITY_SECTOR,
+  ActivitySector,
+} from '../../../core/objects/ativitySector';
+import { COMPANY_SIZE, CompanySize } from '../../../core/objects/companySize';
 
 @Component({
   selector: 'app-upsert-companies',
@@ -87,8 +90,8 @@ export class UpsertCompaniesComponent implements IUpsert, OnInit {
       locality: ['', [Validators.maxLength(55), Validators.minLength(3)]],
       zipCode: ['', [Validators.maxLength(8), Validators.minLength(8)]],
       email: ['', [Validators.email]],
-      ativitySector: ['', [Validators.required]],
-      size: ['', [Validators.required]],
+      ativitySector: [ActivitySector.Unknown, [Validators.required]],
+      size: [CompanySize.Micro, [Validators.required]],
     });
   }
 
