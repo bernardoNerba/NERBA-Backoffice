@@ -147,7 +147,7 @@
             [rounded]="true"
             class="w-100"
             icon="pi pi-ellipsis-v"
-            (click)="menu.toggle($event); selectedPerson = person"
+            (click)="selectedPerson = person; populateMenu(person); menu.toggle($event)"
             severity="contrast"
           />
         </td>

@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using NerbaApp.Api.Validators;
-using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Helper.Validators;
 
 namespace NERBABO.ApiService.Core.Sessions.Dtos

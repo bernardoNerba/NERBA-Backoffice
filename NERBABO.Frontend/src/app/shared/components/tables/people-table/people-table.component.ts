@@ -17,6 +17,9 @@ import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Router, RouterLink } from '@angular/router';
 import { PeopleService } from '../../../../core/services/people.service';
+import { TeachersService } from '../../../../core/services/teachers.service';
+import { StudentsService } from '../../../../core/services/students.service';
+import { AccService } from '../../../../core/services/acc.service';
 import { DeletePeopleComponent } from '../../../../features/people/delete-people/delete-people.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +31,9 @@ import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { UpsertPeopleComponent } from '../../../../features/people/upsert-people/upsert-people.component';
+import { UpsertTeachersComponent } from '../../../../features/teachers/upsert-teachers/upsert-teachers.component';
+import { UpsertStudentsComponent } from '../../../../features/students/upsert-students/upsert-students.component';
+import { UpsertAccComponent } from '../../../../features/acc/upsert-acc/upsert-acc.component';
 
 interface ProfileOption {
   label: string;
@@ -79,34 +85,13 @@ export class PeopleTableComponent implements OnInit, AfterViewInit {
   constructor(
     private modalService: BsModalService,
     private router: Router,
-    private peopleService: PeopleService
+    private peopleService: PeopleService,
+    private teachersService: TeachersService,
+    private studentsService: StudentsService,
+    private accService: AccService
   ) {}
 
   ngOnInit(): void {
-    this.menuItems = [
-      {
-        label: 'Opções',
-        items: [
-          {
-            label: 'Editar',
-            icon: 'pi pi-pencil',
-            command: () => this.onUpdatePersonModal(this.selectedPerson!),
-          },
-          {
-            label: 'Eliminar',
-            icon: 'pi pi-exclamation-triangle',
-            command: () => this.onDeletePersonModal(this.selectedPerson!),
-          },
-          {
-            label: 'Detalhes',
-            icon: 'pi pi-exclamation-circle',
-            command: () =>
-              this.router.navigateByUrl(`/people/${this.selectedPerson!.id}`),
-          },
-        ],
-      },
-    ];
-
     // Subscribe to person updates
     this.subscriptions.add(
       this.peopleService.updatedSource$.subscribe((personId) => {
@@ -120,6 +105,114 @@ export class PeopleTableComponent implements OnInit, AfterViewInit {
         this.refreshPerson(personId, 'delete');
       })
     );
+
+    // Subscribe to profile updates to refresh person data
+    this.subscriptions.add(
+      this.teachersService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+      })
+    );
+
+    this.subscriptions.add(
+      this.studentsService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+      })
+    );
+
+    this.subscriptions.add(
+      this.accService.updatedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+      })
+    );
+
+    // Subscribe to profile deletions
+    this.subscriptions.add(
+      this.teachersService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+      })
+    );
+
+    this.subscriptions.add(
+      this.studentsService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+      })
+    );
+
+    this.subscriptions.add(
+      this.accService.deletedSource$.subscribe(() => {
+        this.peopleService.triggerFetchPeople();
+      })
+    );
+  }
+
+  populateMenu(person: Person): void {
+    const items: MenuItem[] = [
+      {
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        command: () => this.onUpdatePersonModal(person),
+      },
+      {
+        label: 'Eliminar',
+        icon: 'pi pi-exclamation-triangle',
+        command: () => this.onDeletePersonModal(person),
+      },
+      {
+        label: 'Detalhes',
+        icon: 'pi pi-exclamation-circle',
+        command: () => this.router.navigateByUrl(`/people/${person.id}`),
+      },
+    ];
+
+    // Add "Adicionar como" options if not already assigned
+    if (!person.isTeacher) {
+      items.push({
+        label: 'Adicionar como Formador',
+        icon: 'pi pi-user-plus',
+        command: () => this.onCreateTeacher(person),
+      });
+    } else {
+      items.push({
+        label: 'Ver dados Formador',
+        icon: 'pi pi-user',
+        command: () => this.router.navigateByUrl(`/people/${person.id}/teacher`),
+      });
+    }
+
+    if (!person.isStudent) {
+      items.push({
+        label: 'Adicionar como Formando',
+        icon: 'pi pi-graduation-cap',
+        command: () => this.onCreateStudent(person),
+      });
+    } else {
+      items.push({
+        label: 'Ver dados Formando',
+        icon: 'pi pi-book',
+        command: () => this.router.navigateByUrl(`/people/${person.id}/student`),
+      });
+    }
+
+    if (!person.isColaborator) {
+      items.push({
+        label: 'Adicionar como Colaborador',
+        icon: 'pi pi-briefcase',
+        command: () => this.onCreateColaborator(person),
+      });
+    } else {
+      items.push({
+        label: 'Ver dados Colaborador',
+        icon: 'pi pi-building',
+        command: () => this.router.navigateByUrl(`/people/${person.id}/acc`),
+      });
+    }
+
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items,
+      },
+    ];
   }
 
   ngAfterViewInit(): void {
@@ -170,6 +263,36 @@ export class PeopleTableComponent implements OnInit, AfterViewInit {
         id: person.id,
         fullName: person.fullName,
       },
+    });
+  }
+
+  onCreateTeacher(person: Person): void {
+    this.modalService.show(UpsertTeachersComponent, {
+      initialState: {
+        id: 0,
+        personId: person.id,
+      },
+      class: 'modal-lg',
+    });
+  }
+
+  onCreateStudent(person: Person): void {
+    this.modalService.show(UpsertStudentsComponent, {
+      initialState: {
+        id: 0,
+        personId: person.id,
+      },
+      class: 'modal-lg',
+    });
+  }
+
+  onCreateColaborator(person: Person): void {
+    this.modalService.show(UpsertAccComponent, {
+      initialState: {
+        id: 0,
+        personId: person.id,
+      },
+      class: 'modal-md',
     });
   }
 
