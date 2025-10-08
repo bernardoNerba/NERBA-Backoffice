@@ -32,3 +32,8 @@ export interface UpdateSession {
   teacherPresence: string;
   note: string;
 }
+
+export interface UpdateSessionPresence {
+  id: number;
+  teacherPresence: string;
+}

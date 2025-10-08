@@ -100,7 +100,7 @@ export class UpsertActionsComponent implements IUpsert, OnInit {
       ],
       address: [''],
       locality: ['', [Validators.required]],
-      weekDays: [[]],
+      weekDays: [[], [Validators.required, Validators.minLength(1)]],
       regiment: [RegimentTypeEnum.Presential],
       status: [StatusEnum.NotStarted],
     });
@@ -141,11 +141,20 @@ export class UpsertActionsComponent implements IUpsert, OnInit {
     this.errorMessages = [];
 
     const rangeDates = this.form.get('rangeDates')?.value;
+    const weekDays = this.form.get('weekDays')?.value;
 
     // Validate date range - check for both dates being present
     if (!rangeDates || !rangeDates[0] || !rangeDates[1]) {
       this.sharedService.showError(
         'Por favor, selecione uma data de início e fim.'
+      );
+      return;
+    }
+
+    // Validate weekDays - check if at least one day is selected
+    if (!weekDays || weekDays.length === 0) {
+      this.sharedService.showError(
+        'Por favor, selecione pelo menos um dia da semana.'
       );
       return;
     }

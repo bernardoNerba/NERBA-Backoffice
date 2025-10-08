@@ -151,11 +151,8 @@ public class KpisService(
 
         var studentResults = await _context.ActionEnrollments
             .AsNoTracking()
+            .Include(ae => ae.Avaliations)
             .Where(ae => ae.CreatedAt >= startDate)
-            .Select(ae => new
-            {
-                ApprovalStatus = ae.ApprovalStatus
-            })
             .ToListAsync();
 
         // Group by approval status in memory (since ApprovalStatus is a calculated property)

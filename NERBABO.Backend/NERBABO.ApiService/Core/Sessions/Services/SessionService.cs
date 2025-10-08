@@ -389,7 +389,55 @@ public class SessionService(
         _logger.LogInformation("Session updated successfully with ID: {SessionId}", entityDto.Id);
 
         return Result<RetrieveSessionDto>
-            .Ok(retrieveSession, "Sessão atualizada.", 
+            .Ok(retrieveSession, "Sessão atualizada.",
             "A sessão foi atualizada com sucesso.");
+    }
+
+    public async Task<Result<RetrieveSessionDto>> UpdatePresenceAsync(UpdateSessionPresenceDto entityDto)
+    {
+        var existingSession = await _context.Sessions
+            .Include(s => s.ModuleTeaching)
+            .Include(s => s.ModuleTeaching.Teacher)
+                    .ThenInclude(mt => mt.Person)
+            .Include(s => s.ModuleTeaching.Module)
+            .Include(s => s.ModuleTeaching.Action)
+                .ThenInclude(a => a.Course)
+                    .ThenInclude(c => c.Modules)
+            .Include(s => s.ModuleTeaching.Action.Coordenator)
+                .ThenInclude(c => c.Person)
+            .FirstOrDefaultAsync(s => s.Id == entityDto.Id);
+        if (existingSession is null)
+        {
+            _logger.LogWarning("Session with ID {SessionId} not found for presence update by user {UserId}",
+                entityDto.Id, entityDto.UserId);
+            return Result<RetrieveSessionDto>
+                .Fail("Não encontrado.", "Sessão para atualizar não encontrada.",
+                StatusCodes.Status404NotFound);
+        }
+
+        // validate teacher presence enum if provided
+        if (!EnumHelp.IsValidEnum<PresenceEnum>(entityDto.TeacherPresence))
+        {
+            _logger.LogWarning("Invalid teacher presence '{TeacherPresence}' provided for session {SessionId} presence update by user {UserId}",
+                entityDto.TeacherPresence, entityDto.Id, entityDto.UserId);
+            return Result<RetrieveSessionDto>
+                .Fail("Erro de Validação.",
+                "O estado de presença do formador inserido não é válido.");
+        }
+
+        // update only the teacher presence
+        existingSession.TeacherPresence = entityDto.TeacherPresence.DehumanizeTo<PresenceEnum>();
+        existingSession.UpdatedAt = DateTime.UtcNow;
+
+        _context.Sessions.Update(existingSession);
+        await _context.SaveChangesAsync();
+
+        var retrieveSession = Session.ConvertEntityToRetrieveDto(existingSession);
+
+        _logger.LogInformation("Session presence updated successfully for session ID: {SessionId}", entityDto.Id);
+
+        return Result<RetrieveSessionDto>
+            .Ok(retrieveSession, "Presença atualizada.",
+            "A presença do formador foi atualizada com sucesso.");
     }
 }

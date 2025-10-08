@@ -21,11 +21,7 @@ import { GenderTimeSeries } from '../../../../core/models/dashboard';
         <small class="text-muted">({{ year }})</small>
       </p>
       <div class="chart-container">
-        <p-chart
-          type="bar"
-          [data]="data"
-          [options]="options"
-        />
+        <p-chart type="bar" [data]="data" [options]="options" />
       </div>
     </div>
   `,
@@ -177,6 +173,13 @@ export class YearStudentsSexChartComponent {
       return {
         background: 'rgba(236, 72, 153, 0.6)',
         border: '#ec4899',
+      };
+    }
+
+    if (normalizedGender.includes('Não Especificado'.toLocaleLowerCase())) {
+      return {
+        background: 'rgba(41, 38, 39, 0.6)',
+        border: '#342f31ff',
       };
     }
     // Default - Gray

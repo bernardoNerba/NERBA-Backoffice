@@ -42,7 +42,10 @@
       <!-- ativitySector FORM FIELD -->
       <div class="col-md-6">
         <div class="mb-3">
-          <label for="ativitySector">Setor de Atividade</label>
+          <label for="ativitySector"
+            >Setor de Atividade
+            <span class="text-danger">*</span>
+          </label>
           <p-select
             formControlName="ativitySector"
             [options]="activitySectors"
@@ -70,7 +73,10 @@
       <!-- size FORM FIELD -->
       <div class="col-md-6">
         <div class="mb-3">
-          <label for="size">Tamanho</label>
+          <label for="size"
+            >Tamanho
+            <span class="text-danger">*</span>
+          </label>
           <p-select
             formControlName="size"
             [options]="companySizes"
