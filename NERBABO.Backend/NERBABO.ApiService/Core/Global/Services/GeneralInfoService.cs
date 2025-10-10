@@ -79,10 +79,10 @@ public class GeneralInfoService(
                 StatusCodes.Status404NotFound);
         }
 
+        // Selective field updates - only update fields that have changed
+        bool hasChanges = false;
         await UpdateConfigurationAsync(async c =>
         {
-            // Selective field updates - only update fields that have changed
-            bool hasChanges = false;
 
             // Update Designation if changed
             if (!string.Equals(c.Designation, updateGeneralInfo.Designation))
@@ -163,17 +163,16 @@ public class GeneralInfoService(
                 hasChanges = true;
             }
 
-            // If no changes were detected, return early.
-            // There is not a higher reason to alarm the user here.
-            if (hasChanges)
-            {
-                _logger.LogInformation("No changes detected for GeneralInfo. No update performed.");
-                return;
-            }
-
             // Update UpdatedAt if there are changes
             c.UpdatedAt = DateTime.UtcNow;
         });
+        
+        if (!hasChanges)
+        {
+            _logger.LogInformation("No changes detected for GeneralInfo. No update performed.");
+            return Result
+                .Fail("Erro de Validação", "Não foram detectadas mudanças nos dados fornecidos.");
+        }
 
         return Result
             .Ok("Informação Atualizada.", "Foram atualizadas as configurações gerais.");
@@ -406,13 +405,13 @@ public class GeneralInfoService(
 
 
     #region Private Helper Methods
-    private async Task UpdateConfigurationAsync(Action<GeneralInfo> updateAction)
+    private async Task UpdateConfigurationAsync(Func<GeneralInfo, Task> updateAction)
     {
         await _cacheLock.WaitAsync();
         try
         {
             var config = await _context.GeneralInfo.FirstAsync();
-            updateAction(config);
+            await updateAction(config);
             await _context.SaveChangesAsync();
             _cachedConfig = null; // Invalidate cache
         }
