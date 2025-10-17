@@ -63,7 +63,9 @@
     </ng-template>
     <ng-template #header>
       <tr>
+        @if (canUseDropdownMenu()){
         <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+        }
         <th pSortableColumn="program" style="min-width: 180px">
           <div class="d-flex align-items-center gap-2">
             Programa
@@ -110,6 +112,7 @@
     </ng-template>
     <ng-template #body let-frame>
       <tr>
+        @if (canUseDropdownMenu()){
         <!-- DROPDOWN MENU -->
         <td class="text-center">
           <p-menu
@@ -127,6 +130,7 @@
             (click)="menu.toggle($event); selectedFrame = frame"
           />
         </td>
+        }
         <!-- FRAME PROGRAM -->
         <td class="text-break">
           <app-icon-anchor

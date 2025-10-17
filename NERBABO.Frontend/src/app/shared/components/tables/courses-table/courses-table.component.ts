@@ -1,4 +1,14 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, ViewChild, OnDestroy, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnChanges,
+  ViewChild,
+  OnDestroy,
+  SimpleChanges,
+} from '@angular/core';
 import { Course } from '../../../../core/models/course';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -25,6 +35,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { UpsertCoursesComponent } from '../../../../features/courses/upsert-courses/upsert-courses.component';
 import { UpsertActionsComponent } from '../../../../features/actions/upsert-actions/upsert-actions.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-courses-table',
@@ -60,7 +71,8 @@ export class CoursesTableComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private modalService: BsModalService,
     private router: Router,
-    private coursesService: CoursesService
+    private coursesService: CoursesService,
+    private authService: AuthService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -324,6 +336,13 @@ export class CoursesTableComponent implements OnInit, OnChanges, OnDestroy {
 
   isFirstPage(): boolean {
     return this.courses ? this.first === 0 : true;
+  }
+
+  canUseDropdownMenu(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 
   ngOnDestroy(): void {

@@ -86,24 +86,19 @@ export class FramesTableComponent implements OnInit {
             command: () =>
               this.router.navigateByUrl(`/frames/${this.selectedFrame!.id}`), // Fixed route to frames
           },
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.onUpdateFrameModal(this.selectedFrame!),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.onDeleteFrameModal(this.selectedFrame!),
+          },
         ],
       },
     ];
-
-    if (this.authService.isUserAdmin) {
-      this.menuItems[0].items?.concat([
-        {
-          label: 'Editar',
-          icon: 'pi pi-pencil',
-          command: () => this.onUpdateFrameModal(this.selectedFrame!),
-        },
-        {
-          label: 'Eliminar',
-          icon: 'pi pi-exclamation-triangle',
-          command: () => this.onDeleteFrameModal(this.selectedFrame!),
-        },
-      ]);
-    }
   }
 
   refreshFrame(id: number, action: 'update' | 'delete'): void {
@@ -201,6 +196,10 @@ export class FramesTableComponent implements OnInit {
         this.sharedService.showError('Erro ao descarregar o logo.');
       },
     });
+  }
+
+  canUseDropdownMenu(): boolean {
+    return this.authService.userRoles.includes('Admin');
   }
 
   ngOnDestroy(): void {

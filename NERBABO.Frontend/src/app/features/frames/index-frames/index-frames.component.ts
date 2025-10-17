@@ -53,6 +53,10 @@ export class IndexFramesComponent implements OnInit, IIndex {
     });
   }
 
+  canDoActions(): boolean {
+    return this.authService.userRoles.includes('Admin');
+  }
+
   updateBreadcrumbs(): void {
     this.sharedService.insertIntoBreadcrumb([
       {
