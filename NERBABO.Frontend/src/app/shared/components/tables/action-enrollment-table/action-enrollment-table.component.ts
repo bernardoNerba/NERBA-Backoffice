@@ -22,6 +22,7 @@ import { ApprovalStatus } from '../../../enums/approval-status.enum';
 import { UpsertActionEnrollmentComponent } from '../../../../features/enrollments/upsert-action-enrollment/upsert-action-enrollment.component';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { DeleteActionEnrollmentsComponent } from '../../../../features/enrollments/delete-action-enrollments/delete-action-enrollments.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-action-enrollment-table',
@@ -63,7 +64,8 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
   constructor(
     private modalService: BsModalService,
     private router: Router,
-    private actionEnrollmentService: ActionEnrollmentService
+    private actionEnrollmentService: ActionEnrollmentService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -250,6 +252,13 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
 
   getApprovalIcon(approved: boolean): string {
     return approved ? 'pi pi-check' : 'pi pi-clock';
+  }
+
+  canUseDropdownMenu(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 
   ngOnDestroy(): void {

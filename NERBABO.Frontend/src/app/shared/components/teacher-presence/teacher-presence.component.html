@@ -32,8 +32,14 @@
           <!-- Status -->
           <div>
             <p-tag
-              [severity]="getPresenceSeverity(session.teacherPresence || PresenceEnum.Unknown)"
-              [icon]="getPresenceIcon(session.teacherPresence || PresenceEnum.Unknown)"
+              [severity]="
+                getPresenceSeverity(
+                  session.teacherPresence || PresenceEnum.Unknown
+                )
+              "
+              [icon]="
+                getPresenceIcon(session.teacherPresence || PresenceEnum.Unknown)
+              "
               [value]="session.teacherPresence || PresenceEnum.Unknown"
               class="ms-1"
             />
@@ -81,7 +87,12 @@
           <div class="table-responsive">
             <p-table
               #teacherTable
-              [value]="[{ teacherName: session.teacherPersonName, sessionId: session.id }]"
+              [value]="[
+                {
+                  teacherName: session.teacherPersonName,
+                  sessionId: session.id
+                }
+              ]"
               stripedRows
               size="small"
               [tableStyle]="{ 'min-width': '30rem' }"
@@ -102,6 +113,7 @@
                     </div>
                   </td>
                   <td>
+                    @if (canPerformAction()){
                     <p-select
                       formControlName="teacherPresence"
                       [options]="presenceOptions"
@@ -111,12 +123,14 @@
                       styleClass="w-100"
                       [appendTo]="'body'"
                     />
+                    } @else { {{ session.teacherPresence }} }
                   </td>
                 </tr>
               </ng-template>
             </p-table>
           </div>
 
+          @if (canPerformAction()){
           <!-- Action Buttons -->
           <div class="d-flex justify-content-end gap-2 mt-3">
             <p-button
@@ -136,6 +150,7 @@
               (onClick)="updateTeacherPresence(session.id)"
             />
           </div>
+          }
         </form>
         } @else {
         <div class="text-center py-4">

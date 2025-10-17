@@ -117,7 +117,9 @@
                     </div>
                   </td>
                   <td [formGroupName]="rowIndex">
+                    @if (canPerformAction()){
                     <p-select
+                      [disabled]="true"
                       formControlName="presence"
                       [options]="presenceOptions"
                       optionLabel="value"
@@ -133,8 +135,16 @@
                         )
                       "
                     />
+                    } @else {
+                    <p-tag
+                      [severity]="getPresenceSeverity(student.presence)"
+                      [icon]="getPresenceIcon(student.presence)"
+                      [value]="student.presence"
+                    />
+                    }
                   </td>
                   <td [formGroupName]="rowIndex">
+                    @if (canPerformAction()){
                     <p-inputnumber
                       formControlName="attendanceHours"
                       [min]="0"
@@ -155,8 +165,12 @@
                       incrementButtonIcon="pi pi-plus"
                       decrementButtonIcon="pi pi-minus"
                     />
+                    } @else {
+                    <span>{{ student.attendanceHours || 0 }} h</span>
+                    }
                   </td>
                   <td [formGroupName]="rowIndex">
+                    @if (canPerformAction()){
                     <p-inputnumber
                       formControlName="attendanceMinutes"
                       [min]="0"
@@ -177,6 +191,9 @@
                       incrementButtonIcon="pi pi-plus"
                       decrementButtonIcon="pi pi-minus"
                     />
+                    } @else {
+                    <span>{{ student.attendanceMinutes || 0 }} min</span>
+                    }
                   </td>
                 </tr>
                 @if (hasAttendanceTimeError(session.sessionId, rowIndex)) {
@@ -230,6 +247,7 @@
             </p-table>
           </div>
 
+          @if (canPerformAction()){
           <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
             <p-button
               label="Repor"
@@ -250,6 +268,7 @@
               (onClick)="saveSessionAttendance(session.sessionId)"
             />
           </div>
+          }
         </form>
         }
       </div>
