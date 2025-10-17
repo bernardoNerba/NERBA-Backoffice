@@ -4,6 +4,7 @@
     buttonText="Registar Conta"
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
+    [showDropdown]="canCreate()"
   ></app-title>
 
   <div class="card-body">

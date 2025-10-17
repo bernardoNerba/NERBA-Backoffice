@@ -19,22 +19,28 @@
     [rowsPerPageOptions]="[10, 25, 50]"
   >
     <ng-template #caption>
-      <div class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center">
+      <div
+        class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center"
+      >
         <!-- Filter Controls Section -->
-        <div class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1">
+        <div
+          class="d-flex flex-column flex-sm-row gap-2 align-items-start align-items-sm-center flex-grow-1"
+        >
           <div class="w-100 w-sm-auto">
             <p-multiSelect
               [options]="roles"
               [(ngModel)]="selectedRoles"
               placeholder="Filtrar por Papéis"
-              [style]="{ 'min-width': '200px', 'width': '100%' }"
+              [style]="{ 'min-width': '200px', width: '100%' }"
               (ngModelChange)="applyRoleFilter()"
               class="w-100"
             />
           </div>
-          
+
           <!-- Search Section -->
-          <div class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0">
+          <div
+            class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0"
+          >
             <div class="flex-grow-1">
               <p-iconfield iconPosition="left" class="w-100">
                 <p-inputicon>
@@ -47,7 +53,7 @@
                   type="text"
                   placeholder="Procurar..."
                   class="w-100"
-                  style="min-width: 200px;"
+                  style="min-width: 200px"
                 />
               </p-iconfield>
             </div>
@@ -62,110 +68,114 @@
         </div>
       </div>
     </ng-template>
-  <ng-template #header>
-    <tr>
-      <th style="width: 60px; min-width: 60px;" class="text-center">#</th>
-      <th pSortableColumn="fullName" style="min-width: 180px;">
-        <div class="d-flex align-items-center gap-2">
-          <span class="d-none d-md-inline">Nome Completo</span>
-          <span class="d-inline d-md-none">Nome</span>
-          <p-sortIcon field="fullName" />
-        </div>
-      </th>
-      <th pSortableColumn="userName" style="width: 120px; min-width: 120px;">
-        <div class="d-flex align-items-center gap-2">
-          Username
-          <p-sortIcon field="userName" />
-        </div>
-      </th>
-      <th pSortableColumn="email" style="width: 180px; min-width: 180px;">
-        <div class="d-flex align-items-center gap-2">
-          Email
-          <p-sortIcon field="email" />
-        </div>
-      </th>
-      <th pSortableColumn="roles" style="min-width: 200px;">
-        <div class="d-flex align-items-center gap-2">
-          Papeis
-          <p-sortIcon field="roles" />
-        </div>
-      </th>
-      <th pSortableColumn="estado" style="width: 100px; min-width: 100px;">
-        <div class="d-flex align-items-center gap-2">
-          Estado
-          <p-sortIcon field="estado" />
-        </div>
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template #body let-user>
-    <tr>
-      <td class="text-center">
-        <p-menu
-          #menu
-          [model]="menuItems"
-          [popup]="true"
-          [appendTo]="'body'"
-        />
-        <p-button
-          icon="pi pi-ellipsis-v"
-          [rounded]="true"
-          severity="contrast"
-          [outlined]="true"
-          size="small"
-          (click)="menu.toggle($event); selectedUser = user"
-        />
-      </td>
-      <td class="text-break">
-        <app-icon-anchor
-          [field]="user.fullName"
-          [display]="user.fullName | truncate : 30"
-          [link]="'/people/' + user.personId"
-          [icon]="'pi pi-link'"
-        />
-      </td>
-      <td class="text-break">
-        <span class="fw-medium">{{ user.userName | truncate : 15 }}</span>
-      </td>
-      <td class="text-break">
-        <app-icon-anchor
-          [field]="user.email"
-          [display]="user.email.split('@')[0]"
-          [link]="'mailto:' + user.email"
-          [icon]="'pi pi-envelope'"
-        />
-      </td>
-      <td>
-        <div class="d-flex gap-1 align-items-center justify-content-start">
-          @for (role of user.roles; track role) {
-          <span 
-            class="icon-badge small"
-            [ngClass]="getRoleClass(role)"
-            [pTooltip]="getRoleTooltip(role)"
-            tooltipPosition="top"
-          >
-            <i [class]="getRoleIcon(role)"></i>
-          </span>
-          }
-        </div>
-      </td>
-      <td>
-        <p-tag
-          icon="{{ getStatusIcon(user.isActive) }}"
-          [value]="user.isActive ? 'Ativo' : 'Inativo'"
-          [severity]="getStatusSeverity(user.isActive)"
-          class="w-100 d-flex justify-content-center"
-        />
-      </td>
-    </tr>
-  </ng-template>
-  <ng-template #emptymessage>
-    <tr>
-      <td colspan="5">
-        Não foram encontrados utilizadores com essas diretrizes.
-      </td>
-    </tr>
-  </ng-template>
+    <ng-template #header>
+      <tr>
+        @if (canUseDropdownMenu()) {
+        <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+        }
+        <th pSortableColumn="fullName" style="min-width: 180px">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-none d-md-inline">Nome Completo</span>
+            <span class="d-inline d-md-none">Nome</span>
+            <p-sortIcon field="fullName" />
+          </div>
+        </th>
+        <th pSortableColumn="userName" style="width: 120px; min-width: 120px">
+          <div class="d-flex align-items-center gap-2">
+            Username
+            <p-sortIcon field="userName" />
+          </div>
+        </th>
+        <th pSortableColumn="email" style="width: 180px; min-width: 180px">
+          <div class="d-flex align-items-center gap-2">
+            Email
+            <p-sortIcon field="email" />
+          </div>
+        </th>
+        <th pSortableColumn="roles" style="min-width: 200px">
+          <div class="d-flex align-items-center gap-2">
+            Papeis
+            <p-sortIcon field="roles" />
+          </div>
+        </th>
+        <th pSortableColumn="estado" style="width: 100px; min-width: 100px">
+          <div class="d-flex align-items-center gap-2">
+            Estado
+            <p-sortIcon field="estado" />
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-user>
+      <tr>
+        @if (canUseDropdownMenu()) {
+        <td class="text-center">
+          <p-menu
+            #menu
+            [model]="menuItems"
+            [popup]="true"
+            [appendTo]="'body'"
+          />
+          <p-button
+            icon="pi pi-ellipsis-v"
+            [rounded]="true"
+            severity="contrast"
+            [outlined]="true"
+            size="small"
+            (click)="menu.toggle($event); selectedUser = user"
+          />
+        </td>
+        }
+        <td class="text-break">
+          <app-icon-anchor
+            [field]="user.fullName"
+            [display]="user.fullName | truncate : 30"
+            [link]="'/people/' + user.personId"
+            [icon]="'pi pi-link'"
+          />
+        </td>
+        <td class="text-break">
+          <span class="fw-medium">{{ user.userName | truncate : 15 }}</span>
+        </td>
+        <td class="text-break">
+          <app-icon-anchor
+            [field]="user.email"
+            [display]="user.email.split('@')[0]"
+            [link]="'mailto:' + user.email"
+            [icon]="'pi pi-envelope'"
+          />
+        </td>
+        <td>
+          <div class="d-flex gap-1 align-items-center justify-content-start">
+            @for (role of user.roles; track role) {
+            <span
+              class="icon-badge small"
+              [ngClass]="getRoleClass(role)"
+              [pTooltip]="getRoleTooltip(role)"
+              tooltipPosition="top"
+            >
+              <i [class]="getRoleIcon(role)"></i>
+            </span>
+            }
+          </div>
+        </td>
+        <td>
+          <p-tag
+            icon="{{ getStatusIcon(user.isActive) }}"
+            [value]="user.isActive ? 'Ativo' : 'Inativo'"
+            [severity]="getStatusSeverity(user.isActive)"
+            class="w-100 d-flex justify-content-center"
+          />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5">
+          Não foram encontrados utilizadores com essas diretrizes.
+        </td>
+      </tr>
+    </ng-template>
   </p-table>
 </div>
 }

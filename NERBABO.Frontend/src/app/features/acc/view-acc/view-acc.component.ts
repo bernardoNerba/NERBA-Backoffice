@@ -19,6 +19,7 @@ import { ActionsService } from '../../../core/services/actions.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { UpsertAccComponent } from '../upsert-acc/upsert-acc.component';
 import { BlockAccComponent } from '../block-acc/block-acc.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-view-acc',
@@ -54,7 +55,8 @@ export class ViewAccComponent implements OnInit, OnDestroy {
     private router: Router,
     private sharedService: SharedService,
     private bsModalService: BsModalService,
-    private actionsService: ActionsService
+    private actionsService: ActionsService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -239,6 +241,10 @@ export class ViewAccComponent implements OnInit, OnDestroy {
         className: 'inactive',
       },
     ]);
+  }
+
+  showMenu(): boolean {
+    return this.authService.userRoles.includes('Admin');
   }
 
   ngOnDestroy(): void {
