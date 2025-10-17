@@ -4,6 +4,7 @@
     buttonText="Registar Enquadramento"
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
+    [showDropdown]="!authService.userRoles.includes('Admin')"
   ></app-title>
   <div class="card-body">
     <app-frames-table

@@ -16,6 +16,7 @@ import { TitleComponent } from '../../../shared/components/title/title.component
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
 import { IView } from '../../../core/interfaces/IView';
 import { Button } from 'primeng/button';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-view-frames',
@@ -39,7 +40,8 @@ export class ViewFramesComponent implements IView, OnInit, OnDestroy {
     private sharedService: SharedService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -175,7 +177,6 @@ export class ViewFramesComponent implements IView, OnInit, OnDestroy {
     );
   }
 
-
   downloadLogo(frame: Frame, logoType: 'program' | 'financement'): void {
     this.frameService.downloadLogo(frame.id, logoType).subscribe({
       next: (blob: Blob) => {
@@ -192,8 +193,12 @@ export class ViewFramesComponent implements IView, OnInit, OnDestroy {
       error: (error) => {
         console.error('Failed to download logo:', error);
         this.sharedService.showError('Erro ao descarregar o logo.');
-      }
+      },
     });
+  }
+
+  showMenu(): boolean {
+    return this.authService.userRoles.includes('Admin');
   }
 
   ngOnDestroy(): void {

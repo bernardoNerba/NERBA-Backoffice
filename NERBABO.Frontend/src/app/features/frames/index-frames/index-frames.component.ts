@@ -12,6 +12,7 @@ import { FramesTableComponent } from '../../../shared/components/tables/frames-t
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertFramesComponent } from '../upsert-frames/upsert-frames.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-index-frame',
@@ -31,7 +32,8 @@ export class IndexFramesComponent implements OnInit, IIndex {
   constructor(
     private readonly frameService: FrameService,
     private readonly modalService: BsModalService,
-    private readonly sharedService: SharedService
+    private readonly sharedService: SharedService,
+    public readonly authService: AuthService
   ) {
     this.frames$ = this.frameService.frames$;
     this.loading$ = this.frameService.loading$;

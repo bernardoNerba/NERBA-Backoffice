@@ -30,9 +30,13 @@ export class DeleteFramesComponent {
         this.frameService.notifyFrameDelete(this.id);
       },
       error: (error) => {
-        this.sharedService.handleErrorResponse(error);
-        this.deleting = false;
+        if (error.status === 403 || error.status === 401) {
+          this.sharedService.showError('Não pode realizar esta ação.');
+        } else {
+          this.sharedService.handleErrorResponse(error);
+        }
       },
     });
+    this.deleting = false;
   }
 }

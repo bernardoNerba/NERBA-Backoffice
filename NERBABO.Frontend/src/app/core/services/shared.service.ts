@@ -48,8 +48,12 @@ export class SharedService {
   }
 
   handleErrorResponse(error: any): Array<string> {
-    console.log(error);
     let errorMessages = [];
+
+    if (error.status === 403 || error.status === 401) {
+      // no error but status code 40...
+      this.showError('Não podes realizar esta ação.');
+    }
 
     if (Array.isArray(error.error.errors)) {
       // many errors
@@ -57,9 +61,6 @@ export class SharedService {
     } else if (error.error !== null) {
       // only one error
       errorMessages.push(error.error.detail);
-    } else if (error.status === 403 || error.status === 401) {
-      // no error but status code 40...
-      this.showError('Não podes realizar esta ação.');
     } else {
       this.showError(
         // unexpected error
