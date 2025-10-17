@@ -11,6 +11,7 @@ import { ModulesTableComponent } from '../../../shared/components/tables/modules
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertModulesComponent } from '../upsert-modules/upsert-modules.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-index-modules',
@@ -30,7 +31,8 @@ export class IndexModulesComponent implements IIndex, OnInit {
   constructor(
     private moduleService: ModulesService,
     private modalService: BsModalService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private authService: AuthService
   ) {
     this.modules$ = this.moduleService.modules$;
     this.loading$ = this.moduleService.loading$;
@@ -60,5 +62,12 @@ export class IndexModulesComponent implements IIndex, OnInit {
         className: 'inactive',
       },
     ]);
+  }
+
+  canPerformAction(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 }

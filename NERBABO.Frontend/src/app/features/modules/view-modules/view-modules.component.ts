@@ -21,6 +21,7 @@ import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertModulesComponent } from '../upsert-modules/upsert-modules.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-view-modules',
@@ -53,7 +54,8 @@ export class ViewModulesComponent implements IView, OnInit, OnDestroy {
     private actionsService: ActionsService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -191,6 +193,13 @@ export class ViewModulesComponent implements IView, OnInit, OnDestroy {
         className: 'inactive',
       },
     ]);
+  }
+
+  canPerformAction(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 
   ngOnDestroy(): void {
