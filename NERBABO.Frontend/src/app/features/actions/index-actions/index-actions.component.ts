@@ -12,10 +12,16 @@ import { SharedService } from '../../../core/services/shared.service';
 import { CommonModule } from '@angular/common';
 import { TitleComponent } from '../../../shared/components/title/title.component';
 import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-index-actions',
-  imports: [ActionsTableComponent, CommonModule, TitleComponent, KpiRowComponent],
+  imports: [
+    ActionsTableComponent,
+    CommonModule,
+    TitleComponent,
+    KpiRowComponent,
+  ],
   templateUrl: './index-actions.component.html',
   styleUrl: './index-actions.component.css',
 })
@@ -38,7 +44,8 @@ export class IndexActionsComponent implements IIndex, OnInit, OnDestroy {
   constructor(
     private actionsService: ActionsService,
     private modalService: BsModalService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private authService: AuthService
   ) {
     this.actions$ = this.actionsService.actions$;
     this.loading$ = this.actionsService.loading$;
@@ -142,6 +149,13 @@ export class IndexActionsComponent implements IIndex, OnInit, OnDestroy {
   // Method to be called by the table component when filters change
   onTableFilter(filteredActions: Action[]): void {
     this.calculateAggregatedKpis(filteredActions);
+  }
+
+  canPerformActions(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 
   ngOnDestroy(): void {

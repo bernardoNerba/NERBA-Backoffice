@@ -1,7 +1,7 @@
 import {
   Component,
-  Input,
   OnInit,
+  Input,
   OnDestroy,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -24,6 +24,7 @@ import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
 import { ModuleTeachingService } from '../../../core/services/module-teaching.service';
 import { TruncatePipe } from '../../pipes/truncate.pipe';
 import { ToastModule } from 'primeng/toast';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-sessions-scheduler',
@@ -59,7 +60,8 @@ export class SessionsSchedulerComponent implements OnInit, OnDestroy {
     private modalService: BsModalService,
     private sharedService: SharedService,
     private moduleTeachingService: ModuleTeachingService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -303,6 +305,13 @@ export class SessionsSchedulerComponent implements OnInit, OnDestroy {
       }
     }
     // TODO: Add logic for "all" query if needed in the future
+  }
+
+  canPerformAction(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 
   ngOnDestroy(): void {

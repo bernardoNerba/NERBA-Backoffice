@@ -1,10 +1,17 @@
-import { Component, Input, OnInit, OnChanges, ViewChild, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  ViewChild,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Button } from 'primeng/button';
 import { Menu } from 'primeng/menu';
-import { CalendarModule } from 'primeng/calendar';
 import { Action } from '../../../../core/models/action';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
@@ -25,6 +32,7 @@ import { DeleteActionsComponent } from '../../../../features/actions/delete-acti
 import { DatePicker } from 'primeng/datepicker';
 import { ChangeStatusActionsComponent } from '../../../../features/actions/change-status-actions/change-status-actions.component';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-actions-table',
@@ -66,7 +74,8 @@ export class ActionsTableComponent implements OnInit, OnChanges {
   constructor(
     private modalService: BsModalService,
     private router: Router,
-    private actionsService: ActionsService
+    private actionsService: ActionsService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -319,6 +328,13 @@ export class ActionsTableComponent implements OnInit, OnChanges {
     this.dateRange = null;
     this.dt.reset();
     this.applyFilters();
+  }
+
+  canUseDropdownMenu(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 
   ngOnDestroy(): void {

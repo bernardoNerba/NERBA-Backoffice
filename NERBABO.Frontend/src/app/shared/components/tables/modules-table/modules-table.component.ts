@@ -20,6 +20,7 @@ import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { UpsertModulesComponent } from '../../../../features/modules/upsert-modules/upsert-modules.component';
 import { UpsertModuleTeachingComponent } from '../../../../features/actions/upsert-module-teaching/upsert-module-teaching.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-modules-table',
@@ -57,7 +58,8 @@ export class ModulesTableComponent implements OnInit {
   constructor(
     private modalService: BsModalService,
     private modulesService: ModulesService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -256,6 +258,13 @@ export class ModulesTableComponent implements OnInit {
         isUpdate: true,
       },
     });
+  }
+
+  canUseDropdownMenu(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 
   ngOnDestroy(): void {

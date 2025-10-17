@@ -53,7 +53,7 @@ export class IndexFramesComponent implements OnInit, IIndex {
     });
   }
 
-  canDoActions(): boolean {
+  canPerformActions(): boolean {
     return this.authService.userRoles.includes('Admin');
   }
 
