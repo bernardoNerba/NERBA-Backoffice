@@ -1,7 +1,11 @@
 @if (course$ | async; as course){
 
-<app-title [title]="course.title" [isDropdown]="true" [menuItems]="menuItems" />
-
+<app-title
+  [title]="course.title"
+  [isDropdown]="true"
+  [menuItems]="menuItems"
+  [showDropdown]="showMenu()"
+/>
 @if (kpis){
 <app-kpi-row [kpis]="kpis" layout="scroll" />
 }

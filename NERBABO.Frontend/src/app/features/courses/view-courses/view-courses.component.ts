@@ -21,13 +21,13 @@ import { Module } from '../../../core/models/module';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
 import { ActionsTableComponent } from '../../../shared/components/tables/actions-table/actions-table.component';
 import { MenuItem } from 'primeng/api';
-import { DropdownMenuComponent } from '../../../shared/components/dropdown-menu/dropdown-menu.component';
 import { IView } from '../../../core/interfaces/IView';
 import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
 import { UpsertActionsComponent } from '../../actions/upsert-actions/upsert-actions.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
 import { MessageComponent } from '../../../shared/components/message/message.component';
 import { KpiRowComponent } from '../../../shared/components/kpi-row/kpi-row.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-view-courses',
@@ -73,7 +73,8 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private modalService: BsModalService,
-    private actionsService: ActionsService
+    private actionsService: ActionsService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -293,6 +294,13 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
           this.initializeKpis();
         }
       })
+    );
+  }
+
+  showMenu(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
     );
   }
 

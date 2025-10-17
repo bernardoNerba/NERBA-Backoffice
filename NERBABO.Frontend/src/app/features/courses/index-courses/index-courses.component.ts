@@ -11,6 +11,7 @@ import { CoursesTableComponent } from '../../../shared/components/tables/courses
 import { IIndex } from '../../../core/interfaces/IIndex';
 import { UpsertCoursesComponent } from '../upsert-courses/upsert-courses.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-index-courses',
@@ -27,11 +28,11 @@ export class IndexCoursesComponent implements IIndex, OnInit {
   loading$!: Observable<boolean>;
   ICONS = ICONS;
 
-
   constructor(
     private coursesService: CoursesService,
     private modalService: BsModalService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private authService: AuthService
   ) {
     this.courses$ = this.coursesService.courses$;
     this.loading$ = this.coursesService.loading$;
@@ -40,7 +41,6 @@ export class IndexCoursesComponent implements IIndex, OnInit {
   ngOnInit(): void {
     this.updateBreadcrumbs();
   }
-
 
   onCreateModal() {
     this.modalService.show(UpsertCoursesComponent, {
@@ -66,4 +66,10 @@ export class IndexCoursesComponent implements IIndex, OnInit {
     ]);
   }
 
+  canPerformActions(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
+  }
 }
