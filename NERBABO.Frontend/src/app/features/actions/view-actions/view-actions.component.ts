@@ -679,6 +679,13 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     );
   }
 
+  canViewPayments(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
     this.actionSubject.complete();

@@ -123,7 +123,19 @@
                       styleClass="w-100"
                       [appendTo]="'body'"
                     />
-                    } @else { {{ session.teacherPresence }} }
+                    } @else {
+                    <p-tag
+                      [severity]="
+                        getPresenceSeverity(
+                          session.teacherPresence || PresenceEnum.Unknown
+                        )
+                      "
+                      [icon]="
+                        getPresenceIcon(session.teacherPresence || PresenceEnum.Unknown)
+                      "
+                      [value]="session.teacherPresence || PresenceEnum.Unknown"
+                    />
+                    }
                   </td>
                 </tr>
               </ng-template>

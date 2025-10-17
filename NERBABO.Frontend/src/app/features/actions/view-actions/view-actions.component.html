@@ -482,7 +482,7 @@
     <!-- END MODULE AVALIATION ACCORDION -->
 
     <!-- PROCESS PAYMENTS -->
-    @if (action.showPaymentProcessments) {
+    @if (action.showPaymentProcessments && canViewPayments()) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-process-payments">
         <button
