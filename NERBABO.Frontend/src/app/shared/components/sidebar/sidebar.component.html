@@ -10,7 +10,7 @@
     <!-- MAIN MENU OPTIONS - FOR ALL USERS -->
     <div class="menu-section">
       <ul class="menu-list">
-        @for (item of mainMenuItems; track item.name;){
+        @for (item of mainMenuItems; track item.name;){ @if (!item.admin || isAdmin){
         <li
           [class.active]="activePage === item.name"
           (click)="setActivePage(item.route, item.name)"
@@ -19,29 +19,9 @@
           <i class="{{ item.icon }} me-3"></i>
           <span class="menu-text">{{ item.name }}</span>
         </li>
-        }
+        } }
       </ul>
     </div>
-
-    @if(isAdmin){
-    <!-- ADMIN MENU OPTIONS -->
-    <div class="menu-section">
-      <h2 class="section-title">Painel de Admin</h2>
-      <ul class="menu-list">
-        @for (item of adminMenuItems; track item.name;) {
-        <li
-          [class.active]="activePage === item.name"
-          (click)="setActivePage(item.route, item.name)"
-          [title]="isCollapsed ? item.name : ''"
-        >
-          <i class="{{ item.icon }} me-3"></i>
-          <span class="menu-text">{{ item.name }}</span>
-        </li>
-        }
-      </ul>
-    </div>
-    <!-- END MENU OPTIONS -->
-    }
   </div>
 
   <!-- USER PROFILE -->

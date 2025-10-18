@@ -4,7 +4,11 @@
     <div class="d-flex align-items-center w-100">
       <!-- TOGGLE SIDEBAR -->
       <div class="me-2">
-        <button class="toggle-btn" (click)="toggleSidebar()">
+        <button
+          class="toggle-btn"
+          (click)="toggleSidebar()"
+          pTooltip="Ctrl+B"
+          tooltipPosition="bottom">
           <span class="material-icons">
             {{ isCollapsed ? "menu" : "menu_open" }}
           </span>
