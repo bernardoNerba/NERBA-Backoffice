@@ -18,6 +18,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { SharedService } from '../../../core/services/shared.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-teacher-presence',
@@ -56,7 +57,8 @@ export class TeacherPresenceComponent implements OnInit, OnDestroy {
     private sessionsService: SessionsService,
     private formBuilder: FormBuilder,
     private messageService: MessageService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -180,7 +182,10 @@ export class TeacherPresenceComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    return form.value.teacherPresence !== (session.teacherPresence || PresenceEnum.Unknown);
+    return (
+      form.value.teacherPresence !==
+      (session.teacherPresence || PresenceEnum.Unknown)
+    );
   }
 
   resetForm(sessionId: number): void {
@@ -194,4 +199,10 @@ export class TeacherPresenceComponent implements OnInit, OnDestroy {
     }
   }
 
+  canPerformAction(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
+  }
 }

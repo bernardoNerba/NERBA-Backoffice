@@ -63,7 +63,9 @@
     </ng-template>
     <ng-template #header>
       <tr>
+        @if (canUseDropdownMenu()){
         <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+        }
         <th pSortableColumn="name" style="min-width: 250px">
           <div class="d-flex align-items-center gap-2">
             <span class="d-none d-md-inline">Nome</span>
@@ -92,6 +94,7 @@
     </ng-template>
     <ng-template #body let-module>
       <tr>
+        @if (canUseDropdownMenu()){
         <!-- DROPDOWN MENU -->
         <td class="text-center">
           <p-menu
@@ -109,6 +112,7 @@
             (click)="menu.toggle($event); selectedModule = module"
           />
         </td>
+        }
         <!-- MODULE NAME -->
         <td class="text-break">
           <app-icon-anchor

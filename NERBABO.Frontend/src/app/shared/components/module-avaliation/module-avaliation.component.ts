@@ -28,6 +28,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BadgeModule } from 'primeng/badge';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { SharedService } from '../../../core/services/shared.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-module-avaliation',
@@ -67,7 +68,8 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
     private moduleAvaliationService: ModuleAvaliationsService,
     private actionEnrollmentService: ActionEnrollmentService,
     private formBuilder: FormBuilder,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -272,5 +274,12 @@ export class ModuleAvaliationComponent implements OnInit, OnDestroy {
       }
     }
     return true;
+  }
+
+  canPerformAction(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
   }
 }

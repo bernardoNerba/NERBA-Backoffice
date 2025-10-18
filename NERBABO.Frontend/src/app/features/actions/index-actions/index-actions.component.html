@@ -4,6 +4,7 @@
     buttonText="Registar Ação Formação"
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
+    [showDropdown]="canPerformActions()"
   ></app-title>
 
   <!-- KPI Cards -->

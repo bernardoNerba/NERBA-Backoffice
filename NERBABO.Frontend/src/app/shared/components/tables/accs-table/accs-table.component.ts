@@ -18,12 +18,12 @@ import { FormsModule } from '@angular/forms';
 import { TruncatePipe } from '../../../pipes/truncate.pipe';
 import { SpinnerComponent } from '../../spinner/spinner.component';
 import { InputTextModule } from 'primeng/inputtext';
-import { IconComponent } from '../../icon/icon.component';
 import { ICONS } from '../../../../core/objects/icons';
 import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { UpsertAccComponent } from '../../../../features/acc/upsert-acc/upsert-acc.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-accs-table',
@@ -65,7 +65,8 @@ export class AccsTableComponent implements OnInit {
     private modalService: BsModalService,
     private router: Router,
     private accService: AccService,
-    private filterService: FilterService
+    private filterService: FilterService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -243,6 +244,10 @@ export class AccsTableComponent implements OnInit {
       fm: 'Formação Modular',
     };
     return tooltipMap[role.toLowerCase()] || role;
+  }
+
+  canUseDropdownMenu(): boolean {
+    return this.authService.userRoles.includes('Admin');
   }
 
   ngOnDestroy(): void {

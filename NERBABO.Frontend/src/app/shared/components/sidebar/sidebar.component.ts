@@ -27,23 +27,53 @@ export class SidebarComponent implements OnInit {
   userId!: string;
 
   mainMenuItems = [
-    { name: 'Dashboard', icon: 'pi pi-chart-line', route: '/dashboard' },
-    { name: 'Pessoas', icon: 'pi pi-users', route: '/people' },
-    { name: 'Modulos', icon: 'pi pi-objects-column', route: '/modules' },
-    { name: 'Cursos', icon: 'pi pi-graduation-cap', route: '/courses' },
+    {
+      name: 'Dashboard',
+      icon: 'pi pi-chart-line',
+      route: '/dashboard',
+      admin: false,
+    },
+    { name: 'Pessoas', icon: 'pi pi-users', route: '/people', admin: false },
+    {
+      name: 'Modulos',
+      icon: 'pi pi-objects-column',
+      route: '/modules',
+      admin: false,
+    },
+    {
+      name: 'Cursos',
+      icon: 'pi pi-graduation-cap',
+      route: '/courses',
+      admin: false,
+    },
     {
       name: 'Ações Formativas',
       icon: 'pi pi-bookmark-fill',
       route: '/actions',
+      admin: false,
     },
-    { name: 'Empresas', icon: 'pi pi-building', route: '/companies' },
+    {
+      name: 'Empresas',
+      icon: 'pi pi-building',
+      route: '/companies',
+      admin: false,
+    },
+    {
+      name: 'Enquadramentos',
+      icon: 'pi pi-expand',
+      route: '/frames',
+      admin: false,
+    },
+    { name: 'Contas', icon: 'pi pi-users', route: '/accs', admin: false },
+    {
+      name: 'Configurações',
+      icon: 'pi pi-cog',
+      route: '/config',
+      admin: true,
+    },
   ];
 
-  adminMenuItems = [
-    { name: 'Configurações', icon: 'pi pi-cog', route: '/config' },
-    { name: 'Enquadramentos', icon: 'pi pi-expand', route: '/frames' },
-    { name: 'Contas', icon: 'pi pi-users', route: '/accs' },
-  ];
+  adminMenuItems = [];
 
   constructor(
     private router: Router,

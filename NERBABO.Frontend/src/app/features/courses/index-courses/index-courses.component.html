@@ -4,8 +4,8 @@
     buttonText="Registar Curso"
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
+    [showDropdown]="canPerformActions()"
   ></app-title>
-
 
   <div class="card-body">
     <app-courses-table

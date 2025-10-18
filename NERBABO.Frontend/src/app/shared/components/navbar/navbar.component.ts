@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { TooltipModule } from 'primeng/tooltip';
 import { NavigationLink } from '../../../core/models/navigationLink';
 import { User } from '../../../core/models/user';
 import { SharedService } from '../../../core/services/shared.service';
@@ -9,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, TooltipModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
@@ -40,5 +41,13 @@ export class NavbarComponent implements OnInit {
 
   get isCollapsed() {
     return this.sharedService.isCollapsed;
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 'b') {
+      event.preventDefault();
+      this.toggleSidebar();
+    }
   }
 }

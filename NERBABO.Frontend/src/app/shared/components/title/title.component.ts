@@ -16,9 +16,15 @@ import { ButtonModule } from 'primeng/button';
               {{ title }}
             </h3>
           </div>
+          @if (showDropdown){
           <div class="col-4 text-end">
             @if (!isDropdown) {
-            <button type="button" class="btn-main" (click)="onButtonClick()">
+            <button
+              type="button"
+              class="btn-main"
+              (click)="onButtonClick()"
+              [disabled]="buttonDisable"
+            >
               <app-icon [icon]="buttonIcon" [marginEnd]="1" />
               {{ buttonText }}
             </button>
@@ -36,6 +42,7 @@ import { ButtonModule } from 'primeng/button';
             />
             }
           </div>
+          }
         </div>
       </div>
     </div>
@@ -51,6 +58,8 @@ export class TitleComponent {
 
   @Input() menuItems: MenuItem[] | undefined;
   @Input() isDropdown: boolean = false;
+  @Input() buttonDisable: boolean = false;
+  @Input() showDropdown: boolean = true;
 
   onButtonClick() {
     this.buttonClick.emit();

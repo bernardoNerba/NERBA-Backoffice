@@ -57,6 +57,7 @@
               pTooltip="Limpar filtros"
               class="flex-shrink-0"
             />
+            @if (canUseDropdownMenu()){
             <p-button
               (onClick)="onStudentEnrollment()"
               label="Adicionar Formando"
@@ -64,6 +65,7 @@
               size="small"
             >
             </p-button>
+            }
           </div>
         </div>
       </div>
@@ -71,7 +73,7 @@
 
     <ng-template #header>
       <tr>
-        @if (showMenuActions) {
+        @if (showMenuActions && canUseDropdownMenu()) {
         <th style="width: 60px; min-width: 60px" class="text-center">#</th>
         }
         <th pSortableColumn="studentFullName" style="min-width: 250px">
@@ -115,7 +117,7 @@
     <ng-template #body let-enrollment>
       <tr>
         <!-- DROPDOWN MENU -->
-        @if (showMenuActions) {
+        @if (showMenuActions && canUseDropdownMenu()) {
         <td class="text-center">
           <p-menu
             #menu
@@ -195,6 +197,7 @@
             <p class="mt-2 mb-0">
               Não foram encontradas inscrições nesta ação.
             </p>
+            @if (canUseDropdownMenu()){
             <p-button
               (onClick)="onStudentEnrollment()"
               label="Adicionar Formando"
@@ -202,6 +205,7 @@
               size="small"
               severity="secondary"
             />
+            }
           </div>
         </td>
       </tr>

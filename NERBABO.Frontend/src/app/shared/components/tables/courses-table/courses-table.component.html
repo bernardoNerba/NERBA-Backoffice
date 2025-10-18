@@ -65,7 +65,9 @@
     </ng-template>
     <ng-template #header>
       <tr>
+        @if (canUseDropdownMenu()){
         <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+        }
         <th pSortableColumn="title" style="min-width: 200px">
           <div class="d-flex align-items-center gap-2">
             <span class="d-none d-md-inline">Título</span>
@@ -103,6 +105,7 @@
     <ng-template #body let-course>
       <tr>
         <!-- DROPDOWN MENU -->
+        @if (canUseDropdownMenu()){
         <td class="text-center">
           <p-menu
             #menu
@@ -119,6 +122,7 @@
             (click)="menu.toggle($event); selectedCourse = course"
           />
         </td>
+        }
         <!-- COURSE TITLE -->
         <td class="text-break">
           <app-icon-anchor

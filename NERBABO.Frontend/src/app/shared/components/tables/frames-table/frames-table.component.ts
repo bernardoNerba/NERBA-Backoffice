@@ -19,6 +19,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconAnchorComponent } from '../../anchors/icon-anchor.component';
 import { UpsertFramesComponent } from '../../../../features/frames/upsert-frames/upsert-frames.component';
 import { SharedService } from '../../../../core/services/shared.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-frames-table',
@@ -53,34 +54,12 @@ export class FramesTableComponent implements OnInit {
     private modalService: BsModalService,
     private router: Router,
     private framesService: FrameService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.menuItems = [
-      {
-        label: 'Opções',
-        items: [
-          {
-            label: 'Editar',
-            icon: 'pi pi-pencil',
-            command: () => this.onUpdateFrameModal(this.selectedFrame!),
-          },
-          {
-            label: 'Eliminar',
-            icon: 'pi pi-exclamation-triangle',
-            command: () => this.onDeleteFrameModal(this.selectedFrame!),
-          },
-          {
-            label: 'Detalhes',
-            icon: 'pi pi-exclamation-circle',
-            command: () =>
-              this.router.navigateByUrl(`/frames/${this.selectedFrame!.id}`), // Fixed route to frames
-          },
-        ],
-      },
-    ];
-
+    this.populateMenu();
     // Subscribe to frame updates
     this.subscriptions.add(
       this.framesService.updatedSource$.subscribe((frameId) => {
@@ -94,6 +73,32 @@ export class FramesTableComponent implements OnInit {
         this.refreshFrame(frameId, 'delete');
       })
     );
+  }
+
+  populateMenu() {
+    this.menuItems = [
+      {
+        label: 'Opções',
+        items: [
+          {
+            label: 'Detalhes',
+            icon: 'pi pi-exclamation-circle',
+            command: () =>
+              this.router.navigateByUrl(`/frames/${this.selectedFrame!.id}`), // Fixed route to frames
+          },
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            command: () => this.onUpdateFrameModal(this.selectedFrame!),
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-exclamation-triangle',
+            command: () => this.onDeleteFrameModal(this.selectedFrame!),
+          },
+        ],
+      },
+    ];
   }
 
   refreshFrame(id: number, action: 'update' | 'delete'): void {
@@ -189,8 +194,12 @@ export class FramesTableComponent implements OnInit {
       error: (error) => {
         console.error('Failed to download logo:', error);
         this.sharedService.showError('Erro ao descarregar o logo.');
-      }
+      },
     });
+  }
+
+  canUseDropdownMenu(): boolean {
+    return this.authService.userRoles.includes('Admin');
   }
 
   ngOnDestroy(): void {

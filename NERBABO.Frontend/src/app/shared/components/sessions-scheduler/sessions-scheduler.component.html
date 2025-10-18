@@ -61,6 +61,7 @@
         } @else { Todas as Sessões ({{ filteredSessions.length }}) }
       </h6>
       <!-- Clear date selection button -->
+      @if (canPerformAction()) {
       <div class="actions">
         @if (selectedDate) {
         <p-button
@@ -82,6 +83,7 @@
         >
         </p-button>
       </div>
+      }
     </div>
 
     <!-- Sessions List -->
@@ -103,6 +105,7 @@
                 </small>
               </div>
               <div style="min-width: 100px">
+                @if (canPerformAction()) {
                 <p-button
                   icon="pi pi-pencil"
                   size="small"
@@ -122,6 +125,7 @@
                   pTooltip="Excluir Sessão"
                 >
                 </p-button>
+                }
                 <p-button
                   icon="pi pi-calendar"
                   [text]="true"
@@ -187,7 +191,7 @@
           <p class="text-muted">
             Ainda não há sessões agendadas para esta ação.
           </p>
-          }
+          } @if (canPerformAction()) {
           <p-button
             label="Nova Sessão"
             icon="pi pi-plus"
@@ -196,6 +200,7 @@
             (onClick)="onCreateSession()"
           >
           </p-button>
+          }
         </div>
       </p-card>
       }

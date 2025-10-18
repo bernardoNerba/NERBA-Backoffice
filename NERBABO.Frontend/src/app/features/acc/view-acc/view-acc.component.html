@@ -1,5 +1,10 @@
 @if (person$ | async; as person) {
-<app-title [title]="person.fullName" [isDropdown]="true" [menuItems]="menuItems" />
+<app-title
+  [title]="person.fullName"
+  [isDropdown]="true"
+  [menuItems]="menuItems"
+  [showDropdown]="showMenu()"
+/>
 
 <div class="card w-100 hv-100 mt-2">
   <div class="card-header">
@@ -35,7 +40,9 @@
                   <!-- User Name -->
                   <div class="col-md-4 col-sm-6">
                     <div class="property">
-                      <div class="bg-green-white fw-bold">Nome de Utilizador</div>
+                      <div class="bg-green-white fw-bold">
+                        Nome de Utilizador
+                      </div>
                       <p class="text-break mb-0">
                         {{ user.userName || "N/A" }}
                       </p>
@@ -64,20 +71,15 @@
                     <div class="property">
                       <div class="bg-green-white fw-bold">Funções</div>
                       <p class="text-break mb-0">
-                        @if (user.roles && user.roles.length > 0) {
-                          @if (typeof user.roles === 'string') {
-                            {{ user.roles }}
-                          } @else {
-                            @for (role of user.roles; track role) {
-                            <span class="badge bg-light text-dark me-1">
-                              <app-icon [icon]="ICONS.success" />
-                              {{ role | uppercase }}
-                            </span>
-                            }
-                          }
-                        } @else {
-                          N/A
-                        }
+                        @if (user.roles && user.roles.length > 0) { @if (typeof
+                        user.roles === 'string') {
+                        {{ user.roles }}
+                        } @else { @for (role of user.roles; track role) {
+                        <span class="badge bg-light text-dark me-1">
+                          <app-icon [icon]="ICONS.success" />
+                          {{ role | uppercase }}
+                        </span>
+                        } } } @else { N/A }
                       </p>
                     </div>
                   </div>
@@ -109,26 +111,26 @@
           >
             <div class="accordion-body">
               <div class="container-fluid px-0">
-                @if (coordinatorActions$ | async; as actions) {
-                  @if (actions.length > 0) {
-                    <app-actions-table 
-                      [actions]="actions" 
-                      [loading]="actionsLoading">
-                    </app-actions-table>
-                  } @else {
-                    <div class="text-center text-muted py-4">
-                      <i class="bi bi-journal-x fs-1 mb-3 d-block"></i>
-                      <h5>Nenhuma ação de formação coordenada</h5>
-                      <p>Este colaborador não coordena nenhuma ação de formação.</p>
-                    </div>
-                  }
+                @if (coordinatorActions$ | async; as actions) { @if
+                (actions.length > 0) {
+                <app-actions-table
+                  [actions]="actions"
+                  [loading]="actionsLoading"
+                >
+                </app-actions-table>
                 } @else {
-                  <div class="text-center text-muted py-4">
-                    <div class="spinner-border" role="status">
-                      <span class="visually-hidden">A carregar...</span>
-                    </div>
-                    <p class="mt-2">A carregar ações de formação...</p>
+                <div class="text-center text-muted py-4">
+                  <i class="bi bi-journal-x fs-1 mb-3 d-block"></i>
+                  <h5>Nenhuma ação de formação coordenada</h5>
+                  <p>Este colaborador não coordena nenhuma ação de formação.</p>
+                </div>
+                } } @else {
+                <div class="text-center text-muted py-4">
+                  <div class="spinner-border" role="status">
+                    <span class="visually-hidden">A carregar...</span>
                   </div>
+                  <p class="mt-2">A carregar ações de formação...</p>
+                </div>
                 }
               </div>
             </div>
@@ -144,147 +146,146 @@
     </div>
   </div>
 </div>
-} @else {
-  @if (user$ | async; as user) {
-    <app-title [title]="user.fullName || user.userName" [isDropdown]="true" [menuItems]="menuItems" />
+} @else { @if (user$ | async; as user) {
+<app-title
+  [title]="user.fullName || user.userName"
+  [isDropdown]="true"
+  [menuItems]="menuItems"
+/>
 
-    <div class="card w-100 hv-100 mt-2">
-      <div class="card-body">
-        <div class="container-fluid px-0 my-4">
-          <div class="accordion" id="general-info-accordion">
-            <!-- GENERAL INFO ACCORDION-->
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="heading-general-info">
-                <button
-                  class="accordion-button fw-bold collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#general-info-content"
-                  aria-expanded="false"
-                  aria-controls="general-info-content"
-                >
-                  <i class="bi bi-person-badge-fill fs-4 me-3"></i>
-                  <h5>Informações do Colaborador</h5>
-                </button>
-              </h2>
-              <div
-                id="general-info-content"
-                class="accordion-collapse collapse"
-                aria-labelledby="heading-general-info"
-              >
-                <div class="accordion-body">
-                  <div class="container-fluid px-0">
-                    <div class="row">
-                      <!-- User Name -->
-                      <div class="col-md-4 col-sm-6">
-                        <div class="property">
-                          <div class="bg-green-white fw-bold">Nome de Utilizador</div>
-                          <p class="text-break mb-0">
-                            {{ user.userName || "N/A" }}
-                          </p>
-                        </div>
+<div class="card w-100 hv-100 mt-2">
+  <div class="card-body">
+    <div class="container-fluid px-0 my-4">
+      <div class="accordion" id="general-info-accordion">
+        <!-- GENERAL INFO ACCORDION-->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-general-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#general-info-content"
+              aria-expanded="false"
+              aria-controls="general-info-content"
+            >
+              <i class="bi bi-person-badge-fill fs-4 me-3"></i>
+              <h5>Informações do Colaborador</h5>
+            </button>
+          </h2>
+          <div
+            id="general-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-general-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                <div class="row">
+                  <!-- User Name -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <div class="bg-green-white fw-bold">
+                        Nome de Utilizador
                       </div>
-                      <!-- Email -->
-                      <div class="col-md-4 col-sm-6">
-                        <div class="property">
-                          <div class="bg-green-white fw-bold">Email</div>
-                          <p class="text-break mb-0">
-                            {{ user.email || "N/A" }}
-                          </p>
-                        </div>
-                      </div>
-                      <!-- Is Active -->
-                      <div class="col-md-4 col-sm-6">
-                        <div class="property">
-                          <div class="bg-green-white fw-bold">Estado</div>
-                          <p class="text-break mb-0">
-                            {{ user.isActive ? "Ativo" : "Inativo" }}
-                          </p>
-                        </div>
-                      </div>
-                      <!-- Roles -->
-                      <div class="col-12">
-                        <div class="property">
-                          <div class="bg-green-white fw-bold">Funções</div>
-                          <p class="text-break mb-0">
-                            @if (user.roles && user.roles.length > 0) {
-                              @if (typeof user.roles === 'string') {
-                                {{ user.roles }}
-                              } @else {
-                                @for (role of user.roles; track role) {
-                                <span class="badge bg-light text-dark me-1">
-                                  <app-icon [icon]="ICONS.success" />
-                                  {{ role | uppercase }}
-                                </span>
-                                }
-                              }
-                            } @else {
-                              N/A
-                            }
-                          </p>
-                        </div>
-                      </div>
+                      <p class="text-break mb-0">
+                        {{ user.userName || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Email -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <div class="bg-green-white fw-bold">Email</div>
+                      <p class="text-break mb-0">
+                        {{ user.email || "N/A" }}
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Is Active -->
+                  <div class="col-md-4 col-sm-6">
+                    <div class="property">
+                      <div class="bg-green-white fw-bold">Estado</div>
+                      <p class="text-break mb-0">
+                        {{ user.isActive ? "Ativo" : "Inativo" }}
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Roles -->
+                  <div class="col-12">
+                    <div class="property">
+                      <div class="bg-green-white fw-bold">Funções</div>
+                      <p class="text-break mb-0">
+                        @if (user.roles && user.roles.length > 0) { @if (typeof
+                        user.roles === 'string') {
+                        {{ user.roles }}
+                        } @else { @for (role of user.roles; track role) {
+                        <span class="badge bg-light text-dark me-1">
+                          <app-icon [icon]="ICONS.success" />
+                          {{ role | uppercase }}
+                        </span>
+                        } } } @else { N/A }
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- COORDINATOR ACTIONS ACCORDION -->
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="heading-actions-info">
-                <button
-                  class="accordion-button fw-bold collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#actions-info-content"
-                  aria-expanded="false"
-                  aria-controls="actions-info-content"
-                >
-                  <i class="bi bi-journal-bookmark-fill fs-4 me-3"></i>
-                  <h5>Ações de Formação Coordenadas</h5>
-                </button>
-              </h2>
-              <div
-                id="actions-info-content"
-                class="accordion-collapse collapse"
-                aria-labelledby="heading-actions-info"
-              >
-                <div class="accordion-body">
-                  <div class="container-fluid px-0">
-                    @if (coordinatorActions$ | async; as actions) {
-                      @if (actions.length > 0) {
-                        <app-actions-table 
-                          [actions]="actions" 
-                          [loading]="actionsLoading">
-                        </app-actions-table>
-                      } @else {
-                        <div class="text-center text-muted py-4">
-                          <i class="bi bi-journal-x fs-1 mb-3 d-block"></i>
-                          <h5>Nenhuma ação de formação coordenada</h5>
-                          <p>Este colaborador não coordena nenhuma ação de formação.</p>
-                        </div>
-                      }
-                    } @else {
-                      <div class="text-center text-muted py-4">
-                        <div class="spinner-border" role="status">
-                          <span class="visually-hidden">A carregar...</span>
-                        </div>
-                        <p class="mt-2">A carregar ações de formação...</p>
-                      </div>
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- END COORDINATOR ACTIONS ACCORDION -->
           </div>
         </div>
+
+        <!-- COORDINATOR ACTIONS ACCORDION -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading-actions-info">
+            <button
+              class="accordion-button fw-bold collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#actions-info-content"
+              aria-expanded="false"
+              aria-controls="actions-info-content"
+            >
+              <i class="bi bi-journal-bookmark-fill fs-4 me-3"></i>
+              <h5>Ações de Formação Coordenadas</h5>
+            </button>
+          </h2>
+          <div
+            id="actions-info-content"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading-actions-info"
+          >
+            <div class="accordion-body">
+              <div class="container-fluid px-0">
+                @if (coordinatorActions$ | async; as actions) { @if
+                (actions.length > 0) {
+                <app-actions-table
+                  [actions]="actions"
+                  [loading]="actionsLoading"
+                >
+                </app-actions-table>
+                } @else {
+                <div class="text-center text-muted py-4">
+                  <i class="bi bi-journal-x fs-1 mb-3 d-block"></i>
+                  <h5>Nenhuma ação de formação coordenada</h5>
+                  <p>Este colaborador não coordena nenhuma ação de formação.</p>
+                </div>
+                } } @else {
+                <div class="text-center text-muted py-4">
+                  <div class="spinner-border" role="status">
+                    <span class="visually-hidden">A carregar...</span>
+                  </div>
+                  <p class="mt-2">A carregar ações de formação...</p>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END COORDINATOR ACTIONS ACCORDION -->
       </div>
     </div>
-  } @else {
-    <h5 class="text-muted text-center">
-      Erro ao obter informações do colaborador...
-    </h5>
-  }
-}
+  </div>
+</div>
+} @else {
+<h5 class="text-muted text-center">
+  Erro ao obter informações do colaborador...
+</h5>
+} }

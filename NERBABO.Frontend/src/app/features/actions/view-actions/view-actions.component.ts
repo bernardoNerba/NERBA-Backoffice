@@ -49,12 +49,11 @@ import {
   StudentPayment,
 } from '../../../core/services/payments.service';
 import { TagModule } from 'primeng/tag';
-import { Message } from 'primeng/message';
 import { ButtonModule } from 'primeng/button';
 import { MinimalModuleTeaching } from '../../../core/models/moduleTeaching';
 import { SessionsService } from '../../../core/services/sessions.service';
 import { SessionParticipationService } from '../../../core/services/session-participation.service';
-import { CalendarStyle } from 'primeng/calendar';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-view-actions',
@@ -138,7 +137,8 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     private actionEnrollmentService: ActionEnrollmentService,
     private paymentsService: PaymentsService,
     private sessionsService: SessionsService,
-    private sessionParticipationService: SessionParticipationService
+    private sessionParticipationService: SessionParticipationService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -669,6 +669,20 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
         // Refresh KPIs when attendance/presences are deleted
         this.loadKpis();
       })
+    );
+  }
+
+  showMenu(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
+    );
+  }
+
+  canViewPayments(): boolean {
+    return (
+      this.authService.userRoles.includes('Admin') ||
+      this.authService.userRoles.includes('FM')
     );
   }
 

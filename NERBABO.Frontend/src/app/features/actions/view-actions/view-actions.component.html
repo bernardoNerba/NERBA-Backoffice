@@ -1,5 +1,10 @@
 @if (action$ | async; as action) {
-<app-title [title]="action.title" [isDropdown]="true" [menuItems]="menuItems" />
+<app-title
+  [title]="action.title"
+  [isDropdown]="true"
+  [menuItems]="menuItems"
+  [showDropdown]="showMenu()"
+/>
 
 @if (kpis){
 <app-kpi-row [kpis]="kpis" layout="scroll" />
@@ -477,7 +482,7 @@
     <!-- END MODULE AVALIATION ACCORDION -->
 
     <!-- PROCESS PAYMENTS -->
-    @if (action.showPaymentProcessments) {
+    @if (action.showPaymentProcessments && canViewPayments()) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-process-payments">
         <button

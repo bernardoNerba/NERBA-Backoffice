@@ -4,6 +4,7 @@
     buttonText="Registar Módulo"
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
+    [showDropdown]="canPerformAction()"
   ></app-title>
   <div class="card-body">
     <app-modules-table

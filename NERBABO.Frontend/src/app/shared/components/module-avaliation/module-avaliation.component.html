@@ -101,6 +101,7 @@
                     </div>
                   </td>
                   <td [formGroupName]="rowIndex">
+                    @if (canPerformAction()){
                     <p-inputnumber
                       formControlName="grade"
                       [min]="0"
@@ -118,6 +119,9 @@
                       incrementButtonIcon="pi pi-plus"
                       decrementButtonIcon="pi pi-minus"
                     />
+                    } @else {
+                    <span>{{ student.grade || 0 }}</span>
+                    }
                   </td>
                   <td [formGroupName]="rowIndex">
                     @if (student.evaluated) {
@@ -155,6 +159,7 @@
             </p-table>
           </div>
 
+          @if (canPerformAction()){
           <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
             <p-button
               label="Repor"
@@ -177,6 +182,7 @@
               (onClick)="saveModuleAvaliations(avaliation.moduleId)"
             />
           </div>
+          }
         </form>
         }
       </div>

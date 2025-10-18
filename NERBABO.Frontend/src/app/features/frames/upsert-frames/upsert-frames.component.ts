@@ -46,7 +46,7 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
   financementLogoFile?: File;
   programLogoPreview?: string;
   financementLogoPreview?: string;
-  
+
   // Track original logo states to detect removal
   originalProgramLogoUrl?: string;
   originalFinancementLogoUrl?: string;
@@ -146,18 +146,24 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
     // Validate required financement logo for all operations
     // For new frames: must provide a file
     // For updates: must have existing logo AND not be cleared, OR provide a new file
-    const hasExistingFinancementLogo = this.isUpdate && this.originalFinancementLogoUrl;
+    const hasExistingFinancementLogo =
+      this.isUpdate && this.originalFinancementLogoUrl;
     const hasNewFinancementLogoFile = !!this.financementLogoFile;
-    const isFinancementLogoCleared = this.isUpdate && this.originalFinancementLogoUrl && !this.financementLogoPreview;
-    
+    const isFinancementLogoCleared =
+      this.isUpdate &&
+      this.originalFinancementLogoUrl &&
+      !this.financementLogoPreview;
+
     if (!hasExistingFinancementLogo && !hasNewFinancementLogoFile) {
       this.sharedService.showError('Logo de financiamento é obrigatório.');
       return;
     }
-    
+
     // Prevent clearing financement logo during update
     if (isFinancementLogoCleared && !hasNewFinancementLogoFile) {
-      this.sharedService.showError('Logo de financiamento é obrigatório e não pode ser removido.');
+      this.sharedService.showError(
+        'Logo de financiamento é obrigatório e não pode ser removido.'
+      );
       return;
     }
 
@@ -180,10 +186,14 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
     // For updates, detect logo removals
     if (this.isUpdate) {
       // Check if program logo was removed (had original logo but preview is now undefined/empty)
-      if (this.originalProgramLogoUrl && !this.programLogoPreview && !this.programLogoFile) {
+      if (
+        this.originalProgramLogoUrl &&
+        !this.programLogoPreview &&
+        !this.programLogoFile
+      ) {
         frameData.removeProgramLogo = true;
       }
-      
+
       // Note: We do NOT set removeFinancementLogo because financement logo is required
       // If user tries to remove it, the validation above will catch it
     }
@@ -196,9 +206,9 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
       },
       error: (error) => {
         this.errorMessages = this.sharedService.handleErrorResponse(error);
-        this.loading = false;
       },
     });
+    this.loading = false;
   }
 
   onProgramLogoSelect(data: FileUploadData): void {
@@ -221,16 +231,20 @@ export class UpsertFramesComponent implements IUpsert, OnInit {
     // For new frames: cannot clear if no file selected
     // For updates: cannot clear if it's the only financement logo
     if (!this.isUpdate) {
-      this.sharedService.showError('Logo de financiamento é obrigatório e não pode ser removido.');
+      this.sharedService.showError(
+        'Logo de financiamento é obrigatório e não pode ser removido.'
+      );
       return;
     }
-    
+
     // For updates: only allow clearing if there's an existing logo (user is replacing it)
     if (this.isUpdate && !this.originalFinancementLogoUrl) {
-      this.sharedService.showError('Logo de financiamento é obrigatório e não pode ser removido.');
+      this.sharedService.showError(
+        'Logo de financiamento é obrigatório e não pode ser removido.'
+      );
       return;
     }
-    
+
     this.financementLogoFile = undefined;
     this.financementLogoPreview = this.originalFinancementLogoUrl; // Revert to original
   }
