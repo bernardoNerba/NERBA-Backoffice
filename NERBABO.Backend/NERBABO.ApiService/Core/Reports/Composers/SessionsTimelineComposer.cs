@@ -1,7 +1,6 @@
 using Humanizer;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Global.Models;
-using NERBABO.ApiService.Core.Global.Services;
 using NERBABO.ApiService.Core.Sessions.Models;
 using NERBABO.ApiService.Shared.Services;
 using QuestPDF.Fluent;

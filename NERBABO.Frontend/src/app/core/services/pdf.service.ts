@@ -26,6 +26,20 @@ export class PdfService {
   }
 
   /**
+   * Generates a PDF cover page for a specific action
+   * @param actionId The action ID to generate the cover for
+   * @returns Observable of PDF blob
+   */
+  generateCoverReport(actionId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/api/pdf/action/${actionId}/cover-report`,
+      {
+        responseType: 'blob',
+      }
+    );
+  }
+
+  /**
    * Downloads a PDF blob with the specified filename
    * @param blob The PDF blob to download
    * @param filename The filename to use for download
