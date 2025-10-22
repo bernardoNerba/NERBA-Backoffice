@@ -40,6 +40,21 @@ export class PdfService {
   }
 
   /**
+   * Generates a PDF teacher form (Ficha de Formador) for a specific teacher in an action
+   * @param actionId The action ID to generate the form for
+   * @param teacherId The teacher ID to generate the form for
+   * @returns Observable of PDF blob
+   */
+  generateTeacherForm(actionId: number, teacherId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/api/pdf/action/${actionId}/teacher-form/${teacherId}`,
+      {
+        responseType: 'blob',
+      }
+    );
+  }
+
+  /**
    * Downloads a PDF blob with the specified filename
    * @param blob The PDF blob to download
    * @param filename The filename to use for download

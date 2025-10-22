@@ -77,8 +77,9 @@ interface PdfOption {
 export class PdfActionsComponent {
   @Input() actionId?: number;
   @Input() sessionId?: number;
+  @Input() teacherId?: number;
   @Input() title?: string;
-  @Input() reportType: 'sessions' | 'cover' = 'sessions';
+  @Input() reportType: 'sessions' | 'cover' | 'teacher-form' = 'sessions';
 
   isGeneratingReport = false;
   isGeneratingDetail = false;
@@ -100,18 +101,34 @@ export class PdfActionsComponent {
   private getReportObservable() {
     if (!this.actionId) return null;
 
-    return this.reportType === 'cover'
-      ? this.pdfService.generateCoverReport(this.actionId)
-      : this.pdfService.generateSessionsReport(this.actionId);
+    if (this.reportType === 'cover') {
+      return this.pdfService.generateCoverReport(this.actionId);
+    } else if (this.reportType === 'teacher-form') {
+      if (!this.teacherId) return null;
+      return this.pdfService.generateTeacherForm(this.actionId, this.teacherId);
+    } else {
+      return this.pdfService.generateSessionsReport(this.actionId);
+    }
   }
 
   private getFilenamePrefix(): string {
-    return this.reportType === 'cover' ? 'capa-acao' : 'relatorio-sessoes-acao';
+    if (this.reportType === 'cover') {
+      return 'capa-acao';
+    } else if (this.reportType === 'teacher-form') {
+      return 'ficha-formador';
+    } else {
+      return 'relatorio-sessoes-acao';
+    }
   }
 
   private getSuccessMessage(action: string): string {
-    const reportName =
-      this.reportType === 'cover' ? 'Capa' : 'Relatório de sessões';
+    let reportName = 'Relatório de sessões';
+    if (this.reportType === 'cover') {
+      reportName = 'Capa';
+    } else if (this.reportType === 'teacher-form') {
+      reportName = 'Ficha de formador';
+    }
+
     const actionMessages: { [key: string]: string } = {
       generate: `${reportName} gerado com sucesso!`,
       view: 'PDF aberto em nova aba',

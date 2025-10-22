@@ -82,6 +82,37 @@ public class PdfController(
     }
 
     /// <summary>
+    /// Generates or returns cached PDF teacher form (Ficha de Formador) for a specific teacher in an action.
+    /// </summary>
+    /// <param name="actionId">The action ID to generate the form for.</param>
+    /// <param name="teacherId">The teacher ID to generate the form for.</param>
+    /// <response code="200">PDF generated successfully. Returns the PDF file.</response>
+    /// <response code="404">Action or teacher not found, or teacher has no modules in this action.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred during PDF generation.</response>
+    [HttpGet("action/{actionId:long}/teacher-form/{teacherId:long}")]
+    [Authorize(Policy = "ActiveUser")]
+    public async Task<IActionResult> GenerateTeacherFormAsync(long actionId, long teacherId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            var userResult = Result<byte[]>
+                .Fail("Utilizador inválido.", "Utilizador não autenticado.", StatusCodes.Status401Unauthorized);
+            return _responseHandler.HandleResult(userResult);
+        }
+
+        var result = await _pdfService.GenerateTeacherFormAsync(actionId, teacherId, user.Id);
+
+        if (!result.Success)
+        {
+            return _responseHandler.HandleResult(result);
+        }
+
+        return File(result.Data!, "application/pdf", $"ficha-formador-{teacherId}-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
+    }
+
+    /// <summary>
     /// Checks if a saved PDF exists for the specified type and reference ID.
     /// </summary>
     /// <param name="pdfType">The PDF type (SessionReport, SessionDetail, ActionSummary).</param>

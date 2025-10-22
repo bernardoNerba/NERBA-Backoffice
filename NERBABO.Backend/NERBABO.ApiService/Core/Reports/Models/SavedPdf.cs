@@ -46,6 +46,7 @@ public static class PdfTypes
     // Generation Related
     public const string CoverActionReport = "CoverActionReport";
     public const string SessionReport = "SessionReport";
+    public const string TeacherForm = "TeacherForm";
 
 
 
