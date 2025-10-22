@@ -14,15 +14,17 @@ public class PdfService : IPdfService
     private readonly ILogger<PdfService> _logger;
     private readonly IWebHostEnvironment _environment;
     private readonly SessionsTimelineComposer _timelineComposer;
+    private readonly CoverActionReportComposer _coverComposer;
     private readonly string _pdfStoragePath;
 
 
-    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, SessionsTimelineComposer timelineComposer)
+    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, SessionsTimelineComposer timelineComposer, CoverActionReportComposer coverComposer)
     {
         _context = context;
         _logger = logger;
         _environment = environment;
         _timelineComposer = timelineComposer;
+        _coverComposer = coverComposer;
 
         // Configure storage path
         _pdfStoragePath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "storage", "pdfs");
@@ -84,6 +86,52 @@ public class PdfService : IPdfService
             _logger.LogError(ex, "Error generating session report for action {ActionId}", actionId);
             return Result<byte[]>
                 .Fail("Erro interno.", "Ocorreu um erro ao gerar o relatório.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result<byte[]>> GenerateCoverReportAsync(long actionId, string userId)
+    {
+        try
+        {
+            // Fetch action data with related entities
+            var action = await _context.Actions
+                .Include(a => a.Course).ThenInclude(c => c.Frame)
+                .Include(a => a.Course).ThenInclude(c => c.Modules)
+                .Include(a => a.Coordenator).ThenInclude(c => c.Person)
+                .FirstOrDefaultAsync(a => a.Id == actionId);
+
+            if (action is null)
+            {
+                _logger.LogWarning("Action not found for id {ActionId}", actionId);
+                return Result<byte[]>
+                    .Fail("Não encontrado.", "Ação não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            // Fetch General Information
+            var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
+                ?? throw new Exception("Failed to obtain general information.");
+
+            var document = _coverComposer.Compose(action, infos);
+            var pdfBytes = document.GeneratePdf();
+
+            // Save the new PDF
+            var saveResult = await SavePdfAsync(PdfTypes.CoverActionReport, actionId, pdfBytes, userId);
+            if (!saveResult.Success)
+            {
+                _logger.LogError("Failed to save cover PDF for action {ActionId}", actionId);
+                return Result<byte[]>
+                    .Fail("Erro interno.", "Falha ao guardar a capa PDF.", StatusCodes.Status500InternalServerError);
+            }
+
+            _logger.LogInformation("Generated and saved new cover report for action {ActionId}", actionId);
+            return Result<byte[]>
+                .Ok(pdfBytes, "Capa criada.", $"Capa do dossier criada com sucesso para a ação {actionId}.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating cover report for action {ActionId}", actionId);
+            return Result<byte[]>
+                .Fail("Erro interno.", "Ocorreu um erro ao gerar a capa.", StatusCodes.Status500InternalServerError);
         }
     }
 

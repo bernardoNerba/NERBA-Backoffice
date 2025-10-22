@@ -52,6 +52,36 @@ public class PdfController(
     }
 
     /// <summary>
+    /// Generates or returns cached PDF cover page for a specific action.
+    /// </summary>
+    /// <param name="actionId">The action ID to generate the cover for.</param>
+    /// <response code="200">PDF generated successfully. Returns the PDF file.</response>
+    /// <response code="404">Action not found.</response>
+    /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
+    /// <response code="500">Unexpected error occurred during PDF generation.</response>
+    [HttpGet("action/{actionId:long}/cover-report")]
+    [Authorize(Policy = "ActiveUser")]
+    public async Task<IActionResult> GenerateCoverReportAsync(long actionId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            var userResult = Result<byte[]>
+                .Fail("Utilizador inválido.", "Utilizador não autenticado.", StatusCodes.Status401Unauthorized);
+            return _responseHandler.HandleResult(userResult);
+        }
+
+        var result = await _pdfService.GenerateCoverReportAsync(actionId, user.Id);
+
+        if (!result.Success)
+        {
+            return _responseHandler.HandleResult(result);
+        }
+
+        return File(result.Data!, "application/pdf", $"capa-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
+    }
+
+    /// <summary>
     /// Checks if a saved PDF exists for the specified type and reference ID.
     /// </summary>
     /// <param name="pdfType">The PDF type (SessionReport, SessionDetail, ActionSummary).</param>

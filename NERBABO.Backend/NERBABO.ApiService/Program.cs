@@ -94,6 +94,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 
 // Register Pdf Composer Services
 builder.Services.AddScoped<SessionsTimelineComposer>();
+builder.Services.AddScoped<CoverActionReportComposer>();
 
 // Register HTTP context accessor for URL generation
 builder.Services.AddHttpContextAccessor();

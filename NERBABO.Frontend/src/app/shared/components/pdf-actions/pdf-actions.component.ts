@@ -36,7 +36,7 @@ interface PdfOption {
           size="small"
           [loading]="isGeneratingReport"
           [disabled]="isGenerating"
-          (onClick)="generateSessionsReport()"
+          (onClick)="generateReport()"
           [text]="true"
           severity="contrast"
           pTooltip="Gerar PDF"
@@ -78,6 +78,7 @@ export class PdfActionsComponent {
   @Input() actionId?: number;
   @Input() sessionId?: number;
   @Input() title?: string;
+  @Input() reportType: 'sessions' | 'cover' = 'sessions';
 
   isGeneratingReport = false;
   isGeneratingDetail = false;
@@ -96,64 +97,93 @@ export class PdfActionsComponent {
     );
   }
 
-  generateSessionsReport(): void {
+  private getReportObservable() {
+    if (!this.actionId) return null;
+
+    return this.reportType === 'cover'
+      ? this.pdfService.generateCoverReport(this.actionId)
+      : this.pdfService.generateSessionsReport(this.actionId);
+  }
+
+  private getFilenamePrefix(): string {
+    return this.reportType === 'cover' ? 'capa-acao' : 'relatorio-sessoes-acao';
+  }
+
+  private getSuccessMessage(action: string): string {
+    const reportName =
+      this.reportType === 'cover' ? 'Capa' : 'Relatório de sessões';
+    const actionMessages: { [key: string]: string } = {
+      generate: `${reportName} gerado com sucesso!`,
+      view: 'PDF aberto em nova aba',
+      print: 'Preparando impressão...',
+    };
+    return actionMessages[action] || '';
+  }
+
+  generateReport(): void {
     if (!this.actionId) return;
 
+    const reportObservable = this.getReportObservable();
+    if (!reportObservable) return;
+
     this.isGeneratingReport = true;
-    this.pdfService
-      .generateSessionsReport(this.actionId)
+    reportObservable
       .pipe(finalize(() => (this.isGeneratingReport = false)))
       .subscribe({
         next: (blob) => {
-          const filename = `relatorio-sessoes-acao-${
+          const filename = `${this.getFilenamePrefix()}-${
             this.actionId
           }-${this.getCurrentDate()}.pdf`;
           this.pdfService.downloadPdf(blob, filename);
-          this.showSuccess('Relatório de sessões gerado com sucesso!');
+          this.showSuccess(this.getSuccessMessage('generate'));
         },
         error: (error) => {
-          console.error('Error generating sessions report:', error);
-          this.showError('Erro ao gerar relatório de sessões');
+          console.error('Error generating report:', error);
+          this.showError('Erro ao gerar relatório');
         },
       });
   }
 
   viewPdf(): void {
-    if (this.actionId) {
-      this.isGeneratingReport = true;
-      this.pdfService
-        .generateSessionsReport(this.actionId)
-        .pipe(finalize(() => (this.isGeneratingReport = false)))
-        .subscribe({
-          next: (blob) => {
-            this.pdfService.viewPdf(blob);
-            this.showSuccess('PDF aberto em nova aba');
-          },
-          error: (error) => {
-            console.error('Error viewing PDF:', error);
-            this.showError('Erro ao visualizar PDF');
-          },
-        });
-    }
+    if (!this.actionId) return;
+
+    const reportObservable = this.getReportObservable();
+    if (!reportObservable) return;
+
+    this.isGeneratingReport = true;
+    reportObservable
+      .pipe(finalize(() => (this.isGeneratingReport = false)))
+      .subscribe({
+        next: (blob) => {
+          this.pdfService.viewPdf(blob);
+          this.showSuccess(this.getSuccessMessage('view'));
+        },
+        error: (error) => {
+          console.error('Error viewing PDF:', error);
+          this.showError('Erro ao visualizar PDF');
+        },
+      });
   }
 
   printPdf(): void {
-    if (this.actionId) {
-      this.isGeneratingReport = true;
-      this.pdfService
-        .generateSessionsReport(this.actionId)
-        .pipe(finalize(() => (this.isGeneratingReport = false)))
-        .subscribe({
-          next: (blob) => {
-            this.pdfService.printPdf(blob);
-            this.showSuccess('Preparando impressão...');
-          },
-          error: (error) => {
-            console.error('Error printing PDF:', error);
-            this.showError('Erro ao preparar impressão');
-          },
-        });
-    }
+    if (!this.actionId) return;
+
+    const reportObservable = this.getReportObservable();
+    if (!reportObservable) return;
+
+    this.isGeneratingReport = true;
+    reportObservable
+      .pipe(finalize(() => (this.isGeneratingReport = false)))
+      .subscribe({
+        next: (blob) => {
+          this.pdfService.printPdf(blob);
+          this.showSuccess(this.getSuccessMessage('print'));
+        },
+        error: (error) => {
+          console.error('Error printing PDF:', error);
+          this.showError('Erro ao preparar impressão');
+        },
+      });
   }
 
   private getCurrentDate(): string {
