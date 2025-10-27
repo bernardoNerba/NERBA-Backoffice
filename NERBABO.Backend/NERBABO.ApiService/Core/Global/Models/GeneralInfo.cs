@@ -14,6 +14,10 @@ public class GeneralInfo : Entity<long>
     public string Iban { get; set; } = string.Empty;
     public string Nipc { get; set; } = string.Empty;
     public string? Logo { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string Website { get; set; } = string.Empty;
 
     public Tax? IvaTax { get; set; }
 
@@ -33,7 +37,11 @@ public class GeneralInfo : Entity<long>
                 : null,
             IvaId = generalInfo.IvaTax?.Id ?? 0,
             IvaRegime = generalInfo.IvaTax?.Name ?? string.Empty,
-            IvaPercent = generalInfo.IvaTax?.ValuePercent ?? 0
+            IvaPercent = generalInfo.IvaTax?.ValuePercent ?? 0,
+            Email = generalInfo.Email,
+            Slug = generalInfo.Slug,
+            PhoneNumber = generalInfo.PhoneNumber,
+            Website = generalInfo.Website
         };
     }
 }

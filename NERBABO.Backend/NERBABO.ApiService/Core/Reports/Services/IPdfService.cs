@@ -25,6 +25,15 @@ public interface IPdfService
     Task<Result<byte[]>> GenerateCoverReportAsync(long actionId, string userId);
 
     /// <summary>
+    /// Generates a teacher form (Ficha de Formador) PDF for a specific teacher in an action.
+    /// </summary>
+    /// <param name="actionId">The action ID to generate the form for.</param>
+    /// <param name="teacherId">The teacher ID to generate the form for.</param>
+    /// <param name="userId">The ID of the user generating the form.</param>
+    /// <returns>A result containing the PDF content as byte array.</returns>
+    Task<Result<byte[]>> GenerateTeacherFormAsync(long actionId, long teacherId, string userId);
+
+    /// <summary>
     /// Retrieves a saved PDF record by type and reference ID.
     /// </summary>
     /// <param name="pdfType">The type of PDF (e.g., SessionReport, SessionDetail, ActionSummary).</param>

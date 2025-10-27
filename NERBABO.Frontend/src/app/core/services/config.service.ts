@@ -106,6 +106,10 @@ export class ConfigService {
     formData.append('iban', model.iban);
     formData.append('nipc', model.nipc);
     formData.append('ivaId', model.ivaId.toString());
+    formData.append('email', model.email);
+    formData.append('slug', model.slug);
+    formData.append('phoneNumber', model.phoneNumber);
+    formData.append('website', model.website);
 
     if (logoFile) {
       formData.append('logo', logoFile);

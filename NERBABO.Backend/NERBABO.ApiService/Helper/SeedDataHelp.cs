@@ -133,7 +133,11 @@ public class SeedDataHelp
             BankEntity = "Crédito Agrícola",
             Iban = "PT50004521914029554091581",
             Nipc = "502280344",
-            Logo = ""
+            Logo = "",
+            Email = "nerba@nerba.pt",
+            Slug = "NERBA",
+            PhoneNumber = "273304630",
+            Website = "www.nerba.pt"
         };
 
         _context.GeneralInfo.Add(generalInfo);

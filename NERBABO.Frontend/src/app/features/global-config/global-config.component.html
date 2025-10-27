@@ -331,6 +331,142 @@ null){
                 </div>
               </div>
 
+              <!-- CONTACT INFORMATION SECTION -->
+              <div class="row">
+                <!-- EMAIL -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="email"
+                      >Email
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      pInputText
+                      formControlName="email"
+                      [class.is-invalid]="
+                        submitted && form.get('email')?.errors
+                      "
+                      class="w-100 {{
+                        submitted && form.get('email')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                    />
+                    @if (submitted && form.get('email')?.hasError("required")) {
+                    <span class="text-danger">
+                      Email é um campo obrigatório.
+                    </span>
+                    } @else if (form.get('email')?.hasError("email")) {
+                    <span class="text-danger">
+                      Email deve ser um endereço de email válido.
+                    </span>
+                    } @else if ( form.get('email')?.hasError("minlength") ||
+                    form.get('email')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Email deve ter entre 3 e 100 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <!-- PHONE NUMBER -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="phoneNumber"
+                      >Número de Telefone
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      pInputText
+                      formControlName="phoneNumber"
+                      [class.is-invalid]="
+                        submitted && form.get('phoneNumber')?.errors
+                      "
+                      class="w-100 {{
+                        submitted && form.get('phoneNumber')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                    />
+                    @if (submitted && form.get('phoneNumber')?.hasError("required")) {
+                    <span class="text-danger">
+                      Número de Telefone é um campo obrigatório.
+                    </span>
+                    } @else if ( form.get('phoneNumber')?.hasError("minlength") ||
+                    form.get('phoneNumber')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Número de Telefone deve ter entre 9 e 20 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <!-- SLUG -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="slug"
+                      >Slug (Nome Curto)
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      pInputText
+                      formControlName="slug"
+                      [class.is-invalid]="
+                        submitted && form.get('slug')?.errors
+                      "
+                      class="w-100 {{
+                        submitted && form.get('slug')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                    />
+                    @if (submitted && form.get('slug')?.hasError("required")) {
+                    <span class="text-danger">
+                      Slug é um campo obrigatório.
+                    </span>
+                    } @else if ( form.get('slug')?.hasError("minlength") ||
+                    form.get('slug')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Slug deve ter entre 2 e 50 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+                <!-- WEBSITE -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="website"
+                      >Website
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      pInputText
+                      formControlName="website"
+                      [class.is-invalid]="
+                        submitted && form.get('website')?.errors
+                      "
+                      class="w-100 {{
+                        submitted && form.get('website')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                    />
+                    @if (submitted && form.get('website')?.hasError("required")) {
+                    <span class="text-danger">
+                      Website é um campo obrigatório.
+                    </span>
+                    } @else if ( form.get('website')?.hasError("minlength") ||
+                    form.get('website')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Website deve ter entre 3 e 100 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+              </div>
+
               <!-- LOGO UPLOAD SECTION -->
               <div class="row">
                 <div class="col-md-12">

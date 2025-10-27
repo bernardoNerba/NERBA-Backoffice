@@ -11,4 +11,8 @@ export type GeneralInfo = {
   ivaId: number;
   ivaPercent: number;
   ivaRegime: string;
+  email: string;
+  slug: string;
+  phoneNumber: string;
+  website: string;
 };
