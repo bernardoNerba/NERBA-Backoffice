@@ -16,10 +16,11 @@ public class PdfService : IPdfService
     private readonly SessionsTimelineComposer _timelineComposer;
     private readonly CoverActionReportComposer _coverComposer;
     private readonly TeacherFormComposer _teacherFormComposer;
+    private readonly TrainingFinancingFormComposer _trainingFinancingFormComposer;
     private readonly string _pdfStoragePath;
 
 
-    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, SessionsTimelineComposer timelineComposer, CoverActionReportComposer coverComposer, TeacherFormComposer teacherFormComposer)
+    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, SessionsTimelineComposer timelineComposer, CoverActionReportComposer coverComposer, TeacherFormComposer teacherFormComposer, TrainingFinancingFormComposer trainingFinancingFormComposer)
     {
         _context = context;
         _logger = logger;
@@ -27,6 +28,7 @@ public class PdfService : IPdfService
         _timelineComposer = timelineComposer;
         _coverComposer = coverComposer;
         _teacherFormComposer = teacherFormComposer;
+        _trainingFinancingFormComposer = trainingFinancingFormComposer;
 
         // Configure storage path
         _pdfStoragePath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "storage", "pdfs");
@@ -208,6 +210,53 @@ public class PdfService : IPdfService
             _logger.LogError(ex, "Error generating teacher form for teacher {TeacherId} in action {ActionId}", teacherId, actionId);
             return Result<byte[]>
                 .Fail("Erro interno.", "Ocorreu um erro ao gerar a ficha de formador.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result<byte[]>> GenerateTrainingFinancingFormAsync(long actionId, string userId)
+    {
+        try
+        {
+            // Fetch action data with related entities
+            var action = await _context.Actions
+                .Include(a => a.Course).ThenInclude(c => c.Frame)
+                .Include(a => a.Course).ThenInclude(c => c.Modules)
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
+                .Include(a => a.Coordenator).ThenInclude(c => c.Person)
+                .FirstOrDefaultAsync(a => a.Id == actionId);
+
+            if (action is null)
+            {
+                _logger.LogWarning("Action not found for id {ActionId}", actionId);
+                return Result<byte[]>
+                    .Fail("Não encontrado.", "Ação não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            // Fetch General Information
+            var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
+                ?? throw new Exception("Failed to obtain general information.");
+
+            var document = _trainingFinancingFormComposer.Compose(action, infos);
+            var pdfBytes = document.GeneratePdf();
+
+            // Save the new PDF
+            var saveResult = await SavePdfAsync(PdfTypes.TrainingFinancingForm, actionId, pdfBytes, userId);
+            if (!saveResult.Success)
+            {
+                _logger.LogError("Failed to save training financing form PDF for action {ActionId}", actionId);
+                return Result<byte[]>
+                    .Fail("Erro interno.", "Falha ao guardar o formulário de financiamento PDF.", StatusCodes.Status500InternalServerError);
+            }
+
+            _logger.LogInformation("Generated and saved training financing form for action {ActionId}", actionId);
+            return Result<byte[]>
+                .Ok(pdfBytes, "Formulário criado.", $"Formulário de financiamento criado com sucesso para a ação {actionId}.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating training financing form for action {ActionId}", actionId);
+            return Result<byte[]>
+                .Fail("Erro interno.", "Ocorreu um erro ao gerar o formulário de financiamento.", StatusCodes.Status500InternalServerError);
         }
     }
 

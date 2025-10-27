@@ -47,6 +47,7 @@ public static class PdfTypes
     public const string CoverActionReport = "CoverActionReport";
     public const string SessionReport = "SessionReport";
     public const string TeacherForm = "TeacherForm";
+    public const string TrainingFinancingForm = "TrainingFinancingForm";
 
 
 

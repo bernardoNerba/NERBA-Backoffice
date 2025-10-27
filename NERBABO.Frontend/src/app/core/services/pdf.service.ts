@@ -55,6 +55,20 @@ export class PdfService {
   }
 
   /**
+   * Generates a PDF training financing form (SIF FM Template) for a specific action
+   * @param actionId The action ID to generate the form for
+   * @returns Observable of PDF blob
+   */
+  generateTrainingFinancingForm(actionId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/api/pdf/action/${actionId}/training-financing-form`,
+      {
+        responseType: 'blob',
+      }
+    );
+  }
+
+  /**
    * Downloads a PDF blob with the specified filename
    * @param blob The PDF blob to download
    * @param filename The filename to use for download

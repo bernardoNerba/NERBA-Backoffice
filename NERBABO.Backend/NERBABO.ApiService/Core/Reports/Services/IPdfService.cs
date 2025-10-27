@@ -34,6 +34,14 @@ public interface IPdfService
     Task<Result<byte[]>> GenerateTeacherFormAsync(long actionId, long teacherId, string userId);
 
     /// <summary>
+    /// Generates a training financing form (SIF FM Template) PDF for a specific action.
+    /// </summary>
+    /// <param name="actionId">The action ID to generate the form for.</param>
+    /// <param name="userId">The ID of the user generating the form.</param>
+    /// <returns>A result containing the PDF content as byte array.</returns>
+    Task<Result<byte[]>> GenerateTrainingFinancingFormAsync(long actionId, string userId);
+
+    /// <summary>
     /// Retrieves a saved PDF record by type and reference ID.
     /// </summary>
     /// <param name="pdfType">The type of PDF (e.g., SessionReport, SessionDetail, ActionSummary).</param>
