@@ -44,4 +44,25 @@ public class UpdateGeneralInfoDto
     public string Nipc { get; set; } = string.Empty;
     public IFormFile? Logo { get; set; }
 
+    [Required(ErrorMessage = "Email é um campo obrigatório.")]
+    [EmailAddress(ErrorMessage = "Email deve ser um endereço de email válido.")]
+    [ValidateLengthIfNotEmpty(100, MinimumLength = 3,
+        ErrorMessage = "Email deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
+    public string Email { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Slug é um campo obrigatório.")]
+    [ValidateLengthIfNotEmpty(50, MinimumLength = 2,
+        ErrorMessage = "Slug deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
+    public string Slug { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Número de telefone é um campo obrigatório.")]
+    [ValidateLengthIfNotEmpty(20, MinimumLength = 9,
+        ErrorMessage = "Número de telefone deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Website é um campo obrigatório.")]
+    [ValidateLengthIfNotEmpty(100, MinimumLength = 3,
+        ErrorMessage = "Website deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
+    public string Website { get; set; } = string.Empty;
+
 }

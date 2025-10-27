@@ -13,5 +13,9 @@ public class RetrieveGeneralInfoDto
     public int IvaId { get; set; }
     public float IvaPercent { get; set; }
     public string IvaRegime { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string Website { get; set; } = string.Empty;
 
 }

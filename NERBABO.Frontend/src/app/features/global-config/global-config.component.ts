@@ -82,6 +82,10 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
             bankEntity: config.bankEntity ?? '',
             iban: config.iban ?? '',
             nipc: config.nipc ?? '',
+            email: config.email ?? '',
+            slug: config.slug ?? '',
+            phoneNumber: config.phoneNumber ?? '',
+            website: config.website ?? '',
           });
           this.currentLogoUrl = config.logoUrl;
           this.logoPreview = config.logoUrl;
@@ -144,6 +148,39 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
           Validators.minLength(9),
           Validators.maxLength(9),
           UniversalValidators.isNumber,
+        ],
+      ],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email,
+          Validators.minLength(3),
+          Validators.maxLength(100),
+        ],
+      ],
+      slug: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+        ],
+      ],
+      phoneNumber: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(9),
+          Validators.maxLength(20),
+        ],
+      ],
+      website: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(100),
         ],
       ],
       logoFinancing: [''],

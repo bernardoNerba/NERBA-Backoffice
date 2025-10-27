@@ -163,6 +163,34 @@ public class GeneralInfoService(
                 hasChanges = true;
             }
 
+            // Update Email if changed
+            if (!string.Equals(c.Email, updateGeneralInfo.Email))
+            {
+                c.Email = updateGeneralInfo.Email;
+                hasChanges = true;
+            }
+
+            // Update Slug if changed
+            if (!string.Equals(c.Slug, updateGeneralInfo.Slug))
+            {
+                c.Slug = updateGeneralInfo.Slug;
+                hasChanges = true;
+            }
+
+            // Update PhoneNumber if changed
+            if (!string.Equals(c.PhoneNumber, updateGeneralInfo.PhoneNumber))
+            {
+                c.PhoneNumber = updateGeneralInfo.PhoneNumber;
+                hasChanges = true;
+            }
+
+            // Update Website if changed
+            if (!string.Equals(c.Website, updateGeneralInfo.Website))
+            {
+                c.Website = updateGeneralInfo.Website;
+                hasChanges = true;
+            }
+
             // Update UpdatedAt if there are changes
             c.UpdatedAt = DateTime.UtcNow;
         });

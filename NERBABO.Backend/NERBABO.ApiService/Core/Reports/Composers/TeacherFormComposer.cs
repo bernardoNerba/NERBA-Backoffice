@@ -19,6 +19,7 @@ public class TeacherFormComposer(IImageService imageService)
         // Generate PDF Trainer Form (Ficha de Formador)
         return Document.Create(container =>
         {
+            // First page - Teacher identification form
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
@@ -26,6 +27,17 @@ public class TeacherFormComposer(IImageService imageService)
 
                 page.Header().Element(container => ComposeHeader(container, action, infos));
                 page.Content().PaddingTop(5).Element(container => ComposeContent(container, teacher, moduleTeachings));
+                page.Footer().Element(container => ComposeFooter(container, infos));
+            });
+
+            // Second page - Data treatment and consent
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(1.5f, Unit.Centimetre);
+
+                page.Header().Element(container => ComposeHeader(container, action, infos));
+                page.Content().PaddingTop(5).Element(container => ComposeDataTreatmentContent(container, action, infos));
                 page.Footer().Element(container => ComposeFooter(container, infos));
             });
         });
@@ -358,6 +370,59 @@ public class TeacherFormComposer(IImageService imageService)
         {
             column.Item().PaddingTop(10).AlignCenter().Text("O NERBA é Entidade Certificada pela DGERT, C61")
                 .FontSize(7).FontFamily("Arial").Italic();
+        });
+    }
+
+    private void ComposeDataTreatmentContent(IContainer container, CourseAction action, GeneralInfo infos)
+    {
+        container.Column(column =>
+        {
+            // Title
+            column.Item().PaddingBottom(10).AlignCenter().Text("TRATAMENTO DE DADOS E CONSENTIMENTO")
+                .FontSize(11).FontFamily("Arial").Bold();
+
+            // Data treatment text
+            column.Item().PaddingBottom(15).Text(text =>
+            {
+                text.DefaultTextStyle(x => x.FontSize(9).FontFamily("Arial").LineHeight(1.3f));
+
+                text.Span($"Tratamento dos dados: O {infos.Slug} garante a estrita confidencialidade no tratamento dos dados. Com a apresentação desta ficha, está em condições de monitorizar a formação que se propõe ministrar autorizando que os dados constantes deste documento sejam facultados à DGERT, entidade acreditadora de entidades formadoras, sejam registados no sistema de informação do {action.Course.Frame.Program}, registados no sistema de informação (digital e suporte papel) e para o envio por e-mail, SMS, de comunicações promocionais e de marketing direto relativo aos serviços do {infos.Slug}, aceitando-se, também, ser contactado para confirmação dos elementos prestados bem como de outros que venham a revelar interesse geral, no âmbito dos processo de monitorização e avaliação dos serviços desta {infos.Designation}. ");
+
+                text.Span("Sem estes dados não é possível a participação na formação.").Bold();
+
+                text.Span($" A qualquer momento, pode retirar o consentimento, atualizar dados - não afetando o tratamento já realizado - contactando, para o efeito, o {infos.PhoneNumber} ou através do e-mail {infos.Email} ou por comunicação direta junto de qualquer colaborador/a do {infos.Slug}. O período de conservação dos dados atenderá à necessidade e interesse do {infos.Slug} e dos cofinanciamentos, comprometendo-se esta associação adotar as medidas de conservação e segurança adequadas. Sem prejuízo da possibilidade de reclamar junto do {infos.Slug}, os titulares dos dados têm o direito de apresentar reclamação perante a Comissão Nacional de Proteção de Dados (CNPD). Consultar a política de privacidade no sítio web do {infos.Slug} - {infos.Website}");
+            });
+
+            // Image and sound consent section
+            column.Item().PaddingBottom(10).PaddingTop(10).Text(text =>
+            {
+                text.DefaultTextStyle(x => x.FontSize(9).FontFamily("Arial").LineHeight(1.3f));
+                text.Span($"Solicita-se consentimento por parte de participante na formação profissional organizada pelo {infos.Slug} para captação e gravação de imagem e som. As imagens e sons captados serão de uso exclusivo para fins de verificação da elegibilidade dos projetos e ainda para alguma publicidade de promoção dos projetos.");
+            });
+
+            // Consent checkboxes
+            column.Item().PaddingBottom(5).Row(row =>
+            {
+                row.ConstantItem(15).Text("☐").FontSize(10).FontFamily("Arial");
+                row.RelativeItem().Text("Sim, autorizo.")
+                    .FontSize(9).FontFamily("Arial");
+            });
+
+            column.Item().Row(row =>
+            {
+                row.ConstantItem(15).Text("☐").FontSize(10).FontFamily("Arial");
+                row.RelativeItem().Text("Não autorizo.")
+                    .FontSize(9).FontFamily("Arial");
+            });
+
+            // Signature section
+            column.Item().PaddingTop(30).AlignCenter().Column(signatureColumn =>
+            {
+                signatureColumn.Item().Text("_____________________________________________________________")
+                    .FontSize(8).FontFamily("Arial");
+                signatureColumn.Item().PaddingTop(2).Text("(O/a Formador/a)")
+                    .FontSize(8).FontFamily("Arial");
+            });
         });
     }
 }

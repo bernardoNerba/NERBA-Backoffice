@@ -46,6 +46,22 @@ public class GeneralInfoConfiguration : IEntityTypeConfiguration<GeneralInfo>
             .HasColumnType("varchar(500)")
             .IsRequired(false);
 
+        builder.Property(x => x.Email)
+            .HasColumnType("varchar(100)")
+            .IsRequired(true);
+
+        builder.Property(x => x.Slug)
+            .HasColumnType("varchar(50)")
+            .IsRequired(true);
+
+        builder.Property(x => x.PhoneNumber)
+            .HasColumnType("varchar(20)")
+            .IsRequired(true);
+
+        builder.Property(x => x.Website)
+            .HasColumnType("varchar(100)")
+            .IsRequired(true);
+
         builder.HasOne(x => x.IvaTax)
             .WithOne(t => t.GeneralInfo)
             .HasForeignKey<GeneralInfo>(x => x.IvaId)
