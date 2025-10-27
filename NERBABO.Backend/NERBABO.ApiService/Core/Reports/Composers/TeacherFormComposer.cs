@@ -368,7 +368,7 @@ public class TeacherFormComposer(IImageService imageService)
     {
         container.Column(column =>
         {
-            column.Item().PaddingTop(10).AlignCenter().Text("O NERBA é Entidade Certificada pela DGERT, C61")
+            column.Item().PaddingTop(10).AlignCenter().Text($"{infos.Slug} é Entidade Certificada pela DGERT, C61")
                 .FontSize(7).FontFamily("Arial").Italic();
         });
     }
