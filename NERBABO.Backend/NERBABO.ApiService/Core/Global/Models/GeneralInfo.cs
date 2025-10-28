@@ -43,7 +43,9 @@ public class GeneralInfo : Entity<long>
             Email = generalInfo.Email,
             Slug = generalInfo.Slug,
             PhoneNumber = generalInfo.PhoneNumber,
-            Website = generalInfo.Website
+            Website = generalInfo.Website,
+            InsurancePolicy = generalInfo.InsurancePolicy,
+            FacilitiesCharacterization = generalInfo.FacilitiesCharacterization
         };
     }
 }

@@ -86,6 +86,8 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
             slug: config.slug ?? '',
             phoneNumber: config.phoneNumber ?? '',
             website: config.website ?? '',
+            insurancePolicy: config.insurancePolicy ?? '',
+            facilitiesCharacterization: config.facilitiesCharacterization ?? '',
           });
           this.currentLogoUrl = config.logoUrl;
           this.logoPreview = config.logoUrl;
@@ -181,6 +183,22 @@ export class GlobalConfigComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(100),
+        ],
+      ],
+      insurancePolicy: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(200),
+        ],
+      ],
+      facilitiesCharacterization: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(500),
         ],
       ],
       logoFinancing: [''],

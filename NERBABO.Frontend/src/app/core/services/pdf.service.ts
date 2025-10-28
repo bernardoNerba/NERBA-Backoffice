@@ -55,13 +55,13 @@ export class PdfService {
   }
 
   /**
-   * Generates a PDF training financing form (SIF FM Template) for a specific action
-   * @param actionId The action ID to generate the form for
+   * Generates a PDF course action information report for a specific action
+   * @param actionId The action ID to generate the report for
    * @returns Observable of PDF blob
    */
-  generateTrainingFinancingForm(actionId: number): Observable<Blob> {
+  generateCourseActionInformationReport(actionId: number): Observable<Blob> {
     return this.http.get(
-      `${this.baseUrl}/api/pdf/action/${actionId}/training-financing-form`,
+      `${this.baseUrl}/api/pdf/action/${actionId}/course-action-information-report`,
       {
         responseType: 'blob',
       }
