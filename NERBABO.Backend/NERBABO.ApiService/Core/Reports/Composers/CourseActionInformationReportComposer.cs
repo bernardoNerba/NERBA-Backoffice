@@ -7,13 +7,13 @@ using QuestPDF.Infrastructure;
 
 namespace NERBABO.ApiService.Core.Reports.Composers;
 
-public class TrainingFinancingFormComposer(IImageService imageService)
+public class CourseActionInformationReportComposer(IImageService imageService)
 {
     private readonly IImageService _imageService = imageService;
 
     public Document Compose(CourseAction action, GeneralInfo infos)
     {
-        // Generate PDF Training Financing Form (SIF FM Template)
+        // Generate Course Action Information Report PDF
         return Document.Create(container =>
         {
             container.Page(page =>
@@ -101,7 +101,7 @@ public class TrainingFinancingFormComposer(IImageService imageService)
         container.Column(column =>
         {
             // Title
-            column.Item().PaddingBottom(10).AlignCenter().Text("SISTEMA DE INFORMAÇÃO DA FORMAÇÃO")
+            column.Item().PaddingBottom(10).AlignCenter().Text("Informação Geral da Formação")
                 .FontSize(12).FontFamily("Arial").Bold();
 
             // ENTIDADE PROMOTORA Section
@@ -144,7 +144,7 @@ public class TrainingFinancingFormComposer(IImageService imageService)
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(40).Text("Nome:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text("").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(infos.Designation ?? "").FontSize(8).FontFamily("Arial");
                 });
 
                 // Sede
@@ -152,29 +152,6 @@ public class TrainingFinancingFormComposer(IImageService imageService)
                 {
                     row.ConstantItem(40).Text("Sede:").FontSize(8).FontFamily("Arial");
                     row.RelativeItem().BorderBottom(1).Padding(2).Text(action.Address ?? "").FontSize(8).FontFamily("Arial");
-                });
-            });
-
-            // RESPONSÁVEL - TESOUREIRA Section
-            column.Item().PaddingBottom(10).Column(section =>
-            {
-                section.Item().PaddingBottom(5).Text("RESPONSÁVEL - TESOUREIRA / ENTIDADE FORMADORA:")
-                    .FontSize(9).FontFamily("Arial").Bold();
-
-                // Nome
-                section.Item().PaddingBottom(3).Row(row =>
-                {
-                    row.ConstantItem(40).Text("Nome:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text("").FontSize(8).FontFamily("Arial");
-                });
-
-                // CC and Validade
-                section.Item().Row(row =>
-                {
-                    row.ConstantItem(40).Text("CC:").FontSize(8).FontFamily("Arial");
-                    row.ConstantItem(150).BorderBottom(1).Padding(2).Text("").FontSize(8).FontFamily("Arial");
-                    row.ConstantItem(60).PaddingLeft(10).Text("Validade:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text("").FontSize(8).FontFamily("Arial");
                 });
             });
 
@@ -230,7 +207,7 @@ public class TrainingFinancingFormComposer(IImageService imageService)
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(110).Text("Apólice de Seguro N.º:").FontSize(8).FontFamily("Arial");
-                    row.ConstantItem(150).BorderBottom(1).Padding(2).Text("").FontSize(8).FontFamily("Arial");
+                    row.ConstantItem(150).BorderBottom(1).Padding(2).Text(infos.InsurancePolicy ?? "").FontSize(8).FontFamily("Arial");
                     row.ConstantItem(80).PaddingLeft(10).Text("Operação n.º:").FontSize(8).FontFamily("Arial");
                     row.RelativeItem().BorderBottom(1).Padding(2).Text(action.Course.Frame.Operation ?? "").FontSize(8).FontFamily("Arial");
                 });
@@ -298,7 +275,7 @@ public class TrainingFinancingFormComposer(IImageService imageService)
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(160).Text("Caracterização das instalações:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text("").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(infos.FacilitiesCharacterization ?? "").FontSize(8).FontFamily("Arial");
                 });
 
                 // Subsídio alimentação / dia

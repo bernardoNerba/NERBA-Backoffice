@@ -113,14 +113,14 @@ public class PdfController(
     }
 
     /// <summary>
-    /// Generates or returns cached PDF training financing form (SIF FM Template) for a specific action.
+    /// Generates or returns cached PDF course action information report for a specific action.
     /// </summary>
-    /// <param name="actionId">The action ID to generate the form for.</param>
+    /// <param name="actionId">The action ID to generate the report for.</param>
     /// <response code="200">PDF generated successfully. Returns the PDF file.</response>
     /// <response code="404">Action not found.</response>
     /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
     /// <response code="500">Unexpected error occurred during PDF generation.</response>
-    [HttpGet("action/{actionId:long}/training-financing-form")]
+    [HttpGet("action/{actionId:long}/course-action-information-report")]
     [Authorize(Policy = "ActiveUser")]
     public async Task<IActionResult> GenerateTrainingFinancingFormAsync(long actionId)
     {
@@ -139,7 +139,7 @@ public class PdfController(
             return _responseHandler.HandleResult(result);
         }
 
-        return File(result.Data!, "application/pdf", $"formulario-financiamento-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
+        return File(result.Data!, "application/pdf", $"informacao-acao-{actionId}-{DateTime.Now:yyyyMMdd}.pdf");
     }
 
     /// <summary>

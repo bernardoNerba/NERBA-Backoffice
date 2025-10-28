@@ -16,11 +16,11 @@ public class PdfService : IPdfService
     private readonly SessionsTimelineComposer _timelineComposer;
     private readonly CoverActionReportComposer _coverComposer;
     private readonly TeacherFormComposer _teacherFormComposer;
-    private readonly TrainingFinancingFormComposer _trainingFinancingFormComposer;
+    private readonly CourseActionInformationReportComposer _courseActionInformationReportComposer;
     private readonly string _pdfStoragePath;
 
 
-    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, SessionsTimelineComposer timelineComposer, CoverActionReportComposer coverComposer, TeacherFormComposer teacherFormComposer, TrainingFinancingFormComposer trainingFinancingFormComposer)
+    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, SessionsTimelineComposer timelineComposer, CoverActionReportComposer coverComposer, TeacherFormComposer teacherFormComposer, CourseActionInformationReportComposer courseActionInformationReportComposer)
     {
         _context = context;
         _logger = logger;
@@ -28,7 +28,7 @@ public class PdfService : IPdfService
         _timelineComposer = timelineComposer;
         _coverComposer = coverComposer;
         _teacherFormComposer = teacherFormComposer;
-        _trainingFinancingFormComposer = trainingFinancingFormComposer;
+        _courseActionInformationReportComposer = courseActionInformationReportComposer;
 
         // Configure storage path
         _pdfStoragePath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "storage", "pdfs");
@@ -236,27 +236,27 @@ public class PdfService : IPdfService
             var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
                 ?? throw new Exception("Failed to obtain general information.");
 
-            var document = _trainingFinancingFormComposer.Compose(action, infos);
+            var document = _courseActionInformationReportComposer.Compose(action, infos);
             var pdfBytes = document.GeneratePdf();
 
             // Save the new PDF
-            var saveResult = await SavePdfAsync(PdfTypes.TrainingFinancingForm, actionId, pdfBytes, userId);
+            var saveResult = await SavePdfAsync(PdfTypes.CourseActionInformationReport, actionId, pdfBytes, userId);
             if (!saveResult.Success)
             {
-                _logger.LogError("Failed to save training financing form PDF for action {ActionId}", actionId);
+                _logger.LogError("Failed to save course action information report PDF for action {ActionId}", actionId);
                 return Result<byte[]>
-                    .Fail("Erro interno.", "Falha ao guardar o formulário de financiamento PDF.", StatusCodes.Status500InternalServerError);
+                    .Fail("Erro interno.", "Falha ao guardar o relatório de informação da ação PDF.", StatusCodes.Status500InternalServerError);
             }
 
-            _logger.LogInformation("Generated and saved training financing form for action {ActionId}", actionId);
+            _logger.LogInformation("Generated and saved course action information report for action {ActionId}", actionId);
             return Result<byte[]>
-                .Ok(pdfBytes, "Formulário criado.", $"Formulário de financiamento criado com sucesso para a ação {actionId}.");
+                .Ok(pdfBytes, "Relatório criado.", $"Relatório de informação da ação criado com sucesso para a ação {actionId}.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating training financing form for action {ActionId}", actionId);
+            _logger.LogError(ex, "Error generating course action information report for action {ActionId}", actionId);
             return Result<byte[]>
-                .Fail("Erro interno.", "Ocorreu um erro ao gerar o formulário de financiamento.", StatusCodes.Status500InternalServerError);
+                .Fail("Erro interno.", "Ocorreu um erro ao gerar o relatório de informação da ação.", StatusCodes.Status500InternalServerError);
         }
     }
 

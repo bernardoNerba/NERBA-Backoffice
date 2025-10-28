@@ -96,7 +96,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<SessionsTimelineComposer>();
 builder.Services.AddScoped<CoverActionReportComposer>();
 builder.Services.AddScoped<TeacherFormComposer>();
-builder.Services.AddScoped<TrainingFinancingFormComposer>();
+builder.Services.AddScoped<CourseActionInformationReportComposer>();
 
 // Register HTTP context accessor for URL generation
 builder.Services.AddHttpContextAccessor();
