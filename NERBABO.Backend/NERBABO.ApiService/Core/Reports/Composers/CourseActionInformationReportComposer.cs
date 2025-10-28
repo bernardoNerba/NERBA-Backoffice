@@ -1,3 +1,4 @@
+using Humanizer;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Shared.Services;
@@ -268,7 +269,7 @@ public class CourseActionInformationReportComposer(IImageService imageService)
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(100).Text("Dias da Semana:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text(string.Join(", ", action.WeekDays)).FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(string.Join(", ", action.WeekDays.Select(x => x.Humanize().Transform(To.LowerCase)))).FontSize(8).FontFamily("Arial");
                 });
 
                 // Caracterização das instalações
