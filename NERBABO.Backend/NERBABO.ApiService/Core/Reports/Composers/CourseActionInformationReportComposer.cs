@@ -198,35 +198,33 @@ public class CourseActionInformationReportComposer(IImageService imageService)
                 });
             });
 
-            // ENQUADRAMENTO / PEDIDO DE FINANCIAMENTO Section
+            // PEDIDO DE FINANCIAMENTO Section
             column.Item().PaddingBottom(10).Column(section =>
             {
-                section.Item().PaddingBottom(5).Text("ENQUADRAMENTO / PEDIDO DE FINANCIAMENTO:")
+                section.Item().PaddingBottom(5).Text("PEDIDO DE FINANCIAMENTO:")
                     .FontSize(9).FontFamily("Arial").Bold();
 
-                // Apólice de Seguro N.º and Operação n.º
+                // Apólice de Seguro N.º
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(110).Text("Apólice de Seguro N.º:").FontSize(8).FontFamily("Arial");
-                    row.ConstantItem(150).BorderBottom(1).Padding(2).Text(infos.InsurancePolicy ?? "").FontSize(8).FontFamily("Arial");
-                    row.ConstantItem(80).PaddingLeft(10).Text("Operação n.º:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text(action.Course.Frame.Operation ?? "").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(TruncateText(infos.InsurancePolicy ?? "", 100)).FontSize(8).FontFamily("Arial");
                 });
 
                 // UFC/Percurso/Curso
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(110).Text("UFC/Percurso/Curso:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text(action.Course.Title ?? "").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(TruncateText(action.Course.Title ?? "", 150)).FontSize(8).FontFamily("Arial");
                 });
 
                 // Ação and Código Administrativo
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(40).Text("Ação:").FontSize(8).FontFamily("Arial");
-                    row.ConstantItem(200).BorderBottom(1).Padding(2).Text(action.Title ?? "").FontSize(8).FontFamily("Arial");
-                    row.ConstantItem(130).PaddingLeft(10).Text("Código Administrativo de SIGO:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text(action.AdministrationCode ?? "").FontSize(8).FontFamily("Arial");
+                    row.ConstantItem(200).BorderBottom(1).Padding(2).Text(TruncateText(action.Title ?? "", 80)).FontSize(8).FontFamily("Arial");
+                    row.ConstantItem(100).PaddingLeft(10).Text("Código Administrativo:").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(TruncateText(action.AdministrationCode ?? "", 80)).FontSize(8).FontFamily("Arial");
                 });
 
                 // Data Inicio, Data Fim, Horário
@@ -262,7 +260,7 @@ public class CourseActionInformationReportComposer(IImageService imageService)
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(140).Text("Morada/Local da Formação:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text(action.Address ?? "").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(TruncateText(action.Address ?? "", 150)).FontSize(8).FontFamily("Arial");
                 });
 
                 // Dias da Semana
@@ -276,7 +274,7 @@ public class CourseActionInformationReportComposer(IImageService imageService)
                 section.Item().PaddingBottom(3).Row(row =>
                 {
                     row.ConstantItem(160).Text("Caracterização das instalações:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text(infos.FacilitiesCharacterization ?? "").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(TruncateText(infos.FacilitiesCharacterization ?? "", 250)).FontSize(8).FontFamily("Arial");
                 });
 
                 // Subsídio alimentação / dia
@@ -337,5 +335,13 @@ public class CourseActionInformationReportComposer(IImageService imageService)
             column.Item().PaddingTop(10).AlignCenter().Text($"{infos.Slug} é Entidade Certificada pela DGERT, C61")
                 .FontSize(7).FontFamily("Arial").Italic();
         });
+    }
+
+    private static string TruncateText(string text, int maxLength)
+    {
+        if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
+            return text;
+
+        return text.Substring(0, maxLength) + "...";
     }
 }
