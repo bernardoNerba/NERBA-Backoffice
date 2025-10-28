@@ -65,4 +65,14 @@ public class UpdateGeneralInfoDto
         ErrorMessage = "Website deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public string Website { get; set; } = string.Empty;
 
+    [Required(ErrorMessage = "Apólice de Seguro é um campo obrigatório.")]
+    [ValidateLengthIfNotEmpty(200, MinimumLength = 3,
+        ErrorMessage = "Apólice de Seguro deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
+    public string InsurancePolicy { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Caracterização das Instalações é um campo obrigatório.")]
+    [ValidateLengthIfNotEmpty(500, MinimumLength = 10,
+        ErrorMessage = "Caracterização das Instalações deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
+    public string FacilitiesCharacterization { get; set; } = string.Empty;
+
 }

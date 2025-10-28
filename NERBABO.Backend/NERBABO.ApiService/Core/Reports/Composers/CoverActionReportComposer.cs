@@ -128,6 +128,18 @@ public class CoverActionReportComposer(IImageService imageService)
                                 .FontSize(10).FontFamily("Arial");
                         });
                     }
+                    
+                    // Operation Number
+                    if (!string.IsNullOrEmpty(action.Course.Frame.Operation))
+                    {
+                        column.Item().PaddingBottom(12).AlignCenter().Column(section =>
+                        {
+                            section.Item().PaddingBottom(3).AlignCenter().Text("Nº de Operação:")
+                                .FontSize(10).FontFamily("Arial").SemiBold();
+                            section.Item().AlignCenter().Text(action.Course.Frame.Operation)
+                                .FontSize(10).FontFamily("Arial");
+                        });
+                    }
 
                     // Course Title
                     column.Item().PaddingBottom(12).AlignCenter().Column(section =>
@@ -168,7 +180,7 @@ public class CoverActionReportComposer(IImageService imageService)
                     {
                         column.Item().AlignCenter().Column(section =>
                         {
-                            section.Item().PaddingBottom(3).AlignCenter().Text("Código de Administração:")
+                            section.Item().PaddingBottom(3).AlignCenter().Text("Código de Administrativo:")
                                 .FontSize(10).FontFamily("Arial").SemiBold();
                             section.Item().AlignCenter().Text(action.AdministrationCode)
                                 .FontSize(10).FontFamily("Arial");

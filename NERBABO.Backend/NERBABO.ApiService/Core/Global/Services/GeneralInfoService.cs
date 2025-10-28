@@ -191,6 +191,20 @@ public class GeneralInfoService(
                 hasChanges = true;
             }
 
+            // Update InsurancePolicy if changed
+            if (!string.Equals(c.InsurancePolicy, updateGeneralInfo.InsurancePolicy))
+            {
+                c.InsurancePolicy = updateGeneralInfo.InsurancePolicy;
+                hasChanges = true;
+            }
+
+            // Update FacilitiesCharacterization if changed
+            if (!string.Equals(c.FacilitiesCharacterization, updateGeneralInfo.FacilitiesCharacterization))
+            {
+                c.FacilitiesCharacterization = updateGeneralInfo.FacilitiesCharacterization;
+                hasChanges = true;
+            }
+
             // Update UpdatedAt if there are changes
             c.UpdatedAt = DateTime.UtcNow;
         });

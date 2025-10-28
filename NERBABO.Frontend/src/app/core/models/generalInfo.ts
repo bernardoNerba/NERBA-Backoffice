@@ -15,4 +15,6 @@ export type GeneralInfo = {
   slug: string;
   phoneNumber: string;
   website: string;
+  insurancePolicy: string;
+  facilitiesCharacterization: string;
 };

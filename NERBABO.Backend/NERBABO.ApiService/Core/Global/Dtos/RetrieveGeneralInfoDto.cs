@@ -17,5 +17,7 @@ public class RetrieveGeneralInfoDto
     public string Slug { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string Website { get; set; } = string.Empty;
+    public string InsurancePolicy { get; set; } = string.Empty;
+    public string FacilitiesCharacterization { get; set; } = string.Empty;
 
 }

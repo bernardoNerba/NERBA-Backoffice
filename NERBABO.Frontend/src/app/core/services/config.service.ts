@@ -110,6 +110,8 @@ export class ConfigService {
     formData.append('slug', model.slug);
     formData.append('phoneNumber', model.phoneNumber);
     formData.append('website', model.website);
+    formData.append('insurancePolicy', model.insurancePolicy);
+    formData.append('facilitiesCharacterization', model.facilitiesCharacterization);
 
     if (logoFile) {
       formData.append('logo', logoFile);

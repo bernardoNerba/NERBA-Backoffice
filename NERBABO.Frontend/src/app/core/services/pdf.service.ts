@@ -55,6 +55,20 @@ export class PdfService {
   }
 
   /**
+   * Generates a PDF course action information report for a specific action
+   * @param actionId The action ID to generate the report for
+   * @returns Observable of PDF blob
+   */
+  generateCourseActionInformationReport(actionId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/api/pdf/action/${actionId}/course-action-information-report`,
+      {
+        responseType: 'blob',
+      }
+    );
+  }
+
+  /**
    * Downloads a PDF blob with the specified filename
    * @param blob The PDF blob to download
    * @param filename The filename to use for download

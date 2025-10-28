@@ -465,6 +465,72 @@ null){
                     }
                   </div>
                 </div>
+
+                <!-- INSURANCE POLICY -->
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label for="insurancePolicy"
+                      >Apólice de Seguro
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      pInputText
+                      formControlName="insurancePolicy"
+                      [class.is-invalid]="
+                        submitted && form.get('insurancePolicy')?.errors
+                      "
+                      class="w-100 {{
+                        submitted && form.get('insurancePolicy')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                    />
+                    @if (submitted && form.get('insurancePolicy')?.hasError("required")) {
+                    <span class="text-danger">
+                      Apólice de Seguro é um campo obrigatório.
+                    </span>
+                    } @else if ( form.get('insurancePolicy')?.hasError("minlength") ||
+                    form.get('insurancePolicy')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Apólice de Seguro deve ter entre 3 e 200 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- FACILITIES CHARACTERIZATION -->
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label for="facilitiesCharacterization"
+                      >Caracterização das Instalações
+                      <span class="text-danger">*</span>
+                    </label>
+                    <textarea
+                      pInputText
+                      formControlName="facilitiesCharacterization"
+                      [class.is-invalid]="
+                        submitted && form.get('facilitiesCharacterization')?.errors
+                      "
+                      class="w-100 {{
+                        submitted && form.get('facilitiesCharacterization')?.errors
+                          ? 'ng-invalid ng-dirty'
+                          : ''
+                      }}"
+                      rows="3"
+                    ></textarea>
+                    @if (submitted && form.get('facilitiesCharacterization')?.hasError("required")) {
+                    <span class="text-danger">
+                      Caracterização das Instalações é um campo obrigatório.
+                    </span>
+                    } @else if ( form.get('facilitiesCharacterization')?.hasError("minlength") ||
+                    form.get('facilitiesCharacterization')?.hasError("maxlength")) {
+                    <span class="text-danger">
+                      Caracterização das Instalações deve ter entre 10 e 500 caracteres.
+                    </span>
+                    }
+                  </div>
+                </div>
               </div>
 
               <!-- LOGO UPLOAD SECTION -->

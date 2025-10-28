@@ -137,7 +137,9 @@ public class SeedDataHelp
             Email = "nerba@nerba.pt",
             Slug = "NERBA",
             PhoneNumber = "273304630",
-            Website = "www.nerba.pt"
+            Website = "www.nerba.pt",
+            InsurancePolicy = "11706300-VICTORIA Acidentes Pessoais",
+            FacilitiesCharacterization = "Sala equipada com mesas, cadeiras, para formandos/as e formador/a, videoprojetor, quadro didax e marcadores. Material para a realização de exercicios práticos, ajustado à área de formação em causa"
         };
 
         _context.GeneralInfo.Add(generalInfo);

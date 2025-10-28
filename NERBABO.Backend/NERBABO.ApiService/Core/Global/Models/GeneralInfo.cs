@@ -18,6 +18,8 @@ public class GeneralInfo : Entity<long>
     public string Slug { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string Website { get; set; } = string.Empty;
+    public string InsurancePolicy { get; set; } = string.Empty;
+    public string FacilitiesCharacterization { get; set; } = string.Empty;
 
     public Tax? IvaTax { get; set; }
 
@@ -41,7 +43,9 @@ public class GeneralInfo : Entity<long>
             Email = generalInfo.Email,
             Slug = generalInfo.Slug,
             PhoneNumber = generalInfo.PhoneNumber,
-            Website = generalInfo.Website
+            Website = generalInfo.Website,
+            InsurancePolicy = generalInfo.InsurancePolicy,
+            FacilitiesCharacterization = generalInfo.FacilitiesCharacterization
         };
     }
 }

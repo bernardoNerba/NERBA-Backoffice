@@ -79,7 +79,7 @@ export class PdfActionsComponent {
   @Input() sessionId?: number;
   @Input() teacherId?: number;
   @Input() title?: string;
-  @Input() reportType: 'sessions' | 'cover' | 'teacher-form' = 'sessions';
+  @Input() reportType: 'sessions' | 'cover' | 'teacher-form' | 'course-action-information-report' = 'sessions';
 
   isGeneratingReport = false;
   isGeneratingDetail = false;
@@ -106,6 +106,8 @@ export class PdfActionsComponent {
     } else if (this.reportType === 'teacher-form') {
       if (!this.teacherId) return null;
       return this.pdfService.generateTeacherForm(this.actionId, this.teacherId);
+    } else if (this.reportType === 'course-action-information-report') {
+      return this.pdfService.generateCourseActionInformationReport(this.actionId);
     } else {
       return this.pdfService.generateSessionsReport(this.actionId);
     }
@@ -116,6 +118,8 @@ export class PdfActionsComponent {
       return 'capa-acao';
     } else if (this.reportType === 'teacher-form') {
       return 'ficha-formador';
+    } else if (this.reportType === 'course-action-information-report') {
+      return 'informacao-acao';
     } else {
       return 'relatorio-sessoes-acao';
     }
@@ -127,6 +131,8 @@ export class PdfActionsComponent {
       reportName = 'Capa';
     } else if (this.reportType === 'teacher-form') {
       reportName = 'Ficha de formador';
+    } else if (this.reportType === 'course-action-information-report') {
+      reportName = 'Informação da ação';
     }
 
     const actionMessages: { [key: string]: string } = {
