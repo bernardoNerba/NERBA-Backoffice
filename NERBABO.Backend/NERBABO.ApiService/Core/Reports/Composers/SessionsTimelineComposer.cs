@@ -101,61 +101,68 @@ public class SessionsTimelineComposer(IImageService imageService)
     {
         container.Column(column =>
         {
-            // Top row - General Info logo at the very top without left padding (if available)
-            if (!string.IsNullOrEmpty(infos.Logo))
+            // Logos row
+            column.Item().PaddingVertical(5).Row(row =>
             {
-                column.Item().PaddingBottom(5).AlignLeft().Element(logoContainer =>
+                // Left side - General Info logo
+                if (!string.IsNullOrEmpty(infos.Logo))
                 {
-                    try
-                    {
-                        var generalLogoBytes = _imageService.GetImageAsync(infos.Logo).ConfigureAwait(false).GetAwaiter().GetResult();
-                        if (generalLogoBytes != null)
-                        {
-                            logoContainer.Height(30).AlignLeft().AlignTop()
-                                .Image(generalLogoBytes).FitArea();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log the exception if needed and continue without the image
-                        System.Diagnostics.Debug.WriteLine($"Failed to load general info logo: {ex.Message}");
-                    }
-                });
-            }
-
-            // Title row
-            column.Item().PaddingBottom(5).Row(row =>
-            {
-                // Left side - Title and info
-                row.RelativeItem().Column(titleColumn =>
-                {
-                    titleColumn.Item().AlignLeft().Text($"Cronograma - {action.Course.Title}")
-                        .FontSize(14).FontFamily("Arial").SemiBold();
-                    titleColumn.Item().AlignLeft().Text(action.Course.Frame.OperationType)
-                        .FontSize(10).FontFamily("Arial");
-                });
-
-                // Right side - Program logo (if available)
-                if (!string.IsNullOrEmpty(action.Course.Frame.ProgramLogo))
-                {
-                    row.ConstantItem(50).Element(logoContainer =>
+                    row.ConstantItem(80).Element(logoContainer =>
                     {
                         try
                         {
-                            var programImageBytes = _imageService.GetImageAsync(action.Course.Frame.ProgramLogo).ConfigureAwait(false).GetAwaiter().GetResult();
-                            if (programImageBytes != null)
+                            var generalLogoBytes = _imageService.GetImageAsync(infos.Logo).ConfigureAwait(false).GetAwaiter().GetResult();
+                            if (generalLogoBytes != null)
                             {
-                                logoContainer.Height(50).AlignCenter().AlignMiddle()
-                                    .Image(programImageBytes).FitArea();
+                                logoContainer.Height(40).AlignLeft().AlignMiddle()
+                                    .Image(generalLogoBytes).FitArea();
                             }
                         }
                         catch (Exception ex)
                         {
-                            // Log the exception if needed and continue without the image
-                            System.Diagnostics.Debug.WriteLine($"Failed to load program logo: {ex.Message}");
+                            System.Diagnostics.Debug.WriteLine($"Failed to load general info logo: {ex.Message}");
                         }
                     });
                 }
+                else
+                {
+                    row.ConstantItem(80);
+                }
+
+                // Title row
+                column.Item().PaddingBottom(5).Row(row =>
+                {
+                    // Left side - Title and info
+                    row.RelativeItem().AlignCenter().Column(titleColumn =>
+                    {
+                        titleColumn.Item().AlignLeft().Text($"Cronograma - {action.Course.Title}")
+                            .FontSize(14).FontFamily("Arial").SemiBold();
+                        titleColumn.Item().AlignLeft().Text(action.Course.Frame.OperationType)
+                            .FontSize(10).FontFamily("Arial");
+                    });
+
+                    // Right side - Program logo (if available)
+                    if (!string.IsNullOrEmpty(action.Course.Frame.ProgramLogo))
+                    {
+                        row.ConstantItem(50).Element(logoContainer =>
+                        {
+                            try
+                            {
+                                var programImageBytes = _imageService.GetImageAsync(action.Course.Frame.ProgramLogo).ConfigureAwait(false).GetAwaiter().GetResult();
+                                if (programImageBytes != null)
+                                {
+                                    logoContainer.Height(50).AlignCenter().AlignMiddle()
+                                        .Image(programImageBytes).FitArea();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log the exception if needed and continue without the image
+                                System.Diagnostics.Debug.WriteLine($"Failed to load program logo: {ex.Message}");
+                            }
+                        });
+                    }
+                });
             });
         });
     }

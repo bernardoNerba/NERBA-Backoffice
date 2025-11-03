@@ -103,7 +103,7 @@ public class CourseActionInformationReportComposer(IImageService imageService)
         {
             // Title
             column.Item().PaddingBottom(10).AlignCenter().Text("Informação Geral da Formação")
-                .FontSize(12).FontFamily("Arial").Bold();
+                .FontSize(14).FontFamily("Arial").Bold();
 
             // ENTIDADE PROMOTORA Section
             column.Item().PaddingBottom(10).Column(section =>

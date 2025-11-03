@@ -488,5 +488,5 @@ secrets.json
 
 Data/Migrations/
 
-Storage/*
 wwwroot/*
+!wwwroot/.gitkeep
