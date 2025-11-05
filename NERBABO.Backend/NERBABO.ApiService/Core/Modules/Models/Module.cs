@@ -19,7 +19,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
             ShortenName = shortenName;
         }
 
-        public RetrieveCategoryDto ConvertEntityToRetrieveDto(ModuleCategory c)
+        public static RetrieveCategoryDto ConvertEntityToRetrieveDto(ModuleCategory c)
         {
             return new RetrieveCategoryDto
             {
@@ -30,7 +30,29 @@ namespace NERBABO.ApiService.Core.Modules.Models
 
         public static ModuleCategory ConvertCreateDtoToEntity(CreateCategoryDto c)
         {
-            return new ModuleCategory(c.Name, c.ShortenName);
+            return new ModuleCategory(c.Name, c.ShortenName)
+            {
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+        }
+
+        public override bool Equals(object? obj)
+        {
+            var item = obj as ModuleCategory;
+
+            if (item is null)
+            {
+                return false;
+            }
+
+            return this.Name.Equals(item.Name)
+                && this.ShortenName.Equals(item.ShortenName);
+        }
+        
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, ShortenName);
         }
     }
 

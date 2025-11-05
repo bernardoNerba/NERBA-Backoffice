@@ -87,6 +87,7 @@ builder.Services.AddScoped<IActionEnrollmentService, ActionEnrollmentService>();
 builder.Services.AddScoped<IModuleAvaliationsService, ModuleAvaliationsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IKpisService, KpisService>();
+builder.Services.AddScoped<IModuleCategoryService, ModuleCategoryService>();
 
 // Register Static Files Services
 builder.Services.AddScoped<IPdfService, PdfService>();
