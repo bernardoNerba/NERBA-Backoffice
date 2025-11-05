@@ -37,7 +37,7 @@ public class SessionsTimelineComposer(IImageService imageService)
                             .FontSize(8).FontFamily("Arial");
                         details.Item().PaddingBottom(5).Text($"Ação: {action.Title}")
                             .FontSize(8).FontFamily("Arial");
-                        details.Item().PaddingBottom(5).Text($"Horário: {action.AllDiferentSessionTimes()}")
+                        details.Item().PaddingBottom(5).Text($"Horário: {action.AllDifferentSessionTimes()}")
                             .FontSize(8).FontFamily("Arial");
                         if (!string.IsNullOrEmpty(action.Address))
                         {

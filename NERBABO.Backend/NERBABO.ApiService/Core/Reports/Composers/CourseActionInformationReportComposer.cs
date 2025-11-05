@@ -235,7 +235,7 @@ public class CourseActionInformationReportComposer(IImageService imageService)
                     row.ConstantItem(60).PaddingLeft(10).Text("Data Fim:").FontSize(8).FontFamily("Arial");
                     row.ConstantItem(80).BorderBottom(1).Padding(2).Text(action.EndDate.ToString("dd/MM/yyyy")).FontSize(8).FontFamily("Arial");
                     row.ConstantItem(50).PaddingLeft(10).Text("Horário:").FontSize(8).FontFamily("Arial");
-                    row.RelativeItem().BorderBottom(1).Padding(2).Text(action.AllDiferentSessionTimes() ?? "").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).Padding(2).Text(action.AllDifferentSessionTimes() ?? "").FontSize(8).FontFamily("Arial");
                 });
 
                 // Área, Ano Escolar

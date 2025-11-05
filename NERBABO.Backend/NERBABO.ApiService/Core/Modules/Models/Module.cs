@@ -5,10 +5,38 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Modules.Models
 {
+    public class ModuleCategory : Entity<long>
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ShortenName { get; set; } = string.Empty;
+
+        // Navigation Properties
+        public List<Module> Modules { get; set; } = [];
+
+        public ModuleCategory(string name, string shortenName)
+        {
+            Name = name;
+            ShortenName = shortenName;
+        }
+
+        public RetrieveCategoryDto ConvertEntityToRetrieveDto(ModuleCategory c)
+        {
+            return new RetrieveCategoryDto
+            {
+                Name = c.Name,
+                ShortenName = c.ShortenName
+            };
+        }
+
+        public static ModuleCategory ConvertCreateDtoToEntity(CreateCategoryDto c)
+        {
+            return new ModuleCategory(c.Name, c.ShortenName);
+        }
+    }
+
     public class Module : Entity<long>
     {
         // Entity Properties
-
         public string Name { get; set; } = string.Empty;
         public float Hours { get; set; }
         public bool IsActive { get; set; }
@@ -19,7 +47,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         // Navigation Properties
         public List<Course> Courses { get; set; } = [];
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
-
+        public List<ModuleCategory> Categories { get; set; } = [];
 
         // Constructors
         public Module() { }
@@ -40,6 +68,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         }
 
         // Convert Methods
+        public string AllDifferentCategories => String.Join(", ", Categories);
         public static RetrieveModuleDto ConvertEntityToRetrieveDto(Module module)
         {
             return new RetrieveModuleDto
@@ -48,7 +77,8 @@ namespace NERBABO.ApiService.Core.Modules.Models
                 Name = module.Name,
                 Hours = module.Hours,
                 IsActive = module.IsActive,
-                CoursesQnt = module.CoursesQnt
+                CoursesQnt = module.CoursesQnt,
+                AllDifferentCategories = module.AllDifferentCategories
             };
         }
 

@@ -7,5 +7,6 @@
         public float Hours { get; set; }
         public bool IsActive { get; set; }
         public int CoursesQnt { get; set; }
+        public string AllDifferentCategories { get; set; } = "";
     }
 }

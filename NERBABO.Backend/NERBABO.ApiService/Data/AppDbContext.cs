@@ -30,6 +30,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Company> Companies { get; set; }
     public DbSet<Student> Students { get; set; }
     public DbSet<Module> Modules { get; set; }
+    public DbSet<ModuleCategory> ModuleCategories { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<CourseAction> Actions { get; set; }
     public DbSet<ModuleTeaching> ModuleTeachings { get; set; }
@@ -61,6 +62,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.ApplyConfiguration(new CompanyConfiguration());
         builder.ApplyConfiguration(new StudentConfiguration());
         builder.ApplyConfiguration(new ModuleConfiguration());
+        builder.ApplyConfiguration(new ModuleCategoryConfiguration());
         builder.ApplyConfiguration(new CourseConfiguration());
         builder.ApplyConfiguration(new CourseActionConfiguration());
         builder.ApplyConfiguration(new TeacherModuleActionConfiguration());
