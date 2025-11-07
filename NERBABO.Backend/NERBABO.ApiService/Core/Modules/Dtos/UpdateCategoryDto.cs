@@ -14,7 +14,7 @@ public struct UpdateCategoryDto
     public required string Name { get; set; }
     
     [Required(ErrorMessage = "Abreviatura da Categoria de Módulo é um campo obrigatório.")]
-    [ValidateLengthIfNotEmpty(155, MinimumLength = 3,
+    [ValidateLengthIfNotEmpty(15, MinimumLength = 1,
         ErrorMessage = "O Abreviatura da Categoria de Módulo deve conter pelo menos {2} caracteres e um máximo de {1} caracteres")]
     public required string ShortenName { get; set; }
 }

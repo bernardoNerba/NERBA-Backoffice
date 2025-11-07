@@ -23,6 +23,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         {
             return new RetrieveCategoryDto
             {
+                Id = c.Id,
                 Name = c.Name,
                 ShortenName = c.ShortenName
             };

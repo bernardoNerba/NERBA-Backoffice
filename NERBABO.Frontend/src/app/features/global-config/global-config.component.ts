@@ -16,6 +16,7 @@ import { SharedService } from '../../core/services/shared.service';
 import { ConfigService } from '../../core/services/config.service';
 import { OkResponse } from '../../core/models/okResponse';
 import { IndexTaxesComponent } from './taxes/index-taxes/index-taxes.component';
+import { IndexModuleCategoriesComponent } from './module-categories/index-module-categories/index-module-categories.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
@@ -32,6 +33,7 @@ import {
     ErrorCardComponent,
     SpinnerComponent,
     IndexTaxesComponent,
+    IndexModuleCategoriesComponent,
     InputTextModule,
     InputNumberModule,
     SelectModule,

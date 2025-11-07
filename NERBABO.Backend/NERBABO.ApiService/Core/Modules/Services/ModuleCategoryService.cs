@@ -111,10 +111,12 @@ public class ModuleCategoryService(
                 .Fail("Não encontrado.", $"Categoria de Módulo com id {entityDto.Id} não encontrada.");
         }
 
+        var categoryToCompare = new ModuleCategory(entityDto.Name, entityDto.ShortenName);
+
         // unique constraint check
-        if (await _context.ModuleCategories
-                .AnyAsync(mc => mc.Equals(entityDto) 
-                    && mc.Id != entityDto.Id))
+        if (await _context.ModuleCategories.AnyAsync(mc => mc.Equals(categoryToCompare)
+                && mc.Id != entityDto.Id
+                ))
         {
             _logger.LogWarning("Invalid category type when updating ModuleCategory with id {Id}", entityDto.Id);
             return Result<RetrieveCategoryDto>
@@ -152,8 +154,10 @@ public class ModuleCategoryService(
         existingCategory.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         
+        RetrieveCategoryDto retrieveCategory = ModuleCategory.ConvertEntityToRetrieveDto(existingCategory);
+        
         return Result<RetrieveCategoryDto>
-                .Ok(ModuleCategory.ConvertEntityToRetrieveDto(existingCategory),
+                .Ok(retrieveCategory,
                 "Módulo Atualizada.",
                 $"Foi atualizado a categoria de módulo com o nome {existingCategory.Name}.");
     }

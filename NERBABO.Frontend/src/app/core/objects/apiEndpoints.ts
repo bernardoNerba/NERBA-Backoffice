@@ -71,6 +71,12 @@ export const API_ENDPOINTS = {
   update_tax: `${BASE_URL}/api/tax/update/`,
   delete_tax: `${BASE_URL}/api/tax/delete/`,
 
+  // Module Category endpoints
+  get_module_categories: `${BASE_URL}/api/modulecategory/`,
+  create_module_category: `${BASE_URL}/api/modulecategory/`,
+  update_module_category: `${BASE_URL}/api/modulecategory/`,
+  delete_module_category: `${BASE_URL}/api/modulecategory/`,
+
   // Companies endpoints
   companies: `${BASE_URL}/api/companies/`,
 
