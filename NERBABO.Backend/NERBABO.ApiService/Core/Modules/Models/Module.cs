@@ -46,8 +46,8 @@ namespace NERBABO.ApiService.Core.Modules.Models
                 return false;
             }
 
-            return this.Name.Equals(item.Name)
-                && this.ShortenName.Equals(item.ShortenName);
+            return this.Name.Equals(item.Name.ToLower(), StringComparison.InvariantCultureIgnoreCase)
+                && this.ShortenName.Equals(item.ShortenName.ToLower(), StringComparison.InvariantCultureIgnoreCase);
         }
         
         public override int GetHashCode()
