@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
-import { Module, ModuleTeacher } from '../models/module';
+import { Module, ModuleTeacher, RetrievedModule } from '../models/module';
 import { HttpClient } from '@angular/common/http';
 import { SharedService } from './shared.service';
 import { API_ENDPOINTS } from '../objects/apiEndpoints';
@@ -59,8 +59,8 @@ export class ModulesService {
       .pipe(tap(() => this.notifyModuleUpdate(id))); // Notify update after success
   }
 
-  getSingleModule(id: number): Observable<Module> {
-    return this.http.get<Module>(`${API_ENDPOINTS.modules}${id}`);
+  getSingleModule(id: number): Observable<RetrievedModule> {
+    return this.http.get<RetrievedModule>(`${API_ENDPOINTS.modules}${id}`);
   }
 
   getActiveModules(): Observable<Module[]> {

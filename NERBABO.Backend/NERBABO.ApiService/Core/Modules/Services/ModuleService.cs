@@ -165,6 +165,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
         public async Task<Result<RetrieveModuleDto>> UpdateAsync(UpdateModuleDto entityDto)
         {
             var existingModule = await _context.Modules
+                .Include(m => m.Categories)
                 .Include(m => m.Courses)
                 .FirstOrDefaultAsync(m => m.Id == entityDto.Id);
             if (existingModule is null)
