@@ -40,31 +40,33 @@
             }
           </div>
         </div>
-        <div class="col-sm-12">
-          <div class="mb-3">
-            <label for="categories"
-              >Áreas
-              <span class="text-danger">*</span>
-            </label>
-            <p-multiselect
-              [options]="categories" 
-              formControlName="categories"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Selecione as áreas..."
-              [maxSelectedLabels]="3"
-              [class.is-invalid]="submitted && form.get('categories')?.errors"
-              class="w-100 {{
-                submitted && form.get('categories')?.errors
-                  ? 'ng-invalid ng-dirty'
-                  : ''
-              }}"/>
-
-            @if (submitted && form.get('name')?.hasError("required")) {
-            <span class="text-danger"> Área é um campo obrigatório. </span>
-            }
+        @if (!isUpdate) {
+          <div class="col-sm-12">
+            <div class="mb-3">
+              <label for="categories"
+                >Áreas
+                <span class="text-danger">*</span>
+              </label>
+              <p-multiselect
+                [options]="categories" 
+                formControlName="categories"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Selecione as áreas..."
+                [maxSelectedLabels]="3"
+                [class.is-invalid]="submitted && form.get('categories')?.errors"
+                class="w-100 {{
+                  submitted && form.get('categories')?.errors
+                    ? 'ng-invalid ng-dirty'
+                    : ''
+                }}"/>
+  
+              @if (submitted && form.get('name')?.hasError("required")) {
+              <span class="text-danger"> Área é um campo obrigatório. </span>
+              }
+            </div>
           </div>
-        </div>
+        }
         <!-- Module Total Hours -->
         <div class="col-sm-12">
           <div class="mb-3">

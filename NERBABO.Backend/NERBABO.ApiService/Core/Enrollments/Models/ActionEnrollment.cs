@@ -93,4 +93,9 @@ public class ActionEnrollment : Entity<long>
             IsPayed = ae.IsPayed
         };
     }
+
+    public static bool CheckIfStudentMeetsHabilitation(Student student, CourseAction action)
+    {
+        return student.Person.Habilitation > action.Course.MinHabilitationLevel;
+    }
 }

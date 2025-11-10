@@ -1,4 +1,5 @@
 ﻿using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -41,7 +42,6 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
             ScheduledSessionsTime == Module.Hours;
 
         public bool IsPayed => PaymentDate != null;
-
 
         public double CalculatedTotal(double hourRate)
         {
@@ -111,6 +111,11 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
                 PaymentDate = mt.PaymentDate?.ToString("yyyy-MM-dd") ?? "",
                 IsPayed = mt.IsPayed
             };
+        }
+
+        public static bool CheckIfTeacherMeetsHabilitation(Teacher teacher, CourseAction action)
+        {
+            return teacher.Person.Habilitation > action.Course.MinHabilitationLevel;
         }
     }
 }

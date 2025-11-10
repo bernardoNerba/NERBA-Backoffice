@@ -10,7 +10,6 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using OpenTelemetry.Trace;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Courses.Services
@@ -78,7 +77,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Total duration exceeded for course ID: {CourseId}", courseId);
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
+                        .Fail("Erro de Validação.", $"Duração total excedida. Total {currentDuration + m.Hours} horas excedeu o limite de horas do curso: {existingCourse.TotalDuration} horas.");
                 }
                 
                 if (!modules.Contains(m))
@@ -311,7 +310,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Total duration exceeded for course total duration");
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
+                        .Fail("Erro de Validação.", $"Duração total excedida. Total {currentDuration + m.Hours} horas excedeu o limite de horas do curso: {entityDto.TotalDuration} horas.");
                 }
 
                 modules.Add(m);
@@ -718,7 +717,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Total duration exceeded for course total duration");
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
+                        .Fail("Erro de Validação.", $"Duração total excedida. Total {currentDuration + m.Hours} horas excedeu o limite de horas do curso: {entityDto.TotalDuration} horas.");
                 }
 
                 modules.Add(m);

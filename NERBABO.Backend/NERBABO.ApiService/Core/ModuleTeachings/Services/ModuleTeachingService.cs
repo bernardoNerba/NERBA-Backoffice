@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Actions.Models;
-using NERBABO.ApiService.Core.Authentication.Services;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Dtos;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
@@ -47,6 +46,7 @@ public class ModuleTeachingService(
 
         // Check if Teacher exists
         var existingTeacher = await _context.Teachers
+            .Include(t => t.Person)
             .FirstOrDefaultAsync(t => t.Id == entityDto.TeacherId);
         if (existingTeacher is null)
         {
@@ -63,6 +63,15 @@ public class ModuleTeachingService(
             return Result<RetrieveModuleTeachingDto>
                 .Fail("Erro de Validação.",
                 "Nesta Ação não é lecionado o Módulo especificado. Adicione o Módulo ao Curso e tente novamente.");
+        }
+
+        // Check if Teacher meets the minimum Habilitation level for the Action
+        if (!ModuleTeaching.CheckIfTeacherMeetsHabilitation(existingTeacher, existingAction))
+        {
+            _logger.LogWarning("Teacher with ID {TeacherId} does not meet the minimum habilitation level for Action {ActionId}.", entityDto.TeacherId, entityDto.ActionId);
+            return Result<RetrieveModuleTeachingDto>
+                .Fail("Erro de Validação.",
+                "O Formador não possui o nível de habilitação mínimo exigido para lecionar este Curso.");
         }
 
         // Check if the Action Module already has a Teacher associated with it
@@ -243,6 +252,20 @@ public class ModuleTeachingService(
             return Result<RetrieveModuleTeachingDto>
                 .Fail("Nenhuma alteração detetada.", "Não foi alterado nenhum dado. Modifique os dados e tente novamente.",
                 StatusCodes.Status400BadRequest);
+        }
+        else
+        {
+            if (newTeacher is not null && newAction is not null)
+            {
+                // Check if Teacher meets the minimum Habilitation level for the Action
+                if (!ModuleTeaching.CheckIfTeacherMeetsHabilitation(newTeacher, newAction))
+                {
+                    _logger.LogWarning("Teacher with ID {TeacherId} does not meet the minimum habilitation level for Action {ActionId}.", entityDto.TeacherId, entityDto.ActionId);
+                    return Result<RetrieveModuleTeachingDto>
+                        .Fail("Erro de Validação.",
+                        "O Formador não possui o nível de habilitação mínimo exigido para lecionar este Curso.");
+                }
+            }
         }
 
         // Use new entities if changed, otherwise keep existing ones
