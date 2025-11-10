@@ -26,6 +26,24 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
         public async Task<Result<RetrieveModuleDto>> CreateAsync(CreateModuleDto entityDto)
         {
+            if (entityDto.Categories.Count == 0)
+            {
+                _logger.LogWarning("No Module Categories provided for the new Module.");
+                return Result<RetrieveModuleDto>
+                    .Fail("Erro de Validação.", "Deve ser fornecida pelo menos uma categoria de módulo.");
+            }
+            
+            // Check all Categories exist
+            var existingCategories = await _context.ModuleCategories
+                .Where(mc => entityDto.Categories.Contains(mc.Id))
+                .ToListAsync();
+            if (existingCategories.Count != entityDto.Categories.Count)
+            {
+                _logger.LogWarning("One or more Module Categories not found for the provided IDs.");
+                return Result<RetrieveModuleDto>
+                    .Fail("Erro de Validação.", "Uma ou mais categorias de módulo não foram encontradas.");
+            }
+
             // Unique constrains check (name + hours combination)
             if (await _context.Modules.AnyAsync(m =>
                 m.Name.ToLower().Equals(entityDto.Name.ToLower()) && m.Hours == entityDto.Hours))
@@ -35,7 +53,11 @@ namespace NERBABO.ApiService.Core.Modules.Services
                     .Fail("Erro de Validação.", "A combinação de nome e horas do módulo deve ser única. Já existe no sistema.");
             }
 
-            var createdModule = _context.Modules.Add(Module.ConvertCreateDtoToEntity(entityDto));
+            var module = Module.ConvertCreateDtoToEntity(entityDto);
+            // Associa as categorias ao módulo
+            module.Categories = existingCategories;
+
+            var createdModule = _context.Modules.Add(module);
             await _context.SaveChangesAsync();
 
             var moduleToRetrieve = Module.ConvertEntityToRetrieveDto(createdModule.Entity);
@@ -60,6 +82,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // If not in cache, retrieve from database
             var existingModules = await _context.Modules
+                .Include(m => m.Categories)
                 .Where(m => m.IsActive)
                 .OrderByDescending(m => m.UpdatedAt)
                 .ThenBy(m => m.Name)
@@ -92,6 +115,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // If not in cache, retrieve from database
             var existingModules = await _context.Modules
+                .Include(m => m.Categories)
                 .OrderByDescending(m => m.UpdatedAt)
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .ToListAsync();
@@ -122,6 +146,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // If not in cache, retrieve from database
             var existingModule = await _context.Modules
+                .Include(m => m.Categories)
                 .Where(m => m.Id == id)
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .FirstOrDefaultAsync();

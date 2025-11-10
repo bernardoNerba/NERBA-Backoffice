@@ -1,4 +1,5 @@
-﻿using NERBABO.ApiService.Core.Courses.Models;
+﻿using System.Reflection;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Modules.Dtos;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Shared.Models;
@@ -91,7 +92,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         }
 
         // Convert Methods
-        public string AllDifferentCategories => String.Join(", ", Categories);
+        public string AllDifferentCategories => String.Join(", ", Categories.Select(c => c.ShortenName).Distinct());
         public static RetrieveModuleDto ConvertEntityToRetrieveDto(Module module)
         {
             return new RetrieveModuleDto
@@ -101,6 +102,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
                 Hours = module.Hours,
                 IsActive = module.IsActive,
                 CoursesQnt = module.CoursesQnt,
+                Categories = [..module.Categories.Select(c => c.Id)],
                 AllDifferentCategories = module.AllDifferentCategories
             };
         }

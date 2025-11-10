@@ -13,5 +13,8 @@ namespace NERBABO.ApiService.Core.Modules.Dtos
 
         [ValidateHours(0, 1000, true)]
         public float Hours { get; set; }
+
+        [Required(ErrorMessage = "Categorias são um campo obrigatório.")]
+        public List<long> Categories { get; set; } = [];
     }
 }

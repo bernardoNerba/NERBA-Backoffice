@@ -17,5 +17,8 @@ namespace NERBABO.ApiService.Core.Modules.Dtos
 
         [Required(ErrorMessage = "Ativo é um campo obrigatório.")]
         public bool IsActive { get; set; }
+
+        [Required(ErrorMessage = "Categorias são um campo obrigatório.")]
+        public List<long> Categories { get; set; } = [];
     }
 }
