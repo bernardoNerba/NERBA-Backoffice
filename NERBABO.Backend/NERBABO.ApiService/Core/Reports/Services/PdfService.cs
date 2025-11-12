@@ -271,7 +271,7 @@ public class PdfService : IPdfService
             // Fetch action data with related entities
             var action = await _context.Actions
                 .Include(a => a.Course).ThenInclude(c => c.Frame)
-                .Include(a => a.Course).ThenInclude(c => c.Modules)
+                .Include(a => a.Course).ThenInclude(c => c.Modules).ThenInclude(m => m.Categories)
                 .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
                 .Include(a => a.Coordenator).ThenInclude(c => c.Person)
                 .FirstOrDefaultAsync(a => a.Id == actionId);

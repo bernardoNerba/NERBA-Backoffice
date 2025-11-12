@@ -34,6 +34,9 @@ namespace NERBABO.ApiService.Core.Courses.Models
 
         public List<string> FormattedModuleNames =>
             [.. Modules.Select(m => $"{m.Name} ({m.Hours} horas)")];
+        
+        public string FormattedModuleNamesJoined =>
+            String.Join(", ", FormattedModuleNames);
 
         public int ActionsQnt => Actions.Count;
         public int ModulesQnt => Modules.Count;
