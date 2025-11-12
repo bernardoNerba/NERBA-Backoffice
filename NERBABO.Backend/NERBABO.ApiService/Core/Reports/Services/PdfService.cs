@@ -17,10 +17,13 @@ public class PdfService : IPdfService
     private readonly CoverActionReportComposer _coverComposer;
     private readonly TeacherFormComposer _teacherFormComposer;
     private readonly CourseActionInformationReportComposer _courseActionInformationReportComposer;
+    private readonly CourseActionProcessStudentPaymentsComposer _courseActionProcessStudentPaymentsComposer;
     private readonly string _pdfStoragePath;
 
 
-    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment, SessionsTimelineComposer timelineComposer, CoverActionReportComposer coverComposer, TeacherFormComposer teacherFormComposer, CourseActionInformationReportComposer courseActionInformationReportComposer)
+    public PdfService(AppDbContext context, ILogger<PdfService> logger, IWebHostEnvironment environment,
+        SessionsTimelineComposer timelineComposer, CoverActionReportComposer coverComposer, TeacherFormComposer teacherFormComposer,
+        CourseActionInformationReportComposer courseActionInformationReportComposer, CourseActionProcessStudentPaymentsComposer courseActionProcessStudentPaymentsComposer)
     {
         _context = context;
         _logger = logger;
@@ -29,6 +32,7 @@ public class PdfService : IPdfService
         _coverComposer = coverComposer;
         _teacherFormComposer = teacherFormComposer;
         _courseActionInformationReportComposer = courseActionInformationReportComposer;
+        _courseActionProcessStudentPaymentsComposer = courseActionProcessStudentPaymentsComposer;
 
         // Configure storage path
         _pdfStoragePath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "storage", "pdfs");
@@ -257,6 +261,52 @@ public class PdfService : IPdfService
             _logger.LogError(ex, "Error generating course action information report for action {ActionId}", actionId);
             return Result<byte[]>
                 .Fail("Erro interno.", "Ocorreu um erro ao gerar o relatório de informação da ação.", StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    public async Task<Result<byte[]>> GenerateCourseActionProcessStudentPaymentsAsync(long actionId, string userId)
+    {
+        try
+        {
+            // Fetch action data with related entities
+            var action = await _context.Actions
+                .Include(a => a.Course).ThenInclude(c => c.Frame)
+                .Include(a => a.Course).ThenInclude(c => c.Modules)
+                .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
+                .Include(a => a.Coordenator).ThenInclude(c => c.Person)
+                .FirstOrDefaultAsync(a => a.Id == actionId);
+
+            if (action is null)
+            {
+                _logger.LogWarning("Action not found for id {ActionId}", actionId);
+                return Result<byte[]>
+                    .Fail("Não encontrado.", "Ação não encontrada.", StatusCodes.Status404NotFound);
+            }
+
+            var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
+                ?? throw new Exception("Failed to obtain general information.");
+            
+            var document = _courseActionProcessStudentPaymentsComposer.Compose(action, infos);
+            var pdfBytes = document.GeneratePdf();
+
+            // Save the new PDF
+            var saveResult = await SavePdfAsync(PdfTypes.CourseActionProcessStudentPaymentsReport, actionId, pdfBytes, userId);
+            if (!saveResult.Success)
+            {
+                _logger.LogError("Failed to save course action information report PDF for action {ActionId}", actionId);
+                return Result<byte[]>
+                    .Fail("Erro interno.", "Falha ao guardar o relatório de Processamento de Pagamentos dos Formandos da ação PDF.", StatusCodes.Status500InternalServerError);
+            }
+
+            _logger.LogInformation("Generated and saved course action information report for action {ActionId}", actionId);
+            return Result<byte[]>
+                .Ok(pdfBytes, "Relatório criado.", $"Relatório de Processamento de Pagamentos dos Formandos da ação criado com sucesso para a ação {actionId}.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating course action process student payments report for action {ActionId}", actionId);
+            return Result<byte[]>
+                .Fail("Erro interno.", "Ocorreu um erro ao gerar o relatório de processamento de pagamentos dos formandos.", StatusCodes.Status500InternalServerError);
         }
     }
 

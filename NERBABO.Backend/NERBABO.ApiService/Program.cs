@@ -98,6 +98,7 @@ builder.Services.AddScoped<SessionsTimelineComposer>();
 builder.Services.AddScoped<CoverActionReportComposer>();
 builder.Services.AddScoped<TeacherFormComposer>();
 builder.Services.AddScoped<CourseActionInformationReportComposer>();
+builder.Services.AddScoped<CourseActionProcessStudentPaymentsComposer>();
 
 // Register HTTP context accessor for URL generation
 builder.Services.AddHttpContextAccessor();
