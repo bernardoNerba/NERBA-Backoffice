@@ -82,7 +82,7 @@ public class ActionEnrollmentService(
                 .Fail("Erro de Validação.", "Faltam agendar sessões na ação.");
         }
 
-        if (!ActionEnrollment.CheckIfStudentMeetsHabilitation(existingStudent, existingAction))
+        if (!existingStudent.Person.MeetsHabilitation(existingAction.Course.MinHabilitationLevel))
         {
             _logger.LogWarning("Student with ID {StudentId} does not meet the minimum habilitation level for Action {ActionId}.", entityDto.StudentId, entityDto.ActionId);
             return Result<RetrieveActionEnrollmentDto>

@@ -66,7 +66,7 @@ public class ModuleTeachingService(
         }
 
         // Check if Teacher meets the minimum Habilitation level for the Action
-        if (!ModuleTeaching.CheckIfTeacherMeetsHabilitation(existingTeacher, existingAction))
+        if (!existingTeacher.Person.MeetsMinHabilitation(existingAction.Course.MinHabilitationLevel))
         {
             _logger.LogWarning("Teacher with ID {TeacherId} does not meet the minimum habilitation level for Action {ActionId}.", entityDto.TeacherId, entityDto.ActionId);
             return Result<RetrieveModuleTeachingDto>
@@ -258,7 +258,7 @@ public class ModuleTeachingService(
             if (newTeacher is not null && newAction is not null)
             {
                 // Check if Teacher meets the minimum Habilitation level for the Action
-                if (!ModuleTeaching.CheckIfTeacherMeetsHabilitation(newTeacher, newAction))
+                if (!newTeacher.Person.MeetsMinHabilitation(newAction.Course.MinHabilitationLevel))
                 {
                     _logger.LogWarning("Teacher with ID {TeacherId} does not meet the minimum habilitation level for Action {ActionId}.", entityDto.TeacherId, entityDto.ActionId);
                     return Result<RetrieveModuleTeachingDto>

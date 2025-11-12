@@ -112,10 +112,5 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
                 IsPayed = mt.IsPayed
             };
         }
-
-        public static bool CheckIfTeacherMeetsHabilitation(Teacher teacher, CourseAction action)
-        {
-            return teacher.Person.Habilitation > action.Course.MinHabilitationLevel;
-        }
     }
 }
