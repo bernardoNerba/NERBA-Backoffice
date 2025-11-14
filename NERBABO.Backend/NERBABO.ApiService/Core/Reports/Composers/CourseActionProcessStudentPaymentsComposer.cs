@@ -1,4 +1,3 @@
-using System.Numerics;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Shared.Enums;
@@ -207,75 +206,123 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
                     
                 });
 
-            foreach (var enrollment in action.ActionEnrollments)
-            {
-                var hoursByCategory = new Dictionary<string, float>();
-    
-                foreach (var participation in enrollment.Participations.Where(p => p.Presence == PresenceEnum.Present))
+                // Variáveis para calcular os totais gerais
+                var totalCategoryHours = categories.ToDictionary(c => c, c => 0f);
+                var grandTotalHours = 0f;
+                var grandTotalDays = 0;
+                var grandTotalPayment = 0f;
+
+                foreach (var enrollment in action.ActionEnrollments)
                 {
-                    var module = participation.Session?.ModuleTeaching?.Module;
-                    if (module != null)
+                    var hoursByCategory = new Dictionary<string, float>();
+        
+                    foreach (var participation in enrollment.Participations.Where(p => p.Presence == PresenceEnum.Present))
                     {
-                        foreach (var category in module.Categories)
+                        var module = participation.Session?.ModuleTeaching?.Module;
+                        if (module != null)
                         {
-                            var categoryName = category.ShortenName;
-                            var hours = (float)participation.Attendance;
-                            
-                            if (hoursByCategory.ContainsKey(categoryName))
+                            foreach (var category in module.Categories)
                             {
-                                hoursByCategory[categoryName] += hours;
-                            }
-                            else
-                            {
-                                hoursByCategory[categoryName] = hours;
+                                var categoryName = category.ShortenName;
+                                var hours = (float)participation.Attendance;
+                                
+                                if (hoursByCategory.ContainsKey(categoryName))
+                                {
+                                    hoursByCategory[categoryName] += hours;
+                                }
+                                else
+                                {
+                                    hoursByCategory[categoryName] = hours;
+                                }
                             }
                         }
                     }
-                }
 
-                var totalHours = enrollment.Participations
-                    .Where(p => p.Presence == PresenceEnum.Present)
-                    .Sum(p => p.Attendance);
-                
-                var totalDays = enrollment.Participations
-                    .Count(p => p.Presence == PresenceEnum.Present);
-                
-                var totalPayment = enrollment.CalculatedTotal(infos.HourValueAlimentation);
+                    var totalHours = (float)enrollment.Participations
+                        .Where(p => p.Presence == PresenceEnum.Present)
+                        .Sum(p => p.Attendance);
+                    
+                    var totalDays = enrollment.Participations
+                        .Count(p => p.Presence == PresenceEnum.Present);
+                    
+                    var totalPayment = enrollment.CalculatedTotal(infos.HourValueAlimentation);
 
-                // Nome + IBAN
-                table.Cell().Element(CellStyle)
-                    .AlignMiddle()
-                    .Text($"{enrollment.Student.Person.FullName}\n{enrollment.Student.Person.IBAN}")
-                    .FontSize(8);
+                    // Atualiza os totais gerais
+                    foreach (var category in categories)
+                    {
+                        var hours = hoursByCategory.GetValueOrDefault(category, 0);
+                        totalCategoryHours[category] += hours;
+                    }
+                    grandTotalHours += totalHours;
+                    grandTotalDays += totalDays;
+                    grandTotalPayment += (float)Math.Round(totalPayment, 2);
 
-                // Horas por categoria
-                foreach (var category in categories)
-                {
-                    var hours = hoursByCategory.GetValueOrDefault(category, 0);
+                    // Nome + IBAN
                     table.Cell().Element(CellStyle)
-                        .AlignCenter().AlignMiddle().Text($"{hours:0.00}")
+                        .AlignMiddle()
+                        .Text($"{enrollment.Student.Person.FullName}\n{enrollment.Student.Person.IBAN}")
+                        .FontSize(8);
+
+                    // Horas por categoria
+                    foreach (var category in categories)
+                    {
+                        var hours = hoursByCategory.GetValueOrDefault(category, 0);
+                        table.Cell().Element(CellStyle)
+                            .AlignCenter().AlignMiddle().Text($"{hours:0.00}")
+                            .FontSize(8);
+                    }
+
+                    // Total horas
+                    table.Cell().Element(CellStyle)
+                        .AlignCenter().AlignMiddle().Text($"{totalHours:0.00}")
+                        .FontSize(8);
+
+                    // Nº dias
+                    table.Cell().Element(CellStyle)
+                        .AlignCenter().AlignMiddle().Text($"{totalDays}")
+                        .FontSize(8);
+
+                    // Total pagamento
+                    table.Cell().Element(CellStyle)
+                        .AlignCenter().AlignMiddle().Text($"{totalPayment:0.00}")
                         .FontSize(8);
                 }
 
-                // Total horas
-                table.Cell().Element(CellStyle)
-                    .AlignCenter().AlignMiddle().Text($"{totalHours:0.00}")
-                    .FontSize(8);
+                // Linha de totais gerais
+                table.Cell().ColumnSpan(1).Element(TotalCellStyle)
+                    .AlignCenter().AlignMiddle().Text("Total")
+                    .FontSize(8).Bold();
 
-                // Nº dias
-                table.Cell().Element(CellStyle)
-                    .AlignCenter().AlignMiddle().Text($"{totalDays}")
-                    .FontSize(8);
+                // Totais por categoria
+                foreach (var category in categories)
+                {
+                    table.Cell().Element(TotalCellStyle)
+                        .AlignCenter().AlignMiddle().Text($"{totalCategoryHours[category]:0.00}")
+                        .FontSize(8).Bold();
+                }
 
-                // Total pagamento
-                table.Cell().Element(CellStyle)
-                    .AlignCenter().AlignMiddle().Text($"{totalPayment:0.00}")
-                    .FontSize(8);
-            }
+                // Total geral de horas
+                table.Cell().Element(TotalCellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{grandTotalHours:0.00}")
+                    .FontSize(8).Bold();
+
+                // Total geral de dias
+                table.Cell().Element(TotalCellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{grandTotalDays}")
+                    .FontSize(8).Bold();
+
+                // Total geral de pagamento
+                table.Cell().Element(TotalCellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{grandTotalPayment:0.00}")
+                    .FontSize(8).Bold();
             });
             
             static IContainer CellStyle(IContainer container) =>
-                            container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
+                container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
+                
+            static IContainer TotalCellStyle(IContainer container) =>
+                container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                    .Background(Colors.Grey.Lighten3);
         });
     }
 
