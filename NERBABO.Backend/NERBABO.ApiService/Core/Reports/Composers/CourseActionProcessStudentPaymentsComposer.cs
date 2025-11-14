@@ -97,7 +97,7 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
         });
     }
 
-    private void ComposeContent(IContainer container, CourseAction action, GeneralInfo infos)
+    private static void ComposeContent(IContainer container, CourseAction action, GeneralInfo infos)
     {
         container.Column(column =>
         {
@@ -190,7 +190,7 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
                         .FontSize(8).SemiBold();
                     
                     header.Cell().RowSpan(2).Element(CellStyle)
-                        .AlignCenter().AlignMiddle().Text("Total Pagamento")
+                        .AlignCenter().AlignMiddle().Text("Total liq.")
                         .FontSize(8).SemiBold();
 
                     // Segunda linha do header (sub-headers)
@@ -207,46 +207,71 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
                     
                 });
 
-                // Dados dos alunos
-                foreach (var instance in action.ActionEnrollments
-                    .Select(ae => new 
-                        {
-                            Student = ae.Student,
-                            IBAN = ae.Student.Person.IBAN,
-                            TotalHours = ae.Participations
-                                .Where(p => p.Presence == PresenceEnum.Present)
-                                .Sum(p => p.Attendance),
-                            TotalPayment = ae.CalculatedTotal(infos.HourValueAlimentation),
-                            TotalDays = ae.Participations
-                                .Count(p => p.Presence == PresenceEnum.Present),
-                        }))
+            foreach (var enrollment in action.ActionEnrollments)
+            {
+                var hoursByCategory = new Dictionary<string, float>();
+    
+                foreach (var participation in enrollment.Participations.Where(p => p.Presence == PresenceEnum.Present))
                 {
-                    table.Cell().Element(CellStyle)
-                        .AlignMiddle()
-                        .Text($"{instance.Student.Person.FullName}\n{instance.IBAN}")
-                        .FontSize(8);
-
-                    foreach (var category in categories)
+                    var module = participation.Session?.ModuleTeaching?.Module;
+                    if (module != null)
                     {
-                        var hours = 0;
-                        table.Cell().Element(CellStyle)
-                            .AlignCenter().AlignMiddle().Text($"{hours:0.00}")
-                            .FontSize(8);
+                        foreach (var category in module.Categories)
+                        {
+                            var categoryName = category.ShortenName;
+                            var hours = (float)participation.Attendance;
+                            
+                            if (hoursByCategory.ContainsKey(categoryName))
+                            {
+                                hoursByCategory[categoryName] += hours;
+                            }
+                            else
+                            {
+                                hoursByCategory[categoryName] = hours;
+                            }
+                        }
                     }
+                }
 
-                    table.Cell().Element(CellStyle)
-                        .AlignCenter().AlignMiddle().Text($"{instance.TotalHours:0.00}")
-                        .FontSize(8);
+                var totalHours = enrollment.Participations
+                    .Where(p => p.Presence == PresenceEnum.Present)
+                    .Sum(p => p.Attendance);
+                
+                var totalDays = enrollment.Participations
+                    .Count(p => p.Presence == PresenceEnum.Present);
+                
+                var totalPayment = enrollment.CalculatedTotal(infos.HourValueAlimentation);
 
+                // Nome + IBAN
+                table.Cell().Element(CellStyle)
+                    .AlignMiddle()
+                    .Text($"{enrollment.Student.Person.FullName}\n{enrollment.Student.Person.IBAN}")
+                    .FontSize(8);
+
+                // Horas por categoria
+                foreach (var category in categories)
+                {
+                    var hours = hoursByCategory.GetValueOrDefault(category, 0);
                     table.Cell().Element(CellStyle)
-                        .AlignCenter().AlignMiddle().Text($"{instance.TotalDays}")  
-                        .FontSize(8);
-                    
-                    table.Cell().Element(CellStyle)
-                        .AlignCenter().AlignMiddle().Text($"{instance.TotalPayment:0.00}")  
+                        .AlignCenter().AlignMiddle().Text($"{hours:0.00}")
                         .FontSize(8);
                 }
-                
+
+                // Total horas
+                table.Cell().Element(CellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{totalHours:0.00}")
+                    .FontSize(8);
+
+                // Nº dias
+                table.Cell().Element(CellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{totalDays}")
+                    .FontSize(8);
+
+                // Total pagamento
+                table.Cell().Element(CellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{totalPayment:0.00}")
+                    .FontSize(8);
+            }
             });
             
             static IContainer CellStyle(IContainer container) =>
@@ -254,7 +279,7 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
         });
     }
 
-    private void ComposeFooter(IContainer container, CourseAction action, GeneralInfo infos)
+    private static void ComposeFooter(IContainer container, CourseAction action, GeneralInfo infos)
     {
         container.Column(column =>
         {
