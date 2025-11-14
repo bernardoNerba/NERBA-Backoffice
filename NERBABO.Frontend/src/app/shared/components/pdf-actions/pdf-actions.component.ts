@@ -4,8 +4,8 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
 import { PdfService } from '../../../core/services/pdf.service';
-import { MessageService } from 'primeng/api';
 import { finalize } from 'rxjs';
+import { SharedService } from '../../../core/services/shared.service';
 
 interface PdfOption {
   label: string;
@@ -79,7 +79,7 @@ export class PdfActionsComponent {
   @Input() sessionId?: number;
   @Input() teacherId?: number;
   @Input() title?: string;
-  @Input() reportType: 'sessions' | 'cover' | 'teacher-form' | 'course-action-information-report' = 'sessions';
+  @Input() reportType: 'sessions' | 'cover' | 'teacher-form' | 'course-action-information-report' | 'course-action-student-payments-report' = 'sessions';
 
   isGeneratingReport = false;
   isGeneratingDetail = false;
@@ -87,7 +87,7 @@ export class PdfActionsComponent {
 
   constructor(
     private pdfService: PdfService,
-    private messageService: MessageService
+    private sharedService: SharedService
   ) {}
 
   get isGenerating(): boolean {
@@ -108,6 +108,8 @@ export class PdfActionsComponent {
       return this.pdfService.generateTeacherForm(this.actionId, this.teacherId);
     } else if (this.reportType === 'course-action-information-report') {
       return this.pdfService.generateCourseActionInformationReport(this.actionId);
+    } else if (this.reportType === 'course-action-student-payments-report') {
+      return this.pdfService.generateProcessStudentPaymentsReport(this.actionId);
     } else {
       return this.pdfService.generateSessionsReport(this.actionId);
     }
@@ -120,6 +122,8 @@ export class PdfActionsComponent {
       return 'ficha-formador';
     } else if (this.reportType === 'course-action-information-report') {
       return 'informacao-acao';
+    } else if (this.reportType === 'course-action-student-payments-report'){
+      return 'pagamento-formandos';
     } else {
       return 'relatorio-sessoes-acao';
     }
@@ -133,6 +137,8 @@ export class PdfActionsComponent {
       reportName = 'Ficha de formador';
     } else if (this.reportType === 'course-action-information-report') {
       reportName = 'Informação da ação';
+    } else if (this.reportType === 'course-action-student-payments-report') {
+      reportName = 'Pagamentos Formandos';
     }
 
     const actionMessages: { [key: string]: string } = {
@@ -158,11 +164,11 @@ export class PdfActionsComponent {
             this.actionId
           }-${this.getCurrentDate()}.pdf`;
           this.pdfService.downloadPdf(blob, filename);
-          this.showSuccess(this.getSuccessMessage('generate'));
+          this.sharedService.showSuccess(this.getSuccessMessage('generate'));
         },
         error: (error) => {
           console.error('Error generating report:', error);
-          this.showError('Erro ao gerar relatório');
+          this.sharedService.showError('Erro ao gerar relatório');
         },
       });
   }
@@ -179,11 +185,11 @@ export class PdfActionsComponent {
       .subscribe({
         next: (blob) => {
           this.pdfService.viewPdf(blob);
-          this.showSuccess(this.getSuccessMessage('view'));
+          this.sharedService.showSuccess(this.getSuccessMessage('view'));
         },
         error: (error) => {
           console.error('Error viewing PDF:', error);
-          this.showError('Erro ao visualizar PDF');
+          this.sharedService.showError('Erro ao visualizar PDF');
         },
       });
   }
@@ -200,34 +206,16 @@ export class PdfActionsComponent {
       .subscribe({
         next: (blob) => {
           this.pdfService.printPdf(blob);
-          this.showSuccess(this.getSuccessMessage('print'));
+          this.sharedService.showSuccess(this.getSuccessMessage('print'));
         },
         error: (error) => {
           console.error('Error printing PDF:', error);
-          this.showError('Erro ao preparar impressão');
+          this.sharedService.showError('Erro ao preparar impressão');
         },
       });
   }
 
   private getCurrentDate(): string {
     return new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  }
-
-  private showSuccess(message: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Sucesso',
-      detail: message,
-      life: 3000,
-    });
-  }
-
-  private showError(message: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erro',
-      detail: message,
-      life: 5000,
-    });
   }
 }

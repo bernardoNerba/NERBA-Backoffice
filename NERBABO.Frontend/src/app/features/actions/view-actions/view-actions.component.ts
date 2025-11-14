@@ -75,7 +75,7 @@ import { AuthService } from '../../../core/services/auth.service';
     ProcessAePaymentsComponent,
     TagModule,
     ButtonModule,
-  ],
+],
   providers: [MessageService],
   templateUrl: './view-actions.component.html',
 })

@@ -658,6 +658,14 @@
                   }
                 }
               }
+              <!-- Processamento de Pagamentos a Formandos -->
+              <li class="list-group-item bg-green-white border rounded mb-2">
+                <app-pdf-actions
+                  [actionId]="action!.id"
+                  [title]="'Pagamentos a Formandos'"
+                  [reportType]="'course-action-student-payments-report'"
+                />
+              </li>
             </ol>
           </div>
           }
