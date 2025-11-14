@@ -274,6 +274,8 @@ public class PdfService : IPdfService
                 .Include(a => a.Course).ThenInclude(c => c.Modules).ThenInclude(m => m.Categories)
                 .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
                 .Include(a => a.Coordenator).ThenInclude(c => c.Person)
+                .Include(a => a.ActionEnrollments).ThenInclude(ae => ae.Student).ThenInclude(s => s.Person)
+                .Include(a => a.ActionEnrollments).ThenInclude(ae => ae.Participations)
                 .FirstOrDefaultAsync(a => a.Id == actionId);
 
             if (action is null)

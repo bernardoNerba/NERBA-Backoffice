@@ -1,5 +1,7 @@
+using System.Numerics;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -100,7 +102,7 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
         container.Column(column =>
         {
             // Document Title
-            column.Item().PaddingBottom(10).AlignCenter().Text("Processamento de Pagamentos dos Formandos")
+            column.Item().PaddingBottom(20).AlignCenter().Text("Processamento de Pagamentos dos Formandos")
                 .FontSize(14).FontFamily("Arial").Bold();
 
             // Entidade Formadora:
@@ -145,6 +147,13 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
                 row.RelativeItem().Text(action.Title ?? "").FontSize(8).FontFamily("Arial");
             });
 
+            // - Subsídio de Alimentação / hora:
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                row.ConstantItem(100).Text("Sub. Alimentação / h:").FontSize(8).FontFamily("Arial").Bold();
+                row.RelativeItem().Text(infos.HourlySubsidy).FontSize(8).FontFamily("Arial");
+            });
+
             var categories = action.Course.Modules
                 .SelectMany(m => m.Categories)
                 .Select(c => c.ShortenName)
@@ -162,13 +171,14 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
                         columns.RelativeColumn(1); // Cada categoria
                     columns.RelativeColumn(1); // Total
                     columns.RelativeColumn(1); // Nº de Dias
+                    columns.RelativeColumn(1); // Total Pagamento
                 });
 
                 table.Header(header =>
                 {
                     // Primeira linha do header
                     header.Cell().RowSpan(2).Element(CellStyle)
-                        .AlignMiddle().Text("Nome do Formando")
+                        .AlignCenter().AlignMiddle().Text("Formando (IBAN)")
                         .FontSize(8).SemiBold();
 
                     header.Cell().ColumnSpan((uint)(categories.Count + 1)).Element(CellStyle)
@@ -176,49 +186,69 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
                         .FontSize(8).SemiBold();
 
                     header.Cell().RowSpan(2).Element(CellStyle)
-                        .AlignMiddle().Text("Nº de Dias")
+                        .AlignCenter().AlignMiddle().Text("Nº de Dias")
+                        .FontSize(8).SemiBold();
+                    
+                    header.Cell().RowSpan(2).Element(CellStyle)
+                        .AlignCenter().AlignMiddle().Text("Total Pagamento")
                         .FontSize(8).SemiBold();
 
                     // Segunda linha do header (sub-headers)
                     foreach (var category in categories)
                     {
                         header.Cell().Element(CellStyle)
-                            .AlignCenter().Text(category)
+                            .AlignCenter().AlignMiddle().Text(category)
                             .FontSize(8).SemiBold();
                     }
 
                     header.Cell().Element(CellStyle)
-                        .AlignCenter().Text("Total")
+                        .AlignCenter().AlignMiddle().Text("Total")
                         .FontSize(8).SemiBold();
+                    
                 });
 
                 // Dados dos alunos
-                foreach (var student in action.ActionEnrollments.Select(ae => ae.Student))
+                foreach (var instance in action.ActionEnrollments
+                    .Select(ae => new 
+                        {
+                            Student = ae.Student,
+                            IBAN = ae.Student.Person.IBAN,
+                            TotalHours = ae.Participations
+                                .Where(p => p.Presence == PresenceEnum.Present)
+                                .Sum(p => p.Attendance),
+                            TotalPayment = ae.CalculatedTotal(infos.HourValueAlimentation),
+                            TotalDays = ae.Participations
+                                .Count(p => p.Presence == PresenceEnum.Present),
+                        }))
                 {
-                    table.Cell().Element(CellStyle).Text(student.Person.FullName).FontSize(8);
+                    table.Cell().Element(CellStyle)
+                        .AlignMiddle()
+                        .Text($"{instance.Student.Person.FullName}\n{instance.IBAN}")
+                        .FontSize(8);
 
                     foreach (var category in categories)
                     {
                         var hours = 0;
                         table.Cell().Element(CellStyle)
-                            .AlignCenter().Text($"{hours:0.00}")
+                            .AlignCenter().AlignMiddle().Text($"{hours:0.00}")
                             .FontSize(8);
                     }
 
-                    var total = 0;
                     table.Cell().Element(CellStyle)
-                        .AlignCenter().Text($"{total:0.00}")
+                        .AlignCenter().AlignMiddle().Text($"{instance.TotalHours:0.00}")
                         .FontSize(8);
 
                     table.Cell().Element(CellStyle)
-                        .AlignCenter().Text("0")  
+                        .AlignCenter().AlignMiddle().Text($"{instance.TotalDays}")  
+                        .FontSize(8);
+                    
+                    table.Cell().Element(CellStyle)
+                        .AlignCenter().AlignMiddle().Text($"{instance.TotalPayment:0.00}")  
                         .FontSize(8);
                 }
                 
             });
             
-
-
             static IContainer CellStyle(IContainer container) =>
                             container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
         });

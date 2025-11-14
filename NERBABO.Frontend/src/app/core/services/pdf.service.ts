@@ -69,7 +69,7 @@ export class PdfService {
   }
 
     /**
-   * Generates a PDF course action information report for a specific action
+   * Generates a PDF course action student payments processes for a specific action
    * @param actionId The action ID to generate the report for
    * @returns Observable of PDF blob
    */
