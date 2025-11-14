@@ -24,77 +24,10 @@ public class SessionsTimelineComposer(IImageService imageService)
                 page.Margin(2, Unit.Centimetre);
 
                 page.Header().Element(container => ComposeHeader(container, action, infos));
-                page.Content().Element(container => container.Column(column =>
-                {
-                    // Action details section
-                    column.Item().PaddingTop(5).Column(details =>
-                    {
-                        details.Item().PaddingBottom(5).Text($"Operação: {action.Course.Frame.Operation}")
-                            .FontSize(8).FontFamily("Arial");
-                        details.Item().PaddingBottom(5).Text($"Tipologia de intervenção: {action.Course.Frame.InterventionType}")
-                            .FontSize(8).FontFamily("Arial");
-                        details.Item().PaddingBottom(5).Text($"Total de Horas: {action.Course.TotalDuration}")
-                            .FontSize(8).FontFamily("Arial");
-                        details.Item().PaddingBottom(5).Text($"Ação: {action.Title}")
-                            .FontSize(8).FontFamily("Arial");
-                        details.Item().PaddingBottom(5).Text($"Horário: {action.AllDifferentSessionTimes()}")
-                            .FontSize(8).FontFamily("Arial");
-                        if (!string.IsNullOrEmpty(action.Address))
-                        {
-                        details.Item().PaddingBottom(5).Text($"Morada do Local de realização: {action.Address}")
-                            .FontSize(8).FontFamily("Arial");
-                        }
-                        details.Item().PaddingBottom(5).Text($"Regime: {action.Regiment.Humanize()}")
-                            .FontSize(8).FontFamily("Arial");
-                    });
-
-                    // Sessions table section
-                    column.Item().PaddingTop(15).Table(table =>
-                    {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.RelativeColumn(1);
-                            columns.RelativeColumn(3);
-                            columns.RelativeColumn(1);
-                            columns.RelativeColumn(1);
-                            columns.RelativeColumn(2);
-                        });
-
-                        table.Header(header =>
-                        {
-                            header.Cell().Element(CellStyle).Text("Data").FontSize(8).FontFamily("Arial").SemiBold();
-                            header.Cell().Element(CellStyle).Text("Módulo / Formador").FontSize(8).FontFamily("Arial").SemiBold();
-                            header.Cell().Element(CellStyle).Text("Horário").FontSize(8).FontFamily("Arial").SemiBold();
-                            header.Cell().Element(CellStyle).Text("Duração").FontSize(8).FontFamily("Arial").SemiBold();
-                            header.Cell().Element(CellStyle).Text("Observação").FontSize(8).FontFamily("Arial").SemiBold();
-                        });
-
-                        foreach (var session in sessions)
-                        {
-                            table.Cell().Element(CellStyle).Text(session.ScheduledDate.ToString("dd/MM/yy")).FontSize(7).FontFamily("Arial");
-                            table.Cell().Element(CellStyle).Column(column =>
-                            {
-                                column.Item().Text(session.ModuleTeaching.Module?.Name ?? "N/A").FontSize(7).FontFamily("Arial");
-                                var teacherName = session.ModuleTeaching.Teacher?.Person?.FullName ?? 
-                                    $"{session.ModuleTeaching.Teacher?.Person?.FirstName} {session.ModuleTeaching.Teacher?.Person?.LastName}".Trim();
-                                if (!string.IsNullOrEmpty(teacherName))
-                                {
-                                    column.Item().Text(teacherName).FontSize(6).FontFamily("Arial");
-                                }
-                            });
-                            table.Cell().Element(CellStyle).Text(session.Time).FontSize(7).FontFamily("Arial");
-                            table.Cell().Element(CellStyle).Text($"{session.DurationHours:F1}h").FontSize(7).FontFamily("Arial");
-                            table.Cell().Element(CellStyle).Text(session.Note).FontSize(7).FontFamily("Arial");
-                        }
-
-                        static IContainer CellStyle(IContainer container) =>
-                            container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
-                    });
-                }));
+                page.Content().Element(container => ComposeContent(container, action, infos, sessions));
                 page.Footer().Element(container => ComposeFooter(container, action));
             });
         });
-
     }
 
     private void ComposeHeader(IContainer container, CourseAction action, GeneralInfo infos)
@@ -104,7 +37,7 @@ public class SessionsTimelineComposer(IImageService imageService)
             // Logos row
             column.Item().PaddingVertical(5).Row(row =>
             {
-                // Left side - General Info logo
+                // left side - general info logo
                 if (!string.IsNullOrEmpty(infos.Logo))
                 {
                     row.ConstantItem(80).Element(logoContainer =>
@@ -112,10 +45,9 @@ public class SessionsTimelineComposer(IImageService imageService)
                         try
                         {
                             var generalLogoBytes = _imageService.GetImageAsync(infos.Logo).ConfigureAwait(false).GetAwaiter().GetResult();
-                            if (generalLogoBytes != null)
+                            if (generalLogoBytes is not null)
                             {
-                                logoContainer.Height(40).AlignLeft().AlignMiddle()
-                                    .Image(generalLogoBytes).FitArea();
+                                logoContainer.Image(generalLogoBytes).FitArea();
                             }
                         }
                         catch (Exception ex)
@@ -129,40 +61,150 @@ public class SessionsTimelineComposer(IImageService imageService)
                     row.ConstantItem(80);
                 }
 
-                // Title row
-                column.Item().PaddingBottom(5).Row(row =>
-                {
-                    // Left side - Title and info
-                    row.RelativeItem().AlignCenter().Column(titleColumn =>
-                    {
-                        titleColumn.Item().AlignLeft().Text($"Cronograma - {action.Course.Title}")
-                            .FontSize(14).FontFamily("Arial").SemiBold();
-                        titleColumn.Item().AlignLeft().Text(action.Course.Frame.OperationType)
-                            .FontSize(10).FontFamily("Arial");
-                    });
+                row.RelativeItem();
 
-                    // Right side - Program logo (if available)
-                    if (!string.IsNullOrEmpty(action.Course.Frame.ProgramLogo))
+                // Right side - Program logo
+                if (!string.IsNullOrEmpty(action.Course.Frame.ProgramLogo))
+                {
+                    row.ConstantItem(80).Element(logoContainer =>
                     {
-                        row.ConstantItem(50).Element(logoContainer =>
+                        row.ConstantItem(80).Element(logoContainer =>
                         {
                             try
                             {
-                                var programImageBytes = _imageService.GetImageAsync(action.Course.Frame.ProgramLogo).ConfigureAwait(false).GetAwaiter().GetResult();
-                                if (programImageBytes != null)
+                                var programImageBytes = _imageService.GetImageAsync(action.Course.Frame.ProgramLogo)
+                                    .ConfigureAwait(false)
+                                    .GetAwaiter()
+                                    .GetResult();
+                                if (programImageBytes is not null)
                                 {
-                                    logoContainer.Height(50).AlignCenter().AlignMiddle()
+                                    logoContainer.Height(40).AlignRight().AlignMiddle()
                                         .Image(programImageBytes).FitArea();
                                 }
+
                             }
                             catch (Exception ex)
                             {
-                                // Log the exception if needed and continue without the image
                                 System.Diagnostics.Debug.WriteLine($"Failed to load program logo: {ex.Message}");
                             }
                         });
-                    }
+                    });
+                }
+                else
+                {
+                    row.ConstantItem(80);
+                }
+            });
+        });
+    }
+
+    private static void ComposeContent(IContainer container, CourseAction action, GeneralInfo infos, List<Session> sessions)
+    {
+        container.Column(column =>
+        {
+            // Document Title
+            column.Item().PaddingBottom(5).AlignCenter().Text($"Cronograma - {action.Course.Title}")
+                .FontSize(14).FontFamily("Arial").Bold();
+            // Document Subtitle
+            column.Item().PaddingBottom(20).AlignCenter().Text(action.Course.Frame.OperationType)
+                .FontSize(10).FontFamily("Arial").Bold();
+            
+            // Operação:
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                row.ConstantItem(100).Text("Operação:").FontSize(8).FontFamily("Arial").Bold();
+                row.RelativeItem().Text(action.Course.Frame.Operation ?? "").FontSize(8).FontFamily("Arial");
+            });
+            
+            // Tipologia de Intervenção:
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                row.ConstantItem(100).Text("Tipologia de Intervenção:").FontSize(8).FontFamily("Arial").Bold();
+                row.RelativeItem().Text(action.Course.Frame.InterventionType ?? "").FontSize(8).FontFamily("Arial");
+            });
+
+            // Total de Horas:
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                row.ConstantItem(100).Text("Total de Horas:").FontSize(8).FontFamily("Arial").Bold();
+                row.RelativeItem().Text($"{action.Course.TotalDuration} horas" ?? "").FontSize(8).FontFamily("Arial");
+            });
+
+            // Ação:
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                row.ConstantItem(100).Text("Ação:").FontSize(8).FontFamily("Arial").Bold();
+                row.RelativeItem().Text($"{action.Title}" ?? "").FontSize(8).FontFamily("Arial");
+            });
+
+            // Horário:
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                row.ConstantItem(100).Text("Horário:").FontSize(8).FontFamily("Arial").Bold();
+                row.RelativeItem().Text($"{action.AllDifferentSessionTimes()}" ?? "").FontSize(8).FontFamily("Arial");
+            });
+
+            // Morada:
+            if (!string.IsNullOrEmpty(action.Address))
+            {
+                column.Item().PaddingBottom(3).Row(row =>
+                {
+                    row.ConstantItem(100).Text("Morada:").FontSize(8).FontFamily("Arial").Bold();
+                    row.RelativeItem().Text($"{action.Address}" ?? "").FontSize(8).FontFamily("Arial");
                 });
+            }
+
+            // Regime:
+            if (!string.IsNullOrEmpty(action.Address))
+            {
+                column.Item().PaddingBottom(3).Row(row =>
+                {
+                    row.ConstantItem(100).Text("Regime:").FontSize(8).FontFamily("Arial").Bold();
+                    row.RelativeItem().Text($"{action.Regiment.Humanize()}" ?? "").FontSize(8).FontFamily("Arial");
+                });
+            }
+
+            // Sessions table section
+            column.Item().PaddingTop(15).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(2);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell().Element(CellStyle).Text("Data").FontSize(8).FontFamily("Arial").SemiBold();
+                    header.Cell().Element(CellStyle).Text("Módulo / Formador").FontSize(8).FontFamily("Arial").SemiBold();
+                    header.Cell().Element(CellStyle).Text("Horário").FontSize(8).FontFamily("Arial").SemiBold();
+                    header.Cell().Element(CellStyle).Text("Duração").FontSize(8).FontFamily("Arial").SemiBold();
+                    header.Cell().Element(CellStyle).Text("Observação").FontSize(8).FontFamily("Arial").SemiBold();
+                });
+
+                foreach (var session in sessions)
+                {
+                    table.Cell().Element(CellStyle).Text(session.ScheduledDate.ToString("dd/MM/yy")).FontSize(7).FontFamily("Arial");
+                    table.Cell().Element(CellStyle).Column(column =>
+                    {
+                        column.Item().Text(session.ModuleTeaching.Module?.Name ?? "N/A").FontSize(7).FontFamily("Arial");
+                        var teacherName = session.ModuleTeaching.Teacher?.Person?.FullName ?? 
+                            $"{session.ModuleTeaching.Teacher?.Person?.FirstName} {session.ModuleTeaching.Teacher?.Person?.LastName}".Trim();
+                        if (!string.IsNullOrEmpty(teacherName))
+                        {
+                            column.Item().Text(teacherName).FontSize(6).FontFamily("Arial");
+                        }
+                    });
+                    table.Cell().Element(CellStyle).Text(session.Time).FontSize(7).FontFamily("Arial");
+                    table.Cell().Element(CellStyle).Text($"{session.DurationHours:F1}h").FontSize(7).FontFamily("Arial");
+                    table.Cell().Element(CellStyle).Text(session.Note).FontSize(7).FontFamily("Arial");
+                }
+
+                static IContainer CellStyle(IContainer container) =>
+                    container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
             });
         });
     }
