@@ -155,7 +155,7 @@ public class SessionsTimelineComposer(IImageService imageService)
             }
 
             // Regime:
-            if (!string.IsNullOrEmpty(action.Address))
+            if (!string.IsNullOrEmpty(action.Regiment.Humanize()))
             {
                 column.Item().PaddingBottom(3).Row(row =>
                 {

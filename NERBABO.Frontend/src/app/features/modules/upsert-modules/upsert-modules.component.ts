@@ -17,9 +17,7 @@ import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfigService } from '../../../core/services/config.service';
 import { ModuleCategory } from '../../global-config/module-categories/module-category.model';
-import { map } from 'rxjs';
-import { Select } from 'primeng/select';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-upsert-modules',
@@ -29,7 +27,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
     ReactiveFormsModule,
     CommonModule,
     InputTextModule,
-    MultiSelectModule
+    SelectModule
   ],
   templateUrl: './upsert-modules.component.html',
 })
@@ -41,7 +39,6 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
   loading: boolean = false;
   isUpdate: boolean = false;
   categories?: {id:number, name:string}[];
-  selectedCategories?: {id:number, name:string};
   errorMessages: string[] = [];
   form: FormGroup = new FormGroup({});
 
@@ -89,7 +86,7 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
         [Validators.required, UniversalValidators.isInRange(0, 1000)],
       ],
       isActive: [true],
-      categories: ''
+      category: ''
     });
   }
 

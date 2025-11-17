@@ -43,25 +43,24 @@
         @if (!isUpdate) {
           <div class="col-sm-12">
             <div class="mb-3">
-              <label for="categories"
+              <label for="category"
                 >Áreas
                 <span class="text-danger">*</span>
               </label>
-              <p-multiselect
+              <p-select
                 [options]="categories" 
-                formControlName="categories"
+                formControlName="category"
                 optionLabel="name"
                 optionValue="id"
-                placeholder="Selecione as áreas..."
-                [maxSelectedLabels]="3"
-                [class.is-invalid]="submitted && form.get('categories')?.errors"
+                placeholder="Selecione a área do módulo..."
+                [class.is-invalid]="submitted && form.get('category')?.errors"
                 class="w-100 {{
-                  submitted && form.get('categories')?.errors
+                  submitted && form.get('category')?.errors
                     ? 'ng-invalid ng-dirty'
                     : ''
                 }}"/>
   
-              @if (submitted && form.get('name')?.hasError("required")) {
+              @if (submitted && form.get('category')?.hasError("required")) {
               <span class="text-danger"> Área é um campo obrigatório. </span>
               }
             </div>

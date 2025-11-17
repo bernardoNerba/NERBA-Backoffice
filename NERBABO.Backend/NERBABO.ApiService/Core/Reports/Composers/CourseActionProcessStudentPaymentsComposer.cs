@@ -154,8 +154,7 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
             });
 
             var categories = action.Course.Modules
-                .SelectMany(m => m.Categories)
-                .Select(c => c.ShortenName)
+                .Select(m => m.Category.ShortenName)
                 .Distinct()
                 .OrderBy(c => c)
                 .ToList();
@@ -221,20 +220,18 @@ public class CourseActionProcessStudentPaymentsComposer(IImageService imageServi
                         var module = participation.Session?.ModuleTeaching?.Module;
                         if (module != null)
                         {
-                            foreach (var category in module.Categories)
+                            var categoryName = module.Category.ShortenName;
+                            var hours = (float)participation.Attendance;
+                            
+                            if (hoursByCategory.ContainsKey(categoryName))
                             {
-                                var categoryName = category.ShortenName;
-                                var hours = (float)participation.Attendance;
-                                
-                                if (hoursByCategory.ContainsKey(categoryName))
-                                {
-                                    hoursByCategory[categoryName] += hours;
-                                }
-                                else
-                                {
-                                    hoursByCategory[categoryName] = hours;
-                                }
+                                hoursByCategory[categoryName] += hours;
                             }
+                            else
+                            {
+                                hoursByCategory[categoryName] = hours;
+                            }
+                        
                         }
                     }
 

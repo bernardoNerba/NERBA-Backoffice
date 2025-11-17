@@ -3,11 +3,12 @@
     public class RetrieveModuleDto
     {
         public long Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public required string Name { get; set; }
         public float Hours { get; set; }
         public bool IsActive { get; set; }
         public int CoursesQnt { get; set; }
-        public string AllDifferentCategories { get; set; } = "";
-        public required List<long> Categories { get; set; }
+        public required long Category { get; set; }
+        public required string CategoryName { get; set; }
+        public required string CategoryShortenName { get; set; }
     }
 }

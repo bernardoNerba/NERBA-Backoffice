@@ -11,7 +11,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         public string ShortenName { get; set; } = string.Empty;
 
         // Navigation Properties
-        public List<Module> Modules { get; set; } = [];
+        public IList<Module> Modules { get; set; } = [];
 
         public ModuleCategory(string name, string shortenName)
         {
@@ -63,6 +63,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         public string Name { get; set; } = string.Empty;
         public float Hours { get; set; }
         public bool IsActive { get; set; }
+        public long CategoryId { get; set; }
 
         // Calculated Properties
         public int CoursesQnt => Courses.Count;
@@ -70,7 +71,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         // Navigation Properties
         public List<Course> Courses { get; set; } = [];
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
-        public List<ModuleCategory> Categories { get; set; } = [];
+        public required ModuleCategory Category { get; set; }
 
         // Constructors
         public Module() { }
@@ -91,7 +92,6 @@ namespace NERBABO.ApiService.Core.Modules.Models
         }
 
         // Convert Methods
-        public string AllDifferentCategories => String.Join(", ", Categories.Select(c => c.ShortenName).Distinct());
         public static RetrieveModuleDto ConvertEntityToRetrieveDto(Module module)
         {
             return new RetrieveModuleDto
@@ -101,17 +101,23 @@ namespace NERBABO.ApiService.Core.Modules.Models
                 Hours = module.Hours,
                 IsActive = module.IsActive,
                 CoursesQnt = module.CoursesQnt,
-                Categories = [..module.Categories.Select(c => c.Id)],
-                AllDifferentCategories = module.AllDifferentCategories
+                Category = module.CategoryId,
+                CategoryName = module.Category.Name,
+                CategoryShortenName = module.Category.ShortenName
             };
         }
 
-        public static Module ConvertCreateDtoToEntity(CreateModuleDto m)
+        public static Module ConvertCreateDtoToEntity(CreateModuleDto m, ModuleCategory c)
         {
-            return new Module(m.Name, m.Hours, true)
+            return new Module
             {
+                Name = m.Name,
+                Hours = m.Hours,
+                IsActive = true,
+                CategoryId = c.Id,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Category = c
             };
         }
 

@@ -19,5 +19,8 @@ public class ModuleCategoryConfiguration : IEntityTypeConfiguration<ModuleCatego
         builder.Property(c => c.ShortenName)
             .HasMaxLength(15)
             .IsRequired();
+
+        builder.HasMany(c => c.Modules)
+            .WithOne(m => m.Category);
     }
 }
