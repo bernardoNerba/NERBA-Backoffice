@@ -73,6 +73,19 @@ namespace NERBABO.ApiService.Core.Modules.Models
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
         public required ModuleCategory Category { get; set; }
 
+        public override bool Equals(object? obj)
+        {
+            var item = obj as Module;
+
+            if (item is null)
+            {
+                return false;
+            }
+
+            return this.Name.Equals(item.Name, StringComparison.InvariantCultureIgnoreCase)
+                && this.Hours == item.Hours && this.CategoryId == item.CategoryId;
+        }
+
         // Constructors
         public Module() { }
 

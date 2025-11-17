@@ -46,7 +46,7 @@ public class ModuleCategoryService(
         }
 
         // A module category can only be deleted if the are no modules associated with it
-        if (existingCategory.Modules.Count() > 0)
+        if (existingCategory.Modules.Any())
         {
             _logger.LogWarning("Attempted to delete ModuleCategory with id {Id} that has associated Modules", id);
             return Result

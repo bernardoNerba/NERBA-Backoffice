@@ -38,7 +38,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // Unique constrains check (name + hours combination + category)
             if (await _context.Modules.AnyAsync(m =>
-                m.Name.ToLower().Equals(entityDto.Name.ToLower()) 
+                m.Name.Equals(entityDto.Name, StringComparison.InvariantCultureIgnoreCase) 
                     && m.Hours == entityDto.Hours && m.CategoryId == entityDto.Category))
             {
                 _logger.LogWarning("Duplicated Module combination detected");
