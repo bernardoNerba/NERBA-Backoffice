@@ -1,0 +1,116 @@
+<div class="container-fluid px-0">
+  @if (loading$ | async) {
+  <div class="text-center py-5">
+    <app-spinner />
+    <p class="mt-2">Loading module categories...</p>
+  </div>
+  } @else {
+  <div class="table-responsive">
+    <p-table
+      #dt
+      stripedRows
+      [value]="filteredModuleCategories"
+      size="small"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [paginator]="true"
+      [rows]="10"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      (onPage)="pageChange($event)"
+      [rowsPerPageOptions]="[10, 25, 50]"
+    >
+      <ng-template #caption>
+        <div
+          class="d-flex flex-column flex-lg-row gap-3 gap-lg-2 align-items-start align-items-lg-center"
+        >
+          <!-- Search Section -->
+          <div
+            class="d-flex gap-2 align-items-center w-100 w-sm-auto flex-grow-1 flex-sm-grow-0"
+          >
+            <div class="flex-grow-1">
+              <p-iconfield iconPosition="left" class="w-100">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input
+                  [(ngModel)]="searchValue"
+                  (ngModelChange)="applyFilters()"
+                  pInputText
+                  type="text"
+                  placeholder="Procurar..."
+                  class="w-100"
+                  style="min-width: 200px"
+                />
+              </p-iconfield>
+            </div>
+            <p-button
+              icon="pi pi-filter-slash"
+              [outlined]="true"
+              (click)="clearFilters()"
+              pTooltip="Limpar filtros"
+              class="flex-shrink-0"
+            />
+          </div>
+          <!-- Create Button Section -->
+          <div class="w-100 w-lg-auto">
+            <p-button
+              label="Adicionar Categoria"
+              icon="pi pi-plus"
+              (click)="onCreateModal()"
+              class="w-100 w-lg-auto"
+              [style]="{ 'min-width': '150px' }"
+            />
+          </div>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th style="width: 60px; min-width: 60px" class="text-center">#</th>
+          <th pSortableColumn="name" style="min-width: 150px">
+            <div class="d-flex align-items-center gap-2">
+              Nome
+              <p-sortIcon field="name" />
+            </div>
+          </th>
+          <th pSortableColumn="shortenName" style="min-width: 150px">
+            <div class="d-flex align-items-center gap-2">
+              Nome Curto
+              <p-sortIcon field="shortenName" />
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-category>
+        <tr>
+          <td class="text-center">
+            <p-menu
+              #menu
+              [model]="menuItems"
+              [popup]="true"
+              [appendTo]="'body'"
+            />
+            <p-button
+              icon="pi pi-ellipsis-v"
+              [rounded]="true"
+              severity="secondary"
+              [outlined]="true"
+              size="small"
+              (click)="menu.toggle($event); selectedModuleCategory = category"
+            />
+          </td>
+          <td class="text-break">
+            <div class="fw-medium">{{ category.name }}</div>
+          </td>
+          <td class="text-break">
+            <div class="fw-medium">{{ category.shortenName }}</div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="3">Não foram encontradas categorias com essas diretrizes.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  }
+</div>

@@ -68,6 +68,20 @@ export class PdfService {
     );
   }
 
+    /**
+   * Generates a PDF course action student payments processes for a specific action
+   * @param actionId The action ID to generate the report for
+   * @returns Observable of PDF blob
+   */
+  generateProcessStudentPaymentsReport(actionId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/api/pdf/action/${actionId}/course-action-student-payments-report`,
+      {
+        responseType: 'blob',
+      }
+    );
+  }
+
   /**
    * Downloads a PDF blob with the specified filename
    * @param blob The PDF blob to download

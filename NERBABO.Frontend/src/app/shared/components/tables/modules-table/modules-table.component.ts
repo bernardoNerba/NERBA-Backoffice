@@ -41,17 +41,17 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './modules-table.component.html',
 })
 export class ModulesTableComponent implements OnInit {
+  rows = 10;
+  first = 0;
+  searchValue: string = '';
+  @Input() actionId?: number;
   @ViewChild('dt') dt!: Table;
   menuItems: MenuItem[] | undefined;
-  searchValue: string = '';
   selectedModule: Module | undefined;
-  @Input({ required: true }) modules!: (Module | ModuleTeacher)[];
-  @Input({ required: true }) loading!: boolean;
-  @Input() showTeacherColumn: boolean = false;
-  @Input() actionId?: number;
   @Input() actionTitle?: string;
-  first = 0;
-  rows = 10;
+  @Input() showTeacherColumn: boolean = false;
+  @Input({ required: true }) loading!: boolean;
+  @Input({ required: true }) modules!: (Module | ModuleTeacher)[];
 
   private subscriptions = new Subscription();
 
@@ -90,6 +90,7 @@ export class ModulesTableComponent implements OnInit {
   columns = [
     { field: 'ufcd', header: 'UFCD' },
     { field: 'hours', header: 'Duração' },
+    { field: 'areas', header: 'Áreas'},
     { field: 'status', header: 'Estado' },
   ];
 

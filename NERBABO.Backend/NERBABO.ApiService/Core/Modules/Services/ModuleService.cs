@@ -26,18 +26,33 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
         public async Task<Result<RetrieveModuleDto>> CreateAsync(CreateModuleDto entityDto)
         {
-            // Unique constrains check (name + hours combination)
-            if (await _context.Modules.AnyAsync(m =>
-                m.Name.ToLower().Equals(entityDto.Name.ToLower()) && m.Hours == entityDto.Hours))
+            // Check if category exists
+            var existingCategory = await _context.ModuleCategories
+                .FirstOrDefaultAsync(mc => mc.Id == entityDto.Category);
+            if (existingCategory is null)
             {
-                _logger.LogWarning("Duplicated Module Name and Hours combination detected");
+                _logger.LogWarning("Module Category with ID {CategoryId} not found.", entityDto.Category);
                 return Result<RetrieveModuleDto>
-                    .Fail("Erro de Validação.", "A combinação de nome e horas do módulo deve ser única. Já existe no sistema.");
+                    .Fail("Erro de Validação.", "Categoria de módulo não encontrada.");
             }
 
-            var createdModule = _context.Modules.Add(Module.ConvertCreateDtoToEntity(entityDto));
+            // Unique constrains check (name + hours combination + category)
+            if (await _context.Modules.AnyAsync(m =>
+                m.Name.Equals(entityDto.Name, StringComparison.InvariantCultureIgnoreCase) 
+                    && m.Hours == entityDto.Hours && m.CategoryId == entityDto.Category))
+            {
+                _logger.LogWarning("Duplicated Module combination detected");
+                return Result<RetrieveModuleDto>
+                    .Fail("Erro de Validação.", "A combinação do módulo deve ser única. Já existe no sistema.");
+            }
+
+            var module = Module.ConvertCreateDtoToEntity(entityDto, existingCategory);
+            
+
+            var createdModule = _context.Modules.Add(module);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation("Creating new Module with Name: {0}", createdModule.Entity);
             var moduleToRetrieve = Module.ConvertEntityToRetrieveDto(createdModule.Entity);
 
             // Update cache
@@ -60,6 +75,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // If not in cache, retrieve from database
             var existingModules = await _context.Modules
+                .Include(m => m.Category)
                 .Where(m => m.IsActive)
                 .OrderByDescending(m => m.UpdatedAt)
                 .ThenBy(m => m.Name)
@@ -92,6 +108,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // If not in cache, retrieve from database
             var existingModules = await _context.Modules
+                .Include(m => m.Category)
                 .OrderByDescending(m => m.UpdatedAt)
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .ToListAsync();
@@ -122,6 +139,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
 
             // If not in cache, retrieve from database
             var existingModule = await _context.Modules
+                .Include(m => m.Category)
                 .Where(m => m.Id == id)
                 .Select(m => Module.ConvertEntityToRetrieveDto(m))
                 .FirstOrDefaultAsync();
@@ -140,6 +158,7 @@ namespace NERBABO.ApiService.Core.Modules.Services
         public async Task<Result<RetrieveModuleDto>> UpdateAsync(UpdateModuleDto entityDto)
         {
             var existingModule = await _context.Modules
+                .Include(m => m.Category)
                 .Include(m => m.Courses)
                 .FirstOrDefaultAsync(m => m.Id == entityDto.Id);
             if (existingModule is null)

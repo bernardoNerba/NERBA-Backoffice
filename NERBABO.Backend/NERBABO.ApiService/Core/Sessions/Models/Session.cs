@@ -1,5 +1,4 @@
 using Humanizer;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
 using NERBABO.ApiService.Core.SessionParticipations.Models;
 using NERBABO.ApiService.Core.Sessions.Dtos;

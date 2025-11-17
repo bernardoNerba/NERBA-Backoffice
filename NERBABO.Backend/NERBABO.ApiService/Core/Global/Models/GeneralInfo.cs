@@ -23,6 +23,8 @@ public class GeneralInfo : Entity<long>
 
     public Tax? IvaTax { get; set; }
 
+    public string HourlySubsidy => ($"{Math.Round(HourValueAlimentation, 2):0.00}" ?? "0") + " €";
+
     public static RetrieveGeneralInfoDto ConvertEntityToRetrieveDto(GeneralInfo generalInfo)
     {
         return new RetrieveGeneralInfoDto

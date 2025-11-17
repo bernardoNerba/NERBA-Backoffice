@@ -1,5 +1,7 @@
 using Humanizer;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.Reports.Models;
 using NERBABO.ApiService.Core.Students.Models;
@@ -48,6 +50,16 @@ public class Person : Entity<long>
     public SavedPdf? HabilitationComprovativePdf { get; set; }
     public SavedPdf? IbanComprovativePdf { get; set; }
     public SavedPdf? IdentificationDocumentPdf { get; set; }
+
+    // Instance methods
+    public bool MeetsHabilitation(HabilitationEnum h)
+    {
+        return Habilitation > h;
+    }
+    public bool MeetsMinHabilitation(HabilitationEnum h)
+    {
+        return Habilitation >= h;
+    }
 
     public Person() { }
 

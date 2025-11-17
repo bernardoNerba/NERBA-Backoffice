@@ -616,51 +616,61 @@
       >
         <div class="accordion-body">
           <!-- PDF Actions -->
-          @if (action?.id) {
-          <div class="mb-3">
-            <ol class="list-group list-group-flush">
-              <!-- Capa -->
-              <li class="list-group-item bg-green-white border rounded mb-2">
-                <app-pdf-actions
-                  [actionId]="action!.id"
-                  [title]="'Capa'"
-                  [reportType]="'cover'"
-                />
-              </li>
-              <!-- Cronograma -->
-              <li class="list-group-item bg-green-white border rounded mb-2">
-                <app-pdf-actions
-                  [actionId]="action!.id"
-                  [title]="'Cronograma'"
-                  [reportType]="'sessions'"
-                />
-              </li>
-              <!-- Informação Geral da Formação -->
-              <li class="list-group-item bg-green-white border rounded mb-2">
-                <app-pdf-actions
-                  [actionId]="action!.id"
-                  [title]="'Informação Geral da Formação'"
-                  [reportType]="'course-action-information-report'"
-                />
-              </li>
-              <!-- Fichas de Formador (one for each teacher) -->
-              @if (modulesWithTeacher && modulesWithTeacher.length > 0) {
-                @for (module of modulesWithTeacher; track module.id) {
-                  @if (module.teacherId && module.teacherName) {
-                  <li class="list-group-item bg-green-white border rounded mb-2">
-                    <app-pdf-actions
-                      [actionId]="action!.id"
-                      [teacherId]="module.teacherId"
-                      [title]="'Ficha de Formador - ' + module.teacherName"
-                      [reportType]="'teacher-form'"
-                    />
-                  </li>
+          <div class="container">
+            @if (action?.id) {
+            <div class="mb-3">
+              <ol class="list-group list-group-flush">
+                <!-- Capa -->
+                <li class="list-group-item bg-green-white border rounded mb-2">
+                  <app-pdf-actions
+                    [actionId]="action!.id"
+                    [title]="'Capa'"
+                    [reportType]="'cover'"
+                  />
+                </li>
+                <!-- Cronograma -->
+                <li class="list-group-item bg-green-white border rounded mb-2">
+                  <app-pdf-actions
+                    [actionId]="action!.id"
+                    [title]="'Cronograma'"
+                    [reportType]="'sessions'"
+                  />
+                </li>
+                <!-- Informação Geral da Formação -->
+                <li class="list-group-item bg-green-white border rounded mb-2">
+                  <app-pdf-actions
+                    [actionId]="action!.id"
+                    [title]="'Informação Geral da Formação'"
+                    [reportType]="'course-action-information-report'"
+                  />
+                </li>
+                <!-- Fichas de Formador (one for each teacher) -->
+                @if (modulesWithTeacher && modulesWithTeacher.length > 0) {
+                  @for (module of modulesWithTeacher; track module.id) {
+                    @if (module.teacherId && module.teacherName) {
+                    <li class="list-group-item bg-green-white border rounded mb-2">
+                      <app-pdf-actions
+                        [actionId]="action!.id"
+                        [teacherId]="module.teacherId"
+                        [title]="'Ficha de Formador - ' + module.teacherName"
+                        [reportType]="'teacher-form'"
+                      />
+                    </li>
+                    }
                   }
                 }
-              }
-            </ol>
+                <!-- Processamento de Pagamentos a Formandos -->
+                <li class="list-group-item bg-green-white border rounded mb-2">
+                  <app-pdf-actions
+                    [actionId]="action!.id"
+                    [title]="'Processamento de Pagementos a Formandos'"
+                    [reportType]="'course-action-student-payments-report'"
+                  />
+                </li>
+              </ol>
+            </div>
+            }
           </div>
-          }
         </div>
       </div>
     </div>

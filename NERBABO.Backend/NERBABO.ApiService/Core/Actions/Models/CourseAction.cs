@@ -36,13 +36,13 @@ namespace NERBABO.ApiService.Core.Actions.Models
             Status == StatusEnum.NotStarted || Status == StatusEnum.InProgress;
 
 
-        public string AllDiferentSessionTeachers()
+        public string AllDifferentSessionTeachers()
         {
             var teachers = ModuleTeachings.Select(mt => mt.Teacher.Person.FirstName).ToHashSet();
             return String.Join(" | ", teachers);
         }
 
-        public string AllDiferentSessionTimes()
+        public string AllDifferentSessionTimes()
         {
             var times = ModuleTeachings.SelectMany(mt => mt.Sessions.Select(s => s.Time)).ToHashSet();
             return String.Join(" | ", times);

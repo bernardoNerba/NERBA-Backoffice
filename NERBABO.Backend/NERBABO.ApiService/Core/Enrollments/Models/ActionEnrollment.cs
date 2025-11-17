@@ -44,7 +44,7 @@ public class ActionEnrollment : Entity<long>
         ? AvgEvaluation >= 3 ? ApprovalStatusEnum.Approved : ApprovalStatusEnum.Rejected
         : ApprovalStatusEnum.NotSpecified;
 
-    public double CalculatedTotal(double hourRate)
+    public double CalculatedTotal(float hourRate)
     {
         return Math.Round(Participations
             .Where(p => p.Presence.Equals(PresenceEnum.Present))
@@ -92,5 +92,10 @@ public class ActionEnrollment : Entity<long>
             PaymentDate = ae.PaymentDate?.ToString("yyyy-MM-dd") ?? "",
             IsPayed = ae.IsPayed
         };
+    }
+
+    public static bool CheckIfStudentMeetsHabilitation(Student student, CourseAction action)
+    {
+        return student.Person.Habilitation > action.Course.MinHabilitationLevel;
     }
 }

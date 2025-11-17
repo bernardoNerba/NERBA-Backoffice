@@ -87,16 +87,19 @@ builder.Services.AddScoped<IActionEnrollmentService, ActionEnrollmentService>();
 builder.Services.AddScoped<IModuleAvaliationsService, ModuleAvaliationsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IKpisService, KpisService>();
+builder.Services.AddScoped<IModuleCategoryService, ModuleCategoryService>();
 
 // Register Static Files Services
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
 // Register Pdf Composer Services
+builder.Services.AddScoped<HelperComposer>();
 builder.Services.AddScoped<SessionsTimelineComposer>();
 builder.Services.AddScoped<CoverActionReportComposer>();
 builder.Services.AddScoped<TeacherFormComposer>();
 builder.Services.AddScoped<CourseActionInformationReportComposer>();
+builder.Services.AddScoped<CourseActionProcessStudentPaymentsComposer>();
 
 // Register HTTP context accessor for URL generation
 builder.Services.AddHttpContextAccessor();

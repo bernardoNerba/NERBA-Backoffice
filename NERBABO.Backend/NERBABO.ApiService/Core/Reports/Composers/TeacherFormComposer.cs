@@ -110,8 +110,8 @@ public class TeacherFormComposer(IImageService imageService)
         container.Column(column =>
         {
             // Title
-            column.Item().PaddingBottom(10).AlignCenter().Text("FICHA DE IDENTIFICAÇÃO DO/A FORMADOR/A")
-                .FontSize(11).FontFamily("Arial").Bold();
+            column.Item().PaddingBottom(10).AlignCenter().Text("Ficha de Identificação do/a Formando/a")
+                .FontSize(14).FontFamily("Arial").Bold();
 
             // IDENTIFICAÇÃO Section
             column.Item().PaddingBottom(10).Column(section =>
@@ -378,8 +378,8 @@ public class TeacherFormComposer(IImageService imageService)
         container.Column(column =>
         {
             // Title
-            column.Item().PaddingBottom(10).AlignCenter().Text("TRATAMENTO DE DADOS E CONSENTIMENTO")
-                .FontSize(11).FontFamily("Arial").Bold();
+            column.Item().PaddingBottom(10).AlignCenter().Text("Tratamento de Dados e Consentimento")
+                .FontSize(14).FontFamily("Arial").Bold();
 
             // Data treatment text
             column.Item().PaddingBottom(15).Text(text =>

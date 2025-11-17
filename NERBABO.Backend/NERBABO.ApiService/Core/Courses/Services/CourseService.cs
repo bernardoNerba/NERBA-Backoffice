@@ -10,7 +10,6 @@ using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Helper;
 using NERBABO.ApiService.Shared.Enums;
 using NERBABO.ApiService.Shared.Models;
-using OpenTelemetry.Trace;
 using ZLinq;
 
 namespace NERBABO.ApiService.Core.Courses.Services
@@ -78,7 +77,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Total duration exceeded for course ID: {CourseId}", courseId);
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
+                        .Fail("Erro de Validação.", $"Duração total excedida. Total {currentDuration + m.Hours} horas excedeu o limite de horas do curso: {existingCourse.TotalDuration} horas.");
                 }
                 
                 if (!modules.Contains(m))
@@ -239,7 +238,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
         {
             // Check title uniqueness
             if (await _context.Courses.AnyAsync(c =>
-                EF.Functions.Like(c.Title, entityDto.Title)))
+                c.Title.Equals(entityDto.Title, StringComparison.OrdinalIgnoreCase)))
             {
                 _logger.LogWarning("Duplicted Title detected.");
                 return Result<RetrieveCourseDto>
@@ -290,7 +289,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var currentDuration = 0f;
             foreach (var moduleId in entityDto.Modules)
             {
-                var m = await _context.Modules.FindAsync(moduleId);
+                var m = await _context.Modules
+                    .Include(m => m.Category)
+                    .FirstOrDefaultAsync(m => m.Id == moduleId);
                 if (m is null)
                 {
                     _logger.LogWarning("Module with id {id} not found when creating course.", moduleId);
@@ -311,7 +312,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Total duration exceeded for course total duration");
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
+                        .Fail("Erro de Validação.", $"Duração total excedida. Total {currentDuration + m.Hours} horas excedeu o limite de horas do curso: {entityDto.TotalDuration} horas.");
                 }
 
                 modules.Add(m);
@@ -431,7 +432,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
-                .Include(c => c.Modules)
+                .Include(c => c.Modules).ThenInclude(m => m.Category)
                 .Include(c => c.Actions)
                 .OrderByDescending(c => c.CreatedAt)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
@@ -474,7 +475,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             var existingCourses = await _context.Courses
                 .Include(c => c.Frame)
-                .Include(c => c.Modules)
+                .Include(c => c.Modules).ThenInclude(m => m.Category)
                 .Include(c => c.Actions)
                 .Where(c => c.FrameId == frameId)
                 .OrderBy(c => c.Status)
@@ -512,7 +513,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             // retrieve from database
             var existingCourse = await _context.Courses
                 .Include(c => c.Frame)
-                .Include(c => c.Modules)
+                .Include(c => c.Modules).ThenInclude(m => m.Category)
                 .Include(c => c.Actions)
                 .Where(c => c.Id == id)
                 .Select(c => Course.ConvertEntityToRetrieveDto(c))
@@ -552,7 +553,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
 
             var existingCoursesWithModule = await _context.Courses
                 .Include(c => c.Frame)
-                .Include(c => c.Modules)
+                .Include(c => c.Modules).ThenInclude(m => m.Category)
                 .Include(c => c.Actions)
                 .Where(c => c.Modules.Any(m => m.Id == moduleId))
                 .ToListAsync();
@@ -630,7 +631,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
             // Get the existing course from the database
             var existingCourse = await _context.Courses
                 .Include(c => c.Frame)
-                .Include(c => c.Modules)
+                .Include(c => c.Modules).ThenInclude(m => m.Category)
                 .Include(c => c.Actions)
                 .FirstOrDefaultAsync(c => c.Id == entityDto.Id);
             if (existingCourse is null)
@@ -697,7 +698,9 @@ namespace NERBABO.ApiService.Core.Courses.Services
             var currentDuration = 0f;
             foreach (var moduleId in entityDto.Modules)
             {
-                var m = await _context.Modules.FindAsync(moduleId);
+                var m = await _context.Modules
+                    .Include(m => m.Category)
+                    .FirstOrDefaultAsync(m => m.Id == moduleId);
                 if (m is null)
                 {
                     _logger.LogWarning("Module with id {id} not found when updating course.", moduleId);
@@ -718,7 +721,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
                 {
                     _logger.LogWarning("Total duration exceeded for course total duration");
                     return Result<RetrieveCourseDto>
-                        .Fail("Erro de Validação.", $"Duração total excedida. {m.Hours} excede o limite de horas do curso.");
+                        .Fail("Erro de Validação.", $"Duração total excedida. Total {currentDuration + m.Hours} horas excedeu o limite de horas do curso: {entityDto.TotalDuration} horas.");
                 }
 
                 modules.Add(m);

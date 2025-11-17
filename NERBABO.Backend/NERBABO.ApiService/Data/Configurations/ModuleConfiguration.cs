@@ -25,6 +25,11 @@ namespace NERBABO.ApiService.Data.Configurations
 
             builder.HasMany(m => m.Courses)
                 .WithMany(c => c.Modules);
+
+            builder.HasOne(m => m.Category)
+                .WithMany(c => c.Modules)
+                .HasForeignKey(m => m.CategoryId)
+                .IsRequired(true);
         }
     }
 }

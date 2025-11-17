@@ -207,7 +207,7 @@ public class SessionService(
             .Include(s => s.ModuleTeaching.Action.Coordenator)
                 .ThenInclude(c => c.Person)
             .Where(s => s.ModuleTeaching.ActionId == actionId)
-            .OrderByDescending(s => s.ScheduledDate)
+            .OrderBy(s => s.ScheduledDate)
             .ToListAsync()
             ?? [];
 

@@ -40,6 +40,32 @@
             }
           </div>
         </div>
+        @if (!isUpdate) {
+          <div class="col-sm-12">
+            <div class="mb-3">
+              <label for="category"
+                >Áreas
+                <span class="text-danger">*</span>
+              </label>
+              <p-select
+                [options]="categories"
+                formControlName="category"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Selecione a área do módulo..."
+                [class.is-invalid]="submitted && form.get('category')?.errors"
+                class="w-100 {{
+                  submitted && form.get('category')?.errors
+                    ? 'ng-invalid ng-dirty'
+                    : ''
+                }}"/>
+  
+              @if (submitted && form.get('category')?.hasError("required")) {
+              <span class="text-danger"> Área é um campo obrigatório. </span>
+              }
+            </div>
+          </div>
+        }
         <!-- Module Total Hours -->
         <div class="col-sm-12">
           <div class="mb-3">

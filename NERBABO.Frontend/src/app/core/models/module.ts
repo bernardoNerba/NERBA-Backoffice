@@ -6,6 +6,17 @@ export interface Module {
   coursesQnt: number;
 }
 
+export interface RetrievedModule {
+  id: number;
+  categoryId: number;
+  name: string;
+  hours: number;
+  isActive: boolean;
+  coursesQnt: number;
+  categoryName: string;
+  categoryShortenName: string;
+}
+
 export interface ModuleTeacher {
   id: number;
   name: string;

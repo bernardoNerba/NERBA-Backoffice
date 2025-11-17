@@ -22,6 +22,7 @@ public class ActionEnrollmentService(
     {
         // Check if action exists
         var existingAction = await _context.Actions
+            .Include(a => a.Course)
             .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Module)
             .Include(a => a.ModuleTeachings).ThenInclude(mt => mt.Sessions)
             .FirstOrDefaultAsync(a => a.Id == entityDto.ActionId);
@@ -79,6 +80,14 @@ public class ActionEnrollmentService(
                 entityDto.StudentId, entityDto.ActionId);
             return Result<RetrieveActionEnrollmentDto>
                 .Fail("Erro de Validação.", "Faltam agendar sessões na ação.");
+        }
+
+        if (!existingStudent.Person.MeetsMinHabilitation(existingAction.Course.MinHabilitationLevel))
+        {
+            _logger.LogWarning("Student with ID {StudentId} does not meet the minimum habilitation level for Action {ActionId}.", entityDto.StudentId, entityDto.ActionId);
+            return Result<RetrieveActionEnrollmentDto>
+                .Fail("Erro de Validação.",
+                "O Formando não possui o nível de habilitação mínimo exigido para frequentar este Curso.");
         }
 
         using var transaction = await _context.Database.BeginTransactionAsync();

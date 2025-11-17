@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { catchError, Observable, of, Subscription, tap } from 'rxjs';
-import { Module } from '../../../core/models/module';
+import { Module, RetrievedModule } from '../../../core/models/module';
 import { ICONS } from '../../../core/objects/icons';
 import { ModulesService } from '../../../core/services/modules.service';
 import { SharedService } from '../../../core/services/shared.service';
@@ -37,7 +37,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class ViewModulesComponent implements IView, OnInit, OnDestroy {
   @Input({ required: true }) id!: number;
-  module$?: Observable<Module | null>;
+  module$?: Observable<RetrievedModule | null>;
   courses$?: Observable<Course[] | null>;
   actions$?: Observable<Action[] | null>;
   name?: string;

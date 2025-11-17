@@ -15,6 +15,9 @@ import { ErrorCardComponent } from '../../../shared/components/error-card/error-
 import { InputNumber } from 'primeng/inputnumber';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
+import { ConfigService } from '../../../core/services/config.service';
+import { ModuleCategory } from '../../global-config/module-categories/module-category.model';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-upsert-modules',
@@ -24,6 +27,7 @@ import { InputTextModule } from 'primeng/inputtext';
     ReactiveFormsModule,
     CommonModule,
     InputTextModule,
+    SelectModule
   ],
   templateUrl: './upsert-modules.component.html',
 })
@@ -34,15 +38,17 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
   submitted: boolean = false;
   loading: boolean = false;
   isUpdate: boolean = false;
-
+  categories?: {id:number, name:string}[];
   errorMessages: string[] = [];
   form: FormGroup = new FormGroup({});
+
 
   constructor(
     public bsModalRef: BsModalRef,
     private formBuilder: FormBuilder,
     private moduleService: ModulesService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private confService: ConfigService
   ) {}
 
   ngOnInit(): void {
@@ -59,6 +65,9 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
           this.bsModalRef.hide();
         },
       });
+    } else {
+      this.initializeCategories();
+      console.log(this.categories)
     }
   }
 
@@ -77,8 +86,26 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
         [Validators.required, UniversalValidators.isInRange(0, 1000)],
       ],
       isActive: [true],
+      category: ''
     });
   }
+
+
+
+  private initializeCategories(): void {
+  this.confService.moduleCategories$.subscribe({
+    next: (categories: ModuleCategory[]) => {
+      this.categories = [... categories.map(c => ({
+        id: c.id,
+        name: `${c.shortenName} - ${c.name}`
+      }))];
+    },
+    error: (error: any) => {
+      console.error("Error loading categories:", error);
+      this.bsModalRef.hide();
+    }
+  });
+}
 
   patchFormValues(): void {
     this.form.patchValue({
@@ -87,6 +114,7 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
       isActive: this.currentModule?.isActive,
     });
   }
+
   onSubmit(): void {
     this.submitted = true;
     this.errorMessages = [];
@@ -99,6 +127,8 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
       return;
     }
 
+    console.log(this.form.value);
+
     this.loading = true;
 
     this.moduleService
@@ -110,6 +140,7 @@ export class UpsertModulesComponent implements IUpsert, OnInit {
           this.sharedService.showSuccess(value.message);
         },
         error: (error) => {
+          console.log(error.error)
           this.errorMessages = this.sharedService.handleErrorResponse(error);
           this.loading = false;
         },

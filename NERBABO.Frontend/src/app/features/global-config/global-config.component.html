@@ -19,8 +19,6 @@ null){
 </div>
 } @else {
 <div class="container px-0 my-4">
-  <!-- LIST OF PAGES -->
-  <!-- END LIST OF PAGES -->
   <div class="accordion" id="general-info-accordion">
     <!-- GENERAL INFO ACCORDION-->
     <div class="accordion-item">
@@ -604,6 +602,33 @@ null){
       </div>
     </div>
     <!-- END IVA INFO ACCORDION -->
+
+    <!-- MODULE CATEGORY ACCORDION -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-config-module-category">
+        <button
+          class="accordion-button fw-bold collapsed"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#config-module-category-content"
+          aria-expanded="false"
+          aria-controls="config-module-category-content"
+        >
+          <i class="pi pi-objects-column fs-4 me-3"></i>
+          <h5>Configuração de Áreas dos Módulos</h5>
+        </button>
+      </h2>
+      <div
+        id="config-module-category-content"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading-config-module-category"
+      >
+        <div class="accordion-body">
+          <app-index-module-categories />
+        </div>
+      </div>
+    </div>
+    <!-- END MODULE CATEGORY ACCORDION -->
   </div>
 </div>
 } }

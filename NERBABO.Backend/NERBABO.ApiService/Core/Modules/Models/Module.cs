@@ -5,13 +5,66 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Core.Modules.Models
 {
+    public class ModuleCategory : Entity<long>
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ShortenName { get; set; } = string.Empty;
+
+        // Navigation Properties
+        public IList<Module> Modules { get; set; } = [];
+
+        public ModuleCategory() {}
+        public ModuleCategory(string name, string shortenName)
+        {
+            Name = name;
+            ShortenName = shortenName;
+        }
+
+        public static RetrieveCategoryDto ConvertEntityToRetrieveDto(ModuleCategory c)
+        {
+            return new RetrieveCategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                ShortenName = c.ShortenName
+            };
+        }
+
+        public static ModuleCategory ConvertCreateDtoToEntity(CreateCategoryDto c)
+        {
+            return new ModuleCategory(c.Name, c.ShortenName)
+            {
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+        }
+
+        public override bool Equals(object? obj)
+        {
+            var item = obj as ModuleCategory;
+
+            if (item is null)
+            {
+                return false;
+            }
+
+            return this.Name.Equals(item.Name.ToLower(), StringComparison.InvariantCultureIgnoreCase)
+                && this.ShortenName.Equals(item.ShortenName.ToLower(), StringComparison.InvariantCultureIgnoreCase);
+        }
+        
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, ShortenName);
+        }
+    }
+
     public class Module : Entity<long>
     {
         // Entity Properties
-
         public string Name { get; set; } = string.Empty;
         public float Hours { get; set; }
         public bool IsActive { get; set; }
+        public long CategoryId { get; set; }
 
         // Calculated Properties
         public int CoursesQnt => Courses.Count;
@@ -19,7 +72,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         // Navigation Properties
         public List<Course> Courses { get; set; } = [];
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
-
+        public ModuleCategory Category { get; set; } = new ModuleCategory();
 
         // Constructors
         public Module() { }
@@ -48,16 +101,24 @@ namespace NERBABO.ApiService.Core.Modules.Models
                 Name = module.Name,
                 Hours = module.Hours,
                 IsActive = module.IsActive,
-                CoursesQnt = module.CoursesQnt
+                CoursesQnt = module.CoursesQnt,
+                Category = module.CategoryId,
+                CategoryName = module.Category.Name,
+                CategoryShortenName = module.Category.ShortenName
             };
         }
 
-        public static Module ConvertCreateDtoToEntity(CreateModuleDto m)
+        public static Module ConvertCreateDtoToEntity(CreateModuleDto m, ModuleCategory c)
         {
-            return new Module(m.Name, m.Hours, true)
+            return new Module
             {
+                Name = m.Name,
+                Hours = m.Hours,
+                IsActive = true,
+                CategoryId = c.Id,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Category = c
             };
         }
 

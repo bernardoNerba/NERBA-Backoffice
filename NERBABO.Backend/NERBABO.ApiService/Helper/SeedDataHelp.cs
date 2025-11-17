@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Data;
 using NERBABO.ApiService.Shared.Enums;
@@ -40,6 +41,7 @@ public class SeedDataHelp
         await InitializeAdminAsync();
         await InitializeTaxIvaAsync();
         await InitializeGeneralInfoAsync();
+        await InitializeModuleCategoriesAsync();
     }
     private async Task InitializeRolesAsync()
     {
@@ -163,6 +165,23 @@ public class SeedDataHelp
             };
 
         _context.Taxes.AddRange(taxes);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task InitializeModuleCategoriesAsync()
+    {
+        if (await _context.ModuleCategories.AnyAsync())
+            return;
+
+        var categories = new List<ModuleCategory>
+            {
+                new ("Tecnologias de Informação e Comunicação", "TIC"),
+                new ("Formação Tecnologica", "FT"),
+                new ("Igualdade de Oportunidades / Igualdade de Género", "IO/IG"),
+                new ("Ambiente", "AMB")
+            };
+
+        _context.ModuleCategories.AddRange(categories);
         await _context.SaveChangesAsync();
     }
 }

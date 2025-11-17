@@ -1,4 +1,5 @@
 ﻿using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Core.Modules.Models;
@@ -41,7 +42,6 @@ namespace NERBABO.ApiService.Core.ModuleTeachings.Models
             ScheduledSessionsTime == Module.Hours;
 
         public bool IsPayed => PaymentDate != null;
-
 
         public double CalculatedTotal(double hourRate)
         {

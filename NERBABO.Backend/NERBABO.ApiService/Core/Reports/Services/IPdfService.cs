@@ -42,6 +42,14 @@ public interface IPdfService
     Task<Result<byte[]>> GenerateTrainingFinancingFormAsync(long actionId, string userId);
 
     /// <summary>
+    /// Generates a course action process student payments information report PDF for a specific action.
+    /// </summary>
+    /// <param name="actionId">The action ID to generate the report for.</param>
+    /// <param name="userId">The ID of the user generating the report.</param>
+    /// <returns>A result containing the PDF content as byte array.</returns>
+    Task<Result<byte[]>> GenerateCourseActionProcessStudentPaymentsAsync(long actionId, string userId);
+
+    /// <summary>
     /// Retrieves a saved PDF record by type and reference ID.
     /// </summary>
     /// <param name="pdfType">The type of PDF (e.g., SessionReport, SessionDetail, ActionSummary).</param>
