@@ -288,7 +288,7 @@ public class PdfService : IPdfService
             var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
                 ?? throw new Exception("Failed to obtain general information.");
             
-            var document = _courseActionProcessStudentPaymentsComposer.Compose(action, infos);
+            var document = await _courseActionProcessStudentPaymentsComposer.ComposeAsync(action, infos);
             var pdfBytes = document.GeneratePdf();
 
             // Save the new PDF

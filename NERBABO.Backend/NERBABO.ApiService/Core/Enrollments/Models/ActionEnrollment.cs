@@ -44,7 +44,7 @@ public class ActionEnrollment : Entity<long>
         ? AvgEvaluation >= 3 ? ApprovalStatusEnum.Approved : ApprovalStatusEnum.Rejected
         : ApprovalStatusEnum.NotSpecified;
 
-    public double CalculatedTotal(double hourRate)
+    public double CalculatedTotal(float hourRate)
     {
         return Math.Round(Participations
             .Where(p => p.Presence.Equals(PresenceEnum.Present))

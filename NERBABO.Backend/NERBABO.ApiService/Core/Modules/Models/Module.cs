@@ -13,6 +13,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         // Navigation Properties
         public IList<Module> Modules { get; set; } = [];
 
+        public ModuleCategory() {}
         public ModuleCategory(string name, string shortenName)
         {
             Name = name;
@@ -71,20 +72,7 @@ namespace NERBABO.ApiService.Core.Modules.Models
         // Navigation Properties
         public List<Course> Courses { get; set; } = [];
         public List<ModuleTeaching> ModuleTeachings { get; set; } = [];
-        public required ModuleCategory Category { get; set; }
-
-        public override bool Equals(object? obj)
-        {
-            var item = obj as Module;
-
-            if (item is null)
-            {
-                return false;
-            }
-
-            return this.Name.Equals(item.Name, StringComparison.InvariantCultureIgnoreCase)
-                && this.Hours == item.Hours && this.CategoryId == item.CategoryId;
-        }
+        public ModuleCategory Category { get; set; } = new ModuleCategory();
 
         // Constructors
         public Module() { }

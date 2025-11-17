@@ -94,6 +94,7 @@ builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
 // Register Pdf Composer Services
+builder.Services.AddScoped<HelperComposer>();
 builder.Services.AddScoped<SessionsTimelineComposer>();
 builder.Services.AddScoped<CoverActionReportComposer>();
 builder.Services.AddScoped<TeacherFormComposer>();

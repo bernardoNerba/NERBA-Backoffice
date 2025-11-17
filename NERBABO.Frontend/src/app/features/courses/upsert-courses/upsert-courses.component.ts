@@ -154,6 +154,8 @@ export class UpsertCoursesComponent implements IUpsert, OnInit {
       return;
     }
 
+    console.log(this.form.value);
+
     this.loading = true;
 
     this.coursesService

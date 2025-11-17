@@ -34,23 +34,33 @@
                   </p>
                 </div>
               </div>
-              <div class="col-md-3">
-                <div class="property">
-                  <div class="bg-green-white fw-bold">Categorias</div>
-                  <p class="text-break mb-0">{{ module.allDifferentCategories }} h</p>
-                </div>
-              </div>
-              <div class="col-md-2">
+              <div class="col-md-4">
                 <div class="property">
                   <div class="bg-green-white fw-bold">Total Horas</div>
                   <p class="text-break mb-0">{{ module.hours }} h</p>
                 </div>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-3">
                 <div class="property">
                   <div class="bg-green-white fw-bold">Status</div>
                   <p class="text-break mb-0">
                     <app-active-badge [isActive]="module.isActive" />
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="property">
+                  <div class="bg-green-white fw-bold">Área</div>
+                  <p class="text-break mb-0">
+                    {{ module.categoryName }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="property">
+                  <div class="bg-green-white fw-bold">Abreviatura Área</div>
+                  <p class="text-break mb-0">
+                    {{ module.categoryShortenName }}
                   </p>
                 </div>
               </div>

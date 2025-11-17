@@ -8,12 +8,13 @@ export interface Module {
 
 export interface RetrievedModule {
   id: number;
+  categoryId: number;
   name: string;
   hours: number;
   isActive: boolean;
   coursesQnt: number;
-  allDifferentCategories: string;
-  categories: Array<number>;
+  categoryName: string;
+  categoryShortenName: string;
 }
 
 export interface ModuleTeacher {
