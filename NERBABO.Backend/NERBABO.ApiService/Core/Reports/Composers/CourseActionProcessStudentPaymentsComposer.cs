@@ -17,7 +17,7 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
     public async Task<Document> ComposeAsync(CourseAction action, GeneralInfo infos)
     {
         // Pre-load images asynchronously
-        var (generalLogoBytes, programLogoBytes) = await _helperComposer
+        var (generalLogoBytes, programLogoBytes, financementsLogoBytes) = await _helperComposer
             .LoadLogosAsync(infos.Logo, action.Course.Frame.ProgramLogo);
 
         return Document.Create(container =>

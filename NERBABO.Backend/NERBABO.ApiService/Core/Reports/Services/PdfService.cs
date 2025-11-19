@@ -73,7 +73,7 @@ public class PdfService : IPdfService
             var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
                 ?? throw new Exception("Failed to obtain general information.");
 
-            var document = _timelineComposer.Compose(sessions, action, infos);
+            var document = await _timelineComposer.ComposeAsync(sessions, action, infos);
             var pdfBytes = document.GeneratePdf();
 
             // Save the new PDF
