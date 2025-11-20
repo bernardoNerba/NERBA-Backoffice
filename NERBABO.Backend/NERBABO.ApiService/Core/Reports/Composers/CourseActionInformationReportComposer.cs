@@ -1,7 +1,6 @@
-using Humanizer;
 using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Frames.Models;
 using NERBABO.ApiService.Core.Global.Models;
-using NERBABO.ApiService.Core.Reports.Composers.Dtos;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -34,7 +33,40 @@ public class CourseActionInformationReportComposer(HelperComposer helperComposer
         });
     }
 
-    private void ComposeContent(IContainer container, CourseAction action, GeneralInfo infos)
+    private static void ComposeContent(IContainer container, CourseAction action, GeneralInfo infos)
+    {
+        container.Column(column =>
+        {
+            // Title
+            HelperComposer.Title(column, "Informação Geral da Formação");
+
+            // ENTIDADE PROMOTORA Section
+            RenderEntityPromotionSection(column, infos);
+            
+            // ENTIDADE FORMADORA Section
+            RenderEntityFormationSection(column, infos, action);
+
+            // ENQUADRAMENTO Section
+            RenderFrameSection(column, action.Course.Frame);
+
+            // PEDIDO DE FINANCIAMENTO Section
+            RenderFinancementSection(column, infos, action);
+
+            // MÓDULOS Table Section
+            column.Item().PaddingTop(10).Column(section =>
+            {
+                HelperComposer.SectionTitle(section, "Módulos:");
+                section.Item().Table(table =>
+                {
+                    ConfigureTableColumns(table);
+                    RenderTableHeader(table);
+                    RenderTableRows(table, action);
+                });
+            });
+        });
+    }
+
+    private static void RenderFinancementSection(ColumnDescriptor column, GeneralInfo infos, CourseAction action)
     {
         // Count unique session dates
         var uniqueSessionDates = action.ModuleTeachings
@@ -42,46 +74,7 @@ public class CourseActionInformationReportComposer(HelperComposer helperComposer
             .Distinct()
             .Count();
 
-        container.Column(column =>
-        {
-            // Title
-            HelperComposer.Title(column, "Informação Geral da Formação");
-
-            // ENTIDADE PROMOTORA Section
-            column.Item().PaddingBottom(10).Column(section =>
-            {
-                HelperComposer.SectionTitle(section, "Entidade Promotora:");
-
-                HelperComposer.AddFormField(section, "Desginação", infos.Designation ?? "", 70);
-                HelperComposer.AddFormField(section, "Sede", infos.Site ?? "", 70);
-                HelperComposer.AddMultFormField(column,
-                [
-                    new() { Label = "NIPC", Value = infos.Nipc ?? "", Space = 70},
-                    new() { Label = "Entidade Bancária", Value = infos.BankEntity ?? "", Space = 70}
-                ]);
-            });
-
-            // ENTIDADE FORMADORA Section
-            column.Item().PaddingBottom(10).Column(section =>
-            {
-                HelperComposer.SectionTitle(section, "Entidade Formadora:");
-                HelperComposer.AddFormField(section, "Designação", infos.Designation ?? "");
-                HelperComposer.AddFormField(section, "Sede", action.Address ?? "");
-            });
-
-            // ENQUADRAMENTO Section
-            column.Item().PaddingBottom(10).Column(section =>
-            {
-                HelperComposer.SectionTitle(section, "Enquadramento:");
-                HelperComposer.AddFormField(section, "Intervenção", action.Course.Frame.Intervention ?? "");
-                HelperComposer.AddFormField(section, "Programa", action.Course.Frame.Program ?? "");
-                HelperComposer.AddFormField(section, "Tipologia de Intervenção", action.Course.Frame.InterventionType ?? "");
-                HelperComposer.AddFormField(section, "Operação n.º", action.Course.Frame.Operation ?? "");
-                HelperComposer.AddFormField(section, "Tipologia de Operação", action.Course.Frame.OperationType ?? "");
-            });
-
-            // PEDIDO DE FINANCIAMENTO Section
-            column.Item().PaddingBottom(10).Column(section =>
+        column.Item().PaddingBottom(10).Column(section =>
             {
                 HelperComposer.SectionTitle(section, "Pedido de Financiamento:");
                 HelperComposer.AddFormField(section, "Apólice de Seguro N.º", infos.InsurancePolicy ?? "");
@@ -114,47 +107,83 @@ public class CourseActionInformationReportComposer(HelperComposer helperComposer
                 HelperComposer.AddFormField(section, "Caracterização das instalações", infos.FacilitiesCharacterization ?? "");
             });
 
-            // MÓDULOS Table Section
-            column.Item().PaddingTop(10).Column(section =>
-            {
-                section.Item().PaddingBottom(5).Text("MÓDULOS:")
-                    .FontSize(9).FontFamily("Arial").Bold();
+    }
 
-                // Table
-                section.Item().Table(table =>
-                {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.ConstantColumn(40); // Nº
-                        columns.RelativeColumn(); // Designação
-                        columns.ConstantColumn(60); // Horas
-                    });
-
-                    // Header
-                    table.Header(header =>
-                    {
-                        header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("Nº").FontSize(8).FontFamily("Arial").Bold();
-                        header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("Designação").FontSize(8).FontFamily("Arial").Bold();
-                        header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("Horas").FontSize(8).FontFamily("Arial").Bold();
-                    });
-
-                    // Rows - iterate through modules
-                    int moduleNumber = 1;
-                    foreach (var module in action.Course.Modules)
-                    {
-                        table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten1).Padding(3).Text(moduleNumber.ToString()).FontSize(8).FontFamily("Arial");
-                        table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten1).Padding(3).Text(module.Name ?? "").FontSize(8).FontFamily("Arial");
-                        table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten1).Padding(3).Text($"{module.Hours}h").FontSize(8).FontFamily("Arial");
-                        moduleNumber++;
-                    }
-
-                    // Total row
-                    table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("").FontSize(8).FontFamily("Arial");
-                    table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("TOTAL").FontSize(8).FontFamily("Arial").Bold();
-                    table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text($"{action.Course.TotalDuration}h").FontSize(8).FontFamily("Arial").Bold();
-                });
-            });
+    private static void RenderFrameSection(ColumnDescriptor column, Frame frame)
+    {
+        column.Item().PaddingBottom(10).Column(section =>
+        {
+            HelperComposer.SectionTitle(section, "Enquadramento:");
+            HelperComposer.AddFormField(section, "Intervenção", frame.Intervention ?? "");
+            HelperComposer.AddFormField(section, "Programa", frame.Program ?? "");
+            HelperComposer.AddFormField(section, "Tipologia de Intervenção", frame.InterventionType ?? "");
+            HelperComposer.AddFormField(section, "Operação n.º", frame.Operation ?? "");
+            HelperComposer.AddFormField(section, "Tipologia de Operação", frame.OperationType ?? "");
         });
     }
 
+    private static void RenderEntityFormationSection(ColumnDescriptor column, GeneralInfo infos, CourseAction action)
+    {
+        // ENTIDADE FORMADORA Section
+        column.Item().PaddingBottom(10).Column(section =>
+        {
+            HelperComposer.SectionTitle(section, "Entidade Formadora:");
+            HelperComposer.AddFormField(section, "Designação", infos.Designation ?? "");
+            HelperComposer.AddFormField(section, "Sede", action.Address ?? "");
+        });
+    }
+
+    private static void RenderEntityPromotionSection(ColumnDescriptor column, GeneralInfo infos)
+    {
+        column.Item().PaddingBottom(10).Column(section =>
+        {
+            HelperComposer.SectionTitle(section, "Entidade Promotora:");
+
+            HelperComposer.AddFormField(section, "Desginação", infos.Designation ?? "", 70);
+            HelperComposer.AddFormField(section, "Sede", infos.Site ?? "", 70);
+            HelperComposer.AddMultFormField(column,
+            [
+                new() { Label = "NIPC", Value = infos.Nipc ?? "", Space = 70},
+                new() { Label = "Entidade Bancária", Value = infos.BankEntity ?? "", Space = 70}
+            ]);
+        });
+    }
+
+    private static void ConfigureTableColumns(TableDescriptor table)
+    {
+        table.ColumnsDefinition(columns =>
+        {
+            columns.ConstantColumn(40); // Nº
+            columns.RelativeColumn(); // Designação
+            columns.ConstantColumn(60); // Horas
+        });
+    }
+
+    private static void RenderTableHeader(TableDescriptor table)
+    {
+        table.Header(header =>
+        {
+            header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("Nº").FontSize(8).FontFamily("Arial").Bold();
+            header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("Designação").FontSize(8).FontFamily("Arial").Bold();
+            header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("Horas").FontSize(8).FontFamily("Arial").Bold();
+        });
+    }
+
+    private static void RenderTableRows(TableDescriptor table, CourseAction action)
+    {
+        // Rows - iterate through modules
+        int moduleNumber = 1;
+        foreach (var module in action.Course.Modules)
+        {
+            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten1).Padding(3).Text(moduleNumber.ToString()).FontSize(8).FontFamily("Arial");
+            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten1).Padding(3).Text(module.Name ?? "").FontSize(8).FontFamily("Arial");
+            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten1).Padding(3).Text($"{module.Hours}h").FontSize(8).FontFamily("Arial");
+            moduleNumber++;
+        }
+
+        // Total row
+        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("").FontSize(8).FontFamily("Arial");
+        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text("TOTAL").FontSize(8).FontFamily("Arial").Bold();
+        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Text($"{action.Course.TotalDuration}h").FontSize(8).FontFamily("Arial").Bold();
+    }
 }
