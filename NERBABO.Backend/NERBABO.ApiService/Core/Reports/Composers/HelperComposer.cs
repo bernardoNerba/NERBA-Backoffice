@@ -1,7 +1,10 @@
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using NERBABO.ApiService.Core.Reports.Composers.Dtos;
 using NERBABO.ApiService.Shared.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using ZLinq;
 
 namespace NERBABO.ApiService.Core.Reports.Composers
 {
@@ -91,15 +94,64 @@ namespace NERBABO.ApiService.Core.Reports.Composers
             }
         }
     
-        public static void AddInfoRow(ColumnDescriptor column, string label, string? value)
+        public static void AddInfoRow(ColumnDescriptor column, string label, string? value, int space = 100)
         {
             column.Item().PaddingBottom(3).Row(row =>
             {
-                row.ConstantItem(100).Text(label).FontSize(8).FontFamily("Arial").Bold();
+                row.ConstantItem(space).Text(label).FontSize(8).FontFamily("Arial").Bold();
                 row.RelativeItem().Text(value ?? "").FontSize(8).FontFamily("Arial");
             });
         }
     
+        public static void AddFormField(ColumnDescriptor column, string label, string value, int space = 100)
+        {
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                row.ConstantItem(space).Text($"{label} :").FontSize(8).FontFamily("Arial");
+                row.RelativeItem().BorderBottom(1).BorderColor(Colors.Grey.Lighten1)
+                    .Padding(2).Text(value).FontSize(8).FontFamily("Arial");
+            });
+        }
+
+        public static void AddMultFormField(ColumnDescriptor column, ICollection<FormField> fields)
+        {
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                foreach (var field in fields)
+                {
+                    row.ConstantItem(field.Space).Text($"{field.Label} :").FontSize(8).FontFamily("Arial");
+                    row.RelativeItem().BorderBottom(1).BorderColor(Colors.Grey.Lighten1)
+                        .Padding(2).Text(field.Value).FontSize(8).FontFamily("Arial");
+                }
+            });
+        }
+
+        public static void Title(ColumnDescriptor column, string title)
+        {
+            column.Item().PaddingBottom(10).AlignCenter().Text(title)
+                .FontSize(14).FontFamily("Arial").Bold();
+        }
+
+        public static void SubTitle(ColumnDescriptor column, string subTitle)
+        {
+            column.Item().PaddingBottom(10).AlignCenter().Text(subTitle)
+                .FontSize(12).FontFamily("Arial").Bold();
+        }
+
+        public static void SectionTitle(ColumnDescriptor column, string title)
+        {
+            column.Item().PaddingBottom(5).Text(title.ToUpper())
+                .FontSize(10).FontFamily("Arial").Bold();
+        }
+
+        public static string TruncateText(string text, int maxLength)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
+                return text;
+
+            return text.Substring(0, maxLength) + "...";
+        }
+
         public static IContainer CellStyle(IContainer container) =>
         container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
         
