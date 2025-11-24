@@ -119,7 +119,7 @@ public class PdfService : IPdfService
             var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
                 ?? throw new Exception("Failed to obtain general information.");
 
-            var document = _coverComposer.Compose(action, infos);
+            var document = await _coverComposer.ComposeAsync(action, infos);
             var pdfBytes = document.GeneratePdf();
 
             // Save the new PDF

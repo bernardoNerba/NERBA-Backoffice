@@ -36,10 +36,16 @@ namespace NERBABO.ApiService.Core.Modules.Services
                     .Fail("Erro de Validação.", "Categoria de módulo não encontrada.");
             }
 
+            var modules = await _context.Modules
+                .AsNoTracking()
+                .ToListAsync();
+
             // Unique constrains check (name + hours combination + category)
-            if (await _context.Modules.AnyAsync(m =>
-                m.Name.Equals(entityDto.Name, StringComparison.InvariantCultureIgnoreCase) 
-                    && m.Hours == entityDto.Hours && m.CategoryId == entityDto.Category))
+            if (modules.Any(m =>
+                m.Name.Equals(entityDto.Name, StringComparison.InvariantCultureIgnoreCase)
+                && m.Hours == entityDto.Hours
+                && m.CategoryId == entityDto.Category)
+                )
             {
                 _logger.LogWarning("Duplicated Module combination detected");
                 return Result<RetrieveModuleDto>
@@ -175,9 +181,14 @@ namespace NERBABO.ApiService.Core.Modules.Services
                     .Fail("Erro de Validação.", "Não é possível alterar as horas de um módulo que está associado a cursos.");
             }
 
+            var modules = await _context.Modules
+                .AsNoTracking()
+                .Where(m => m.Id != entityDto.Id)
+                .ToListAsync();
+
             // Unique constrains check (name + hours combination)
-            if (await _context.Modules.AnyAsync(m =>
-                m.Name.ToLower().Equals(entityDto.Name.ToLower())
+            if (modules.Any(m =>
+                m.Name.Equals(entityDto.Name, StringComparison.InvariantCultureIgnoreCase)
                 && m.Hours == entityDto.Hours
                 && m.Id != entityDto.Id)
                 )
