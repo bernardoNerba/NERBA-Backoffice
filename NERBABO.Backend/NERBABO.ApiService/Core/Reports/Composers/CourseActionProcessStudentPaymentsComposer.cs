@@ -1,9 +1,8 @@
-using System.Threading.Tasks;
 using NERBABO.ApiService.Core.Actions.Models;
 using NERBABO.ApiService.Core.Enrollments.Models;
 using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Core.Reports.Dtos;
 using NERBABO.ApiService.Shared.Enums;
-using NERBABO.ApiService.Shared.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -17,7 +16,7 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
     public async Task<Document> ComposeAsync(CourseAction action, GeneralInfo infos)
     {
         // Pre-load images asynchronously
-        var (generalLogoBytes, programLogoBytes, financementsLogoBytes) = await _helperComposer
+        var (generalLogoBytes, programLogoBytes, financementLogoBytes) = await _helperComposer
             .LoadLogosAsync(infos.Logo, action.Course.Frame.ProgramLogo);
 
         return Document.Create(container =>
@@ -27,36 +26,9 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
                 page.Size(PageSizes.A4);
                 page.Margin(1.5f, Unit.Centimetre);
 
-                page.Header().Element(c => ComposeHeader(c, generalLogoBytes, programLogoBytes));
+                page.Header().Element(c => HelperComposer.ComposeHeader(c, generalLogoBytes, programLogoBytes));
                 page.Content().Padding(5).Element(c => ComposeContent(c, action, infos));
-                page.Footer().Element(c => ComposeFooter(c, infos));
-            });
-        });
-    }
-
-    private static void ComposeHeader(IContainer container, byte[]? generalLogo, byte[]? programLogo)
-    {
-        container.PaddingVertical(5).Row(row =>
-        {
-            // Left: General Info Logo
-            row.ConstantItem(80).Element(logoContainer =>
-            {
-                if (generalLogo is not null)
-                {
-                    logoContainer.Image(generalLogo).FitArea();
-                }
-            });
-
-            row.RelativeItem();
-
-            // Right: Program Logo
-            row.ConstantItem(80).Element(logoContainer =>
-            {
-                if (programLogo is not null)
-                {
-                    logoContainer.Height(40).AlignRight().AlignMiddle()
-                        .Image(programLogo).FitArea();
-                }
+                page.Footer().Element(c => HelperComposer.ComposeFooter(c, financementLogoBytes, $"{infos.Slug} é Entidade Certificada pela DGERT, C61"));
             });
         });
     }
@@ -145,10 +117,10 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
         });
     }
 
-    private static TableTotals RenderTableRows(TableDescriptor table, CourseAction action, 
+    private static PaymentTableTotals RenderTableRows(TableDescriptor table, CourseAction action, 
         GeneralInfo infos, List<string> categories)
     {
-        var totals = new TableTotals(categories);
+        var totals = new PaymentTableTotals(categories);
 
         foreach (var enrollment in action.ActionEnrollments)
         {
@@ -222,7 +194,7 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
         return stats;
     }
 
-    private static void RenderTableTotals(TableDescriptor table, List<string> categories, TableTotals totals)
+    private static void RenderTableTotals(TableDescriptor table, List<string> categories, PaymentTableTotals totals)
     {
         table.Cell().Element(HelperComposer.TotalCellStyle)
             .AlignCenter().AlignMiddle().Text("Total")
@@ -246,51 +218,5 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
         table.Cell().Element(HelperComposer.TotalCellStyle)
             .AlignCenter().AlignMiddle().Text($"{totals.TotalPayment:0.00}")
             .FontSize(8).Bold();
-    }
-
-    private static void ComposeFooter(IContainer container, GeneralInfo infos)
-    {
-        container.PaddingTop(10).AlignCenter()
-            .Text($"{infos.Slug} é Entidade Certificada pela DGERT, C61")
-            .FontSize(7).FontFamily("Arial").Italic();
-    }
-
-
-    // Helper Classes
-    private class EnrollmentStats
-    {
-        public Dictionary<string, float> HoursByCategory { get; }
-        public float TotalHours { get; set; }
-        public int TotalDays { get; set; }
-        public float TotalPayment { get; set; }
-
-        public EnrollmentStats(List<string> categories)
-        {
-            HoursByCategory = categories.ToDictionary(c => c, c => 0f);
-        }
-    }
-
-    private class TableTotals
-    {
-        public Dictionary<string, float> CategoryTotals { get; }
-        public float TotalHours { get; private set; }
-        public int TotalDays { get; private set; }
-        public float TotalPayment { get; private set; }
-
-        public TableTotals(List<string> categories)
-        {
-            CategoryTotals = categories.ToDictionary(c => c, c => 0f);
-        }
-
-        public void Add(EnrollmentStats stats)
-        {
-            foreach (var kvp in stats.HoursByCategory)
-            {
-                CategoryTotals[kvp.Key] += kvp.Value;
-            }
-            TotalHours += stats.TotalHours;
-            TotalDays += stats.TotalDays;
-            TotalPayment += stats.TotalPayment;
-        }
     }
 }

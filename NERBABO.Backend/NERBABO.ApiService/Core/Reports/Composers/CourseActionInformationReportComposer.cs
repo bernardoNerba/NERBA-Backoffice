@@ -17,7 +17,6 @@ public class CourseActionInformationReportComposer(HelperComposer helperComposer
         var (generalLogoBytes, programLogoBytes, financementLogoBytes) = await _helperComposer
             .LoadLogosAsync(infos.Logo, action.Course.Frame.ProgramLogo, action.Course.Frame.FinancementLogo);
 
-
         // Generate Course Action Information Report PDF
         return Document.Create(container =>
         {
