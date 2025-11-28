@@ -193,7 +193,7 @@ public class PdfService : IPdfService
             var infos = await _context.GeneralInfo.FirstOrDefaultAsync()
                 ?? throw new Exception("Failed to obtain general information.");
 
-            var document = _teacherFormComposer.Compose(teacher, action, moduleTeachings, infos);
+            var document = await _teacherFormComposer.ComposeAsync(teacher, action, moduleTeachings, infos);
             var pdfBytes = document.GeneratePdf();
 
             // Save the new PDF - use teacherId as reference since it's specific to this teacher

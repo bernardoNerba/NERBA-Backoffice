@@ -102,6 +102,15 @@ namespace NERBABO.ApiService.Core.Reports.Composers
                 row.RelativeItem().Text(value ?? "").FontSize(8).FontFamily("Arial");
             });
         }
+
+        public static void AddInfoRowCentered(ColumnDescriptor column, string label, string? value)
+        {
+            column.Item().PaddingBottom(3).AlignCenter().Row(row =>
+            {
+                row.AutoItem().Text($"{label}: ").FontSize(10).FontFamily("Arial").Bold();
+                row.AutoItem().Text(value ?? "").FontSize(10).FontFamily("Arial");
+            });
+        }
     
         public static void AddFormField(ColumnDescriptor column, string label, string value, int space = 100)
         {
@@ -142,6 +151,26 @@ namespace NERBABO.ApiService.Core.Reports.Composers
         {
             column.Item().PaddingBottom(5).Text(title.ToUpper())
                 .FontSize(10).FontFamily("Arial").Bold();
+        }
+
+        public static void AddCheckboxRow(ColumnDescriptor column, bool isChecked, string text, int fontSize = 8)
+        {
+            column.Item().PaddingBottom(2).Row(row =>
+            {
+                row.ConstantItem(15).Text(isChecked ? "☑" : "☐").FontSize(fontSize).FontFamily("Arial");
+                row.RelativeItem().Text(text).FontSize(fontSize).FontFamily("Arial");
+            });
+        }
+
+        public static void AddCheckboxFieldRow(ColumnDescriptor column, bool isChecked, string label, string value, int labelSpace = 60)
+        {
+            column.Item().PaddingBottom(3).Row(row =>
+            {
+                row.ConstantItem(15).Text(isChecked ? "☑" : "☐").FontSize(8).FontFamily("Arial");
+                row.ConstantItem(labelSpace).Text(label).FontSize(8).FontFamily("Arial");
+                row.RelativeItem().BorderBottom(1).BorderColor(Colors.Grey.Lighten1)
+                    .Padding(2).Text(value).FontSize(8).FontFamily("Arial");
+            });
         }
 
         public static string TruncateText(string text, int maxLength)

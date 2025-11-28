@@ -47,29 +47,29 @@ public class CoverActionReportComposer(HelperComposer helperComposer)
                 .Background(Colors.Grey.Lighten4).Padding(25)
                 .Column(column =>
                 {
-                    HelperComposer.AddInfoRow(column, "Programa", action.Course.Frame.Program ?? "");
-                    HelperComposer.AddInfoRow(column, "Tipologia de Intervenção", action.Course.Frame.InterventionType ?? "");
-                    HelperComposer.AddInfoRow(column, "Nº de Operação", action.Course.Frame.Operation ?? "");
-                    HelperComposer.AddInfoRow(column, "Curso", action.Course.Title ?? "");
+                    HelperComposer.AddInfoRowCentered(column, "Programa", action.Course.Frame.Program ?? "");
+                    HelperComposer.AddInfoRowCentered(column, "Tipologia de Intervenção", action.Course.Frame.InterventionType ?? "");
+                    HelperComposer.AddInfoRowCentered(column, "Nº de Operação", action.Course.Frame.Operation ?? "");
+                    HelperComposer.AddInfoRowCentered(column, "Curso", action.Course.Title ?? "");
 
                     // Modules
                     if (action.Course.Modules != null && action.Course.Modules.Count > 0)
                     {
-                        column.Item().PaddingBottom(12).AlignCenter().Column(section =>
+                        column.Item().PaddingTop(5).PaddingBottom(8).AlignCenter().Column(section =>
                         {
-                            section.Item().PaddingBottom(5).AlignCenter().Text("Módulos:")
-                                .FontSize(10).FontFamily("Arial").SemiBold();
+                            section.Item().PaddingBottom(3).Text("Módulos:")
+                                .FontSize(10).FontFamily("Arial").Bold();
 
                             foreach (var module in action.Course.Modules.OrderBy(m => m.Id))
                             {
-                                section.Item().PaddingBottom(2).AlignCenter().Text($"• {module.Name} ({module.Hours}h)")
-                                    .FontSize(9).FontFamily("Arial");
+                                section.Item().PaddingBottom(2).Text($"• {module.Name} ({module.Hours}h)")
+                                    .FontSize(10).FontFamily("Arial");
                             }
                         });
                     }
 
-                    HelperComposer.AddInfoRow(column, "Ação", action.Title ?? "");
-                    HelperComposer.AddInfoRow(column, "Código de Administrativo", action.AdministrationCode ?? "");
+                    HelperComposer.AddInfoRowCentered(column, "Ação", action.Title ?? "");
+                    HelperComposer.AddInfoRowCentered(column, "Código de Administrativo", action.AdministrationCode ?? "");
                 });
         });
     }

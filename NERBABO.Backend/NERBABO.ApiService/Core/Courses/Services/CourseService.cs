@@ -238,7 +238,7 @@ namespace NERBABO.ApiService.Core.Courses.Services
         {
             // Check title uniqueness
             if (await _context.Courses.AnyAsync(c =>
-                c.Title.Equals(entityDto.Title, StringComparison.OrdinalIgnoreCase)))
+                c.Title.ToLower().Equals(entityDto.Title.ToLower())))
             {
                 _logger.LogWarning("Duplicted Title detected.");
                 return Result<RetrieveCourseDto>
