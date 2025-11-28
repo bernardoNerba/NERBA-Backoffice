@@ -35,12 +35,36 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
 
     private static void ComposeContent(IContainer container, CourseAction action, GeneralInfo infos)
     {
+        // Obter todas as datas de sessões e agrupar por mês/ano
+        var sessionsByMonth = action.ActionEnrollments
+            .SelectMany(e => e.Participations)
+            .Where(p => p.Session != null && p.Presence == PresenceEnum.Present)
+            .Select(p => p.Session.ScheduledDate)
+            .Distinct()
+            .OrderBy(d => d)
+            .GroupBy(d => new { d.Year, d.Month })
+            .Select(g => new
+            {
+                Year = g.Key.Year,
+                Month = g.Key.Month,
+                MonthName = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMMM yyyy", new System.Globalization.CultureInfo("pt-PT")),
+                FirstDay = new DateOnly(g.Key.Year, g.Key.Month, 1),
+                LastDay = new DateOnly(g.Key.Year, g.Key.Month, DateTime.DaysInMonth(g.Key.Year, g.Key.Month))
+            })
+            .ToList();
+
+        // Obter lista de meses para apresentar no cabeçalho
+        var monthsList = string.Join(", ", sessionsByMonth.Select(m => m.MonthName));
+
         container.Column(column =>
         {
             // Document Title
-            column.Item().PaddingBottom(20).AlignCenter()
+            column.Item().PaddingBottom(5).AlignCenter()
                 .Text("Processamento de Pagamentos dos Formandos")
                 .FontSize(14).FontFamily("Arial").Bold();
+
+            // Meses cobertos pelo documento
+            HelperComposer.AddInfoRow(column, "Meses:", monthsList);
 
             // Info Rows
             HelperComposer.AddInfoRow(column, "Entidade Formador:", infos.Designation);
@@ -57,15 +81,27 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
                 .OrderBy(c => c)
                 .ToList();
 
-            column.Item().PaddingTop(15).Table(table =>
+            // Renderizar uma tabela para cada mês
+            foreach (var monthGroup in sessionsByMonth)
             {
-                ConfigureTableColumns(table, categories.Count);
-                RenderTableHeader(table, categories);
-                
-                var totals = RenderTableRows(table, action, infos, categories);
-                
-                RenderTableTotals(table, categories, totals);
-            });
+                column.Item().PaddingTop(15).Column(monthSection =>
+                {
+                    // Subtítulo do mês
+                    HelperComposer.SubTitle(monthSection, monthGroup.MonthName);
+
+                    // Tabela de pagamentos do mês
+                    monthSection.Item().Table(table =>
+                    {
+                        ConfigureTableColumns(table, categories.Count);
+                        RenderTableHeader(table, categories);
+
+                        var totals = RenderTableRowsForMonth(table, action, infos, categories,
+                            monthGroup.FirstDay, monthGroup.LastDay);
+
+                        RenderTableTotals(table, categories, totals);
+                    });
+                });
+            }
         });
     }
 
@@ -117,7 +153,7 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
         });
     }
 
-    private static PaymentTableTotals RenderTableRows(TableDescriptor table, CourseAction action, 
+    private static PaymentTableTotals RenderTableRows(TableDescriptor table, CourseAction action,
         GeneralInfo infos, List<string> categories)
     {
         var totals = new PaymentTableTotals(categories);
@@ -161,13 +197,62 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
         return totals;
     }
 
+    private static PaymentTableTotals RenderTableRowsForMonth(TableDescriptor table, CourseAction action,
+        GeneralInfo infos, List<string> categories, DateOnly firstDay, DateOnly lastDay)
+    {
+        var totals = new PaymentTableTotals(categories);
+
+        foreach (var enrollment in action.ActionEnrollments)
+        {
+            var stats = CalculateEnrollmentStatsForMonth(enrollment, infos.HourValueAlimentation, categories, firstDay, lastDay);
+
+            // Apenas renderizar linha se o formando tiver presenças neste mês
+            if (stats.TotalDays > 0)
+            {
+                totals.Add(stats);
+
+                // Student Name + IBAN
+                table.Cell().Element(HelperComposer.CellStyle)
+                    .AlignMiddle()
+                    .Text($"{enrollment.Student.Person.FullName}\n{enrollment.Student.Person.IBAN}")
+                    .FontSize(8);
+
+                // Hours by Category
+                foreach (var category in categories)
+                {
+                    var hours = stats.HoursByCategory.GetValueOrDefault(category, 0f);
+                    table.Cell().Element(HelperComposer.CellStyle)
+                        .AlignCenter().AlignMiddle().Text($"{hours:0.00}")
+                        .FontSize(8);
+                }
+
+                // Total Hours
+                table.Cell().Element(HelperComposer.CellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{stats.TotalHours:0.00}")
+                    .FontSize(8);
+
+                // Total Days
+                table.Cell().Element(HelperComposer.CellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{stats.TotalDays}")
+                    .FontSize(8);
+
+                // Total Payment
+                table.Cell().Element(HelperComposer.CellStyle)
+                    .AlignCenter().AlignMiddle().Text($"{stats.TotalPayment:0.00}")
+                    .FontSize(8);
+            }
+        }
+
+        return totals;
+    }
+
     private static EnrollmentStats CalculateEnrollmentStats(
-        ActionEnrollment enrollment, 
-        float hourValue, 
+        ActionEnrollment enrollment,
+        float hourValue,
         List<string> categories)
     {
         var stats = new EnrollmentStats(categories);
-        
+
         var presentParticipations = enrollment.Participations
             .Where(p => p.Presence == PresenceEnum.Present)
             .ToList();
@@ -179,7 +264,7 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
             {
                 var categoryName = module.Category.ShortenName;
                 var hours = (float)participation.Attendance;
-                
+
                 if (stats.HoursByCategory.ContainsKey(categoryName))
                     stats.HoursByCategory[categoryName] += hours;
                 else
@@ -190,6 +275,44 @@ public class CourseActionProcessStudentPaymentsComposer(HelperComposer helperCom
         stats.TotalHours = (float)presentParticipations.Sum(p => p.Attendance);
         stats.TotalDays = presentParticipations.Count;
         stats.TotalPayment = (float)Math.Round(enrollment.CalculatedTotal(hourValue), 2);
+
+        return stats;
+    }
+
+    private static EnrollmentStats CalculateEnrollmentStatsForMonth(
+        ActionEnrollment enrollment,
+        float hourValue,
+        List<string> categories,
+        DateOnly firstDay,
+        DateOnly lastDay)
+    {
+        var stats = new EnrollmentStats(categories);
+
+        var presentParticipations = enrollment.Participations
+            .Where(p => p.Presence == PresenceEnum.Present &&
+                       p.Session != null &&
+                       p.Session.ScheduledDate >= firstDay &&
+                       p.Session.ScheduledDate <= lastDay)
+            .ToList();
+
+        foreach (var participation in presentParticipations)
+        {
+            var module = participation.Session?.ModuleTeaching?.Module;
+            if (module is not null)
+            {
+                var categoryName = module.Category.ShortenName;
+                var hours = (float)participation.Attendance;
+
+                if (stats.HoursByCategory.ContainsKey(categoryName))
+                    stats.HoursByCategory[categoryName] += hours;
+                else
+                    stats.HoursByCategory[categoryName] = hours;
+            }
+        }
+
+        stats.TotalHours = (float)presentParticipations.Sum(p => p.Attendance);
+        stats.TotalDays = presentParticipations.Count;
+        stats.TotalPayment = stats.TotalHours * hourValue;
 
         return stats;
     }

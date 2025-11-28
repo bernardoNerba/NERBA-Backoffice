@@ -35,15 +35,34 @@ public class SessionsTimelineComposer(HelperComposer helperComposer)
 
     private static void ComposeContent(IContainer container, CourseAction action, GeneralInfo infos, List<Session> sessions)
     {
+        // Agrupar sessões por mês/ano
+        var sessionsByMonth = sessions
+            .OrderBy(s => s.ScheduledDate)
+            .GroupBy(s => new { s.ScheduledDate.Year, s.ScheduledDate.Month })
+            .Select(g => new
+            {
+                Year = g.Key.Year,
+                Month = g.Key.Month,
+                MonthName = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMMM yyyy", new System.Globalization.CultureInfo("pt-PT")),
+                Sessions = g.OrderBy(s => s.ScheduledDate).ToList()
+            })
+            .ToList();
+
+        // Obter lista de meses para apresentar no cabeçalho
+        var monthsList = string.Join(", ", sessionsByMonth.Select(m => m.MonthName));
+
         container.Column(column =>
         {
             // Document Title
             column.Item().PaddingBottom(5).AlignCenter().Text($"Cronograma - {action.Course.Title}")
                 .FontSize(14).FontFamily("Arial").Bold();
-            
+
             // Document Subtitle
-            column.Item().PaddingBottom(20).AlignCenter().Text(action.Course.Frame.OperationType)
+            column.Item().PaddingBottom(5).AlignCenter().Text(action.Course.Frame.OperationType)
                 .FontSize(10).FontFamily("Arial").Bold();
+
+            // Meses cobertos pelo cronograma
+            HelperComposer.AddInfoRow(column, "Meses:", monthsList);
 
             // Info Rows
             HelperComposer.AddInfoRow(column, "Operação:", action.Course.Frame.Operation);
@@ -54,19 +73,27 @@ public class SessionsTimelineComposer(HelperComposer helperComposer)
             HelperComposer.AddInfoRow(column, "Regime:", action.Regiment.Humanize());
             HelperComposer.AddInfoRow(column, "Morada:", action.Address);
 
-            // Sessions table section
-            column.Item().PaddingTop(15).Table(table =>
+            // Renderizar uma tabela para cada mês
+            foreach (var monthGroup in sessionsByMonth)
             {
-                ConfigureTableColumns(table);
-
-                RenderTableHeader(table);
-
-                foreach (var session in sessions)
+                column.Item().PaddingTop(15).Column(monthSection =>
                 {
-                    RenderTableRows(table, session);
-                }
+                    // Subtítulo do mês
+                    HelperComposer.SubTitle(monthSection, monthGroup.MonthName);
 
-            });
+                    // Tabela de sessões do mês
+                    monthSection.Item().Table(table =>
+                    {
+                        ConfigureTableColumns(table);
+                        RenderTableHeader(table);
+
+                        foreach (var session in monthGroup.Sessions)
+                        {
+                            RenderTableRows(table, session);
+                        }
+                    });
+                });
+            }
         });
     }
 

@@ -4,7 +4,6 @@ using NERBABO.ApiService.Shared.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using ZLinq;
 
 namespace NERBABO.ApiService.Core.Reports.Composers
 {
