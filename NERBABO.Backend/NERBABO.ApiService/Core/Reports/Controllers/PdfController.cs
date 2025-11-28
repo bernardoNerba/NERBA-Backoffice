@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NERBABO.ApiService.Core.Account.Models;
-using NERBABO.ApiService.Core.Reports.Models;
 using NERBABO.ApiService.Core.Reports.Services;
 using NERBABO.ApiService.Shared.Models;
 using NERBABO.ApiService.Shared.Services;
@@ -37,7 +36,8 @@ public class PdfController(
         if (user is null)
         {
             var userResult = Result<byte[]>
-                .Fail("Utilizador inválido.", "Utilizador não autenticado.", StatusCodes.Status401Unauthorized);
+                .Fail("Utilizador inválido.", "Utilizador não autenticado.",
+                    StatusCodes.Status401Unauthorized);
             return _responseHandler.HandleResult(userResult);
         }
 

@@ -48,6 +48,9 @@ namespace NERBABO.ApiService.Core.Actions.Models
             return String.Join(" | ", times);
         }
 
+        public string FormattedWeekDays => 
+            string.Join(", ", WeekDays.Select(x => x.Humanize().Transform(To.LowerCase)));
+
         public bool AllSessionsScheduled =>
             ModuleTeachings.All(mt => mt.ScheduledPercent() == 100);
 
