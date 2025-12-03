@@ -1,10 +1,10 @@
 using Humanizer;
-using NERBABO.ApiService.Core.Actions.Models;
-using NERBABO.ApiService.Core.Global.Models;
-using NERBABO.ApiService.Core.Sessions.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using NERBABO.ApiService.Core.Actions.Models;
+using NERBABO.ApiService.Core.Global.Models;
+using NERBABO.ApiService.Core.Sessions.Models;
 
 namespace NERBABO.ApiService.Core.Reports.Composers;
 

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Diagnostics;
 using NERBABO.ApiService.Core.Reports.Composers.Dtos;
 using NERBABO.ApiService.Shared.Services;
 using QuestPDF.Fluent;
@@ -38,7 +38,7 @@ namespace NERBABO.ApiService.Core.Reports.Composers
                 });
             });
         }
-        
+
         public static void ComposeFooter(IContainer container, byte[]? financementLogo, string? smallText = "")
         {
             container.AlignCenter().Column(column =>
@@ -88,11 +88,11 @@ namespace NERBABO.ApiService.Core.Reports.Composers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to load image '{path}': {ex.Message}");
+                Debug.WriteLine($"Failed to load image '{path}': {ex.Message}");
                 return null;
             }
         }
-    
+
         public static void AddInfoRow(ColumnDescriptor column, string label, string? value, int space = 100)
         {
             column.Item().PaddingBottom(3).Row(row =>
@@ -110,7 +110,7 @@ namespace NERBABO.ApiService.Core.Reports.Composers
                 row.AutoItem().Text(value ?? "").FontSize(10).FontFamily("Arial");
             });
         }
-    
+
         public static void AddFormField(ColumnDescriptor column, string label, string value, int space = 100)
         {
             column.Item().PaddingBottom(3).Row(row =>
@@ -181,7 +181,7 @@ namespace NERBABO.ApiService.Core.Reports.Composers
         }
 
         public static IContainer CellStyle(IContainer container) =>
-        container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
+            container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6);
         
         public static IContainer TotalCellStyle(IContainer container) =>
             container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6)
