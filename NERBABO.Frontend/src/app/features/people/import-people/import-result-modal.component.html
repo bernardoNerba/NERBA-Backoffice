@@ -1,0 +1,246 @@
+<div class="modal-header">
+  <h4 class="modal-title">Resultado da Importação</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="onClose()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="container-fluid">
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <p-card styleClass="text-center border-primary">
+          <h6 class="text-muted small">Total Linhas</h6>
+          <h2 class="mb-0">{{ result.totalRows }}</h2>
+        </p-card>
+      </div>
+      <div class="col-md-3">
+        <p-card styleClass="text-center border-success">
+          <h6 class="text-muted small">Sucesso</h6>
+          <h2 class="mb-0 text-success">
+            <i class="pi pi-check-circle me-1"></i>
+            {{ result.successCount }}
+          </h2>
+        </p-card>
+      </div>
+      <div class="col-md-3">
+        <p-card styleClass="text-center border-danger">
+          <h6 class="text-muted small">Falhadas</h6>
+          <h2 class="mb-0 text-danger">
+            <i class="pi pi-times-circle me-1"></i>
+            {{ result.failureCount }}
+          </h2>
+        </p-card>
+      </div>
+      <div class="col-md-3">
+        <p-card styleClass="text-center border-secondary">
+          <h6 class="text-muted small">Duração</h6>
+          <h2 class="mb-0">{{ durationSeconds }}s</h2>
+        </p-card>
+      </div>
+    </div>
+
+    <!-- Global Errors -->
+    @if (result.globalErrors && result.globalErrors.length > 0) {
+    <app-message
+      [show]="true"
+      severity="error"
+      description="Erros Globais"
+      [items]="result.globalErrors"
+    />
+    }
+
+    <!-- Tabs -->
+    <p-tabs [(value)]="activeTab">
+      <p-tablist>
+        <p-tab value="summary">
+          <i class="pi pi-chart-bar me-1"></i>
+          <span>Resumo</span>
+        </p-tab>
+        <p-tab value="success">
+          <i class="pi pi-check-circle me-1"></i>
+          <span>Sucesso ({{ result.successCount }})</span>
+        </p-tab>
+        <p-tab value="failed">
+          <i class="pi pi-times-circle me-1"></i>
+          <span>Falhadas ({{ result.failureCount }})</span>
+        </p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="summary">
+
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="px-3 pt-3">
+              <h5 class="mb-0">Resumo da Importação</h5>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="content">
+
+            <div class="row">
+              <div class="col-md-6">
+                <p>
+                  <strong>Iniciado em:</strong>
+                  {{ result.startedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+                </p>
+                <p>
+                  <strong>Concluído em:</strong>
+                  {{ result.completedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p>
+                  <strong>Duração:</strong> {{ result.duration }}
+                </p>
+                <p>
+                  <strong>Estado:</strong>
+                  @if (result.failureCount === 0) {
+                  <p-tag severity="success" value="Sucesso Completo" />
+                  } @else if (result.successCount > 0) {
+                  <p-tag severity="warn" value="Sucesso Parcial" />
+                  } @else {
+                  <p-tag severity="danger" value="Falhou" />
+                  }
+                </p>
+              </div>
+            </div>
+
+            @if (result.failureCount > 0) {
+            <app-message
+              [show]="true"
+              severity="warn"
+              [description]="failureWarningMessage"
+            />
+            }
+          </ng-template>
+        </p-card>
+        </p-tabpanel>
+
+        <p-tabpanel value="success">
+
+        @if (successfulResults.length === 0) {
+        <app-message
+          [show]="true"
+          severity="info"
+          description="Nenhuma pessoa foi importada com sucesso."
+        />
+        } @else {
+        <p-table
+          [value]="successfulResults"
+          [tableStyle]="{ 'min-width': '50rem' }"
+          styleClass="p-datatable-striped"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Linha</th>
+              <th>Nome Completo</th>
+              <th>NIF</th>
+              <th>Email</th>
+              <th>Género</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td>
+                <p-tag severity="success" [value]="row.rowNumber.toString()" />
+              </td>
+              <td>{{ row.data?.fullName || 'N/A' }}</td>
+              <td>{{ row.data?.nif || 'N/A' }}</td>
+              <td>{{ row.data?.email || 'N/A' }}</td>
+              <td>{{ row.data?.gender || 'N/A' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+        }
+        </p-tabpanel>
+
+        <p-tabpanel value="failed">
+
+        @if (failedResults.length === 0) {
+        <app-message
+          [show]="true"
+          severity="success"
+          description="Todas as linhas foram importadas com sucesso!"
+        />
+        } @else {
+        <p-accordion [multiple]="true">
+          @for (row of failedResults; track row.rowNumber) {
+          <p-accordionTab>
+            <ng-template pTemplate="header">
+              <div class="d-flex align-items-center gap-2">
+                <p-tag severity="danger" [value]="'Linha ' + row.rowNumber" />
+                <span class="text-danger">
+                  {{ row.errors.length }} erro(s) de validação
+                </span>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <!-- Row Data -->
+              <p-card styleClass="mb-3">
+                <ng-template pTemplate="header">
+                  <div class="px-3 pt-3 bg-light">
+                    <strong>Dados da Linha</strong>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                  <div class="row">
+                    @for (item of row.rowData | keyvalue; track item.key) {
+                    <div class="col-md-6 mb-2">
+                      <strong>{{ item.key }}:</strong>
+                      <span class="text-muted ms-2">
+                        {{ item.value || '(vazio)' }}
+                      </span>
+                    </div>
+                    }
+                  </div>
+                </ng-template>
+              </p-card>
+
+              <!-- Errors -->
+              <p-card styleClass="border-danger">
+                <ng-template pTemplate="header">
+                  <div class="px-3 pt-3 bg-danger text-white">
+                    <strong>Erros de Validação</strong>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                  <div class="list-group list-group-flush">
+                    @for (error of row.errors; track error.field) {
+                    <div class="list-group-item">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                          <strong class="text-danger">{{ error.field }}:</strong>
+                          <span class="ms-2">{{ error.errorMessage }}</span>
+                          @if (error.attemptedValue) {
+                          <div class="text-muted small mt-1">
+                            <i>Valor tentado: {{ error.attemptedValue }}</i>
+                          </div>
+                          }
+                        </div>
+                        <p-tag
+                          [severity]="error.severity === 'Error' ? 'danger' : 'warn'"
+                          [value]="error.severity"
+                        />
+                      </div>
+                    </div>
+                    }
+                  </div>
+                </ng-template>
+              </p-card>
+            </ng-template>
+          </p-accordionTab>
+          }
+        </p-accordion>
+        }
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Fechar"
+    severity="primary"
+    (onClick)="onClose()"
+  />
+</div>

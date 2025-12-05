@@ -28,6 +28,16 @@ import { ButtonModule } from 'primeng/button';
               <app-icon [icon]="buttonIcon" [marginEnd]="1" />
               {{ buttonText }}
             </button>
+            @if (showImportButton) {
+            <p-button
+              [icon]="importButtonIcon"
+              [severity]="'primary'"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="onImportButtonClick()"
+              styleClass="ms-3"
+            />
+            }
             } @else {
             <p-menu
               #menu
@@ -61,7 +71,15 @@ export class TitleComponent {
   @Input() buttonDisable: boolean = false;
   @Input() showDropdown: boolean = true;
 
+  @Input() showImportButton: boolean = false;
+  @Input() importButtonIcon: string = 'pi pi-file-excel';
+  @Output() importButtonClick = new EventEmitter<void>();
+
   onButtonClick() {
     this.buttonClick.emit();
+  }
+
+  onImportButtonClick() {
+    this.importButtonClick.emit();
   }
 }

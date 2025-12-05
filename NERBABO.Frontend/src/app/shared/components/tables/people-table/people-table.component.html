@@ -213,12 +213,16 @@
         </td>
         <!-- EMAIL -->
         <td class="text-break">
+          @if (person.email) {
           <app-icon-anchor
             [field]="person.email"
             [display]="person.email.split('@')[0]"
             [link]="'mailto:' + person.email"
             [icon]="'pi pi-envelope'"
           />
+          } @else {
+          <span class="text-muted">N/A</span>
+          }
         </td>
         <!-- PHONE NUMBER -->
         <td class="text-break">

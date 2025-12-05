@@ -1,9 +1,11 @@
 <div class="card-table">
   <app-title
     title="Gestão de Pessoas"
-    buttonText="Registar Pessoa"
+    buttonText="Adicionar Pessoa"
     [buttonIcon]="ICONS.add"
     (buttonClick)="onCreateModal()"
+    [showImportButton]="true"
+    (importButtonClick)="onImportModal()"
   ></app-title>
 
   <div class="card-body">
