@@ -20,11 +20,17 @@ public class ZipCodeAttribute : ValidationAttribute
     /// </returns>
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
+        // Accept null values as valid (for optional fields)
+        if (value is null)
+        {
+            return ValidationResult.Success;
+        }
+
         // Ensure the value is a string
         if (value is string postalCode)
         {
-            // Accept empty string as valid
-            if (string.IsNullOrEmpty(postalCode))
+            // Accept empty or whitespace string as valid
+            if (string.IsNullOrWhiteSpace(postalCode))
             {
                 return ValidationResult.Success;
             }

@@ -1,0 +1,216 @@
+<div class="modal-header">
+  <h4 class="modal-title">Importar Pessoas</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="onCancel()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="container-fluid">
+    <!-- Import Instructions Help Button -->
+    <div class="d-flex justify-content-end mb-3">
+      <p-button
+        icon="pi pi-question-circle"
+        [rounded]="true"
+        [outlined]="true"
+        severity="info"
+        size="small"
+        (onClick)="showInstructionsDialog()"
+        pTooltip="Instruções de importação"
+        tooltipPosition="left"
+      />
+    </div>
+
+    <!-- Template Downloads -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="text-center pt-4">
+              <i class="pi pi-file fs-1 text-success"></i>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <div class="text-center">
+              <h6 class="card-title">Template CSV</h6>
+              <p class="text-muted small">Formato CSV (separado por ponto e vírgula)</p>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <div class="text-center">
+              <p-button
+                icon="pi pi-download"
+                label="Descarregar CSV"
+                severity="success"
+                [outlined]="true"
+                size="small"
+                (onClick)="downloadCsvTemplate()"
+              />
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+      <div class="col-md-6">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="text-center pt-4">
+              <i class="pi pi-file-excel fs-1 text-primary"></i>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <div class="text-center">
+              <h6 class="card-title">Template Excel</h6>
+              <p class="text-muted small">Formato Excel (.xlsx, .xls)</p>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <div class="text-center">
+              <p-button
+                icon="pi pi-download"
+                label="Descarregar Excel"
+                severity="info"
+                [outlined]="true"
+                size="small"
+                (onClick)="downloadExcelTemplate()"
+              />
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+    </div>
+
+    <!-- File Upload -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="px-3 pt-3">
+          <h6 class="mb-0">Carregar Ficheiro</h6>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="content">
+        <div class="mb-3">
+          <label for="fileInput" class="form-label mb-2">
+            Selecione o ficheiro preenchido (CSV ou Excel)
+          </label>
+          <input
+            type="file"
+            class="form-control"
+            id="fileInput"
+            accept=".csv,.xlsx,.xls"
+            (change)="onFileSelected($event)"
+            [disabled]="isLoading"
+          />
+        </div>
+
+        @if (selectedFile) {
+        <p-message severity="success" styleClass="w-100">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div>
+              <i class="pi pi-check-circle me-2"></i>
+              <strong>Ficheiro selecionado:</strong> {{ selectedFile.name }}
+              <span class="badge bg-secondary ms-2">{{ fileType?.toUpperCase() }}</span>
+            </div>
+            <p-button
+              icon="pi pi-times"
+              [text]="true"
+              [rounded]="true"
+              severity="danger"
+              size="small"
+              (onClick)="clearFile()"
+              [disabled]="isLoading"
+            />
+          </div>
+        </p-message>
+        }
+
+        @if (errorMessage) {
+        <app-message
+          [show]="true"
+          severity="error"
+          [description]="errorMessage"
+        />
+        }
+      </ng-template>
+    </p-card>
+
+    <!-- Instructions Dialog -->
+    <p-dialog
+      header="Instruções de Importação"
+      [(visible)]="showInstructions"
+      [modal]="true"
+      [style]="{ width: '50vw' }"
+      [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
+    >
+      <div class="instructions-content">
+        <h6 class="mb-3">Como importar pessoas:</h6>
+        <ol class="mb-4">
+          <li>Faça download do template CSV ou Excel abaixo</li>
+          <li>Preencha o ficheiro com os dados das pessoas</li>
+          <li>Carregue o ficheiro preenchido usando o botão abaixo</li>
+          <li>Campos obrigatórios: <strong>FirstName, LastName, NIF</strong></li>
+        </ol>
+
+        <h6 class="mb-3">Valores permitidos para campos específicos:</h6>
+
+        <div class="enum-section mb-3">
+          <strong>Tipo de Identificação:</strong>
+          <ul class="enum-list">
+            <li><code>Não Especificado</code></li>
+            <li><code>Autorização de Residência</code></li>
+            <li><code>Identificação Civil (CC/BI)</code></li>
+            <li><code>Militar</code></li>
+            <li><code>Passaporte</code></li>
+          </ul>
+        </div>
+
+        <div class="enum-section mb-3">
+          <strong>Género:</strong>
+          <ul class="enum-list">
+            <li><code>Não Especificado</code></li>
+            <li><code>Masculino</code></li>
+            <li><code>Feminino</code></li>
+            <li><code>Outro</code></li>
+          </ul>
+        </div>
+
+        <div class="enum-section mb-3">
+          <strong>Habilitação:</strong>
+          <ul class="enum-list">
+            <li><code>Sem Comprovativo</code></li>
+            <li><code>Sem escolaridade</code></li>
+            <li><code>1º Ano</code> até <code>12º Ano</code></li>
+            <li><code>Pós-Secundário</code></li>
+            <li><code>Bacharelato</code></li>
+            <li><code>Licenciatura</code></li>
+            <li><code>Mestrado</code></li>
+            <li><code>Doutoramento</code></li>
+          </ul>
+        </div>
+
+        <p-message severity="info" styleClass="w-100">
+          <div class="d-flex align-items-start">
+            <i class="pi pi-info-circle me-2 mt-1"></i>
+            <small>
+              Os valores devem incluir os acentos corretamente (ç, ã, etc.). As maiúsculas/minúsculas são flexíveis.
+            </small>
+          </div>
+        </p-message>
+      </div>
+    </p-dialog>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Cancelar"
+    icon="pi pi-times"
+    severity="secondary"
+    [outlined]="true"
+    (onClick)="onCancel()"
+    [disabled]="isLoading"
+  />
+  <p-button
+    [label]="isLoading ? 'A importar...' : 'Importar'"
+    [icon]="isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-upload'"
+    severity="primary"
+    (onClick)="onUpload()"
+    [disabled]="!selectedFile || isLoading"
+  />
+</div>

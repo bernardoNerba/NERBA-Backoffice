@@ -6,6 +6,7 @@ import { PeopleService } from '../../../core/services/people.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { SharedService } from '../../../core/services/shared.service';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
+import { ImportPeopleComponent } from '../import-people/import-people.component';
 import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { PeopleTableComponent } from '../../../shared/components/tables/people-table/people-table.component';
@@ -47,6 +48,12 @@ export class IndexPeopleComponent implements IIndex, OnInit, OnDestroy {
       initialState: {
         id: 0,
       },
+      class: 'modal-lg',
+    });
+  }
+
+  onImportModal(): void {
+    this.modalService.show(ImportPeopleComponent, {
       class: 'modal-lg',
     });
   }

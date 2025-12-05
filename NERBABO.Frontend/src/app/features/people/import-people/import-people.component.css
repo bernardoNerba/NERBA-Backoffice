@@ -1,0 +1,53 @@
+.instructions-content {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.instructions-content h6 {
+  font-weight: 600;
+  color: #374151;
+}
+
+.instructions-content ol {
+  color: #4b5563;
+  line-height: 1.8;
+}
+
+.instructions-content ol li {
+  margin-bottom: 0.5rem;
+}
+
+.enum-section {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+}
+
+.enum-section strong {
+  color: #1f2937;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.enum-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.enum-list li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.enum-list li code {
+  background-color: #e5e7eb;
+  color: #1f2937;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}

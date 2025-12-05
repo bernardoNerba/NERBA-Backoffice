@@ -198,4 +198,43 @@ export class PeopleService {
       tap(() => this.notifyPersonUpdate(personId))
     );
   }
+
+  // Bulk Import operations
+  importPeopleFromCsv(file: File, stopOnFirstError: boolean = false, batchSize: number = 100): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<any>(
+      `${API_ENDPOINTS.all_people}import/csv?stopOnFirstError=${stopOnFirstError}&batchSize=${batchSize}`,
+      formData
+    ).pipe(
+      tap(() => this.triggerFetchPeople())
+    );
+  }
+
+  importPeopleFromExcel(file: File, stopOnFirstError: boolean = false, batchSize: number = 100): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<any>(
+      `${API_ENDPOINTS.all_people}import/excel?stopOnFirstError=${stopOnFirstError}&batchSize=${batchSize}`,
+      formData
+    ).pipe(
+      tap(() => this.triggerFetchPeople())
+    );
+  }
+
+  downloadCsvTemplate(): Observable<Blob> {
+    return this.http.get(
+      `${API_ENDPOINTS.all_people}import/template/csv`,
+      { responseType: 'blob' }
+    );
+  }
+
+  downloadExcelTemplate(): Observable<Blob> {
+    return this.http.get(
+      `${API_ENDPOINTS.all_people}import/template/excel`,
+      { responseType: 'blob' }
+    );
+  }
 }

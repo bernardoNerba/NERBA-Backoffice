@@ -48,6 +48,8 @@ using StackExchange.Redis;
 using NERBABO.ApiService.Core.ModuleAvaliations.Services;
 using NERBABO.ApiService.Core.Payments.Services;
 using NERBABO.ApiService.Core.Kpis.Services;
+using NERBABO.ApiService.Core.People.BulkImport.Services;
+using NERBABO.ApiService.Shared.BulkImport.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,6 +90,11 @@ builder.Services.AddScoped<IModuleAvaliationsService, ModuleAvaliationsService>(
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IKpisService, KpisService>();
 builder.Services.AddScoped<IModuleCategoryService, ModuleCategoryService>();
+
+// Register Bulk Import Services
+builder.Services.AddScoped<CsvParserService>();
+builder.Services.AddScoped<ExcelParserService>();
+builder.Services.AddScoped<IPeopleBulkImportService, PeopleBulkImportService>();
 
 // Register Static Files Services
 builder.Services.AddScoped<IPdfService, PdfService>();
