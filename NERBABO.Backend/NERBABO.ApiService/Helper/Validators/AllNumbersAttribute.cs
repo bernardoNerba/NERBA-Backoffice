@@ -21,11 +21,23 @@ namespace NERBABO.ApiService.Helper.Validators
             // Check if the value is a string
             if (value is string str)
             {
+                // Accept empty/null strings as valid (for optional fields)
+                if (string.IsNullOrEmpty(str))
+                {
+                    return ValidationResult.Success;
+                }
+
                 // Validate that all characters are digits
                 if (str.All(char.IsDigit))
                 {
                     return ValidationResult.Success;
                 }
+            }
+
+            // Accept null values as valid (for optional fields)
+            if (value is null)
+            {
+                return ValidationResult.Success;
             }
 
             // Return error if validation fails, using custom error message if set
