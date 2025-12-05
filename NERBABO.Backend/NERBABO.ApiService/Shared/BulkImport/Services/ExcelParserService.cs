@@ -3,14 +3,10 @@ using NERBABO.ApiService.Shared.Models;
 
 namespace NERBABO.ApiService.Shared.BulkImport.Services;
 
-public class ExcelParserService : IFileParserService
+public class ExcelParserService(ILogger<ExcelParserService> logger
+) : IFileParserService
 {
-    private readonly ILogger<ExcelParserService> _logger;
-
-    public ExcelParserService(ILogger<ExcelParserService> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ExcelParserService> _logger = logger;
 
     public async Task<Result<List<Dictionary<string, string>>>> ParseFileAsync(
         IFormFile file,
@@ -33,6 +29,10 @@ public class ExcelParserService : IFileParserService
 
             // Get headers from first row
             var headerRow = worksheet.FirstRowUsed();
+            if (headerRow == null)
+                return Result<List<Dictionary<string, string>>>
+                    .Fail("Ficheiro vazio", "O ficheiro Excel está vazio.");
+
             var headers = headerRow.Cells()
                 .Select(c => c.GetString().Trim())
                 .ToList();
@@ -86,6 +86,9 @@ public class ExcelParserService : IFileParserService
             var worksheet = workbook.Worksheet(1);
 
             var headerRow = worksheet.FirstRowUsed();
+            if (headerRow == null)
+                return Result.Fail("Ficheiro vazio", "O ficheiro Excel está vazio.");
+
             var fileHeaders = headerRow.Cells()
                 .Select(c => c.GetString().Trim())
                 .ToList();
