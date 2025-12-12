@@ -58,7 +58,7 @@ export class SidebarComponent implements OnInit {
       route: '/frames',
       admin: false,
     },
-    { name: 'Contas', icon: 'pi pi-users', route: '/accs', admin: false },
+    { name: 'Contas', icon: 'pi pi-id-card', route: '/accs', admin: false },
     {
       name: 'Configurações',
       icon: 'pi pi-cog',
