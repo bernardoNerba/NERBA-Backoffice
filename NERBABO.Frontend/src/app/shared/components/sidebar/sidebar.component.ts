@@ -85,6 +85,9 @@ export class SidebarComponent implements OnInit {
 
       if (currentItem) {
         this.activePage = currentItem.name;
+      } else {
+        // Clear active state when navigating to routes not in sidebar (e.g., notifications)
+        this.activePage = '';
       }
     });
 
