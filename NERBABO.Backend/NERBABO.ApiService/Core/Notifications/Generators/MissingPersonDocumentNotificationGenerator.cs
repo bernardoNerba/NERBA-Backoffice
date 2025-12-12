@@ -96,9 +96,22 @@ public class MissingPersonDocumentNotificationGenerator : INotificationGenerator
                     var message = $"Documentação em falta para {person.FirstName} {person.LastName}.\n" +
                                 $"Os seguintes ficheiros não foram submetidos:\n{documentList}";
 
+                    // Normalize message for comparison
+                    var normalizedMessage = message.Replace("\r\n", "\n").Trim();
+
                     // Find the current format unread notification if it exists
-                    var currentUnreadNotification = allExistingNotifications
-                        .FirstOrDefault(n => n.RelatedEntityType == "MissingDocuments" && n.Status == NotificationStatusEnum.Unread);
+                    var unreadNotifications = allExistingNotifications
+                        .Where(n => n.RelatedEntityType == "MissingDocuments" && n.Status == NotificationStatusEnum.Unread)
+                        .ToList();
+
+                    var currentUnreadNotification = unreadNotifications.FirstOrDefault();
+
+                    if (unreadNotifications.Count > 1)
+                    {
+                        var duplicates = unreadNotifications.Skip(1).ToList();
+                        _context.Notifications.RemoveRange(duplicates);
+                        _logger.LogInformation($"Removed {duplicates.Count} duplicate unread notifications for person {person.Id}");
+                    }
 
                     // Find any legacy notifications (old format) - both read and unread
                     var legacyNotifications = allExistingNotifications
@@ -120,7 +133,7 @@ public class MissingPersonDocumentNotificationGenerator : INotificationGenerator
                     // Remove old read notifications if they have the same content as what we'd create
                     // This prevents duplicates when users mark notifications as read
                     var duplicateReadNotifications = readNotifications
-                        .Where(n => n.Message == message)
+                        .Where(n => n.Message != null && n.Message.Replace("\r\n", "\n").Trim() == normalizedMessage)
                         .ToList();
 
                     if (duplicateReadNotifications.Any())
@@ -137,7 +150,7 @@ public class MissingPersonDocumentNotificationGenerator : INotificationGenerator
 
                     // Remove read notifications that are outdated (different content)
                     var outdatedReadNotifications = readNotifications
-                        .Where(n => n.Message != message)
+                        .Where(n => n.Message == null || n.Message.Replace("\r\n", "\n").Trim() != normalizedMessage)
                         .ToList();
 
                     if (outdatedReadNotifications.Any())
@@ -149,7 +162,7 @@ public class MissingPersonDocumentNotificationGenerator : INotificationGenerator
                     if (currentUnreadNotification != null)
                     {
                         // Update existing unread notification if the list of missing documents changed
-                        if (currentUnreadNotification.Message != message)
+                        if (currentUnreadNotification.Message?.Replace("\r\n", "\n").Trim() != normalizedMessage)
                         {
                             currentUnreadNotification.Title = title;
                             currentUnreadNotification.Message = message;

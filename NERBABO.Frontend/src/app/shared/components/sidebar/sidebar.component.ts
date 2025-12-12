@@ -1,35 +1,24 @@
-import { Component, HostListener, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SharedService } from '../../../core/services/shared.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { MenuModule, Menu } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
-import { BadgeModule } from 'primeng/badge';
-
-import { ButtonModule } from 'primeng/button';
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { User } from '../../../core/models/user';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [MenuModule, ButtonModule, CommonModule, BadgeModule],
+  imports: [CommonModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })
-export class SidebarComponent implements OnInit, OnDestroy {
-  @ViewChild('menu') menu!: Menu;
+export class SidebarComponent implements OnInit {
   activePage: string = 'Dashboard';
   isAdmin!: boolean;
-  profileMenuItems!: MenuItem[];
   user$?: Observable<User | null>;
   userRoles!: string[];
   displayRole!: string;
   userId!: string;
-  notificationCount = 0;
-  private destroy$ = new Subject<void>();
 
   mainMenuItems = [
     {
@@ -83,8 +72,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private sharedService: SharedService,
-    private authService: AuthService,
-    private notificationService: NotificationService
+    private authService: AuthService
   ) {
     this.router.events.subscribe(() => {
       const currentUrl = this.router.url;
@@ -108,41 +96,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.isAdmin = this.authService.isUserAdmin;
     this.loadUserPreference();
     this.setDisplayRole();
-
-    // Subscribe to notification count
-    this.notificationService.notificationCount$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((count) => {
-        this.notificationCount = count.unreadCount;
-        this.updateProfileMenuItems();
-      });
-
-    this.updateProfileMenuItems();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private updateProfileMenuItems(): void {
-    this.profileMenuItems = [
-      {
-        label: 'Notificações',
-        icon: 'pi pi-bell',
-        badge: this.notificationCount > 0 ? this.notificationCount.toString() : undefined,
-        command: () => {
-          this.router.navigate(['/notifications']);
-        },
-      },
-      {
-        label: 'Logout',
-        icon: 'pi pi-sign-out',
-        command: () => {
-          this.router.navigate(['/logout']);
-        },
-      },
-    ];
   }
 
   setActivePage(route: string, pageName: string): void {
@@ -166,12 +119,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   onResize() {
     // Only auto-collapse on very small screens if user hasn't manually set preference
     this.checkScreenSize();
-  }
-
-  toggleMenu(event: Event) {
-    if (this.isCollapsed) {
-      this.menu.toggle(event);
-    }
   }
 
   private checkScreenSize() {
