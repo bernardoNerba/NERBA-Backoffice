@@ -79,7 +79,7 @@ namespace NERBABO.ApiService.Core.People.Controllers
         /// <param name="person">The CreatePersonDto object containing the details of the person
         /// to be created.</param>
         /// <response code="201">Person created successfully. Returns the created person details.</response>
-        /// <response code="400">Validation error when validating 
+        /// <response code="400">Validation error when validating
         /// NIF, NISS, IdentificationNumber or Email.</response>
         /// <response code="404">Person, Gender, Habilitation, IdentificationType not found.</response>
         /// <response code="401">Unauthorized access. Invalid jwt, user is not active.</response>
@@ -89,6 +89,43 @@ namespace NERBABO.ApiService.Core.People.Controllers
         public async Task<IActionResult> CreatePersonAsync([FromBody] CreatePersonDto person)
         {
             Result<RetrievePersonDto> result = await _peopleService.CreateAsync(person);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
+        /// Creates a new person with optional PDF files.
+        /// </summary>
+        /// <param name="person">The CreatePersonDto object containing the details of the person.</param>
+        /// <param name="habilitationPdf">Optional habilitation comprovative PDF file.</param>
+        /// <param name="ibanPdf">Optional IBAN comprovative PDF file.</param>
+        /// <param name="identificationDocumentPdf">Optional identification document PDF file.</param>
+        /// <response code="201">Person created successfully with files uploaded.</response>
+        /// <response code="400">Validation error or invalid files.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [HttpPost("create-with-files")]
+        [Authorize(Policy = "ActiveUser")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreatePersonWithFilesAsync(
+            [FromForm] CreatePersonDto person,
+            IFormFile? habilitationPdf = null,
+            IFormFile? ibanPdf = null,
+            IFormFile? identificationDocumentPdf = null)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                var userResult = Result<RetrievePersonDto>
+                    .Fail("Utilizador inválido.", "Utilizador não autenticado.", StatusCodes.Status401Unauthorized);
+                return _responseHandler.HandleResult(userResult);
+            }
+
+            var result = await _peopleService.CreateWithFilesAsync(
+                person,
+                habilitationPdf,
+                ibanPdf,
+                identificationDocumentPdf,
+                user.Id);
             return _responseHandler.HandleResult(result);
         }
 
