@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using NERBABO.ApiService.Core.Notifications.Services;
 using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.People.Models;
@@ -20,6 +21,7 @@ public class PeopleBulkImportService : IPeopleBulkImportService
     private readonly ICachePeopleRepository _cache;
     private readonly CsvParserService _csvParser;
     private readonly ExcelParserService _excelParser;
+    private readonly INotificationService _notificationService;
 
     // Required headers for People import
     private readonly List<string> RequiredHeaders = new()
@@ -41,13 +43,15 @@ public class PeopleBulkImportService : IPeopleBulkImportService
         AppDbContext context,
         ICachePeopleRepository cache,
         CsvParserService csvParser,
-        ExcelParserService excelParser)
+        ExcelParserService excelParser,
+        INotificationService notificationService)
     {
         _logger = logger;
         _context = context;
         _cache = cache;
         _csvParser = csvParser;
         _excelParser = excelParser;
+        _notificationService = notificationService;
     }
 
     public async Task<Result<BulkImportResult<RetrievePersonDto>>> ImportFromFileAsync(
@@ -185,6 +189,13 @@ public class PeopleBulkImportService : IPeopleBulkImportService
 
             // 5. Update cache
             await _cache.RemovePeopleCacheAsync();
+
+            // 6. Generate notifications for any missing documents
+            if (result.SuccessCount > 0)
+            {
+                _logger.LogInformation("Generating notifications for imported people with missing documents...");
+                await _notificationService.GenerateNotificationsAsync();
+            }
 
             result.CompletedAt = DateTime.UtcNow;
             result.Success = result.FailureCount == 0;
