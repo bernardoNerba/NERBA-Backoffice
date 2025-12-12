@@ -10,6 +10,7 @@ using NERBABO.ApiService.Core.Global.Models;
 using NERBABO.ApiService.Core.ModuleAvaliations.Models;
 using NERBABO.ApiService.Core.Modules.Models;
 using NERBABO.ApiService.Core.ModuleTeachings.Models;
+using NERBABO.ApiService.Core.Notifications.Models;
 using NERBABO.ApiService.Core.People.Models;
 using NERBABO.ApiService.Core.Reports.Models;
 using NERBABO.ApiService.Core.SessionParticipations.Models;
@@ -39,6 +40,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<SavedPdf> SavedPdfs { get; set; }
     public DbSet<SessionParticipation> SessionParticipations { get; set; }
     public DbSet<ModuleAvaliation> ModuleAvaliations { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -71,5 +73,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         builder.ApplyConfiguration(new SavedPdfConfiguration());
         builder.ApplyConfiguration(new ModuleAvaliationConfiguration());
         builder.ApplyConfiguration(new SessionParticipationConfiguration());
+        builder.ApplyConfiguration(new NotificationConfiguration());
     }
 }
