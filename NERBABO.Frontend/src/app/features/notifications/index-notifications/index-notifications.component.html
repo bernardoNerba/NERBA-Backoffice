@@ -1,0 +1,240 @@
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<div class="card-notifications">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="text-truncate mb-3">
+        Notificações
+    </h3>
+    <p-button
+      icon="pi pi-refresh"
+      [text]="true"
+      [rounded]="true"
+      severity="secondary"
+      tooltipPosition="left"
+      [style]="{ 'font-size': '1.25rem' }"
+      (onClick)="onRefreshNotifications()"
+      [loading]="isRefreshing"
+      pTooltip="Atualizar notificações"
+    ></p-button>
+  </div>
+
+  <div class="card-body">
+    <!-- Header for sorting and layout -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-3">
+      <p-dropdown
+        [options]="sortOptions"
+        [ngModel]="sortValue$ | async"
+        placeholder="Ordenar por"
+        (onChange)="onSortChange($event)"
+        class="mb-3 mb-sm-0 me-sm-3 w-100 w-sm-auto"
+      ></p-dropdown>
+      <p-selectButton [options]="layoutOptions" [(ngModel)]="layout" optionValue="value" optionLabel="value">
+        <ng-template let-item pTemplate="item">
+          <i [class]="item.icon" pTooltip="{{ item.tooltip }}" tooltipPosition="top"></i>
+        </ng-template>
+      </p-selectButton>
+    </div>
+
+    <!-- Main Content Area -->
+    <div *ngIf="viewData$ | async as viewData; else loading">
+      <div *ngIf="viewData.totalRecords > 0; else empty">
+        <!-- List View -->
+        <div *ngIf="layout === 'list'" class="notification-list">
+          <div *ngFor="let notification of viewData.notifications" class="mb-3">
+            <!-- List Item Template -->
+            <div
+              class="card notification-card shadow-sm border-start-0"
+              [ngClass]="[getTypeBorderClass(notification.type), notification.status === 'Não Lida' ? 'bg-light' : 'bg-white']"
+              style="border-width: 0 0 0 4px !important"
+            >
+              <div class="card-body d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3 p-3">
+                <!-- Avatar -->
+                <p-avatar
+                  [icon]="getTypeIcon(notification.type)"
+                  size="large"
+                  shape="circle"
+                  [styleClass]="getAvatarClass(notification.type)"
+                ></p-avatar>
+
+                <!-- Main Content -->
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="fw-semibold mb-1 text-truncate" [title]="notification.title">{{ notification.title }}</h6>
+                    <small class="text-muted text-nowrap ms-3">{{ notification.createdAt | date: 'dd/MM/yy HH:mm' }}</small>
+                  </div>
+                  <p class="text-muted small mb-2" [title]="notification.message" style="white-space: pre-line;">{{ notification.message }}</p>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <p-tag [value]="notification.type" [severity]="getTypeSeverity(notification.type)"></p-tag>
+                    <p-tag [value]="notification.status" [severity]="getStatusSeverity(notification.status)"></p-tag>
+                    <p-chip
+                      *ngIf="notification.relatedPersonName"
+                      [label]="notification.relatedPersonName ?? ''"
+                      icon="pi pi-user"
+                      styleClass="bg-secondary-subtle text-body-secondary"
+                    ></p-chip>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex flex-column gap-2 ms-sm-auto align-self-start align-self-sm-center mt-3 mt-sm-0">
+                  <p-button
+                    *ngIf="notification.status === 'Não Lida'"
+                    icon="pi pi-check"
+                    size="small"
+                    [rounded]="true"
+                    [outlined]="true"
+                    severity="primary"
+                    pTooltip="Marcar como lida"
+                    tooltipPosition="top"
+                    (onClick)="onMarkAsRead(notification)"
+                  ></p-button>
+                  <p-button
+                    *ngIf="notification.actionUrl"
+                    icon="pi pi-arrow-right"
+                    size="small"
+                    [rounded]="true"
+                    [outlined]="true"
+                    severity="info"
+                    pTooltip="Ver detalhes"
+                    tooltipPosition="top"
+                    (onClick)="onNavigateToRelatedEntity(notification)"
+                  ></p-button>
+                  <p-button
+                    *ngIf="isAdmin"
+                    icon="pi pi-trash"
+                    size="small"
+                    [rounded]="true"
+                    [outlined]="true"
+                    severity="danger"
+                    pTooltip="Eliminar"
+                    tooltipPosition="top"
+                    (onClick)="onDeleteNotification(notification)"
+                  ></p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid View -->
+        <div *ngIf="layout === 'grid'" class="row">
+          <div *ngFor="let notification of viewData.notifications" class="col-12 col-md-6 col-xl-4 p-2">
+            <!-- Grid Item Template -->
+            <div
+              class="card notification-card h-100 shadow-sm border-start-0"
+              [ngClass]="[getTypeBorderClass(notification.type), notification.status === 'Não Lida' ? 'bg-light' : 'bg-white']"
+              style="border-width: 0 0 0 4px !important"
+            >
+              <div class="card-body d-flex flex-column p-3">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                  <p-avatar
+                    [icon]="getTypeIcon(notification.type)"
+                    size="large"
+                    shape="circle"
+                    [styleClass]="getAvatarClass(notification.type)"
+                  ></p-avatar>
+                  <div class="d-flex flex-column align-items-end">
+                    <p-tag
+                      [value]="notification.status"
+                      [severity]="getStatusSeverity(notification.status)"
+                      class="mb-1"
+                    ></p-tag>
+                    <small class="text-muted">
+                      {{ notification.createdAt | date: 'dd/MM/yyyy' }}
+                    </small>
+                  </div>
+                </div>
+
+                <div class="flex-grow-1 mb-3">
+                  <h6 class="fw-semibold mb-1 text-truncate" [title]="notification.title">
+                    {{ notification.title }}
+                  </h6>
+                  <p-tag
+                    [value]="notification.type"
+                    [severity]="getTypeSeverity(notification.type)"
+                    styleClass="d-inline-flex mb-2"
+                  ></p-tag>
+                  <p class="text-body-secondary small" style="white-space: pre-line;">
+                    {{ notification.message }}
+                  </p>
+                </div>
+
+                <p-divider></p-divider>
+
+                <div class="d-flex align-items-center justify-content-between">
+                  <p-chip
+                    *ngIf="notification.relatedPersonName"
+                    [label]="notification.relatedPersonName ?? ''"
+                    icon="pi pi-user"
+                    styleClass="bg-secondary-subtle text-body-secondary"
+                  ></p-chip>
+                  <div class="d-flex gap-2 ms-auto">
+                    <p-button
+                      *ngIf="notification.status === 'Não Lida'"
+                      icon="pi pi-check"
+                      size="small"
+                      [rounded]="true"
+                      [outlined]="true"
+                      severity="primary"
+                      pTooltip="Marcar como lida"
+                      tooltipPosition="top"
+                      (onClick)="onMarkAsRead(notification)"
+                    ></p-button>
+                    <p-button
+                      *ngIf="notification.actionUrl"
+                      icon="pi pi-arrow-right"
+                      size="small"
+                      [rounded]="true"
+                      [outlined]="true"
+                      severity="info"
+                      pTooltip="Ver detalhes"
+                      tooltipPosition="top"
+                      (onClick)="onNavigateToRelatedEntity(notification)"
+                    ></p-button>
+                    <p-button
+                      *ngIf="isAdmin"
+                      icon="pi pi-trash"
+                      size="small"
+                      [rounded]="true"
+                      [outlined]="true"
+                      severity="danger"
+                      pTooltip="Eliminar"
+                      tooltipPosition="top"
+                      (onClick)="onDeleteNotification(notification)"
+                    ></p-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paginator -->
+        <p-paginator
+          (onPageChange)="onPageChange($event)"
+          [first]="viewData.pagination.first ?? 0"
+          [rows]="viewData.pagination.rows ?? 10"
+          [totalRecords]="viewData.totalRecords"
+          [rowsPerPageOptions]="[10, 20, 50]"
+          styleClass="mt-4"
+        ></p-paginator>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <ng-template #loading>
+      <div class="d-flex flex-column align-items-center justify-content-center p-5">
+        <i class="pi pi-spin pi-spinner text-primary" style="font-size: 3rem"></i>
+        <p class="h5 text-muted mt-3">A carregar notificações...</p>
+      </div>
+    </ng-template>
+
+    <!-- Empty State -->
+    <ng-template #empty>
+      <div class="d-flex flex-column align-items-center justify-content-center p-5 text-center">
+        <i class="pi pi-bell text-secondary" style="font-size: 3rem"></i>
+        <p class="h5 text-muted mt-3">Nenhuma notificação encontrada.</p>
+        <p class="text-muted">Quando houver novas notificações, elas aparecerão aqui.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

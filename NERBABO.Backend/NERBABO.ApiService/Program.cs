@@ -91,6 +91,15 @@ builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IKpisService, KpisService>();
 builder.Services.AddScoped<IModuleCategoryService, ModuleCategoryService>();
 
+// Register Notification Services
+builder.Services.AddScoped<NERBABO.ApiService.Core.Notifications.Services.INotificationService, NERBABO.ApiService.Core.Notifications.Services.NotificationService>();
+
+// Register Notification Generators
+builder.Services.AddScoped<NERBABO.ApiService.Core.Notifications.Generators.INotificationGenerator, NERBABO.ApiService.Core.Notifications.Generators.MissingPersonDocumentNotificationGenerator>();
+
+// Register Notification Background Service
+builder.Services.AddHostedService<NERBABO.ApiService.Core.Notifications.BackgroundServices.NotificationBackgroundService>();
+
 // Register Bulk Import Services
 builder.Services.AddScoped<CsvParserService>();
 builder.Services.AddScoped<ExcelParserService>();

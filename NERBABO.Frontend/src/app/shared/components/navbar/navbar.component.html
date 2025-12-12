@@ -34,6 +34,13 @@
           </ol>
         </nav>
       </div>
+
+      <!-- NOTIFICATIONS & LOGOUT -->
+      <div class="d-flex align-items-center gap-2 ms-3">
+        <p-button [text]="true" icon="pi pi-bell" badgeSeverity="danger" badge="{{ notificationCount.toString() }}" styleClass="m-0" pTooltip="Notificações" tooltipPosition="bottom" (click)="router.navigate(['/notifications'])" />
+
+        <button pButton icon="pi pi-sign-out" class="p-button-rounded p-button-text" (click)="logout()" pTooltip="Logout" tooltipPosition="bottom"></button>
+      </div>
     </div>
   </div>
 </nav>

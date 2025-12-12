@@ -1,26 +1,20 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SharedService } from '../../../core/services/shared.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { MenuModule, Menu } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
-
-import { ButtonModule } from 'primeng/button';
 import { Observable } from 'rxjs';
 import { User } from '../../../core/models/user';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [MenuModule, ButtonModule, CommonModule],
+  imports: [CommonModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })
 export class SidebarComponent implements OnInit {
-  @ViewChild('menu') menu!: Menu;
   activePage: string = 'Dashboard';
   isAdmin!: boolean;
-  profileMenuItems!: MenuItem[];
   user$?: Observable<User | null>;
   userRoles!: string[];
   displayRole!: string;
@@ -102,23 +96,6 @@ export class SidebarComponent implements OnInit {
     this.isAdmin = this.authService.isUserAdmin;
     this.loadUserPreference();
     this.setDisplayRole();
-
-    this.profileMenuItems = [
-      {
-        label: 'Notificações',
-        icon: 'pi pi-bell',
-        command: () => {
-          this.router.navigate(['/notifications']);
-        },
-      },
-      {
-        label: 'Logout',
-        icon: 'pi pi-sign-out',
-        command: () => {
-          this.router.navigate(['/logout']);
-        },
-      },
-    ];
   }
 
   setActivePage(route: string, pageName: string): void {
@@ -142,12 +119,6 @@ export class SidebarComponent implements OnInit {
   onResize() {
     // Only auto-collapse on very small screens if user hasn't manually set preference
     this.checkScreenSize();
-  }
-
-  toggleMenu(event: Event) {
-    if (this.isCollapsed) {
-      this.menu.toggle(event);
-    }
   }
 
   private checkScreenSize() {

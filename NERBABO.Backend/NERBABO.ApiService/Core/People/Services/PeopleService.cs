@@ -3,6 +3,7 @@ using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NERBABO.ApiService.Core.Account.Models;
+using NERBABO.ApiService.Core.Notifications.Services;
 using NERBABO.ApiService.Core.People.Cache;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.People.Models;
@@ -25,7 +26,8 @@ public class PeopleService(
         ICachePeopleRepository cache,
         ICacheStudentsRepository cacheStudents,
         ICacheTeacherRepository cacheTeacher,
-        IPdfService pdfService
+        IPdfService pdfService,
+        INotificationService notificationService
 
     ) : IPeopleService
 {
@@ -36,6 +38,7 @@ public class PeopleService(
     private readonly ICacheStudentsRepository _cacheStudents = cacheStudents;
     private readonly ICacheTeacherRepository _cacheTeacher = cacheTeacher;
     private readonly IPdfService _pdfService = pdfService;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<Result<RetrievePersonDto>> CreateAsync(CreatePersonDto entityDto)
     {
@@ -622,10 +625,13 @@ public class PeopleService(
             await _context.SaveChangesAsync();
 
             var retrievePerson = Person.ConvertEntityToRetrieveDto(person);
-            
+
             // Update cache
             await RemoveRelatedCache(person.Id);
             await _cache.SetSinglePersonCacheAsync(retrievePerson);
+
+            // Delete notifications related to this person's missing habilitation document
+            await _notificationService.GenerateNotificationsAsync();
 
             return Result<RetrievePersonDto>
                 .Ok(retrievePerson, "PDF carregado.", "PDF de certificado de habilitações carregado com sucesso.");
@@ -720,6 +726,9 @@ public class PeopleService(
             // Update cache
             await RemoveRelatedCache(person.Id);
 
+            // Regenerate notifications for this person since the document was deleted
+            await _notificationService.GenerateNotificationsAsync();
+
             return Result
                 .Ok("PDF eliminado.", "PDF de certificado de habilitações eliminado com sucesso.");
         }
@@ -772,10 +781,13 @@ public class PeopleService(
             await _context.SaveChangesAsync();
 
             var retrievePerson = Person.ConvertEntityToRetrieveDto(person);
-            
+
             // Update cache
             await RemoveRelatedCache(person.Id);
             await _cache.SetSinglePersonCacheAsync(retrievePerson);
+
+            // Delete notifications related to this person's missing IBAN document
+            await _notificationService.GenerateNotificationsAsync();
 
             return Result<RetrievePersonDto>
                 .Ok(retrievePerson, "PDF carregado.", "PDF de comprovativo de IBAN carregado com sucesso.");
@@ -867,6 +879,9 @@ public class PeopleService(
             // Update cache
             await RemoveRelatedCache(person.Id);
 
+            // Regenerate notifications for this person since the document was deleted
+            await _notificationService.GenerateNotificationsAsync();
+
             return Result
                 .Ok("PDF eliminado.", "PDF de comprovativo de IBAN eliminado com sucesso.");
         }
@@ -917,10 +932,13 @@ public class PeopleService(
             await _context.SaveChangesAsync();
 
             var retrievePerson = Person.ConvertEntityToRetrieveDto(person);
-            
+
             // Update cache
             await RemoveRelatedCache(person.Id);
             await _cache.SetSinglePersonCacheAsync(retrievePerson);
+
+            // Delete notifications related to this person's missing documents
+            await _notificationService.GenerateNotificationsAsync();
 
             return Result<RetrievePersonDto>
                 .Ok(retrievePerson, "PDF carregado.", "PDF de documento de identificação carregado com sucesso.");
@@ -1011,6 +1029,9 @@ public class PeopleService(
 
             // Update cache
             await RemoveRelatedCache(person.Id);
+
+            // Regenerate notifications for this person since the document was deleted
+            await _notificationService.GenerateNotificationsAsync();
 
             return Result
                 .Ok("PDF eliminado.", "PDF de documento de identificação eliminado com sucesso.");
