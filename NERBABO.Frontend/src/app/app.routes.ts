@@ -177,6 +177,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'notifications',
+    loadComponent: () =>
+      import('./features/notifications/index-notifications/index-notifications.component').then(
+        (m) => m.IndexNotificationsComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'not-found',
     loadComponent: () =>
       import('./shared/not-found/not-found.component').then(

@@ -143,4 +143,12 @@ export const API_ENDPOINTS = {
   // Payments endpoints
   payments: `${BASE_URL}/api/payments/`,
   teacherPayments: `${BASE_URL}/api/payments/teachers/`,
+
+  // Notifications endpoints
+  notifications: `${BASE_URL}/api/notification/`,
+  notification_count: `${BASE_URL}/api/notification/count`,
+  notification_unread: `${BASE_URL}/api/notification/unread`,
+  notification_mark_read: (id: number) => `${BASE_URL}/api/notification/${id}/mark-read`,
+  notification_mark_all_read: `${BASE_URL}/api/notification/mark-all-read`,
+  notification_generate: `${BASE_URL}/api/notification/generate`,
 };

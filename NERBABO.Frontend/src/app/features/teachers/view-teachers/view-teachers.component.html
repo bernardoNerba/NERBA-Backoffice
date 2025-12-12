@@ -1,9 +1,9 @@
 @if (person$ | async; as person) {
 <app-title [title]="person.fullName" [isDropdown]="true" [menuItems]="menuItems" />
 
-<div class="card w-100 hv-100 mt-2">
+<div class="card-table w-100 hv-100 mt-2">
   <div class="card-header">
-    <app-nav-header [person]="person" [activePage]="'teacher'" />
+    <app-nav-header [person]="person"/>
   </div>
   <div class="card-body">
     <div class="container-fluid px-0 my-4">

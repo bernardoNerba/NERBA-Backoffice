@@ -1,47 +1,55 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Person } from '../../../core/models/person';
-import { RouterLink } from '@angular/router';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-nav-header',
-  imports: [RouterLink],
-  template: `<ul class="nav nav-tabs card-header-tabs">
-    <li class="nav-item">
-      <a
-        class="nav-link {{ activePage === 'person' ? 'active' : '' }}"
-        aria-current="true"
-        [routerLink]="['/people', person.id]"
-        >Pessoa</a
-      >
-    </li>
-    @if(person.isStudent){
-    <li class="nav-item">
-      <a
-        class="nav-link {{ activePage === 'student' ? 'active' : '' }}"
-        [routerLink]="['/people', person.id, 'student']"
-        >Formando</a
-      >
-    </li>
-    } @if(person.isTeacher){
-    <li class="nav-item">
-      <a
-        class="nav-link {{ activePage === 'teacher' ? 'active' : '' }}"
-        [routerLink]="['/people', person.id, 'teacher']"
-        >Formador</a
-      >
-    </li>
-    } @if(person.isColaborator){
-    <li class="nav-item">
-      <a
-        class="nav-link {{ activePage === 'collaborator' ? 'active' : '' }}"
-        [routerLink]="['/people', person.id, 'acc']"
-        >Colaborador</a
-      >
-    </li>
-    }
-  </ul>`,
+  standalone: true,
+  imports: [TabMenuModule],
+  template: `<p-tabMenu [model]="items"></p-tabMenu>`,
 })
-export class NavHeaderComponent {
+export class NavHeaderComponent implements OnChanges {
   @Input({ required: true }) person!: Person;
-  @Input({ required: true }) activePage!: string;
+
+  items: MenuItem[] = [];
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['person'] && changes['person'].currentValue) {
+      this.buildMenuItems();
+    }
+  }
+
+  private buildMenuItems(): void {
+    const menu: MenuItem[] = [
+      {
+        label: 'Pessoa',
+        routerLink: ['/people', this.person.id],
+        routerLinkActiveOptions: { exact: true },
+      },
+    ];
+
+    if (this.person.isStudent) {
+      menu.push({
+        label: 'Formando',
+        routerLink: ['/people', this.person.id, 'student'],
+      });
+    }
+
+    if (this.person.isTeacher) {
+      menu.push({
+        label: 'Formador',
+        routerLink: ['/people', this.person.id, 'teacher'],
+      });
+    }
+
+    if (this.person.isColaborator) {
+      menu.push({
+        label: 'Colaborador',
+        routerLink: ['/people', this.person.id, 'acc'],
+      });
+    }
+
+    this.items = menu;
+  }
 }

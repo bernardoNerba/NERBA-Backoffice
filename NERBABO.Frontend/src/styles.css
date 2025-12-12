@@ -503,3 +503,15 @@ a.nav-link:hover {
 .p-component .p-menu {
   z-index: 9999 !important;
 }
+
+/* Custom styles for notification tags to make them smaller */
+.card-notifications .p-tag {
+  font-size: 0.875rem; /* 14px */
+  padding: 0.2rem 0.4rem;
+}
+
+/* Custom styles for notification chips to make them smaller */
+.card-notifications .p-chip {
+  font-size: 0.875rem; /* 14px */
+  padding: 0.2rem 0.4rem;
+}

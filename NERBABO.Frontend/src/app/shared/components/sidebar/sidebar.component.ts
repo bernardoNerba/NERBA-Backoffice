@@ -1,22 +1,25 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { SharedService } from '../../../core/services/shared.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { MenuModule, Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
+import { BadgeModule } from 'primeng/badge';
 
 import { ButtonModule } from 'primeng/button';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { User } from '../../../core/models/user';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [MenuModule, ButtonModule, CommonModule],
+  imports: [MenuModule, ButtonModule, CommonModule, BadgeModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   @ViewChild('menu') menu!: Menu;
   activePage: string = 'Dashboard';
   isAdmin!: boolean;
@@ -25,6 +28,8 @@ export class SidebarComponent implements OnInit {
   userRoles!: string[];
   displayRole!: string;
   userId!: string;
+  notificationCount = 0;
+  private destroy$ = new Subject<void>();
 
   mainMenuItems = [
     {
@@ -78,7 +83,8 @@ export class SidebarComponent implements OnInit {
   constructor(
     private router: Router,
     private sharedService: SharedService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {
     this.router.events.subscribe(() => {
       const currentUrl = this.router.url;
@@ -103,10 +109,28 @@ export class SidebarComponent implements OnInit {
     this.loadUserPreference();
     this.setDisplayRole();
 
+    // Subscribe to notification count
+    this.notificationService.notificationCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((count) => {
+        this.notificationCount = count.unreadCount;
+        this.updateProfileMenuItems();
+      });
+
+    this.updateProfileMenuItems();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private updateProfileMenuItems(): void {
     this.profileMenuItems = [
       {
         label: 'Notificações',
         icon: 'pi pi-bell',
+        badge: this.notificationCount > 0 ? this.notificationCount.toString() : undefined,
         command: () => {
           this.router.navigate(['/notifications']);
         },
