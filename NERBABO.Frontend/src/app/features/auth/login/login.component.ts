@@ -11,16 +11,27 @@ import { AuthService } from '../../../core/services/auth.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { User } from '../../../core/models/user';
 import { Login } from '../../../core/models/login';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup = new FormGroup({}); // form reference
   submitted: boolean = false; // form was submitted?
+  loading: boolean = false; // loading state for button
   errorMessages: string[] = []; // Array of erros
   returnUrl: string | null = null; // url from there the user was redirected to login page
 
@@ -68,6 +79,7 @@ export class LoginComponent implements OnInit {
     this.errorMessages = [];
 
     if (this.loginForm.valid) {
+      this.loading = true;
       // after checking validatores try login
       this.authService.login(this.loginForm.value as Login).subscribe({
         next: () => {
@@ -80,10 +92,12 @@ export class LoginComponent implements OnInit {
           }
           // display welcome message
           this.sharedService.showSuccess('Bem-Vindo(a) ao Backoffice.');
+          this.loading = false;
         },
         error: (error) => {
           // display error from api
           this.sharedService.handleErrorResponse(error);
+          this.loading = false;
         },
       });
     }
