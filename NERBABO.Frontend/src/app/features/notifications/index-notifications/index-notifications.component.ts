@@ -18,10 +18,11 @@ import { MessageModule } from 'primeng/message';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { ICONS } from '../../../core/objects/icons';
-import { ConfirmationService, SelectItem } from 'primeng/api';
+import { SelectItem } from 'primeng/api';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { DeleteNotificationsComponent } from '../delete-notifications/delete-notifications.component';
 
 @Component({
   selector: 'app-index-notifications',
@@ -41,9 +42,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     DropdownModule,
     PaginatorModule,
     SelectButtonModule,
-    ConfirmDialogModule,
   ],
-  providers: [ConfirmationService],
 })
 export class IndexNotificationsComponent implements OnInit, OnDestroy {
   loading$: Observable<boolean>;
@@ -80,7 +79,7 @@ export class IndexNotificationsComponent implements OnInit, OnDestroy {
     private sharedService: SharedService,
     private authService: AuthService,
     private router: Router,
-    private confirmationService: ConfirmationService
+    private modalService: BsModalService
   ) {
     this.loading$ = this.notificationService.loading$;
 
@@ -178,16 +177,12 @@ export class IndexNotificationsComponent implements OnInit, OnDestroy {
   }
 
   onDeleteNotification(notification: Notification): void {
-    this.confirmationService.confirm({
-      message: 'Tem a certeza que deseja eliminar esta notificação?',
-      header: 'Confirmar Eliminação',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sim, eliminar',
-      rejectLabel: 'Cancelar',
-      accept: () => {
-        this.notificationService.deleteNotification(notification.id).pipe(takeUntil(this.destroy$)).subscribe();
-      },
-    });
+    const initialState = {
+      id: notification.id,
+      title: notification.title,
+    };
+
+    this.modalService.show(DeleteNotificationsComponent, { initialState });
   }
 
   onNavigateToRelatedEntity(notification: Notification): void {
