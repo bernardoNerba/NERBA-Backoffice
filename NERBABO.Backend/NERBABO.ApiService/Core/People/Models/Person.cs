@@ -1,7 +1,5 @@
 using Humanizer;
 using NERBABO.ApiService.Core.Account.Models;
-using NERBABO.ApiService.Core.Actions.Models;
-using NERBABO.ApiService.Core.Courses.Models;
 using NERBABO.ApiService.Core.People.Dtos;
 using NERBABO.ApiService.Core.Reports.Models;
 using NERBABO.ApiService.Core.Students.Models;

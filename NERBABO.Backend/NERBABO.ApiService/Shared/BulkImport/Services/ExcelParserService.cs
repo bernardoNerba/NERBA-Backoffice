@@ -49,7 +49,14 @@ public class ExcelParserService(ILogger<ExcelParserService> logger
                 for (int i = 0; i < headers.Count; i++)
                 {
                     var cell = row.Cell(i + 1);
-                    rowData[headers[i]] = cell.GetString().Trim();
+                    if (cell.DataType == XLDataType.DateTime)
+                    {
+                        rowData[headers[i]] = cell.GetDateTime().ToString("dd/MM/yyyy");
+                    }
+                    else
+                    {
+                        rowData[headers[i]] = cell.GetString().Trim();
+                    }
                 }
                 records.Add(rowData);
             }

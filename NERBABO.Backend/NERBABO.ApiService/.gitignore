@@ -490,3 +490,4 @@ Data/Migrations/
 
 wwwroot/*
 !wwwroot/.gitkeep
+!wwwroot/templates

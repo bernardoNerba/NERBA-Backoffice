@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace NERBABO.ApiService.Helper.Validators
 {
@@ -30,7 +31,8 @@ namespace NERBABO.ApiService.Helper.Validators
             }
 
             // Try to parse the string into a DateOnly object
-            else if (DateOnly.TryParse(stringValue, out DateOnly date))
+            string[] formats = { "dd/MM/yyyy", "yyyy-MM-dd" };
+            if (DateOnly.TryParseExact(stringValue, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly date))
             {
                 // Validate that the date is in the future (after today)
                 if (date > DateOnly.FromDateTime(DateTime.Today))

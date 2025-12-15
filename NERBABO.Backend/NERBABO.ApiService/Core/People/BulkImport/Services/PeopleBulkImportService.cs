@@ -26,16 +26,16 @@ public class PeopleBulkImportService : IPeopleBulkImportService
     // Required headers for People import
     private readonly List<string> RequiredHeaders = new()
     {
-        "FirstName", "LastName", "NIF"
+        "PrimeiroNome", "Apelido", "NIF"
     };
 
     // Optional headers
     private readonly List<string> OptionalHeaders = new()
     {
-        "Gender", "Habilitation", "IdentificationType",
-        "IdentificationNumber", "IdentificationValidationDate", "NISS", "IBAN",
-        "BirthDate", "Address", "ZipCode", "PhoneNumber", "Email",
-        "Naturality", "Nationality"
+        "Género", "Habilitação", "TipoIdentificação",
+        "NúmeroIdentificação", "DataValidaçãoIdentificação", "NISS", "IBAN",
+        "DataNascimento", "Morada", "CódigoPostal", "Telefone", "Email",
+        "Naturalidade", "Nacionalidade"
     };
 
     public PeopleBulkImportService(
@@ -226,24 +226,24 @@ public class PeopleBulkImportService : IPeopleBulkImportService
         {
             var dto = new CreatePersonDto
             {
-                FirstName = GetValue(row, "FirstName") ?? string.Empty,
-                LastName = GetValue(row, "LastName") ?? string.Empty,
+                FirstName = GetValue(row, "PrimeiroNome") ?? string.Empty,
+                LastName = GetValue(row, "Apelido") ?? string.Empty,
                 NIF = GetValue(row, "NIF") ?? string.Empty,
-                IdentificationNumber = GetValue(row, "IdentificationNumber"),
-                IdentificationValidationDate = GetValue(row, "IdentificationValidationDate"),
+                IdentificationNumber = GetValue(row, "NúmeroIdentificação"),
+                IdentificationValidationDate = GetValue(row, "DataValidaçãoIdentificação"),
                 NISS = GetValue(row, "NISS"),
                 IBAN = GetValue(row, "IBAN"),
-                BirthDate = GetValue(row, "BirthDate"),
-                Address = GetValue(row, "Address"),
-                ZipCode = GetValue(row, "ZipCode"),
-                PhoneNumber = GetValue(row, "PhoneNumber"),
+                BirthDate = GetValue(row, "DataNascimento"),
+                Address = GetValue(row, "Morada"),
+                ZipCode = GetValue(row, "CódigoPostal"),
+                PhoneNumber = GetValue(row, "Telefone"),
                 Email = GetValue(row, "Email"),
-                Naturality = GetValue(row, "Naturality"),
-                Nationality = GetValue(row, "Nationality"),
+                Naturality = GetValue(row, "Naturalidade"),
+                Nationality = GetValue(row, "Nacionalidade"),
                 // Set defaults for optional enum fields (using humanized descriptions)
-                Gender = GetValue(row, "Gender") ?? GenderEnum.Unknown.Humanize(),
-                Habilitation = GetValue(row, "Habilitation") ?? HabilitationEnum.WithoutProof.Humanize(),
-                IdentificationType = GetValue(row, "IdentificationType") ?? IdentificationTypeEnum.Unknown.Humanize()
+                Gender = GetValue(row, "Género") ?? GenderEnum.Unknown.Humanize(),
+                Habilitation = GetValue(row, "Habilitação") ?? HabilitationEnum.WithoutProof.Humanize(),
+                IdentificationType = GetValue(row, "TipoIdentificação") ?? IdentificationTypeEnum.Unknown.Humanize()
             };
 
             return dto;
@@ -387,9 +387,8 @@ public class PeopleBulkImportService : IPeopleBulkImportService
         {
             var templatePath = Path.Combine(
                 Directory.GetCurrentDirectory(),
-                "Core",
-                "People",
-                "Templates",
+                "wwwroot",
+                "templates",
                 fileType == FileType.CSV ? "People_Import_Template.csv" : "People_Import_Template.xlsx"
             );
 
