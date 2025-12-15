@@ -7,7 +7,7 @@ import { Menu } from 'primeng/menu';
 import { Company } from '../../../../core/models/company';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { Router } from '@angular/router';
 import { CompaniesService } from '../../../../core/services/companies.service';
 import { DeleteCompaniesComponent } from '../../../../features/companies/delete-companies/delete-companies.component';
@@ -52,7 +52,7 @@ export class CompaniesTableComponent implements OnInit {
   private subscriptions = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private router: Router,
     private companiesService: CompaniesService
   ) {}

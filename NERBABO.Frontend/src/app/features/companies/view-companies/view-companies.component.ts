@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Student } from '../../../core/models/student';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { DeleteCompaniesComponent } from '../delete-companies/delete-companies.component';
 import { MenuItem } from 'primeng/api';
 import { UpsertCompaniesComponent } from '../upsert-companies/upsert-companies.component';
@@ -37,7 +37,7 @@ export class ViewCompaniesComponent implements IView, OnInit, OnDestroy {
     private sharedService: SharedService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: BsModalService
+    private modalService: CustomModalService
   ) {}
 
   ngOnInit(): void {

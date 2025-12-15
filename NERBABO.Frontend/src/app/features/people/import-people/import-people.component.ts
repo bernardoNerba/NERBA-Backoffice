@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { PeopleService } from '../../../core/services/people.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { ImportResultModalComponent } from './import-result-modal.component';
@@ -41,7 +42,7 @@ export class ImportPeopleComponent implements OnInit {
     public bsModalRef: BsModalRef,
     private peopleService: PeopleService,
     private sharedService: SharedService,
-    private modalService: BsModalService
+    private modalService: CustomModalService
   ) {}
 
   ngOnInit(): void {}

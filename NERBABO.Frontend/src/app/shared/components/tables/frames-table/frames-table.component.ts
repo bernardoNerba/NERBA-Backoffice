@@ -7,7 +7,7 @@ import { Menu } from 'primeng/menu';
 import { Frame } from '../../../../core/models/frame';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { Router } from '@angular/router';
 import { FrameService } from '../../../../core/services/frame.service';
 import { DeleteFramesComponent } from '../../../../features/frames/delete-frames/delete-frames.component';
@@ -51,7 +51,7 @@ export class FramesTableComponent implements OnInit {
   private subscriptions = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private router: Router,
     private framesService: FrameService,
     private sharedService: SharedService,

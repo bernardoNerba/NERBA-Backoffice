@@ -10,7 +10,7 @@ import { FrameService } from '../../../core/services/frame.service';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { DeleteCoursesComponent } from '../delete-courses/delete-courses.component';
 import { ChangeStatusCoursesComponent } from '../change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../assign-module-courses/assign-module-courses.component';
@@ -72,7 +72,7 @@ export class ViewCoursesComponent implements IView, OnInit, OnDestroy {
     private sharedService: SharedService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private actionsService: ActionsService,
     private authService: AuthService
   ) {}

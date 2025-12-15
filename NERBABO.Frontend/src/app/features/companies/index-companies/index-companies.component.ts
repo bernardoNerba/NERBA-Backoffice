@@ -5,7 +5,7 @@ import { SharedService } from '../../../core/services/shared.service';
 import { Company } from '../../../core/models/company';
 import { Observable } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { ICONS } from '../../../core/objects/icons';
 import { CompaniesTableComponent } from '../../../shared/components/tables/companies-table/companies-table.component';
 import { IIndex } from '../../../core/interfaces/IIndex';
@@ -30,7 +30,7 @@ export class IndexCompaniesComponent implements IIndex, OnInit {
   constructor(
     private readonly companiesService: CompaniesService,
     private readonly sharedService: SharedService,
-    private readonly modalService: BsModalService
+    private readonly modalService: CustomModalService
   ) {
     this.companies$ = this.companiesService.companies$;
     this.loading$ = this.companiesService.loading$;

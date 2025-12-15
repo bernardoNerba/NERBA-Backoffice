@@ -21,7 +21,7 @@ import { ICONS } from '../../../core/objects/icons';
 import { SelectItem } from 'primeng/api';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { DeleteNotificationsComponent } from '../delete-notifications/delete-notifications.component';
 
 @Component({
@@ -79,7 +79,7 @@ export class IndexNotificationsComponent implements OnInit, OnDestroy {
     private sharedService: SharedService,
     private authService: AuthService,
     private router: Router,
-    private modalService: BsModalService
+    private modalService: CustomModalService
   ) {
     this.loading$ = this.notificationService.loading$;
 

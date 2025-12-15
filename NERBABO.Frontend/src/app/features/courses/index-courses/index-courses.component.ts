@@ -4,7 +4,7 @@ import { Course } from '../../../core/models/course';
 import { ICONS } from '../../../core/objects/icons';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CoursesService } from '../../../core/services/courses.service';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { CommonModule } from '@angular/common';
 import { CoursesTableComponent } from '../../../shared/components/tables/courses-table/courses-table.component';
@@ -30,7 +30,7 @@ export class IndexCoursesComponent implements IIndex, OnInit {
 
   constructor(
     private coursesService: CoursesService,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private sharedService: SharedService,
     private authService: AuthService
   ) {

@@ -8,7 +8,7 @@ import { SharedService } from '../../../core/services/shared.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ICONS } from '../../../core/objects/icons';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { DeleteFramesComponent } from '../delete-frames/delete-frames.component';
 import { MenuItem } from 'primeng/api';
 import { UpsertFramesComponent } from '../upsert-frames/upsert-frames.component';
@@ -40,7 +40,7 @@ export class ViewFramesComponent implements IView, OnInit, OnDestroy {
     private sharedService: SharedService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     public authService: AuthService
   ) {}
 

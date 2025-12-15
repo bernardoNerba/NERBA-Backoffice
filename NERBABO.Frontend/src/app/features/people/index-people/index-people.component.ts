@@ -3,7 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Person } from '../../../core/models/person';
 import { Observable, Subscription } from 'rxjs';
 import { PeopleService } from '../../../core/services/people.service';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { UpsertPeopleComponent } from '../upsert-people/upsert-people.component';
 import { ImportPeopleComponent } from '../import-people/import-people.component';
@@ -32,7 +32,7 @@ export class IndexPeopleComponent implements IIndex, OnInit, OnDestroy {
 
   constructor(
     private peopleService: PeopleService,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private sharedService: SharedService
   ) {
     this.people$ = this.peopleService.people$;

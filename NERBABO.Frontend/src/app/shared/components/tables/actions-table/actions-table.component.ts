@@ -15,7 +15,7 @@ import { Menu } from 'primeng/menu';
 import { Action } from '../../../../core/models/action';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { Router, RouterLink } from '@angular/router';
 import { ActionsService } from '../../../../core/services/actions.service';
 import { CommonModule } from '@angular/common';
@@ -72,7 +72,7 @@ export class ActionsTableComponent implements OnInit, OnChanges {
   private subscriptions = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private router: Router,
     private actionsService: ActionsService,
     private authService: AuthService

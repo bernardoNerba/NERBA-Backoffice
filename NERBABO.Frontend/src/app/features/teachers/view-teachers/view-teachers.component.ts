@@ -3,7 +3,7 @@ import { IView } from '../../../core/interfaces/IView';
 import { TeachersService } from '../../../core/services/teachers.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SharedService } from '../../../core/services/shared.service';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { MenuItem } from 'primeng/api';
 import { catchError, Observable, of, Subscription, tap } from 'rxjs';
 import { Teacher } from '../../../core/models/teacher';
@@ -44,7 +44,7 @@ export class ViewTeachersComponent implements IView, OnInit {
     private peopleService: PeopleService,
     private router: Router,
     private sharedService: SharedService,
-    private bsModalService: BsModalService
+    private bsModalService: CustomModalService
   ) {}
 
   ngOnInit(): void {

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Module } from '../../../core/models/module';
 import { ICONS } from '../../../core/objects/icons';
 import { ReactiveFormsModule } from '@angular/forms';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { CommonModule } from '@angular/common';
 import { ModulesTableComponent } from '../../../shared/components/tables/modules-table/modules-table.component';
@@ -30,7 +30,7 @@ export class IndexModulesComponent implements IIndex, OnInit {
 
   constructor(
     private moduleService: ModulesService,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private sharedService: SharedService,
     private authService: AuthService
   ) {

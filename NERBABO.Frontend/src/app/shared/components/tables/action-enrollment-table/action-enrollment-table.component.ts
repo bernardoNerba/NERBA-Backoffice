@@ -8,7 +8,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ActionEnrollment } from '../../../../core/models/actionEnrollment';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { Router } from '@angular/router';
 import { ActionEnrollmentService } from '../../../../core/services/action-enrollment.service';
 import { CommonModule } from '@angular/common';
@@ -62,7 +62,7 @@ export class ActionEnrollmentTableComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private router: Router,
     private actionEnrollmentService: ActionEnrollmentService,
     private authService: AuthService

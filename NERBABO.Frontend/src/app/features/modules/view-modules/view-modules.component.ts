@@ -10,7 +10,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { Course } from '../../../core/models/course';
 import { Action } from '../../../core/models/action';
 import { ActionsService } from '../../../core/services/actions.service';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { DeleteModulesComponent } from '../delete-modules/delete-modules.component';
 import { ActiveBadgeComponent } from '../../../shared/components/badges/active-badge/active-badge.component';
 import { StatusEnum } from '../../../core/objects/status';
@@ -54,7 +54,7 @@ export class ViewModulesComponent implements IView, OnInit, OnDestroy {
     private actionsService: ActionsService,
     private route: ActivatedRoute,
     private router: Router,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private authService: AuthService
   ) {}
 

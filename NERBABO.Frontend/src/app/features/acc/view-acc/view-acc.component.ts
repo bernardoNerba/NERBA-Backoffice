@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IView } from '../../../core/interfaces/IView';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedService } from '../../../core/services/shared.service';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { MenuItem } from 'primeng/api';
 import { catchError, Observable, of, Subscription, tap, forkJoin } from 'rxjs';
 import { UserInfo } from '../../../core/models/userInfo';
@@ -54,7 +54,7 @@ export class ViewAccComponent implements OnInit, OnDestroy {
     private peopleService: PeopleService,
     private router: Router,
     private sharedService: SharedService,
-    private bsModalService: BsModalService,
+    private bsModalService: CustomModalService,
     private actionsService: ActionsService,
     private authService: AuthService
   ) {}
