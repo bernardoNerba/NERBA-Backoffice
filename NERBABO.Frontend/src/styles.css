@@ -515,3 +515,15 @@ a.nav-link:hover {
   font-size: 0.875rem; /* 14px */
   padding: 0.2rem 0.4rem;
 }
+
+/* Force pagination rows per page dropdown to always open upward */
+.p-paginator .p-dropdown {
+  position: relative;
+}
+
+.p-paginator .p-dropdown .p-dropdown-panel {
+  transform-origin: bottom !important;
+  top: auto !important;
+  bottom: 100% !important;
+  margin-bottom: 0.25rem !important;
+}
