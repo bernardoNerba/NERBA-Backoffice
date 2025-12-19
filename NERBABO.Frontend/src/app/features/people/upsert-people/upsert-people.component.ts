@@ -58,6 +58,11 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
   form: FormGroup = new FormGroup({});
   errorMessages: string[] = [];
 
+  // File uploads (only for create mode)
+  habilitationPdfFile: File | null = null;
+  ibanPdfFile: File | null = null;
+  identificationDocumentPdfFile: File | null = null;
+
   constructor(
     public bsModalRef: BsModalRef,
     private formBuilder: FormBuilder,
@@ -158,6 +163,43 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
     this.filteredCountries = filtered;
   }
 
+  // File selection handlers
+  onHabilitationPdfFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      this.habilitationPdfFile = file;
+    } else {
+      this.habilitationPdfFile = null;
+      if (file) {
+        this.sharedService.showWarning('Por favor selecione apenas ficheiros PDF.');
+      }
+    }
+  }
+
+  onIbanPdfFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      this.ibanPdfFile = file;
+    } else {
+      this.ibanPdfFile = null;
+      if (file) {
+        this.sharedService.showWarning('Por favor selecione apenas ficheiros PDF.');
+      }
+    }
+  }
+
+  onIdentificationDocumentPdfFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      this.identificationDocumentPdfFile = file;
+    } else {
+      this.identificationDocumentPdfFile = null;
+      if (file) {
+        this.sharedService.showWarning('Por favor selecione apenas ficheiros PDF.');
+      }
+    }
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.errorMessages = [];
@@ -178,18 +220,48 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
 
     this.loading = true;
 
-    this.peopleService
-      .upsertPerson({ id: this.id, ...this.form.value }, this.isUpdate)
-      .subscribe({
-        next: (value) => {
-          this.bsModalRef.hide();
-          this.peopleService.triggerFetchPeople();
-          this.sharedService.showSuccess(value.message);
-        },
-        error: (error) => {
-          this.errorMessages = this.sharedService.handleErrorResponse(error);
-          this.loading = false;
-        },
-      });
+    // Check if we have any files to upload (only for create mode)
+    const hasFiles = !this.isUpdate && (
+      this.habilitationPdfFile !== null ||
+      this.ibanPdfFile !== null ||
+      this.identificationDocumentPdfFile !== null
+    );
+
+    if (hasFiles) {
+      // Use the create with files endpoint
+      this.peopleService
+        .createPersonWithFiles(
+          { id: this.id, ...this.form.value },
+          this.habilitationPdfFile,
+          this.ibanPdfFile,
+          this.identificationDocumentPdfFile
+        )
+        .subscribe({
+          next: (value) => {
+            this.bsModalRef.hide();
+            this.peopleService.triggerFetchPeople();
+            this.sharedService.showSuccess(value.message);
+          },
+          error: (error) => {
+            this.errorMessages = this.sharedService.handleErrorResponse(error);
+            this.loading = false;
+          },
+        });
+    } else {
+      // Use the regular upsert endpoint
+      this.peopleService
+        .upsertPerson({ id: this.id, ...this.form.value }, this.isUpdate)
+        .subscribe({
+          next: (value) => {
+            this.bsModalRef.hide();
+            this.peopleService.triggerFetchPeople();
+            this.sharedService.showSuccess(value.message);
+          },
+          error: (error) => {
+            this.errorMessages = this.sharedService.handleErrorResponse(error);
+            this.loading = false;
+          },
+        });
+    }
   }
 }

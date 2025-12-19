@@ -34,7 +34,8 @@ namespace NerbaApp.Api.Validators
             DateOnly today = DateOnly.FromDateTime(DateTime.Today);
 
             // Try to parse the string as a DateOnly object
-            if (DateOnly.TryParse(stringValue, out DateOnly date))
+            string[] formats = { "dd/MM/yyyy", "yyyy-MM-dd" };
+            if (DateOnly.TryParseExact(stringValue, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly date))
             {
                 // Check if the date is in the past
                 if (date < today)

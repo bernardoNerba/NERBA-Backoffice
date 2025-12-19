@@ -6,7 +6,7 @@ import { Button } from 'primeng/button';
 import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { Observable, Subscription } from 'rxjs';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { SharedService } from '../../../../core/services/shared.service';
 import { CommonModule } from '@angular/common';
@@ -49,7 +49,7 @@ export class IndexModuleCategoriesComponent implements IIndex, OnInit {
 
   constructor(
     private configService: ConfigService,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private sharedService: SharedService
   ) {}
 

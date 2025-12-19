@@ -14,7 +14,7 @@ import { NavHeaderComponent } from '../../../shared/components/nav-header/nav-he
 import { Company } from '../../../core/models/company';
 import { CompaniesService } from '../../../core/services/companies.service';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { UpsertStudentsComponent } from '../upsert-students/upsert-students.component';
 import { DeleteStudentsComponent } from '../delete-students/delete-students.component';
 import { TitleComponent } from '../../../shared/components/title/title.component';
@@ -37,7 +37,7 @@ export class ViewStudentsComponent implements IView, OnInit {
   subscriptions: Subscription = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private route: ActivatedRoute,
     private router: Router,
     private studentsService: StudentsService,

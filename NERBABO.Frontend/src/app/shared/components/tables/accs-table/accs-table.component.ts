@@ -8,7 +8,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { UserInfo } from '../../../../core/models/userInfo';
 import { FilterService, MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { Router } from '@angular/router';
 import { AccService } from '../../../../core/services/acc.service';
 import { BlockAccComponent } from '../../../../features/acc/block-acc/block-acc.component';
@@ -62,7 +62,7 @@ export class AccsTableComponent implements OnInit {
   private subscriptions = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private router: Router,
     private accService: AccService,
     private filterService: FilterService,

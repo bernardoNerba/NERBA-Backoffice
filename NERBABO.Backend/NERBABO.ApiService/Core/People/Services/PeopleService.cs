@@ -122,6 +122,138 @@ public class PeopleService(
             StatusCodes.Status201Created);
     }
 
+    public async Task<Result<RetrievePersonDto>> CreateWithFilesAsync(
+        CreatePersonDto entityDto,
+        IFormFile? habilitationPdf,
+        IFormFile? ibanPdf,
+        IFormFile? identificationDocumentPdf,
+        string userId)
+    {
+        // First create the person using existing validation logic
+        var createResult = await CreateAsync(entityDto);
+        if (!createResult.Success)
+        {
+            return createResult;
+        }
+
+        var createdPerson = createResult.Data!;
+        var personId = createdPerson.Id;
+
+        try
+        {
+            // Upload habilitation PDF if provided
+            if (habilitationPdf != null && habilitationPdf.Length > 0)
+            {
+                var habilitationResult = await UploadPdfFileAsync(
+                    personId,
+                    habilitationPdf,
+                    PdfTypes.HabilitationComprovative,
+                    userId);
+
+                if (habilitationResult.Success)
+                {
+                    var person = await _context.People.FindAsync(personId);
+                    if (person != null)
+                    {
+                        person.HabilitationComprovativePdfId = habilitationResult.Data!.Id;
+                    }
+                }
+            }
+
+            // Upload IBAN PDF if provided
+            if (ibanPdf != null && ibanPdf.Length > 0)
+            {
+                var ibanResult = await UploadPdfFileAsync(
+                    personId,
+                    ibanPdf,
+                    PdfTypes.IbanComprovative,
+                    userId);
+
+                if (ibanResult.Success)
+                {
+                    var person = await _context.People.FindAsync(personId);
+                    if (person != null)
+                    {
+                        person.IbanComprovativePdfId = ibanResult.Data!.Id;
+                    }
+                }
+            }
+
+            // Upload identification document PDF if provided
+            if (identificationDocumentPdf != null && identificationDocumentPdf.Length > 0)
+            {
+                var identificationResult = await UploadPdfFileAsync(
+                    personId,
+                    identificationDocumentPdf,
+                    PdfTypes.IdentificationDocument,
+                    userId);
+
+                if (identificationResult.Success)
+                {
+                    var person = await _context.People.FindAsync(personId);
+                    if (person != null)
+                    {
+                        person.IdentificationDocumentPdfId = identificationResult.Data!.Id;
+                    }
+                }
+            }
+
+            // Save all changes
+            await _context.SaveChangesAsync();
+
+            // Refresh the person data to include updated PDF IDs
+            var updatedPerson = await _context.People.FindAsync(personId);
+            if (updatedPerson != null)
+            {
+                var retrievePerson = Person.ConvertEntityToRetrieveDto(updatedPerson);
+                await _cache.SetSinglePersonCacheAsync(retrievePerson);
+
+                // Generate notifications after PDF uploads
+                await _notificationService.GenerateNotificationsAsync();
+
+                return Result<RetrievePersonDto>
+                    .Ok(retrievePerson,
+                    "Pessoa Criada.", $"Foi criada uma pessoa com o nome {retrievePerson.FullName} e os ficheiros foram carregados.",
+                    StatusCodes.Status201Created);
+            }
+
+            return createResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading files during person creation for person {PersonId}", personId);
+            return Result<RetrievePersonDto>
+                .Fail("Erro.", "Pessoa criada mas ocorreu um erro ao carregar os ficheiros.",
+                    StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private async Task<Result<SavedPdf>> UploadPdfFileAsync(long personId, IFormFile file, string pdfType, string userId)
+    {
+        // Validate file
+        if (file is null || file.Length == 0)
+        {
+            return Result<SavedPdf>
+                .Fail("Arquivo inválido.", "Nenhum arquivo foi fornecido ou o arquivo está vazio.",
+                    StatusCodes.Status400BadRequest);
+        }
+
+        if (!file.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            return Result<SavedPdf>
+                .Fail("Tipo de arquivo inválido.", "Apenas arquivos PDF são permitidos.",
+                    StatusCodes.Status400BadRequest);
+        }
+
+        // Read file content
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream);
+        var pdfContent = memoryStream.ToArray();
+
+        // Save PDF using PdfService
+        return await _pdfService.SavePdfAsync(pdfType, personId, pdfContent, userId);
+    }
+
     public async Task<Result> DeleteAsync(long id)
     {
         // Check if person exists

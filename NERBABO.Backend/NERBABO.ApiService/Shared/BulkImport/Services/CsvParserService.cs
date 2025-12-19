@@ -27,7 +27,7 @@ public class CsvParserService : IFileParserService
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream);
 
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            var config = new CsvConfiguration(new CultureInfo("pt-PT"))
             {
                 Delimiter = ";",  // European CSV format
                 HasHeaderRecord = true,
@@ -53,7 +53,15 @@ public class CsvParserService : IFileParserService
                 var row = new Dictionary<string, string>();
                 foreach (var header in headers)
                 {
-                    row[header] = csv.GetField(header) ?? string.Empty;
+                    var fieldValue = csv.GetField(header) ?? string.Empty;
+                    if (DateTime.TryParse(fieldValue, out var dateValue))
+                    {
+                        row[header] = dateValue.ToString("dd/MM/yyyy");
+                    }
+                    else
+                    {
+                        row[header] = fieldValue;
+                    }
                 }
                 records.Add(row);
             }
@@ -85,7 +93,7 @@ public class CsvParserService : IFileParserService
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream);
 
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            var config = new CsvConfiguration(new CultureInfo("pt-PT"))
             {
                 Delimiter = ";",
                 HasHeaderRecord = true

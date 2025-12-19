@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { Observable } from 'rxjs';
 import { FrameService } from '../../../core/services/frame.service';
 import { CommonModule } from '@angular/common';
@@ -31,7 +31,7 @@ export class IndexFramesComponent implements OnInit, IIndex {
 
   constructor(
     private readonly frameService: FrameService,
-    private readonly modalService: BsModalService,
+    private readonly modalService: CustomModalService,
     private readonly sharedService: SharedService,
     public readonly authService: AuthService
   ) {

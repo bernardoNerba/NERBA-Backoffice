@@ -13,7 +13,7 @@ import { MenuItem } from 'primeng/api';
 import { ActionsService } from '../../../core/services/actions.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { UpsertActionsComponent } from '../upsert-actions/upsert-actions.component';
 import { DeleteActionsComponent } from '../delete-actions/delete-actions.component';
 import { ChangeStatusActionsComponent } from '../change-status-actions/change-status-actions.component';
@@ -129,7 +129,7 @@ export class ViewActionsComponent implements IView, OnInit, OnDestroy {
     private actionsService: ActionsService,
     private sharedService: SharedService,
     private router: Router,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private route: ActivatedRoute,
     private courseService: CoursesService,
     private modulesService: ModulesService,

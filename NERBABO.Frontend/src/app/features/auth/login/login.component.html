@@ -1,80 +1,92 @@
 <div
-  class="container d-flex justify-content-center align-items-center min-vh-100"
+  class="container-fluid d-flex justify-content-center align-items-center min-vh-100 px-3 px-md-4"
 >
-  <div class="card login-card">
+  <div class="card login-card shadow-lg border-0">
     <div class="row g-0">
-      <!-- Left Side -->
-      <div class="col-md-6">
-        <div class="login-form">
-          <!-- Big logo at top -->
-          <div class="text-center">
+      <!-- Left Side - Login Form -->
+      <div class="col-12 col-md-6 col-lg-5">
+        <div class="login-form p-4 p-md-5">
+          <!-- Logo -->
+          <div class="text-center mb-4">
             <img
               src="images/logo_g.png"
               alt="Logo"
               class="left-image img-fluid"
-              height="100"
-              width="200"
+              style="max-height: 100px; max-width: 200px;"
             />
           </div>
 
           <!-- Login Form -->
           <form [formGroup]="loginForm" (ngSubmit)="login()" autocomplete="off">
+            <!-- Header -->
             <div class="text-start mb-4">
-              <h6 class="mb-3 fw-bold">
+              <h5 class="mb-2 fw-bold">
                 <span class="text-secondary">Iniciar Sessão no </span>
                 <span class="text-success fw-bold">Backoffice</span>
-              </h6>
+              </h5>
+              <p class="text-muted small mb-0">
+                Insira as suas credenciais para continuar
+              </p>
             </div>
+
             <!-- USERNAME OR EMAIL -->
-            <div class="form-floating mb-3">
+            <div class="mb-4">
+              <label for="usernameOrEmail" class="form-label fw-semibold">
+                Username ou Email
+                <span class="text-danger">*</span>
+              </label>
               <input
+                pInputText
                 formControlName="usernameOrEmail"
                 type="text"
-                placeholder="Username ou Email..."
-                class="form-control"
-                [class.is-invalid]="
-                  submitted && loginForm.get('usernameOrEmail')?.errors
-                "
+                id="usernameOrEmail"
+                placeholder="Digite o username ou email"
+                class="w-100"
+                [class.ng-invalid]="submitted && loginForm.get('usernameOrEmail')?.errors"
+                [class.ng-dirty]="submitted && loginForm.get('usernameOrEmail')?.errors"
               />
-              <label for="usernameOrEmail" class="text-success"
-                >Username ou Email</label
-              >
-              @if (submitted &&
-              loginForm.get('usernameOrEmail')?.hasError("required")) {
-              <span class="text-danger">
-                Username ou Email é um campo obrigatório.
-              </span>
+              @if (submitted && loginForm.get('usernameOrEmail')?.hasError("required")) {
+                <small class="text-danger d-block mt-1">
+                  Username ou Email é um campo obrigatório.
+                </small>
               }
             </div>
             <!-- END USERNAME OR EMAIL -->
 
             <!-- PASSWORD FIELD -->
-            <div class="form-floating mb-3">
-              <input
+            <div class="mb-4">
+              <label for="password" class="form-label fw-semibold">
+                Password
+                <span class="text-danger">*</span>
+              </label>
+              <p-password
                 formControlName="password"
-                type="password"
-                placeholder="Password"
-                class="form-control"
-                [class.is-invalid]="
-                  submitted && loginForm.get('password')?.errors
-                "
-              />
-              <label for="password" class="text-success">Password</label>
-              <!-- PASSWORD VALIDATION -->
-              @if (submitted && loginForm.get('password')?.hasError("required"))
-              {
-              <span class="text-danger">
-                Password é um campo obrigatório.
-              </span>
+                [toggleMask]="true"
+                [feedback]="false"
+                placeholder="Digite a password"
+                styleClass="w-100"
+                inputStyleClass="w-100"
+                [class.ng-invalid]="submitted && loginForm.get('password')?.errors"
+                [class.ng-dirty]="submitted && loginForm.get('password')?.errors"
+              ></p-password>
+              @if (submitted && loginForm.get('password')?.hasError("required")) {
+                <small class="text-danger d-block mt-1">
+                  Password é um campo obrigatório.
+                </small>
               }
             </div>
             <!-- END PASSWORD FIELD -->
 
             <!-- ACTION -->
-            <div class="d-grid mt-4 px-1">
-              <button class="btn-main w-100" type="submit">
-                Iniciar Sessão
-              </button>
+            <div class="d-grid mt-4">
+              <p-button
+                type="submit"
+                label="Iniciar Sessão"
+                icon="pi pi-sign-in"
+                [loading]="loading"
+                styleClass="w-100"
+                [disabled]="loading"
+              ></p-button>
             </div>
             <!-- END ACTION -->
           </form>
@@ -84,12 +96,14 @@
       <!-- end left side -->
 
       <!-- Right Side (Image) -->
-      <div class="col-md-6 d-none d-md-block">
-        <img
-          src="images/login_img.jpg"
-          alt="Login Visual"
-          class="right-image"
-        />
+      <div class="col-md-6 col-lg-7 d-none d-md-block p-0">
+        <div class="right-image-container h-100">
+          <img
+            src="images/login_img.jpg"
+            alt="Login Visual"
+            class="right-image w-100 h-100"
+          />
+        </div>
       </div>
       <!-- end right side -->
     </div>

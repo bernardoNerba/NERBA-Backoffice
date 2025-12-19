@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { UserInfo } from '../../../core/models/userInfo';
 import { AccService } from '../../../core/services/acc.service';
 import { SharedService } from '../../../core/services/shared.service';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment.development';
 import { ICONS } from '../../../core/objects/icons';
@@ -33,7 +33,7 @@ export class IndexAccComponent implements IIndex, OnInit {
 
   constructor(
     private accService: AccService,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private sharedService: SharedService,
     private authService: AuthService
   ) {

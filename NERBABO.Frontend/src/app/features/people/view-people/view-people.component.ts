@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { of, Subscription, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { PeopleService } from '../../../core/services/people.service';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { Person } from '../../../core/models/person';
 import { SharedService } from '../../../core/services/shared.service';
 import { DeletePeopleComponent } from '../delete-people/delete-people.component';
@@ -90,7 +90,7 @@ export class ViewPeopleComponent implements IView, OnInit, OnDestroy {
     private accService: AccService,
     private router: Router,
     private sharedService: SharedService,
-    private bsModalService: BsModalService
+    private bsModalService: CustomModalService
   ) {}
 
   ngOnInit(): void {

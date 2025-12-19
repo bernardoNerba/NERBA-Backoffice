@@ -509,6 +509,72 @@
           </div>
         </div>
         <!-- END Nationality -->
+
+        <!-- PDF File Uploads - Only show in create mode -->
+        @if (!isUpdate) {
+        <div class="col-12">
+          <hr class="my-4" />
+          <h6 class="text-muted mb-3">
+            Ficheiros Opcionais (podem ser adicionados posteriormente)
+          </h6>
+        </div>
+
+        <!-- Habilitation PDF -->
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label for="habilitationPdf">Certificado de Habilitações (PDF)</label>
+            <input
+              type="file"
+              class="form-control"
+              id="habilitationPdf"
+              accept="application/pdf"
+              (change)="onHabilitationPdfFileSelected($event)"
+            />
+            <small class="text-muted">
+              Opcional - Ficheiro PDF com o certificado de habilitações
+            </small>
+          </div>
+        </div>
+        <!-- END Habilitation PDF -->
+
+        <!-- IBAN PDF -->
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label for="ibanPdf">Comprovativo de IBAN (PDF)</label>
+            <input
+              type="file"
+              class="form-control"
+              id="ibanPdf"
+              accept="application/pdf"
+              (change)="onIbanPdfFileSelected($event)"
+            />
+            <small class="text-muted">
+              Opcional - Ficheiro PDF com o comprovativo de IBAN
+            </small>
+          </div>
+        </div>
+        <!-- END IBAN PDF -->
+
+        <!-- Identification Document PDF -->
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label for="identificationDocumentPdf"
+              >Cópia do Documento de Identificação (PDF)</label
+            >
+            <input
+              type="file"
+              class="form-control"
+              id="identificationDocumentPdf"
+              accept="application/pdf"
+              (change)="onIdentificationDocumentPdfFileSelected($event)"
+            />
+            <small class="text-muted">
+              Opcional - Ficheiro PDF com a cópia do documento de identificação
+            </small>
+          </div>
+        </div>
+        <!-- END Identification Document PDF -->
+        }
       </div>
     </div>
 

@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Module, ModuleTeacher } from '../../../../core/models/module';
 import { MenuItem } from 'primeng/api';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { DeleteModulesComponent } from '../../../../features/modules/delete-modules/delete-modules.component';
 import { ModulesService } from '../../../../core/services/modules.service';
 import { Subscription } from 'rxjs';
@@ -56,7 +56,7 @@ export class ModulesTableComponent implements OnInit {
   private subscriptions = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private modulesService: ModulesService,
     private router: Router,
     private authService: AuthService

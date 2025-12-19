@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { SessionsService } from '../../../core/services/sessions.service';
 import { Session } from '../../../core/objects/sessions';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { formatDateForApi, getWeekDayPT } from '../../utils';
 import { Subscription } from 'rxjs';
@@ -57,7 +57,7 @@ export class SessionsSchedulerComponent implements OnInit, OnDestroy {
 
   constructor(
     private sessionsService: SessionsService,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private sharedService: SharedService,
     private moduleTeachingService: ModuleTeachingService,
     private cdr: ChangeDetectorRef,

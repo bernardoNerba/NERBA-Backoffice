@@ -58,10 +58,10 @@ export class SidebarComponent implements OnInit {
       route: '/frames',
       admin: false,
     },
-    { name: 'Contas', icon: 'pi pi-users', route: '/accs', admin: false },
+    { name: 'Contas', icon: 'pi pi-id-card', route: '/accs', admin: false },
     {
-      name: 'Configurações',
-      icon: 'pi pi-cog',
+      name: 'Administração',
+      icon: 'pi pi-shield',
       route: '/config',
       admin: true,
     },
@@ -85,6 +85,9 @@ export class SidebarComponent implements OnInit {
 
       if (currentItem) {
         this.activePage = currentItem.name;
+      } else {
+        // Clear active state when navigating to routes not in sidebar (e.g., notifications)
+        this.activePage = '';
       }
     });
 

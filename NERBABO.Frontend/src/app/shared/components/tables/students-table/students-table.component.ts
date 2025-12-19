@@ -8,7 +8,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { Student } from '../../../../core/models/student';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { Router } from '@angular/router';
 import { StudentsService } from '../../../../core/services/students.service';
 import { CommonModule } from '@angular/common';
@@ -57,7 +57,7 @@ export class StudentsTableComponent implements OnInit {
   private subscriptions = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private router: Router,
     private studentsService: StudentsService
   ) {}

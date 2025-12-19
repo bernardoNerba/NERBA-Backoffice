@@ -14,7 +14,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { Person } from '../../../../core/models/person';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { Router, RouterLink } from '@angular/router';
 import { PeopleService } from '../../../../core/services/people.service';
 import { TeachersService } from '../../../../core/services/teachers.service';
@@ -83,7 +83,7 @@ export class PeopleTableComponent implements OnInit, AfterViewInit {
   private subscriptions = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private router: Router,
     private peopleService: PeopleService,
     private teachersService: TeachersService,

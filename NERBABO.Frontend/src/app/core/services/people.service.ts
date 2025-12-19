@@ -36,6 +36,38 @@ export class PeopleService {
     return this.createPerson(model);
   }
 
+  createPersonWithFiles(
+    model: Omit<Person, "id" | "fullName" | "age">,
+    habilitationPdf: File | null,
+    ibanPdf: File | null,
+    identificationDocumentPdf: File | null
+  ): Observable<OkResponse> {
+    const formData = new FormData();
+
+    // Append all person fields
+    Object.keys(model).forEach((key) => {
+      const value = (model as any)[key];
+      if (value !== null && value !== undefined && value !== '') {
+        formData.append(key, value);
+      }
+    });
+
+    // Append files if provided
+    if (habilitationPdf) {
+      formData.append('habilitationPdf', habilitationPdf);
+    }
+    if (ibanPdf) {
+      formData.append('ibanPdf', ibanPdf);
+    }
+    if (identificationDocumentPdf) {
+      formData.append('identificationDocumentPdf', identificationDocumentPdf);
+    }
+
+    return this.http
+      .post<OkResponse>(`${API_ENDPOINTS.all_people}create-with-files`, formData)
+      .pipe(tap(() => this.notifyPersonUpdate(0))); // Notify full refresh after create
+  }
+
   private createPerson(
     model: Omit<Person, "id" | "fullName" | "age">,
   ): Observable<OkResponse> {

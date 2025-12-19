@@ -23,7 +23,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { Table } from 'primeng/table';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../../core/services/custom-modal.service';
 import { DeleteCoursesComponent } from '../../../../features/courses/delete-courses/delete-courses.component';
 import { ChangeStatusCoursesComponent } from '../../../../features/courses/change-status-courses/change-status-courses.component';
 import { AssignModuleCoursesComponent } from '../../../../features/courses/assign-module-courses/assign-module-courses.component';
@@ -69,7 +69,7 @@ export class CoursesTableComponent implements OnInit, OnChanges, OnDestroy {
   private subscriptions: Subscription = new Subscription();
 
   constructor(
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private router: Router,
     private coursesService: CoursesService,
     private authService: AuthService

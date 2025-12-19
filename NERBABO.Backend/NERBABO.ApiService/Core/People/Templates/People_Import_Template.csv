@@ -1,3 +1,0 @@
-FirstName;LastName;NIF;IdentificationNumber;IdentificationValidationDate;NISS;IBAN;BirthDate;Address;ZipCode;PhoneNumber;Email;Naturality;Nationality;Gender;Habilitation;IdentificationType
-João;Silva;123456789;AB123456;2030-12-31;12345678901;PT50000201231234567890154;1990-01-15;Rua Example 123;1000-001;912345678;joao.silva@example.com;Lisboa;Portuguesa;Masculino;Licenciatura;Identificação Civil (CC/BI)
-Maria;Santos;987654321;CD789012;2029-06-30;98765432109;PT50000201239876543210987;1985-05-20;Av. Test 456;2000-002;923456789;maria.santos@example.com;Porto;Portuguesa;Feminino;Mestrado;Identificação Civil (CC/BI)

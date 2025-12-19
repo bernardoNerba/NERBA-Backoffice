@@ -6,7 +6,7 @@ import { Observable, Subscription, forkJoin } from 'rxjs';
 import { Action, ActionKpi } from '../../../core/models/action';
 import { ActionsService } from '../../../core/services/actions.service';
 import { IIndex } from '../../../core/interfaces/IIndex';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { CustomModalService } from '../../../core/services/custom-modal.service';
 import { UpsertActionsComponent } from '../upsert-actions/upsert-actions.component';
 import { SharedService } from '../../../core/services/shared.service';
 import { CommonModule } from '@angular/common';
@@ -43,7 +43,7 @@ export class IndexActionsComponent implements IIndex, OnInit, OnDestroy {
 
   constructor(
     private actionsService: ActionsService,
-    private modalService: BsModalService,
+    private modalService: CustomModalService,
     private sharedService: SharedService,
     private authService: AuthService
   ) {
