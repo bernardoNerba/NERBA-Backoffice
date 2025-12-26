@@ -43,13 +43,34 @@ git clone https://github.com/bernardoNerba/NERBA-Backoffice.git
 cd NERBA-Backoffice
 ```
 
-2. Navigate to the Backend API Service
+2. Configure Environment Variables
+
+Copy the `.env.example` file to `.env` and update the values with your specific configuration:
 
 ```bash
-cd NERBABO.Backend
+cp .env.example .env
 ```
 
-3. If this is the first time you are running a asp.net core web api project you may need to run:
+**Important:** Open the `.env` file and change the following crucial values:
+
+- `POSTGRES_PASSWORD` - Strong password for PostgreSQL database
+- `REDIS_PASSWORD` - Strong password for Redis cache
+- `JWT_KEY` - Secure key for JWT token signing (minimum 32 characters)
+- `JWT_ISSUER` - Your server IP address (e.g., `http://192.168.1.100:5001`)
+- `CLIENT_URL` - Your server IP for frontend (e.g., `http://192.168.1.100:4200`)
+- `CLIENT_URL_HTTPS` - HTTPS version if using SSL
+- `CLIENT_URL_PROXY` - Your server IP for nginx proxy (e.g., `http://192.168.1.100`)
+- `CLIENT_URL_PROXY_HTTPS` - HTTPS version for nginx proxy
+- `ADMIN_USERNAME` - Admin user username
+- `ADMIN_EMAIL` - Admin user email
+- `ADMIN_PASSWORD` - Strong password for admin user
+- `PGADMIN_PASSWORD` - Password for PgAdmin interface
+
+**Note:** For development, you can use the default values, but for production deployments, you **must** change all passwords and keys to secure values.
+
+3. Trust the ASP.NET Core HTTPS certificate (first time only)
+
+If this is the first time you are running an ASP.NET Core web API project, you may need to run:
 
 ```bash
 dotnet dev-certs https --trust
@@ -58,13 +79,16 @@ dotnet dev-certs https --trust
 4. Install npm dependencies
 
 ```bash
-cd ../NERBABO.Frontend
+cd NERBABO.Frontend
 npm install
 ```
 
-5. Build, run migrations and Start the Application, use the .NET Aspire orchestrator to run all services:
+5. Build, run migrations and Start the Application
+
+Use the .NET Aspire orchestrator to run all services:
 
 ```bash
+cd ..
 dotnet build --project NERBABO.Backend/NERBABO.AppHost
 dotnet ef migrations add "InitialMigration" -o Data/Migrations --project NERBABO.Backend/NERBABO.ApiService
 dotnet run --project NERBABO.Backend/NERBABO.AppHost
@@ -77,7 +101,9 @@ This will:
 - Start PostgreSQL, pgAdmin, and Redis containers
 - Open Swagger UI
 
-6. Access the Applications, once running, you can access:
+6. Access the Applications
+
+Once running, you can access:
 
 - **Frontend (Angular)**: [http://localhost:4200](http://localhost:4200)
 - **Backend (Web API)**: [http://localhost:8080](http://localhost:8080)
@@ -141,7 +167,12 @@ Choose the approach that best suits your development or deployment needs.
 
 ## Run Production
 
-[Production Setup Guide](PROD.md)
+This project supports two production deployment options:
+
+1. **Direct Docker Deployment** - Run containers directly with exposed ports (Quick Start)
+2. **Nginx Reverse Proxy** - Use an external nginx server for standard web ports (Recommended for internet-facing deployments)
+
+For detailed production setup instructions, see the [Production Setup Guide](PROD.md)
 
 ## Contributions
 

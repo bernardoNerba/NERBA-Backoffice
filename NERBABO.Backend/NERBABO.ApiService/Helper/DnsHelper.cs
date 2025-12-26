@@ -124,10 +124,17 @@ public class DnsHelper
                     origins.Add(clientUrl);
                 }
                 
-                // Add current server IP if available
+                // Add current server IP with standard web ports (for nginx reverse proxy)
                 try
                 {
                     var serverIP = GetLocalIPAddress();
+                    // Add standard web ports (nginx reverse proxy)
+                    origins.Add($"http://{serverIP}");
+                    origins.Add($"https://{serverIP}");
+                    origins.Add($"http://{serverIP}:80");
+                    origins.Add($"https://{serverIP}:443");
+
+                    // Add direct Docker ports (when not behind proxy)
                     origins.Add($"http://{serverIP}:4200");
                     origins.Add($"https://{serverIP}:4200");
                 }

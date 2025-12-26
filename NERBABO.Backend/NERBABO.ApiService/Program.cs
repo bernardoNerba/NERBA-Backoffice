@@ -1,3 +1,4 @@
+using System.Net;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 using NERBABO.ApiService.Core.Account.Models;
 using NERBABO.ApiService.Core.Account.Services;
 using NERBABO.ApiService.Core.Actions.Cache;
@@ -224,7 +226,31 @@ builder.Services.AddCors(options =>
             // In production, use strict origin checking
             if (allowedOrigins.Count != 0)
             {
-                policy.WithOrigins([.. allowedOrigins]);
+                // Use SetIsOriginAllowed for more flexible matching
+                policy.SetIsOriginAllowed(origin =>
+                {
+                    if (string.IsNullOrEmpty(origin)) return false;
+
+                    try
+                    {
+                        var uri = new Uri(origin);
+
+                        // Check if origin matches any configured origin (host-based, ignore port)
+                        foreach (var allowed in allowedOrigins)
+                        {
+                            var allowedUri = new Uri(allowed);
+                            // Match by host and scheme, flexible on port (for nginx proxy)
+                            if (uri.Host == allowedUri.Host && uri.Scheme == allowedUri.Scheme)
+                                return true;
+                        }
+
+                        return false;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                });
             }
             else
             {
@@ -233,11 +259,18 @@ builder.Services.AddCors(options =>
                 {
                     if (string.IsNullOrEmpty(origin)) return false;
                     
-                    var uri = new Uri(origin);
-                    var localIPs = DnsHelper.GetAllLocalIPAddresses();
-                    
-                    // Allow requests from same network
-                    return localIPs.Any(ip => uri.Host.StartsWith(ip.Substring(0, ip.LastIndexOf('.'))));
+                    try
+                    {
+                        var uri = new Uri(origin);
+                        var localIPs = DnsHelper.GetAllLocalIPAddresses();
+
+                        // Allow requests from same network (any port)
+                        return localIPs.Any(ip => uri.Host == ip || uri.Host.StartsWith(ip.Substring(0, ip.LastIndexOf('.'))));
+                    }
+                    catch
+                    {
+                        return false;
+                    }
                 });
             }
             
@@ -348,7 +381,30 @@ builder.Services.AddSwaggerGen(swaggerOptions =>
     swaggerOptions.IncludeXmlComments(xmlPath);
 });
 
+
+// Configure forwarded headers for reverse proxy support (nginx)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // Clear known networks and proxies (trust any proxy - adjust for production security)
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+
+    // Trust proxies from local network (Docker network and host)
+    // Add common private network ranges
+    options.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(IPAddress.Parse("10.0.0.0"), 8));
+    options.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(IPAddress.Parse("172.16.0.0"), 12));
+    options.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(IPAddress.Parse("192.168.0.0"), 16));
+
+    // For Docker bridge network (typically 172.17.0.0/16)
+    options.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(IPAddress.Parse("172.17.0.0"), 16));
+});
+
 var app = builder.Build();
+
+// Use forwarded headers BEFORE other middleware to properly handle proxy headers
+app.UseForwardedHeaders();
 
 app.MapDefaultEndpoints();
 

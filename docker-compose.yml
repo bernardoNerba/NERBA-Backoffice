@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:17.4
     container_name: nerbabo-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
       POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=scram-sha-256
@@ -23,6 +24,7 @@ services:
   redis:
     image: redis:7.4
     container_name: nerbabo-redis
+    restart: unless-stopped
     command: ["--save", "60", "1"]
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-SecureRedisPassword123!}
@@ -43,6 +45,7 @@ services:
       context: .
       dockerfile: NERBABO.Backend/NERBABO.ApiService/Dockerfile
     container_name: nerbabo-api
+    restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ASPNETCORE_URLS: http://+:8080
@@ -61,8 +64,11 @@ services:
       Admin__password: ${ADMIN_PASSWORD:-Admin123!}
 
       # CORS Configuration
+      # Support both direct Docker access (port 4200) and nginx reverse proxy (port 80/443)
       CORS__AllowedOrigins__0: ${CLIENT_URL:-http://localhost:4200}
       CORS__AllowedOrigins__1: ${CLIENT_URL_HTTPS:-https://localhost:4200}
+      CORS__AllowedOrigins__2: ${CLIENT_URL_PROXY:-http://localhost}
+      CORS__AllowedOrigins__3: ${CLIENT_URL_PROXY_HTTPS:-https://localhost}
 
       # OpenTelemetry
       OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
@@ -95,6 +101,7 @@ services:
       context: ./NERBABO.Frontend
       dockerfile: Dockerfile
     container_name: nerbabo-angular
+    restart: unless-stopped
     environment:
       NODE_ENV: production
       # The Angular app will determine the API URL dynamically
@@ -108,6 +115,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: nerbabo-pgadmin
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
@@ -123,6 +131,7 @@ services:
   redis-insight:
     image: redis/redisinsight:latest
     container_name: nerbabo-redis-insight
+    restart: unless-stopped
     ports:
       - "5540:5540"
     depends_on:

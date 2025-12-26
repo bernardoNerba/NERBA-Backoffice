@@ -29,15 +29,31 @@ export class ApiConfigService {
     // In production, determine the API URL dynamically
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
+    const port = window.location.port;
 
     // First, try to use environment configuration if available
     if (environment.appUrl && environment.appUrl !== '') {
       return environment.appUrl;
     }
 
-    // Fallback: construct URL based on current location
-    // Assume API is running on port 5001 (as per docker-compose)
-    return `${protocol}//${hostname}:5001`;
+    // Check if we have a dynamic getter function
+    if (typeof environment.getApiUrl === 'function') {
+      return environment.getApiUrl();
+    }
+
+    // Fallback: Detect if behind reverse proxy or direct access
+    // If no port or standard ports (80/443), use same origin (nginx routing)
+    if (!port || port === '80' || port === '443') {
+      return window.location.origin;
+    }
+
+    // If on port 4200 (direct Docker access), API is on port 5001
+    if (port === '4200') {
+      return `${protocol}//${hostname}:5001`;
+    }
+
+    // Default: same origin (let nginx handle it)
+    return window.location.origin;
   }
 
   // Method to test API connectivity
