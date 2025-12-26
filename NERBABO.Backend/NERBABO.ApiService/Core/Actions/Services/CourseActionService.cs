@@ -351,7 +351,7 @@ namespace NERBABO.ApiService.Core.Actions.Services
                     .Fail("Erro de Validação", "Data de fim inválida.");
             }
 
-            // Changes made on the dates
+            // Verify if there are changes made on the dates
             if (startDate.ToString("yyyy-MM-dd") != existingCourseAction.StartDate.ToString("yyyy-MM-dd") ||
                 endDate.ToString("yyyy-MM-dd") != existingCourseAction.EndDate.ToString("yyyy-MM-dd"))
             {
@@ -363,13 +363,13 @@ namespace NERBABO.ApiService.Core.Actions.Services
                         .Fail("Erro de Validação", "A data de início deve ser anterior à data de fim.");
                 }
 
-                // Check if the new start date is after today
-                if (startDate < DateOnly.FromDateTime(DateTime.UtcNow))
-                {
-                    _logger.LogWarning("Start date {startDate} cannot be in the past.", startDate);
-                    return Result<RetrieveCourseActionDto>
-                        .Fail("Erro de Validação", "A data de início não pode ser anterior à data atual.");
-                }
+                // Uncomment this if you need to check if need to check Future Dates, do it also on Dtos
+                // if (startDate < DateOnly.FromDateTime(DateTime.UtcNow))
+                // {
+                //     _logger.LogWarning("Start date {startDate} cannot be in the past.", startDate);
+                //     return Result<RetrieveCourseActionDto>
+                //         .Fail("Erro de Validação", "A data de início não pode ser anterior à data atual.");
+                // }
             }
 
 

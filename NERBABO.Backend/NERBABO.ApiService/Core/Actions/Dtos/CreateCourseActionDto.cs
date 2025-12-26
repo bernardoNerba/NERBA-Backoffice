@@ -1,6 +1,9 @@
-﻿using NerbaApp.Api.Validators;
+﻿/*
+Uncomment FutureDate validation in order to protect users from creating Course Actions with past dates,
+in other words, expects a Future Date from the frontend
+*/
+using NerbaApp.Api.Validators;
 using NERBABO.ApiService.Helper.Validators;
-using NERBABO.ApiService.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -22,11 +25,11 @@ namespace NERBABO.ApiService.Core.Actions.Dtos
         public List<string> WeekDays { get; set; } = [];
 
         [Required(ErrorMessage = "Data de Início é um campo obrigatório.")]
-        [FutureDate(ErrorMessage = "A data de ínicio deve ser uma data futura.")]
+        //[FutureDate(ErrorMessage = "A data de ínicio deve ser uma data futura.")]
         public string StartDate { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Data de Fim é um campo obrigatório.")]
-        [FutureDate(ErrorMessage = "A data de fim deve ser uma data futura.")]
+        //[FutureDate(ErrorMessage = "A data de fim deve ser uma data futura.")]
         public string EndDate { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Estado é um campo obrigatório.")]
