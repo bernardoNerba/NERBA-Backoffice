@@ -68,8 +68,14 @@ REDIS_PASSWORD=${REDIS_PASSWORD:-$(openssl rand -base64 32 | tr -d "=+/")}
 JWT_KEY=${JWT_KEY:-$(openssl rand -base64 64 | tr -d "=+/")}
 JWT_EXPIRES_DAYS=7
 JWT_ISSUER=http://$LOCAL_IP:5001
+
+# Client URLs - Direct Docker Access (port 4200)
 CLIENT_URL=http://$LOCAL_IP:4200
 CLIENT_URL_HTTPS=https://$LOCAL_IP:4200
+
+# Client URLs - Nginx Reverse Proxy (standard web ports)
+CLIENT_URL_PROXY=http://$LOCAL_IP
+CLIENT_URL_PROXY_HTTPS=https://$LOCAL_IP
 
 # Admin Configuration
 ADMIN_USERNAME=${ADMIN_USERNAME:-admin}

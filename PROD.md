@@ -1,6 +1,6 @@
 # NERBABO Production Deployment Guide
 
-## 🚀 Quick Start
+## Quick Start
 
 ### One-Command Deployment (Recommended)
 
@@ -11,7 +11,33 @@ chmod +x start.sh
 
 The `start.sh` script provides a complete automated deployment with intelligent IP detection, secure password generation, and health checks.
 
-## 🏗️ Architecture Overview
+## Deployment Options
+
+This application supports two production deployment architectures:
+
+### Option 1: Direct Docker Deployment (Default)
+
+Containers run with exposed ports directly accessible:
+- **Frontend**: `http://{IP}:4200`
+- **API**: `http://{IP}:5001`
+- Best for: Internal networks, development, testing environments
+
+### Option 2: Nginx Reverse Proxy (Recommended for Production)
+
+External nginx server routes traffic to Docker containers:
+- **Application**: `http://{IP}` or `https://{IP}` (standard ports 80/443)
+- **Nginx routes**:
+  - `/` → Frontend container (port 4200)
+  - `/api/` → API container (port 5001)
+  - `/uploads/` → API container (serves uploaded files)
+  - `/pgadmin/` → PgAdmin (optional, comment out in production)
+- Best for: Internet-facing deployments, production environments, SSL/TLS termination
+
+**Configuration File**: `nginx-reverse-proxy.conf` (see [Nginx Reverse Proxy Setup](#nginx-reverse-proxy-setup) section below)
+
+The application **automatically detects** which deployment mode it's running in and configures API URLs accordingly.
+
+## Architecture Overview
 
 ### Container Architecture
 
@@ -44,7 +70,7 @@ The application runs in a multi-container Docker environment with the following 
 | PgAdmin          | 80            | 8080          | Database Administration |
 | Redis Insight    | 5540          | 5540          | Cache Monitoring        |
 
-## 🐳 Docker Configuration
+## Docker Configuration
 
 ### Container Specifications
 
@@ -168,7 +194,7 @@ services:
       - nerbabo-network
 ```
 
-## ⚙️ Nginx Configuration
+## Nginx Configuration
 
 ### Reverse Proxy Setup
 
@@ -235,37 +261,236 @@ server {
 - **Static Assets** → Served directly from nginx with aggressive caching (1 year)
 - **Angular Routes** → All unmatched routes fallback to `index.html` for SPA routing
 
-## 🔧 Start.sh Script Features
+## Nginx Reverse Proxy Setup
+
+For production deployments on standard web ports (80/443), use the external nginx reverse proxy configuration.
+
+### Installation Steps
+
+1. **Install Nginx** (if not already installed):
+
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install nginx
+
+# CentOS/RHEL
+sudo yum install nginx
+
+# macOS
+brew install nginx
+```
+
+2. **Copy Configuration File**:
+
+```bash
+sudo cp nginx-reverse-proxy.conf /etc/nginx/sites-available/nerbabo
+```
+
+3. **Enable the Site**:
+
+```bash
+# Ubuntu/Debian (uses sites-enabled pattern)
+sudo ln -sf /etc/nginx/sites-available/nerbabo /etc/nginx/sites-enabled/
+
+# CentOS/RHEL (include directly in nginx.conf)
+# Add to /etc/nginx/nginx.conf: include /etc/nginx/sites-available/nerbabo;
+```
+
+4. **Test Configuration**:
+
+```bash
+sudo nginx -t
+```
+
+5. **Reload Nginx**:
+
+```bash
+sudo systemctl reload nginx
+# or
+sudo service nginx reload
+```
+
+### Configuration Features
+
+The `nginx-reverse-proxy.conf` file provides:
+
+#### Upstream Servers
+
+```nginx
+upstream nerbabo_frontend {
+    server localhost:4200;
+    keepalive 32;
+}
+
+upstream nerbabo_api {
+    server localhost:5001;
+    keepalive 32;
+}
+```
+
+#### Location Routing
+
+| Location | Proxied To | Purpose |
+|----------|-----------|---------|
+| `/` | `nerbabo_frontend` (port 4200) | Angular SPA |
+| `/api/` | `nerbabo_api` (port 5001) | Backend REST API |
+| `/uploads/` | `nerbabo_api` (port 5001) | User uploaded files (images, PDFs) |
+| `/health` | `nerbabo_api` (port 5001) | Health check endpoint |
+| `/pgadmin/` | `pgadmin` (port 8080) | Database admin (optional) |
+
+#### Security Features
+
+- **Security Headers**: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+- **File Upload Support**: `client_max_body_size 50M` for large file uploads
+- **CORS Handling**: Backend CORS with nginx backup headers
+- **Hidden File Protection**: Denies access to dotfiles
+
+#### SSL/TLS Configuration (Optional)
+
+To enable HTTPS, uncomment and configure SSL sections in the configuration file:
+
+```nginx
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    # ... additional SSL configuration
+}
+```
+
+**Let's Encrypt SSL Certificate**:
+
+```bash
+# Install certbot
+sudo apt install certbot python3-certbot-nginx
+
+# Obtain certificate
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+# Auto-renewal is configured by default
+sudo certbot renew --dry-run
+```
+
+### Dynamic API URL Detection
+
+The frontend automatically detects the deployment mode:
+
+**Behind Reverse Proxy** (port 80/443):
+- API URL: `window.location.origin` (same origin, nginx routes internally)
+
+**Direct Docker Access** (port 4200):
+- API URL: `http://{IP}:5001` (explicit API port)
+
+This logic is implemented in:
+- `NERBABO.Frontend/src/app/core/services/api-config.service.ts:42-56`
+- `NERBABO.Frontend/src/environments/environment.production.ts:9-33`
+
+### Reverse Proxy CORS Support
+
+The backend has been enhanced to support reverse proxy deployments:
+
+**Program.cs Changes** (`NERBABO.Backend/NERBABO.ApiService/Program.cs:229-256`):
+- Flexible origin matching by host and scheme (ignores port)
+- ForwardedHeaders middleware for proxy header handling
+- Trusts common private network ranges (Docker networks)
+
+**DnsHelper.cs Changes** (`NERBABO.Backend/NERBABO.ApiService/Helper/DnsHelper.cs:127-139`):
+- Adds standard web ports (80, 443) to allowed origins
+- Maintains backward compatibility with direct Docker access
+
+### Testing the Reverse Proxy
+
+1. **Start Docker containers**:
+```bash
+./start.sh
+```
+
+2. **Access via reverse proxy**:
+```bash
+# Without SSL
+http://{server-ip}
+
+# With SSL (after configuring certificates)
+https://{your-domain}
+```
+
+3. **Verify routing**:
+```bash
+# Frontend should load
+curl -I http://{server-ip}/
+
+# API health check
+curl http://{server-ip}/health
+
+# API endpoint (requires authentication)
+curl http://{server-ip}/api/auth/login
+```
+
+## Start.sh Script Features
 
 ### Interactive .env Configuration
 
-The script now interactively handles the `.env` file to prevent accidental overwrites.
+The script automatically handles the `.env` file configuration to prevent accidental overwrites.
 
-- **Existing .env File**: If an `.env` file is found, the script will prompt you to either use the existing file or create a new one.
+**Manual Configuration (Optional):**
 
-  ```bash
-  # Excerpt from start.sh
-  if [ -f "$ENV_FILE" ]; then
-      echo -e "${YELLOW}🤔 An existing .env file was found.${NC}"
-      read -p "Do you want to use the existing .env file? (y/n) " -n 1 -r
-      echo
-      if [[ $REPLY =~ ^[Yy]$ ]]; then
-          echo -e "${GREEN}👍 Using existing .env file.${NC}"
-          # ... (uses existing file)
-      else
-          echo -e "${YELLOW}✨ Creating a new .env file...${NC}"
-          create_env_file
-      fi
-  else
-      create_env_file
-  fi
-  ```
+If you prefer to configure the environment manually before running `start.sh`:
 
-- **New .env File**: If no `.env` file exists or you choose to create a new one, the script will:
+```bash
+# Copy the example file
+cp .env.example .env
 
-  - Back up the old `.env` file (if it exists).
-  - Generate a new `.env` file with secure, random credentials for the database, Redis, and JWT.
-  - Dynamically set the server IP for CORS and other configurations.
+# Edit the .env file with your values
+nano .env  # or use your preferred editor
+```
+
+**Automatic Configuration (Default):**
+
+When you run `start.sh`, the script will detect and handle your environment configuration:
+
+```bash
+# Excerpt from start.sh
+if [ -f "$ENV_FILE" ]; then
+    echo "An existing .env file was found."
+    read -p "Do you want to use the existing .env file? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Using existing .env file."
+        # ... (uses existing file)
+    else
+        echo "Creating a new .env file..."
+        create_env_file
+    fi
+else
+    create_env_file
+fi
+```
+
+**If no .env file exists** (or you choose to create a new one): The script will:
+
+- Back up the old `.env` file (if it exists with timestamp)
+- Generate a new `.env` file with cryptographically secure, random credentials
+- Automatically configure:
+  - `POSTGRES_PASSWORD` - Secure random password for PostgreSQL
+  - `REDIS_PASSWORD` - Secure random password for Redis
+  - `JWT_KEY` - 64-character cryptographically secure signing key
+  - `JWT_ISSUER` - Dynamically detected server IP
+  - `CLIENT_URL` - Auto-configured based on server IP (Direct Docker: port 4200)
+  - `CLIENT_URL_PROXY` - Auto-configured based on server IP (Nginx proxy: standard ports)
+  - `ADMIN_USERNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` - Admin user credentials
+  - `PGADMIN_PASSWORD` - PgAdmin interface password
+
+**Important Security Notes:**
+
+- The script generates strong, random passwords automatically
+- If you prefer specific passwords, configure them in `.env` before running `start.sh`
+- For production deployments with custom domains, update the `CLIENT_URL_*` values accordingly
+- The `.env` file is excluded from git (via `.gitignore`) to protect sensitive credentials
 
 ### Intelligent IP Detection
 
@@ -318,7 +543,7 @@ Post-deployment validation:
 - Container status monitoring
 - Service dependency validation
 
-## 📁 File Storage Architecture
+## File Storage Architecture
 
 ### Image Service (IImageService)
 
@@ -351,7 +576,7 @@ ProgramLogoUrl = !string.IsNullOrEmpty(frame.ProgramLogo)
     : null
 ```
 
-## 🗄️ Database Configuration
+## Database Configuration
 
 ### PostgreSQL Setup
 
@@ -392,7 +617,7 @@ catch (Exception ex)
 - **Roles**: Admin, User, FM, CQ
 - **Default Configuration**: System settings and taxes
 
-## 🔒 Security Configuration
+## Security Configuration
 
 ### Authentication & Authorization
 
@@ -414,7 +639,7 @@ catch (Exception ex)
 - **Session Security**: Redis-based session management
 - **Input Validation**: Comprehensive model validation
 
-## 📊 Monitoring & Administration
+## Monitoring & Administration
 
 ### Available Interfaces
 
@@ -447,7 +672,7 @@ Health checks configured for all critical services:
 - API: Application health endpoints (development only)
 - Frontend: HTTP response validation
 
-## 🚀 Deployment Commands
+## Deployment Commands
 
 ### Initial Deployment
 
@@ -499,7 +724,7 @@ docker exec -i nerbabo-postgres psql -U postgres nerbabo_db < backup.sql
 docker run --rm -v nerbabo-api-uploads:/target -v $(pwd):/backup ubuntu tar xzf /backup/file_backup.tar.gz -C /target
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -533,7 +758,7 @@ ASPNETCORE_ENVIRONMENT=Development
 Logging__LogLevel__Default=Debug
 ```
 
-## 📈 Production Considerations
+## Production Considerations
 
 ### Scaling
 
