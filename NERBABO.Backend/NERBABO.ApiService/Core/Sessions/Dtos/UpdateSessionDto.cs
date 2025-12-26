@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Humanizer;
 using NerbaApp.Api.Validators;
-using NERBABO.ApiService.Helper.Validators;
 using NERBABO.ApiService.Shared.Dtos;
 using NERBABO.ApiService.Shared.Enums;
 
@@ -14,7 +13,11 @@ public class UpdateSessionDto : EntityDto<long>
         public string Weekday { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Data agendada é um campo obrigatório.")]
-        [FutureDate(ErrorMessage = "Data agendada deve ser no futuro.")]
+        //[FutureDate(ErrorMessage = "Data agendada deve ser no futuro.")]
+        /*
+        Uncomment FutureDate validation in order to protect users from creating Course Actions with past dates,
+        in other words, expects a Future Date from the frontend
+        */
         public string ScheduledDate { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Hora de início é um campo obrigatório.")]

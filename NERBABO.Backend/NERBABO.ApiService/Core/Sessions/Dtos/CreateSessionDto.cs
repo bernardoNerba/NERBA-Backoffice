@@ -1,7 +1,10 @@
+/*
+Uncomment FutureDate validation in order to protect users from creating Course Actions with past dates,
+in other words, expects a Future Date from the frontend
+*/
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using NerbaApp.Api.Validators;
-using NERBABO.ApiService.Helper.Validators;
 
 namespace NERBABO.ApiService.Core.Sessions.Dtos
 {
@@ -15,7 +18,7 @@ namespace NERBABO.ApiService.Core.Sessions.Dtos
         public string Weekday { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Data agendada é um campo obrigatório.")]
-        [FutureDate(ErrorMessage = "Data agendada deve ser no futuro.")]
+        // [FutureDate(ErrorMessage = "Data agendada deve ser no futuro.")]
         public string ScheduledDate { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Hora de início é um campo obrigatório.")]
