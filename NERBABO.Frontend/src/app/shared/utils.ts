@@ -107,3 +107,69 @@ export function convertHoursMinutesToDecimal(
 ): number {
   return hours + minutes / 60;
 }
+
+/**
+ * Splits a full name into first name and last name.
+ * Last word becomes last name, everything else becomes first name.
+ *
+ * @param fullName - The complete name to split
+ * @returns Object with firstName and lastName
+ * @throws Error if fullName has less than 2 words
+ *
+ * Examples:
+ * - "João Silva" → { firstName: "João", lastName: "Silva" }
+ * - "João Silva Santos" → { firstName: "João Silva", lastName: "Santos" }
+ * - "José María García" → { firstName: "José María", lastName: "García" }
+ */
+export function splitFullName(fullName: string): {
+  firstName: string;
+  lastName: string;
+} {
+  const trimmed = fullName.trim();
+
+  if (!trimmed) {
+    throw new Error('Nome completo não pode estar vazio');
+  }
+
+  // Split by one or more whitespace characters
+  const parts = trimmed.split(/\s+/);
+
+  if (parts.length < 2) {
+    throw new Error('Nome completo deve conter pelo menos duas palavras');
+  }
+
+  const lastName = parts[parts.length - 1];
+  const firstName = parts.slice(0, -1).join(' ');
+
+  return { firstName, lastName };
+}
+
+/**
+ * Validator for full name format.
+ * Ensures the name contains at least 2 words separated by space.
+ * This validator is intended for use with Angular reactive forms.
+ *
+ * @param control - The form control to validate
+ * @returns ValidationErrors object if invalid, null if valid
+ */
+export function fullNameValidator(
+  control: any
+): { [key: string]: any } | null {
+  if (!control.value) {
+    return null; // Let required validator handle empty values
+  }
+
+  const trimmed = control.value.trim();
+  const parts = trimmed.split(/\s+/);
+
+  if (parts.length < 2) {
+    return {
+      fullNameFormat: {
+        message:
+          'Nome completo deve conter pelo menos nome próprio e apelido separados por espaço',
+      },
+    };
+  }
+
+  return null;
+}

@@ -26,7 +26,7 @@ public class PeopleBulkImportService : IPeopleBulkImportService
     // Required headers for People import
     private readonly List<string> RequiredHeaders = new()
     {
-        "PrimeiroNome", "Apelido", "NIF"
+        "NomeCompleto", "NIF"
     };
 
     // Optional headers
@@ -224,10 +224,34 @@ public class PeopleBulkImportService : IPeopleBulkImportService
     {
         try
         {
+            // Get full name and split it into firstName and lastName
+            var fullName = GetValue(row, "NomeCompleto");
+            string firstName = string.Empty;
+            string lastName = string.Empty;
+
+            if (!string.IsNullOrEmpty(fullName))
+            {
+                try
+                {
+                    (firstName, lastName) = NameHelper.SplitFullName(fullName);
+                }
+                catch (ArgumentException ex)
+                {
+                    rowResult.Errors.Add(new ImportValidationError
+                    {
+                        Field = "NomeCompleto",
+                        ErrorMessage = ex.Message,
+                        AttemptedValue = fullName,
+                        Severity = ErrorSeverity.Error
+                    });
+                    return null;
+                }
+            }
+
             var dto = new CreatePersonDto
             {
-                FirstName = GetValue(row, "PrimeiroNome") ?? string.Empty,
-                LastName = GetValue(row, "Apelido") ?? string.Empty,
+                FirstName = firstName,
+                LastName = lastName,
                 NIF = GetValue(row, "NIF") ?? string.Empty,
                 IdentificationNumber = GetValue(row, "NúmeroIdentificação"),
                 IdentificationValidationDate = GetValue(row, "DataValidaçãoIdentificação"),
