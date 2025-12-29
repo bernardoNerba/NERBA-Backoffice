@@ -26,7 +26,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { IUpsert } from '../../../core/interfaces/IUpsert';
 import { Person } from '../../../core/models/person';
-import { convertDateOnlyToPtDate, matchDateOnly } from '../../../shared/utils';
+import {
+  convertDateOnlyToPtDate,
+  matchDateOnly,
+  splitFullName,
+  fullNameValidator,
+} from '../../../shared/utils';
 
 @Component({
   selector: 'app-upsert-people',
@@ -82,20 +87,13 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
 
   initializeForm(): void {
     this.form = this.formBuilder.group({
-      firstName: [
+      fullName: [
         '',
         [
           Validators.required,
-          Validators.maxLength(100),
-          Validators.minLength(3),
-        ],
-      ],
-      lastName: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(100),
-          Validators.minLength(3),
+          Validators.maxLength(201),
+          Validators.minLength(7),
+          fullNameValidator,
         ],
       ],
       nif: [
@@ -126,9 +124,14 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
   }
 
   patchFormValues(): void {
+    // Combine firstName and lastName into fullName for display
+    const fullName =
+      this.currentPerson?.firstName && this.currentPerson?.lastName
+        ? `${this.currentPerson.firstName} ${this.currentPerson.lastName}`
+        : '';
+
     this.form.patchValue({
-      firstName: this.currentPerson?.firstName,
-      lastName: this.currentPerson?.lastName,
+      fullName: fullName,
       nif: this.currentPerson?.nif,
       identificationNumber: this.currentPerson?.identificationNumber,
       identificationValidationDate: convertDateOnlyToPtDate(
@@ -204,6 +207,25 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
     this.submitted = true;
     this.errorMessages = [];
 
+    // Split fullName into firstName and lastName before validation
+    let firstName = '';
+    let lastName = '';
+
+    try {
+      const fullNameValue = this.form.value.fullName;
+      if (fullNameValue) {
+        const splitNames = splitFullName(fullNameValue);
+        firstName = splitNames.firstName;
+        lastName = splitNames.lastName;
+      }
+    } catch (error: any) {
+      this.sharedService.showError(
+        error.message || 'Erro ao processar nome completo'
+      );
+      this.loading = false;
+      return;
+    }
+
     // convert date values to match DateOnly fields
     this.form.value.birthDate = matchDateOnly(this.form.value.birthDate);
     this.form.value.identificationValidationDate = matchDateOnly(
@@ -220,6 +242,15 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
 
     this.loading = true;
 
+    // Prepare submission data with firstName and lastName
+    const { fullName, ...formValueWithoutFullName } = this.form.value;
+    const submissionPayload = {
+      id: this.id,
+      ...formValueWithoutFullName,
+      firstName,
+      lastName,
+    };
+
     // Check if we have any files to upload (only for create mode)
     const hasFiles = !this.isUpdate && (
       this.habilitationPdfFile !== null ||
@@ -231,7 +262,7 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
       // Use the create with files endpoint
       this.peopleService
         .createPersonWithFiles(
-          { id: this.id, ...this.form.value },
+          submissionPayload,
           this.habilitationPdfFile,
           this.ibanPdfFile,
           this.identificationDocumentPdfFile
@@ -250,7 +281,7 @@ export class UpsertPeopleComponent implements IUpsert, OnInit {
     } else {
       // Use the regular upsert endpoint
       this.peopleService
-        .upsertPerson({ id: this.id, ...this.form.value }, this.isUpdate)
+        .upsertPerson(submissionPayload, this.isUpdate)
         .subscribe({
           next: (value) => {
             this.bsModalRef.hide();

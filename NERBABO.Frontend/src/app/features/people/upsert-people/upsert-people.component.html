@@ -11,70 +11,48 @@
   <form [formGroup]="form">
     <div class="container">
       <div class="row">
-        <!-- first name -->
-        <div class="col-md-6">
+        <!-- Full Name -->
+        <div class="col-md-12">
           <div class="mb-3">
-            <label for="firstName"
-              >Nome Próprio
+            <label for="fullName"
+              >Nome Completo
               <span class="text-danger">*</span>
             </label>
             <input
               type="text"
               pInputText
-              formControlName="firstName"
-              [class.is-invalid]="submitted && form.get('firstName')?.errors"
+              formControlName="fullName"
+              placeholder="Ex: João Silva Santos"
+              [class.is-invalid]="submitted && form.get('fullName')?.errors"
               class="w-100 {{
-                submitted && form.get('firstName')?.errors
+                submitted && form.get('fullName')?.errors
                   ? 'ng-invalid ng-dirty'
                   : ''
               }}"
             />
-            @if (submitted && form.get('firstName')?.hasError("required")) {
+            @if (submitted && form.get('fullName')?.hasError("required")) {
             <span class="text-danger">
-              Nome Próprio é um campo obrigatório.
+              Nome Completo é um campo obrigatório.
             </span>
-            } @else if (submitted &&
-            form.get('firstName')?.hasError("minlength") ||
-            form.get('firstName')?.hasError("maxlength")) {
+            } @else if (submitted && form.get('fullName')?.hasError("minlength")) {
             <span class="text-danger">
-              Nome Próprio deve ter entre 3 e 100 caracteres.
+              Nome Completo deve ter pelo menos 7 caracteres.
             </span>
-            }
-          </div>
-        </div>
-        <!-- end firstName -->
-
-        <!-- last name -->
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="lastName"
-              >Último Nome
-              <span class="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              pInputText
-              formControlName="lastName"
-              [class.is-invalid]="submitted && form.get('lastName')?.errors"
-              class="w-100 {{
-                submitted && form.get('lastName')?.errors
-                  ? 'ng-invalid ng-dirty'
-                  : ''
-              }}"
-            />
-            @if (submitted && form.get('lastName')?.hasError("required")) {
+            } @else if (submitted && form.get('fullName')?.hasError("maxlength")) {
             <span class="text-danger">
-              Último Nome é um campo obrigatório.
+              Nome Completo deve ter no máximo 201 caracteres.
             </span>
-            } @else if (submitted && form.get('lastName')?.hasError("minlength")
-            || form.get('lastName')?.hasError("maxlength")) {
+            } @else if (submitted && form.get('fullName')?.hasError("fullNameFormat")) {
             <span class="text-danger">
-              Último Nome deve ter entre 3 e 100 caracteres.
+              Nome Completo deve conter pelo menos nome próprio e apelido separados por espaço.
             </span>
             }
+            <small class="text-muted d-block mt-1">
+              Digite o nome completo. O último nome será considerado apelido.
+            </small>
           </div>
         </div>
-        <!-- end last name -->
+        <!-- end Full Name -->
 
         <!-- NIF -->
         <div class="col-md-6">
