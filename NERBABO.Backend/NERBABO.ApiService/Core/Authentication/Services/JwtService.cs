@@ -23,12 +23,15 @@ public class JwtService : IJwtService
     private readonly AppDbContext _context;
     private readonly ILogger<JwtService> _logger;
     private readonly SignInManager<User> _signInManager;
+    private readonly ITokenBlacklistService _tokenBlacklistService;
+
     public JwtService(
         IConfiguration config,
         UserManager<User> userManager,
         AppDbContext context,
         ILogger<JwtService> logger,
-        SignInManager<User> signInManager)
+        SignInManager<User> signInManager,
+        ITokenBlacklistService tokenBlacklistService)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _jwtKey = new SymmetricSecurityKey(
@@ -39,6 +42,7 @@ public class JwtService : IJwtService
         _context = context;
         _logger = logger;
         _signInManager = signInManager;
+        _tokenBlacklistService = tokenBlacklistService ?? throw new ArgumentNullException(nameof(tokenBlacklistService));
     }
 
     /// <summary>
@@ -224,5 +228,28 @@ public class JwtService : IJwtService
             person?.LastName ?? "",
             await CreateJwt(user)
             );
+    }
+
+    public async Task<Result> InvalidateTokenAsync(string token)
+    {
+        try
+        {
+            // Decode the token to get expiration time
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+
+            var expirationTime = jwtToken.ValidTo;
+
+            // Add token to blacklist
+            await _tokenBlacklistService.BlacklistTokenAsync(token, expirationTime);
+
+            _logger.LogInformation("Token successfully invalidated for logout");
+            return Result.Ok("Sucesso", "Token invalidado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error invalidating token during logout");
+            return Result.Fail("Erro", "Erro ao invalidar token.");
+        }
     }
 }

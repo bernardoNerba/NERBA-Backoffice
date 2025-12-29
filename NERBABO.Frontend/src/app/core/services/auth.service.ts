@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { jwtDecode } from 'jwt-decode';
 
@@ -17,6 +17,7 @@ import { API_ENDPOINTS } from '../objects/apiEndpoints';
 export class AuthService {
   private userSubject = new BehaviorSubject<User | null>(null);
   user$ = this.userSubject.asObservable();
+  private isRefreshing = false;
 
   constructor(private http: HttpClient) {
     this.loadUserFromStorage();
@@ -29,6 +30,14 @@ export class AuthService {
       if (userData) {
         // parse and store the value as a observable
         const user = JSON.parse(userData);
+
+        // Check if token is expired
+        if (this.isTokenExpired(user.jwt)) {
+          console.warn('Token expired on load, clearing user data');
+          this.removeUser();
+          return;
+        }
+
         this.userSubject.next(user);
       } else {
         // Ensure null is emitted if no user
@@ -41,7 +50,24 @@ export class AuthService {
   }
 
   logout(): void {
-    // TODO: Invalidate jwt
+    // Call backend to invalidate token
+    const token = this.bearerToken;
+
+    if (token) {
+      // Make server call to invalidate token (fire and forget)
+      this.http.post(API_ENDPOINTS.logout, {}).pipe(
+        catchError((error) => {
+          console.error('Logout server call failed:', error);
+          // Continue with client-side logout even if server call fails
+          return of(null);
+        })
+      ).subscribe(() => {
+        console.log('Token invalidated on server');
+      });
+    }
+
+    // Clear user data and reset refresh state immediately
+    this.isRefreshing = false;
     this.removeUser();
   }
 
@@ -59,9 +85,17 @@ export class AuthService {
     return this.userSubject.getValue() !== null;
   }
 
-  get bearerToken() {
+  get bearerToken(): string | undefined {
     // gets the current user jwt
-    return this.userSubject.getValue()?.jwt;
+    const token = this.userSubject.getValue()?.jwt;
+
+    // Don't return expired tokens
+    if (token && this.isTokenExpired(token)) {
+      console.warn('Token expired, returning undefined');
+      return undefined;
+    }
+
+    return token;
   }
 
   private setUser(user: User): void {
@@ -74,6 +108,71 @@ export class AuthService {
     // Removes user key from the local storage
     localStorage.removeItem(environment.userKey);
     this.userSubject.next(null);
+  }
+
+  /**
+   * Checks if a JWT token is expired
+   * @param token - The JWT token to check
+   * @returns true if token is expired or invalid, false otherwise
+   */
+  isTokenExpired(token: string): boolean {
+    if (!token) return true;
+
+    try {
+      const decoded = jwtDecode<JwtPayload & { exp: number }>(token);
+      const currentTime = Math.floor(Date.now() / 1000);
+
+      // Add 5 second buffer to account for clock skew
+      return decoded.exp <= currentTime + 5;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return true;
+    }
+  }
+
+  /**
+   * Gets the token expiration time in milliseconds
+   * @param token - The JWT token
+   * @returns Expiration time in milliseconds, or null if invalid
+   */
+  getTokenExpirationTime(token: string): number | null {
+    try {
+      const decoded = jwtDecode<JwtPayload & { exp: number }>(token);
+      return decoded.exp * 1000; // Convert to milliseconds
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Refreshes the current user's JWT token
+   * @returns Observable of void on success, throws error on failure
+   */
+  refreshToken(): Observable<void> {
+    // Prevent multiple simultaneous refresh attempts
+    if (this.isRefreshing) {
+      return of(void 0);
+    }
+
+    this.isRefreshing = true;
+
+    return this.http.get<User>(API_ENDPOINTS.refresh_token).pipe(
+      tap((user: User) => {
+        if (user && user.jwt) {
+          console.log('Token refreshed successfully');
+          this.setUser(user);
+          this.isRefreshing = false;
+        }
+      }),
+      map(() => void 0),
+      catchError((error) => {
+        console.error('Token refresh failed:', error);
+        this.isRefreshing = false;
+        // Clear user data and logout on refresh failure
+        this.logout();
+        throw error;
+      })
+    );
   }
 
   get getUserClaims(): any {

@@ -49,6 +49,8 @@ export const API_ENDPOINTS = {
 
   // Auth endpoints
   login: `${BASE_URL}/api/auth/login/`,
+  logout: `${BASE_URL}/api/auth/logout`,
+  refresh_token: `${BASE_URL}/api/auth/refresh-user-token`,
   set_role: `${BASE_URL}/api/auth/set-role/`,
 
   // People endpoints
