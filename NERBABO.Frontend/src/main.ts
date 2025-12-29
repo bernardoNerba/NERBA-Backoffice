@@ -6,6 +6,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { importProvidersFrom } from '@angular/core';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { authInterceptor } from './app/shared/interceptors/auth.interceptor';
+import { tokenRefreshInterceptor } from './app/shared/interceptors/token-refresh.interceptor';
 import { routes } from './app/app.routes';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
@@ -33,7 +34,9 @@ const MyLightGreenTheme = definePreset(Aura, {
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(
+      withInterceptors([authInterceptor, tokenRefreshInterceptor])
+    ),
     provideAnimations(),
     importProvidersFrom(ModalModule.forRoot()),
     providePrimeNG({

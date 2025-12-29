@@ -54,6 +54,29 @@ namespace NERBABO.ApiService.Core.Authentication.Controllers
         }
 
         /// <summary>
+        /// Logs out the current user by invalidating their JWT token.
+        /// </summary>
+        /// <response code="200">Token successfully invalidated, user logged out</response>
+        /// <response code="401">User is not authenticated or token is invalid</response>
+        /// <response code="500">Unexpected error occurred.</response>
+        [Authorize(Policy = "ActiveUser")]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            // Get the token from the Authorization header
+            var authHeader = Request.Headers.Authorization.ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized(new { message = "No token provided" });
+            }
+
+            var token = authHeader["Bearer ".Length..].Trim();
+
+            Result result = await _jwtService.InvalidateTokenAsync(token);
+            return _responseHandler.HandleResult(result);
+        }
+
+        /// <summary>
         /// Sets a role to a user.
         /// </summary>
         /// <param name="userRole">The UserRoleDto object containing user ID and roles to be assigned.</param>

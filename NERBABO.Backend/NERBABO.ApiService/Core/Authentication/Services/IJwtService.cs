@@ -8,6 +8,7 @@ public interface IJwtService
 {
     Task<Result<LoggedInUserDto>> GenerateJwtOnLoginAsync(LoginDto model);
     Task<Result<LoggedInUserDto>> GenerateRefreshTokenAsync(string userId);
+    Task<Result> InvalidateTokenAsync(string token);
 
 
     /// <summary>

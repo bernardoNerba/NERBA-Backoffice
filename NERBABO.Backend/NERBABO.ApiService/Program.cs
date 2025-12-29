@@ -69,8 +69,16 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ?? throw new InvalidOperationException("Redis connection string is not configured."));
 });
 
+// Add distributed cache using Redis for token blacklisting
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConnectionString;
+    options.InstanceName = "NerbaBackoffice:";
+});
+
 // Dependency Injection Container
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPeopleService, PeopleService>();
@@ -124,6 +132,7 @@ builder.Services.AddHttpContextAccessor();
 
 // Register Other services and middleware
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
+// Note: TokenBlacklistMiddleware is NOT registered here - middleware is activated via UseMiddleware<T>()
 builder.Services.AddTransient<IResponseHandler, ResponseHandler>();
 builder.Services.AddTransient<IAuthorizationHandler, ActiveUserHandler>();
 
@@ -479,6 +488,9 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Check for blacklisted tokens after authentication
+app.UseMiddleware<TokenBlacklistMiddleware>();
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
