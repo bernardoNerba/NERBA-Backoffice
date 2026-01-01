@@ -172,7 +172,7 @@ This project supports two production deployment options:
 1. **Direct Docker Deployment** - Run containers directly with exposed ports (Quick Start)
 2. **Nginx Reverse Proxy** - Use an external nginx server for standard web ports (Recommended for internet-facing deployments)
 
-For detailed production setup instructions, see the [Production Setup Guide](PROD.md)
+For detailed production setup instructions, see the [Production Setup Guide](docs/prod/PROD.md)
 
 ## Contributions
 
@@ -185,10 +185,7 @@ If you're interested in contributing, please feel free to open a pull request or
 ## ToDo's
 
 - [ ] Add new Integration tests project to the Backend;
-- [ ] Document, with comments, critical methods, classes and interfaces;
 - [ ] Optimize Services Queries;
-- [ ] Refactor Authorization and Authentication logic to apply additional security;
-- [ ] Add volumes presistente storage and automated backup logic, for production;
 - [ ] User Instructions Manual.
 
 ## Code of Conduct
