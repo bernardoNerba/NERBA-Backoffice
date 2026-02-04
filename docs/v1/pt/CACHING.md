@@ -33,36 +33,7 @@ O sistema utiliza o padrao **Cache-Aside** (Side Caching) com **Redis** como arm
 
 ### Fluxo de Operacao
 
-```
-                  ┌─────────────┐
-                  │   Cliente   │
-                  └──────┬──────┘
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │   Service   │
-                  └──────┬──────┘
-                         │
-            ┌────────────┼────────────┐
-            │            │            │
-            ▼            │            ▼
-      ┌──────────┐       │      ┌──────────┐
-      │  Cache?  │───No──┘      │  Cache   │
-      └────┬─────┘              │  (Redis) │
-           │                    └──────────┘
-           Yes                        ▲
-           │                          │
-           ▼                          │
-      ┌──────────┐              ┌─────┴────┐
-      │  Return  │              │  Set em  │
-      │  dados   │              │  cache   │
-      └──────────┘              └─────┬────┘
-                                      │
-                                ┌─────┴────┐
-                                │ Database │
-                                │(PostgreSQL)│
-                                └──────────┘
-```
+![Diagrama de Caching](../modeling/caching_diagram.png)
 
 ---
 

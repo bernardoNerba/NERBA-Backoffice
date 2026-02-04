@@ -33,36 +33,7 @@ The system uses the **Cache-Aside** pattern (Side Caching) with **Redis** as the
 
 ### Operation Flow
 
-```
-                  ┌─────────────┐
-                  │   Client    │
-                  └──────┬──────┘
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │   Service   │
-                  └──────┬──────┘
-                         │
-            ┌────────────┼────────────┐
-            │            │            │
-            ▼            │            ▼
-      ┌──────────┐       │      ┌──────────┐
-      │  Cache?  │───No──┘      │  Cache   │
-      └────┬─────┘              │  (Redis) │
-           │                    └──────────┘
-           Yes                        ▲
-           │                          │
-           ▼                          │
-      ┌──────────┐              ┌─────┴────┐
-      │  Return  │              │  Set in  │
-      │   data   │              │  cache   │
-      └──────────┘              └─────┬────┘
-                                      │
-                                ┌─────┴────┐
-                                │ Database │
-                                │(PostgreSQL)│
-                                └──────────┘
-```
+![Caching Diagram](../modeling/caching_diagram.png)
 
 ---
 

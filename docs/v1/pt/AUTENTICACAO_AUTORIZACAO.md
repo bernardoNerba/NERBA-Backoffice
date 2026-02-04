@@ -34,15 +34,7 @@ O NERBA Backoffice implementa autenticacao baseada em JWT (JSON Web Token) para 
 
 ### Arquitectura de Alto Nivel
 
-```
-+-------------+         +--------------+         +-------------+
-|   Angular   |  HTTP   |   ASP.NET    |  Redis  |   Token     |
-|   Frontend  | <-----> |   Backend    | <-----> |  Blacklist  |
-+-------------+         +--------------+         +-------------+
-      |                        |
-      | LocalStorage           | JWT Validation
-      | (NerbaBackofficeUser)  | Token Blacklist Check
-```
+![Diagram de alto nivel deAutenticacao e Autorizacao](../modeling/auth_high_diagram.png)
 
 ---
 
