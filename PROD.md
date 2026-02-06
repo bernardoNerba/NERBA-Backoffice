@@ -41,23 +41,8 @@ The application **automatically detects** which deployment mode it's running in 
 
 ### Container Architecture
 
-The application runs in a multi-container Docker environment with the following services:
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Angular SPA   │    │   .NET API      │    │  PostgreSQL DB  │
-│   (Frontend)    │    │   (Backend)     │    │   (Database)    │
-│   Port: 4200    │    │   Port: 5001    │    │   Port: 5432    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-      ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-      │     Redis       │    │    PgAdmin      │    │ Redis Insight   │
-      │   (Cache)       │    │  (DB Admin)     │    │ (Monitoring)    │
-      │   Port: 6379    │    │   Port: 8080    │    │   Port: 5540    │
-      └─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+![High Level Production Architecture](docs/v1/modeling/prod_high_diagram.png)
 
 ### Port Mapping
 
