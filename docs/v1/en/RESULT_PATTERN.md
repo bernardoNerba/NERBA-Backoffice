@@ -53,47 +53,7 @@ Shared/
 
 ### Flow Diagram
 
-```
-                    ┌────────────────┐
-                    │    Request     │
-                    └───────┬────────┘
-                            │
-                            ▼
-                    ┌────────────────┐
-                    │   Controller   │
-                    │   (basic       │
-                    │  validation)   │
-                    └───────┬────────┘
-                            │
-                            ▼
-                    ┌────────────────┐
-                    │    Service     │
-                    │   (business    │
-                    │    logic)      │
-                    └───────┬────────┘
-                            │
-                    ┌───────┴───────┐
-                    │               │
-                    ▼               ▼
-            ┌──────────┐    ┌──────────┐
-            │ Result   │    │ Result   │
-            │ .Ok()    │    │ .Fail()  │
-            └────┬─────┘    └────┬─────┘
-                 │               │
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │ResponseHandler│
-                 │.HandleResult()│
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │ IActionResult │
-                 │ (HTTP Response│
-                 └───────────────┘
-```
+![alt text](../modeling/result_pattern_high_diagram.png)
 
 ---
 
