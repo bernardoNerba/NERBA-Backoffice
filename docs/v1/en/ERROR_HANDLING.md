@@ -35,53 +35,7 @@ The system uses a centralized approach for error handling through ASP.NET Core m
 
 ### Error Handling Flow
 
-```
-                    ┌─────────────┐
-                    │   Request   │
-                    └──────┬──────┘
-                           │
-                           ▼
-              ┌─────────────────────────┐
-              │  GlobalExceptionHandler │
-              │       Middleware        │
-              └───────────┬─────────────┘
-                          │
-                    ┌─────┴─────┐
-                    │try { ... }│
-                    └─────┬─────┘
-                          │
-                          ▼
-              ┌────────────────────────┐
-              │    Request Pipeline    │
-              │  (Controllers, etc.)   │
-              └───────────┬────────────┘
-                          │
-           ┌──────────────┼
-           │              │              
-        Success       Exception         
-           │              │              
-           ▼              ▼              
-    ┌──────────┐   ┌────────────┐       
-    │ Normal   │   │catch(ex)   │       
-    │ Response │   └─────┬──────┘       
-    └──────────┘         │              
-                         ▼              
-                  ┌────────────┐        
-                  │ Log error  │        
-                  └─────┬──────┘        
-                        │               
-                        ▼               
-                  ┌────────────┐        
-                  │ Map to     │        
-                  │ HTTP Status│        
-                  └─────┬──────┘        
-                        │               
-                        ▼              
-                  ┌────────────────┐    
-                  │ ProblemDetails │    
-                  │   Response     │    
-                  └────────────────┘    
-```
+![alt text](../modeling/error_handling_high_diagram.png)
 
 ---
 

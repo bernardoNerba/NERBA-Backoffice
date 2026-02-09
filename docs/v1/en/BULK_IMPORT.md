@@ -67,33 +67,7 @@ features/people/import-people/
 
 ### Data Flow
 
-```
-Frontend                    Backend
-   │                           │
-   ├── Upload file ──────────► Controller
-   │                           │
-   │                      ┌────┴────┐
-   │                      │Validate │
-   │                      │structure│
-   │                      └────┬────┘
-   │                           │
-   │                      ┌────┴────┐
-   │                      │ Parse   │
-   │                      │  file   │
-   │                      └────┬────┘
-   │                           │
-   │                      ┌────┴────┐
-   │                      │Validate │
-   │                      │each row │
-   │                      └────┬────┘
-   │                           │
-   │                      ┌────┴────┐
-   │                      │  Save   │
-   │                      │in batch │
-   │                      └────┬────┘
-   │                           │
-   ◄── BulkImportResult ───────┘
-```
+![alt text](../modeling/bulk_import_high_diagram.png)
 
 ---
 

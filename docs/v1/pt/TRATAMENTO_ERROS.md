@@ -35,53 +35,7 @@ O sistema utiliza uma abordagem centralizada para tratamento de erros atraves de
 
 ### Fluxo de Tratamento de Erros
 
-```
-                    ┌─────────────┐
-                    │   Request   │
-                    └──────┬──────┘
-                           │
-                           ▼
-              ┌────────────────────────┐
-              │  GlobalExceptionHandler│
-              │       Middleware       │
-              └───────────┬────────────┘
-                          │
-                    ┌─────┴─────┐
-                    │try { ... }│
-                    └─────┬─────┘
-                          │
-                          ▼
-              ┌────────────────────────┐
-              │   Pipeline de Request  │
-              │  (Controllers, etc.)   │
-              └───────────┬────────────┘
-                          │
-           ┌──────────────┼─────────────┐
-           │              │             │
-      Sucesso         Excecao           │
-           │              │             │
-           ▼              ▼             │
-    ┌──────────┐   ┌────────────┐       │
-    │ Response │   │catch(ex)   │       │
-    │  normal  │   └─────┬──────┘       │
-    └──────────┘         │              │
-                         ▼              │
-                  ┌────────────┐        │
-                  │ Log erro   │        │
-                  └─────┬──────┘        │
-                        │               │
-                        ▼               │
-                  ┌────────────┐        │
-                  │ Mapear     │        │
-                  │ HTTP Status│        │
-                  └─────┬──────┘        │
-                        │               │
-                        ▼               │
-                  ┌────────────────┐    │
-                  │ ProblemDetails │    │
-                  │   Response     │    │
-                  └────────────────┘    │
-```
+![alt text](../modeling/error_handling_high_diagram.png)
 
 ---
 

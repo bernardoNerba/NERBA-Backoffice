@@ -67,33 +67,7 @@ features/people/import-people/
 
 ### Fluxo de Dados
 
-```
-Frontend                    Backend
-   │                           │
-   ├── Upload ficheiro ──────► Controller
-   │                           │
-   │                      ┌────┴────┐
-   │                      │ Validar │
-   │                      │estrutura│
-   │                      └────┬────┘
-   │                           │
-   │                      ┌────┴────┐
-   │                      │ Parsing │
-   │                      │ ficheiro│
-   │                      └────┬────┘
-   │                           │
-   │                      ┌────┴────┐
-   │                      │ Validar │
-   │                      │cada linha│
-   │                      └────┬────┘
-   │                           │
-   │                      ┌────┴────┐
-   │                      │ Guardar │
-   │                      │em lotes │
-   │                      └────┬────┘
-   │                           │
-   ◄── BulkImportResult ───────┘
-```
+![alt text](../modeling/bulk_import_high_diagram.png)
 
 ---
 
